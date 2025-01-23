@@ -1,0 +1,24 @@
+FROM node:22
+
+WORKDIR /var/www/html
+
+# Set the working directory
+WORKDIR /var/www/html
+
+# Set the SHELL environment variable
+ENV SHELL=/bin/bash
+
+# Install pnpm
+RUN wget -qO- https://get.pnpm.io/install.sh | sh -
+
+# Update PATH to include pnpm
+ENV PATH="/root/.local/share/pnpm:$PATH"
+
+# Init
+RUN pnpm init
+
+# Expose port 3000 (or any port your app runs on)
+EXPOSE 3000
+
+# Define the command to run your application
+CMD ["pnpm", "run", "dev"]

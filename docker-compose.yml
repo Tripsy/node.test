@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+    node:
+        container_name: node.test
+        ports:
+            - "3000:3000"
+        build:
+            context: .
+            dockerfile: docker/dockerfile
+        volumes:
+            - .:/var/www/html
+        tty: true
+        networks:
+            development:
+networks:
+    development:
+        external: true

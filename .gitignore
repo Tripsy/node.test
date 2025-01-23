@@ -1,0 +1,36 @@
+# Node modules directory
+/node_modules/
+
+# pnpm store
+.pnpm-store/
+
+# TypeScript build output (if applicable)
+/dist/
+/build/
+
+# Logs
+*.log
+*.log.*
+
+# npm package-lock file
+/package-lock.json
+
+# pnpm lock file (if you're using pnpm)
+/pnpm-lock.yaml
+
+# IDE or editor directories and files
+/.idea/
+
+# MacOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Environment variable files (dotenv files)
+.env
+.env.staging
+.env.production
+
+# TypeScript declaration files (if generated)
+*.d.ts
