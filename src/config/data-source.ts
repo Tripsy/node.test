@@ -1,10 +1,6 @@
 import 'dotenv/config'
 import {DataSource} from 'typeorm'
-import { fileURLToPath } from 'url'
-import path from 'path'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+import { buildSrcPath } from '../helpers/system'
 
 const AppDataSource: DataSource = new DataSource({
     type: 'mariadb',
@@ -15,13 +11,14 @@ const AppDataSource: DataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: process.env.DB_HOST === 'local',
     logging: false,
-    entities: [path.join(__dirname, '../entities/*.{ts,js}')],
-    migrations: [path.join(__dirname, '../migrations/*.{ts,js}')],
-    extra: {
-        connectionLimit: 10, // Maximum number of connections in the pool
-        queueLimit: 0, // The maximum number of connection requests in the queue
-        waitForConnections: true, // Wait for a connection if the pool is full (true or false)
-    }
+    entities: [buildSrcPath('entities', '*.{ts,js}')],
+    migrations: [buildSrcPath('migrations', '*.{ts,js}')],
+    cli: {
+        'entitiesDir': buildSrcPath('entities'),
+        'migrationsDir': buildSrcPath('migrations'),
+        // 'subscribersDir': __dirname + '../subscribers',
+    },
+    poolSize: 10, // The maximum number of connections in the poolSize
 })
 
 export default AppDataSource

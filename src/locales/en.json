@@ -1,0 +1,10 @@
+{
+  "email": {
+    "subject": {
+      "pino-transport-email": "Logging Alert - {{ source }}"
+    },
+    "content": {
+      "pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
+    }
+  }
+}

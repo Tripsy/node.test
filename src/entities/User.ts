@@ -6,26 +6,26 @@ export default class User {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column('text', {nullable: false})
     name: string
 
-    @Column()
+    @Column('text',{nullable:true})
     email: string
 
-    @Column()
+    @Column('text',{nullable:true})
     password: string
 
     @Column({
-        type: 'enum',
+        type: 'varchar',
         enum: UserStatus,
         default: UserStatus.Pending,
     })
     status: UserStatus
 
-    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @CreateDateColumn({ type: 'timestamp' })
     created_at: Date
 
-    @UpdateDateColumn({ type: 'timestamp', default: (): string => 'CURRENT_TIMESTAMP' })
+    @UpdateDateColumn({ type: 'timestamp' })
     updated_at: Date
 
     // @OneToMany(() => Post, post => post.user)
