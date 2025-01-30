@@ -1,24 +1,28 @@
 import pino from 'pino'
 import 'dotenv/config'
+import {buildSrcPath} from '../helpers/system'
+import {formatCallStack} from '../helpers/log'
+import { v4 as uuid } from 'uuid'
 
-const transport: { targets: any[] } = {
-    targets: [
-        {
+function targets(): [] {
+    const targets = [];
+
+    if (process.env.APP_DEBUG === 'true') {
+        targets.push({
             target: 'pino-pretty',
             options: {
-                destination: './logs/info.log',
-                colorize: true
+                colorize: true,
             },
-            level: 'info',
-        },
-        {
-            target: 'pino-pretty',
-            options: {
-                destination: './logs/error.log'
-            },
-            level: 'error',
-        },
-    ],
+            level: process.env.PINO_LOG_LEVEL || 'info',
+        })
+    }
+
+    targets.push({
+        target: buildSrcPath('services', 'pino-transport-file.ts'),
+        level: 'info',
+    })
+
+    return targets
 }
 
 const logger = pino({
@@ -27,19 +31,37 @@ const logger = pino({
     // 'fatal', 'error', 'warn', 'info', 'debug', 'trace' or 'silent'
     level: process.env.PINO_LOG_LEVEL || 'info',
     // Defines how and where to send log data, such as to files, external services, or streams.
-    transport: transport,
     nestedKey: 'context',
     // Define default properties included in every log line.
     base: {
-        appName: process.env.APP_NAME,
+        pid: uuid(),
     },
     // Note: Attempting to format time in-process will significantly impact logging performance.
     // timestamp: pino.stdTimeFunctions.isoTime, // Format the timestamp as ISO 8601; default timestamp is the number of milliseconds elapsed since January 1, 1970 00:00:00 UTC
-    bindings: (bindings) => {
+    // bindings: (bindings) => {
+    //     return {
+    //         pid: bindings.pid,
+    //         host: bindings.hostname,
+    //     };
+    // },
+    mixin: (context, level, logger) => {
+        if (context.errorInstance) {
+            const debugStack: string = context.errorInstance.stack || ''
+
+            const { errorInstance, ...newContext}: Omit<object, "errorInstance"> = context
+
+            return {
+                ...newContext,
+                debugStack: formatCallStack(debugStack)
+            }
+        }
+
         return {
-            pid: bindings.pid,
-            host: bindings.hostname,
-        };
+            ...context,
+            debugStack: formatCallStack(new Error().stack || '', ['logger.ts'])
+        }
+
+        // if (['error', 'warn', 'fatal'].includes(logger.levels.labels[level]))
     },
     // Remove sensitive information from logs
     redact: {
@@ -57,6 +79,9 @@ const logger = pino({
             }
         },
     },
-})
+}, pino.transport({
+    targets: targets(),
+    dedupe: false, //  When true - logs only to the stream with the higher level
+}))
 
 export default logger

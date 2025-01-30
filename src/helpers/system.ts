@@ -1,6 +1,14 @@
 import 'dotenv/config'
 import path from 'path'
 
-export function buildSrcPath(...args: string[]) {
-    return path.join(process.env.SRC_PATH, ...args)
+function buildPath(...args: string[]): string {
+    return path.join(...args)
+}
+
+export function buildRootPath(...args: string[]): string {
+    return buildPath(process.env.ROOT_PATH, ...args)
+}
+
+export function buildSrcPath(...args: string[]): string {
+    return buildPath(process.env.SRC_PATH, ...args)
 }

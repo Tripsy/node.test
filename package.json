@@ -29,7 +29,8 @@
     "pino": "^9.6.0",
     "pino-abstract-transport": "^2.0.0",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
@@ -48,6 +49,6 @@
       "src"
     ],
     "ext": "ts,json",
-    "exec": "tsx ./src/server.ts"
+    "exec": "tsx ./src/app.ts"
   }
 }
