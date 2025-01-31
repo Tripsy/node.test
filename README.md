@@ -62,7 +62,7 @@ userLogger.info('This is a log from user')
 docker $ pnpx typeorm migration:generate
 docker $ pnpx typeorm migration:run
 ```
-tsx ./node_modules/typeorm/cli.js migration:generate CreateUserTable -d src/entities/User.ts
+tsx ./node_modules/typeorm/cli.js migration:generate CreateUserTable -d src/entities/user.entity.ts
 bash: tsx: command not found
 
 # Packages
@@ -80,11 +80,15 @@ nodemailer - email transporter
 
 # TODO
  
-2. Error reporting
+2. Search for console.log and console.error
 3. test pino-transport-email
 4. build pino-transport-mysql
 5. Standard API response
 6. CRUD
+
+# Ides
+
+Implement https://www.npmjs.com/package/helmet
 
 
 

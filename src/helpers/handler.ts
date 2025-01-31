@@ -1,33 +1,52 @@
-import {Request, Response, NextFunction} from 'express'
-import logger from '../services/logger'
-import {childLogger} from './log'
-import NotFoundError from '../exceptions/NotFoundError'
+import 'dotenv/config';
+import { Request, Response, NextFunction } from 'express';
+import logger from '../services/logger.service';
+import { childLogger } from './log';
+import NotFoundError from '../exceptions/not-found.error';
+import cors from "cors";
+import NotAllowedError from "../exceptions/not-allowed.error";
 
 // TODO Implement standard API response
 
-export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
+export const corsHandler = cors({
+    origin: (origin, callback) => {
+        const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new NotAllowedError());
+        }
+    },
+    credentials: true,
+});
+
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
     res.status(404).json({
-        message: 'Not Found'
-    })
-}
+        message: 'Not Found',
+    });
+};
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
-    const systemLogger = childLogger(logger, 'system')
+export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
+    const systemLogger = childLogger(logger, 'system');
 
-    systemLogger.error({
-        errorInstance: err
-    }, err.name + ': ' + err.message)
+    systemLogger.error(
+        {
+            errorInstance: err,
+        },
+        err.name + ': ' + err.message
+    );
 
     if (err instanceof NotFoundError) {
         return res.status(err.statusCode).json({
-            message: err.message // It's okay to output the reason here
-        })
+            message: err.message, // It's okay to output the reason here
+        });
     }
 
     res.status(500).json({
-        message: 'Internal Server Error' // We don't want to leak internal errors
-    })
-}
+        message: 'Internal Server Error', // We don't want to leak internal errors
+    });
+};
 
 // TODO
 

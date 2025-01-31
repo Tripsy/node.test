@@ -1,8 +1,8 @@
-import pino from 'pino'
-import 'dotenv/config'
-import {buildSrcPath} from '../helpers/system'
-import {formatCallStack} from '../helpers/log'
-import { v4 as uuid } from 'uuid'
+import pino from 'pino';
+import 'dotenv/config';
+import {buildSrcPath} from '../helpers/system';
+import {formatCallStack} from '../helpers/log';
+import {v4 as uuid} from 'uuid';
 
 function targets(): [] {
     const targets = [];
@@ -14,15 +14,15 @@ function targets(): [] {
                 colorize: true,
             },
             level: process.env.PINO_LOG_LEVEL || 'info',
-        })
+        });
     }
 
     targets.push({
         target: buildSrcPath('services', 'pino-transport-file.ts'),
         level: 'info',
-    })
+    });
 
-    return targets
+    return targets;
 }
 
 const logger = pino({
@@ -46,20 +46,20 @@ const logger = pino({
     // },
     mixin: (context, level, logger) => {
         if (context.errorInstance) {
-            const debugStack: string = context.errorInstance.stack || ''
+            const debugStack: string = context.errorInstance.stack || '';
 
-            const { errorInstance, ...newContext}: Omit<object, "errorInstance"> = context
+            const {errorInstance, ...newContext}: Omit<object, "errorInstance"> = context;
 
             return {
                 ...newContext,
                 debugStack: formatCallStack(debugStack)
-            }
+            };
         }
 
         return {
             ...context,
             debugStack: formatCallStack(new Error().stack || '', ['logger.ts'])
-        }
+        };
 
         // if (['error', 'warn', 'fatal'].includes(logger.levels.labels[level]))
     },
@@ -76,7 +76,7 @@ const logger = pino({
                 id: user.id,
                 name: user.name,
                 email: user.email ? user.email.replace(/(.{2})(.*)(@.*)/, '$1***$3') : undefined,
-            }
+            };
         },
     },
 }, pino.transport({
@@ -84,4 +84,4 @@ const logger = pino({
     dedupe: false, //  When true - logs only to the stream with the higher level
 }))
 
-export default logger
+export default logger;

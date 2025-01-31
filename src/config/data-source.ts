@@ -1,6 +1,6 @@
-import 'dotenv/config'
-import {DataSource} from 'typeorm'
-import { buildSrcPath } from '../helpers/system'
+import 'dotenv/config';
+import {DataSource} from 'typeorm';
+import { buildSrcPath } from '../helpers/system';
 
 const AppDataSource: DataSource = new DataSource({
     type: 'mariadb',
@@ -19,6 +19,8 @@ const AppDataSource: DataSource = new DataSource({
         // 'subscribersDir': __dirname + '../subscribers',
     },
     poolSize: 10, // The maximum number of connections in the poolSize
-})
+    retryAttempts: 3, // Number of retry attempts
+    retryDelay: 2000, // Delay between retries in milliseconds
+});
 
-export default AppDataSource
+export default AppDataSource;

@@ -1,6 +1,6 @@
-import 'dotenv/config'
-import i18n from 'i18n'
-import { buildSrcPath } from '../helpers/system'
+import 'dotenv/config';
+import i18n from 'i18n';
+import {buildSrcPath} from '../helpers/system';
 
 i18n.configure({
     locales: ['en'], // List of supported locales
@@ -12,4 +12,4 @@ i18n.configure({
     autoReload: process.env.APP_ENV === 'local',  // Watch for changes in JSON files to reload locale on updates - defaults to false
 });
 
-export default i18n
+export default i18n;

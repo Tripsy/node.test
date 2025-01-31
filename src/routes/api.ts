@@ -1,9 +1,9 @@
-import { Router } from 'express'
-import indexRoutes from './index.routes'
+import {Router} from 'express';
+import indexRoutes from './index.routes';
 
-const apiRoutes: Router = Router()
+const apiRoutes: Router = Router();
 
-apiRoutes.use('/', indexRoutes)
+apiRoutes.use('/', indexRoutes);
 
 
 // // Load routes
@@ -11,4 +11,4 @@ apiRoutes.use('/', indexRoutes)
 //     require(__dirname + '/routes/' + file)(app);
 // });
 
-export default apiRoutes
+export default apiRoutes;

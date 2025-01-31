@@ -1,4 +1,4 @@
-export default interface ICallStack {
+export interface CallStack {
     trace: string[]
     file: string
     line: number
