@@ -67,39 +67,30 @@ bash: tsx: command not found
 
 # Packages
 
-Pino - logging
-Mysql2
-TypeORM
-i18n - language support
-nodemailer - email transporter
+- [Pino](https://github.com/pinojs/pino)
+- [Mysql2](https://github.com/sidorares/node-mysql2)
+- [TypeORM](https://github.com/typeorm/typeorm)
+- [i18n](https://github.com/i18next/i18next)
+- [nodemailer](https://nodemailer.com/)
 
 # Documentation
 
-1. https://typeorm.io/repository-api
-2. https://typeorm.io/select-query-builder
+- https://typeorm.io/repository-api
+- https://typeorm.io/select-query-builder
 
 # TODO
- 
-2. Search for console.log and console.error
-3. test pino-transport-email
-4. build pino-transport-mysql
-5. Standard API response
-6. CRUD
+
+1. Standard API response
+2. run migrations 
+3. build pino-transport-mysql
+4. CRUD
+5. test pino-transport-email
 
 # Ides
 
-Implement https://www.npmjs.com/package/helmet
-
-
+https://www.npmjs.com/package/helmet - security related
 
 ------------
-
-Handling Uncaught Exceptions and Rejections: Set up handlers for uncaught exceptions and unhandled promise rejections to prevent the application from crashing unexpectedly:
-
-https://github.com/pinojs/pino/blob/v6.x/docs/help.md#exit-logging
-
-
-
 
 // Custom transport function
 const customTransport = {
@@ -160,14 +151,3 @@ warn (40)
 error (50)
 
 fatal (60)
-
-
-
-function test() {
-throw new Error('Async error!')
-}
-
-// Route to simulate an error (for testing purposes)
-app.get('/test', (req, res) => {
-test(); // This will throw an error
-})

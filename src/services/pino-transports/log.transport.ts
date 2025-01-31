@@ -2,8 +2,8 @@ import 'dotenv/config'
 import build from 'pino-abstract-transport'
 import fs, {WriteStream} from 'fs'
 import {EOL} from 'os'
-import {buildRootPath} from '../helpers/system'
-import {LogFileTypeEnum} from '../enums/log-file-type.enum'
+import {buildRootPath} from '../../helpers/system'
+import {LogFileTypeEnum} from '../../enums/log-file-type.enum'
 
 const logStreams: Record<string, WriteStream> = {
     info: fs.createWriteStream(buildRootPath('logs', LogFileTypeEnum.INFO), {flags: 'a'}),

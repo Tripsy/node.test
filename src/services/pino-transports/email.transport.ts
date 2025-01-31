@@ -2,7 +2,7 @@ import 'dotenv/config';
 import build from 'pino-abstract-transport';
 import { prettyFactory } from 'pino-pretty';
 import nodemailer from 'nodemailer';
-import i18n from '../config/i18n-setup';
+import i18n from '../../config/i18n-setup';
 
 export default async function (options = {}) {
     const emailTransporter = nodemailer.createTransport({
@@ -40,9 +40,6 @@ export default async function (options = {}) {
         },
         {
             parse: 'lines',
-            async close() {
-                console.log('Transport closed.');
-            },
         }
     );
 }
