@@ -1,15 +1,19 @@
 import 'reflect-metadata';
-import {initializeDatabase, destroyDatabase} from './services/database.service';
-import 'dotenv/config';
 import express from 'express';
+import {corsHandler} from './middleware/cors-handler.middleware';
 import cookieParser from 'cookie-parser';
 import i18n from './config/i18n-setup';
-import apiRoutes from './routes/api';
-import {notFoundHandler, errorHandler, corsHandler} from './helpers/handler';
 import logger from './services/logger.service';
+import {outputHandler} from './middleware/output-handler.middleware';
+import apiRoutes from './routes/api';
+import {notFoundHandler} from "./middleware/not-found-handler.middleware";
+import {errorHandler} from './middleware/error-handler.middleware';
+import {initializeDatabase, destroyDatabase} from './services/database.service';
+import 'dotenv/config';
 
 const app: express.Application = express();
 
+// Middleware for handling CORS
 app.use(corsHandler);
 
 // Middleware for parsing cookies and JSON
@@ -19,13 +23,16 @@ app.use(express.json());
 // Initialize i18n for localization
 app.use(i18n.init);
 
+// Add res.output object used to present standardized responses
+app.use(outputHandler);
+
 // Load routes
 app.use('/', apiRoutes);
 
-// Not found handler
+// Deals with not found pages
 app.use(notFoundHandler);
 
-// Error handler
+// Log errors and send error response
 app.use(errorHandler);
 
 // Initialize database and start server

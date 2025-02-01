@@ -1,10 +1,12 @@
+import {HttpStatusCode} from '../types/http-status-code.type';
+
 class NotAllowedError extends Error {
-    public statusCode: number;
+    public statusCode: HttpStatusCode;
 
     constructor() {
         super();
 
-        this.name = 'NotAllowedError';
+        this.message = 'Not Allowed';
         this.statusCode = 403;
     }
 }

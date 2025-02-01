@@ -80,7 +80,6 @@ bash: tsx: command not found
 
 # TODO
 
-1. Standard API response
 2. run migrations 
 3. build pino-transport-mysql
 4. CRUD

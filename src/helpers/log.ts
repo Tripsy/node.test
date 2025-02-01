@@ -1,5 +1,5 @@
 import {Logger} from 'pino';
-import {CallStack} from '../interfaces/call-stack.interface';
+import {CallStackInterface} from '../interfaces/call-stack.interface';
 
 export function childLogger(logger: Logger, category: string) {
     return logger.child({
@@ -7,8 +7,8 @@ export function childLogger(logger: Logger, category: string) {
     });
 }
 
-export function formatCallStack(stack: string, filtersForCallStack: string[] = []): CallStack {
-    const result: CallStack = {
+export function formatCallStack(stack: string, filtersForCallStack: string[] = []): CallStackInterface {
+    const result: CallStackInterface = {
         file: 'Unknown file',
         line: 0,
         function: 'Unknown function',
