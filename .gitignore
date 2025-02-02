@@ -35,5 +35,8 @@ Thumbs.db
 # TypeScript declaration files (if generated)
 *.d.ts
 
-#
+# Logs
 /logs/
+
+# Development files
+/temp.ts

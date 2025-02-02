@@ -2,14 +2,14 @@ import 'reflect-metadata';
 import express from 'express';
 import {corsHandler} from './middleware/cors-handler.middleware';
 import cookieParser from 'cookie-parser';
-import i18n from './config/i18n-setup';
+import i18n from './config/i18n-setup.config';
 import logger from './services/logger.service';
 import {outputHandler} from './middleware/output-handler.middleware';
-import apiRoutes from './routes/api';
 import {notFoundHandler} from "./middleware/not-found-handler.middleware";
 import {errorHandler} from './middleware/error-handler.middleware';
 import {initializeDatabase, destroyDatabase} from './services/database.service';
-import 'dotenv/config';
+import {settings} from './config/settings.config';
+import {initRoutesService} from "./services/init-routes.service";
 
 const app: express.Application = express();
 
@@ -26,64 +26,69 @@ app.use(i18n.init);
 // Add res.output object used to present standardized responses
 app.use(outputHandler);
 
-// Load routes
-app.use('/', apiRoutes);
-
-// Deals with not found pages
-app.use(notFoundHandler);
-
-// Log errors and send error response
-app.use(errorHandler);
-
 // Initialize database and start server
 initializeDatabase()
     .then(() => {
         logger.info('Database initialized successfully');
 
-        const port: number = parseInt(process.env.APP_PORT || '3000', 10);
+        // Initialize and load routes
+        return initRoutesService()
+            .then((router) => {
+                app.use('/', router);
 
-        const server = app.listen(port, () => {
-            logger.info(`App listening on port ${port}`);
-        });
+                // Handle 404 errors after all routes
+                app.use(notFoundHandler);
 
-        const shutdown = async (signal: string) => {
-            logger.info(`${signal} received. Closing server...`);
+                // Log errors and send error response
+                app.use(errorHandler);
 
-            server.close(async () => {
-                logger.info('Server closed gracefully');
+                const port: number = settings.app.port;
 
-                try {
-                    await destroyDatabase(); // Close the database connection
-                    logger.info('Database connection closed');
+                const server = app.listen(port, () => {
+                    logger.info(`App listening on port ${port}`);
+                });
 
-                    setTimeout(() => process.exit(0), 500);
-                } catch (err) {
-                    logger.error('Error closing database:', err);
+                const shutdown = async (signal: string) => {
+                    logger.info(`${signal} received. Closing server...`);
 
-                    setTimeout(() => process.exit(1), 500);
-                }
+                    server.close(async () => {
+                        logger.info('Server closed gracefully');
+
+                        try {
+                            await destroyDatabase(); // Close the database connection
+                            logger.info('Database connection closed');
+
+                            setTimeout(() => process.exit(0), 500);
+                        } catch (error) {
+                            logger.error(error, 'Error closing database:');
+
+                            setTimeout(() => process.exit(1), 500);
+                        }
+                    });
+
+                    setTimeout(() => {
+                        logger.fatal('Forcing shutdown...');
+                        process.exit(1); // Force exit if the server doesn't close in time
+                    }, 5000).unref();
+                };
+
+                process.on('SIGINT', () => shutdown('SIGINT').catch((error) => logger.error(error, 'Shutdown error')));
+                process.on('SIGTERM', () => shutdown('SIGTERM').catch((error) => logger.error(error, 'Shutdown error')));
+                process.on('uncaughtException', (error) => {
+                    logger.fatal(error, 'Uncaught exception detected');
+                    shutdown('Uncaught Exception').catch((error) => logger.error(error, 'Shutdown error'));
+                });
+                process.on('unhandledRejection', (reason, promise) => {
+                    logger.error({ reason, promise }, 'Unhandled rejection detected');
+                    shutdown('Unhandled Rejection').catch((error) => logger.error(error, 'Shutdown error'));
+                });
+            })
+            .catch((error) => {
+                logger.error(error, 'Failed to initialize routes:');
+                process.exit(1); // Exit the application if initialization fails
             });
-
-            setTimeout(() => {
-                logger.fatal('Forcing shutdown...');
-                process.exit(1); // Force exit if the server doesn't close in time
-            }, 5000).unref();
-        };
-
-        process.on('SIGINT', () => shutdown('SIGINT').catch((err) => logger.error('Shutdown error:', err)));
-        process.on('SIGTERM', () => shutdown('SIGTERM').catch((err) => logger.error('Shutdown error:', err)));
-        process.on('uncaughtException', (err) => {
-            logger.fatal(err, 'Uncaught exception detected');
-            shutdown('Uncaught Exception').catch((err) => logger.error('Shutdown error:', err));
-        });
-        process.on('unhandledRejection', (reason, promise) => {
-            logger.error({reason, promise}, 'Unhandled rejection detected');
-            shutdown('Unhandled Rejection').catch((err) => logger.error('Shutdown error:', err));
-        });
     })
     .catch((error) => {
-        logger.error('Failed to initialize database:', error);
+        logger.error(error, 'Failed to initialize database:');
         process.exit(1); // Exit the application if initialization fails
     });
-
-export default app

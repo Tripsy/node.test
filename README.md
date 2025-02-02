@@ -80,6 +80,7 @@ bash: tsx: command not found
 
 # TODO
 
+1. Add req to res.output (on fail)
 2. run migrations 
 3. build pino-transport-mysql
 4. CRUD
@@ -89,6 +90,9 @@ bash: tsx: command not found
 
 https://www.npmjs.com/package/helmet - security related
 
+Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app. Use the compression middleware for gzip compression in your Express app. 
+
+https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts
 ------------
 
 // Custom transport function

@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import build from 'pino-abstract-transport'
 import fs, {WriteStream} from 'fs'
 import {EOL} from 'os'

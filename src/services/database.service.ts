@@ -1,4 +1,4 @@
-import AppDataSource from '../config/data-source';
+import AppDataSource from '../config/data-source.config';
 
 export const initializeDatabase = async () => {
     await AppDataSource.initialize();

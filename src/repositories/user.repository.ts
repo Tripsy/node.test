@@ -1,5 +1,5 @@
 import {Repository} from 'typeorm';
-import AppDataSource from '../config/data-source';
+import AppDataSource from '../config/data-source.config';
 import UserEntity from '../entities/user.entity';
 
 export const userRepository: Repository<UserEntity> = AppDataSource.getRepository(UserEntity).extend({

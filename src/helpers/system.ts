@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import {settings} from '../config/settings.config';
 import path from 'path';
 
 function buildPath(...args: string[]): string {
@@ -6,9 +6,9 @@ function buildPath(...args: string[]): string {
 }
 
 export function buildRootPath(...args: string[]): string {
-    return buildPath(process.env.ROOT_PATH, ...args);
+    return buildPath(settings.app.rootPath, ...args);
 }
 
 export function buildSrcPath(...args: string[]): string {
-    return buildPath(process.env.SRC_PATH, ...args);
+    return buildPath(settings.app.srcPath, ...args);
 }

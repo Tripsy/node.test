@@ -1,5 +1,5 @@
 import pino from 'pino';
-import 'dotenv/config';
+import {settings} from '../config/settings.config';
 import {buildSrcPath} from '../helpers/system';
 import {formatCallStack} from '../helpers/log';
 import {v4 as uuid} from 'uuid';
@@ -7,13 +7,13 @@ import {v4 as uuid} from 'uuid';
 function targets(): [] {
     const targets = [];
 
-    if (process.env.APP_DEBUG === 'true') {
+    if (settings.app.debug) {
         targets.push({
             target: 'pino-pretty',
             options: {
                 colorize: true,
             },
-            level: process.env.PINO_LOG_LEVEL || 'info',
+            level: settings.pino.logLevel,
         });
     }
 
@@ -29,7 +29,7 @@ const logger = pino({
     // The minimum level to log: Pino will not log messages with a lower level.
     // Setting this option reduces the load, as typically, debug and trace logs are only valid for development, and not needed in production.
     // 'fatal', 'error', 'warn', 'info', 'debug', 'trace' or 'silent'
-    level: process.env.PINO_LOG_LEVEL || 'info',
+    level: settings.pino.logLevel,
     // Defines how and where to send log data, such as to files, external services, or streams.
     nestedKey: 'context',
     // Define default properties included in every log line.

@@ -1,18 +1,19 @@
 import {NextFunction, Request, Response} from 'express';
 import {OutputWrapperInterface} from '../interfaces/output-wrapper.interface';
-import {HttpStatusCode} from '../types/http-status-code.type';
+// import {HttpStatusCode} from '../types/http-status-code.type';
 
 export const outputHandler = (req: Request, res: Response, next: NextFunction): void => {
-    res.output = new OutputWrapper();
+    res.output = new OutputWrapper(res);
 
     next();
 };
 
 class OutputWrapper {
-    private httpStatusCode: HttpStatusCode = 200;
+    // private ƒ: HttpStatusCode = 200;
     private readonly result: OutputWrapperInterface;
+    private res: Response;
 
-    constructor() {
+    constructor(res: Response) {
         this.result = {
             success: false,
             message: '',
@@ -20,6 +21,8 @@ class OutputWrapper {
             data: [],
             meta: [],
         };
+
+        this.res = res
     }
 
     #set(path, value): void  {
@@ -85,15 +88,20 @@ class OutputWrapper {
         return this;
     }
 
-    code(value?: HttpStatusCode): HttpStatusCode  {
-        if (value) {
-            return this.httpStatusCode = value;
-        }
-
-        return this.httpStatusCode;
-    }
+    // code(value?: HttpStatusCode): HttpStatusCode  {
+    //     if (value) {
+    //         return this.httpStatusCode = value;
+    //     }
+    //
+    //     return this.httpStatusCode;
+    // }
 
     raw(filter: boolean = true): OutputWrapperInterface {
+        // If statusCode is 200, force success to true
+        if (this.res.statusCode === 200) {
+            this.success(true)
+        }
+
         if (filter) {
             const filteredResult: Partial<OutputWrapperInterface> = { ...this.result };
 
@@ -113,5 +121,14 @@ class OutputWrapper {
         }
 
         return JSON.parse(JSON.stringify(this.result));
+    }
+
+    /**
+     * When serializing an object, JavaScript looks for a toJSON() property on that specific object.
+     * If the toJSON() property is a function, then that method customizes the JSON serialization behavior.
+     * JavaScript will then serialize the returned value from the toJSON() method.
+     */
+    toJSON(): OutputWrapperInterface {
+        return this.raw();
     }
 }

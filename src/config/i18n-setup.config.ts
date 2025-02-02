@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import {settings} from './settings.config';
 import i18n from 'i18n';
 import {buildSrcPath} from '../helpers/system';
 
@@ -9,7 +9,7 @@ i18n.configure({
     objectNotation: true, // Enable object notation for nested translations
     cookie: 'lang', // Name of the cookie to store the language preference
     queryParameter: 'lang', // Query parameter to switch locale (ie. /home?lang=ch)
-    autoReload: process.env.APP_ENV === 'local',  // Watch for changes in JSON files to reload locale on updates - defaults to false
+    autoReload: settings.app.env === 'local',  // Watch for changes in JSON files to reload locale on updates - defaults to false
 });
 
 export default i18n;

@@ -22,16 +22,13 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
     );
 
     if (err instanceof NotFoundError || err instanceof NotAllowedError) {
+        res.status(err.statusCode);
         res.output
-            .success(false)
             .message(err.message)
-            .code(err.statusCode);
     } else {
         res.output
-            .success(false)
-            .message(err.message)
-            .code(500);
+            .message(err.message);
     }
 
-    res.status(res.output.code()).json(res.output.raw());
+    res.json(res.output);
 };

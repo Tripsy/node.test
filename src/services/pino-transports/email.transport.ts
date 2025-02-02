@@ -1,17 +1,17 @@
-import 'dotenv/config';
+import {settings} from '../../config/settings.config';
 import build from 'pino-abstract-transport';
 import { prettyFactory } from 'pino-pretty';
 import nodemailer from 'nodemailer';
-import i18n from '../../config/i18n-setup';
+import i18n from '../../config/i18n-setup.config';
 
 export default async function (options = {}) {
     const emailTransporter = nodemailer.createTransport({
-        host: process.env.MAIL_HOST,
-        port: parseInt(process.env.MAIL_PORT as string, 10),
+        host: settings.mail.host,
+        port: settings.mail.port,
         secure: true,
         auth: {
-            user: process.env.MAIL_USERNAME,
-            pass: process.env.MAIL_PASSWORD,
+            user: settings.mail.username,
+            pass: settings.mail.password,
         },
     });
 
@@ -24,10 +24,10 @@ export default async function (options = {}) {
             for await (let line of source) {
                 try {
                     await emailTransporter.sendMail({
-                        from: process.env.MAIL_FROM_ADDRESS,
-                        to: process.env.PINO_LOG_EMAIL,
+                        from: settings.mail.fromAddress,
+                        to: settings.pino.logEmail,
                         subject: i18n.__('email.subject.pino-transport-email', {
-                            source: process.env.APP_NAME
+                            source: settings.app.name
                         }),
                         text: i18n.__('email.content.pino-transport-email', {
                             content: pretty(line)
