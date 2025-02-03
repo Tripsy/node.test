@@ -59,11 +59,10 @@ userLogger.info('This is a log from user')
 ### 1. Generate and run migrations
 
 ```bash
-docker $ pnpx typeorm migration:generate
-docker $ pnpx typeorm migration:run
+docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/migrations/init
+docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts
+docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts
 ```
-tsx ./node_modules/typeorm/cli.js migration:generate CreateUserTable -d src/entities/user.entity.ts
-bash: tsx: command not found
 
 # Packages
 
@@ -75,20 +74,20 @@ bash: tsx: command not found
 
 # Documentation
 
+- https://typeorm.io/entities#column-types-for-mysql--mariadb
 - https://typeorm.io/repository-api
 - https://typeorm.io/select-query-builder
+- https://zod.dev
 
 # TODO
 
-1. Add req to res.output (on fail)
-2. run migrations 
+2. params validation in routes > zod
 3. build pino-transport-mysql
-4. CRUD
 5. test pino-transport-email
 
 # Ides
 
-https://www.npmjs.com/package/helmet - security related
+https://expressjs.com/en/advanced/best-practice-performance.html
 
 Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app. Use the compression middleware for gzip compression in your Express app. 
 

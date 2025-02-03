@@ -1,32 +1,27 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { UserStatusEnum } from '../enums/user-status.enum';
+import {Entity, Column, DeleteDateColumn} from 'typeorm';
+import {UserStatusEnum} from '../enums/user-status.enum';
+import {BaseEntityAbstract} from './base-entity.abstract';
 
-@Entity()
-export default class UserEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column('text', { nullable: false })
+@Entity('user')
+export default class UserEntity extends BaseEntityAbstract {
+    @Column('char', {nullable: false, length: 64})
     name: string;
 
-    @Column('text', { nullable: true })
+    @Column('char', {nullable: true, length: 64, unique: true})
     email: string;
 
-    @Column('text', { nullable: true })
+    @Column('varchar', {nullable: true, select: false})
     password: string;
 
     @Column({
-        type: 'varchar',
+        type: 'enum',
         enum: UserStatusEnum,
         default: UserStatusEnum.PENDING,
     })
     status: UserStatusEnum;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    created_at: Date;
-
-    @UpdateDateColumn({ type: 'timestamp' })
-    updated_at: Date;
+    @DeleteDateColumn({type: 'timestamp'})
+    deleted_at: Date;
 
     // @OneToMany(() => Post, post => post.user)
     // posts: Post[];

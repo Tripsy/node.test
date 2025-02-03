@@ -1,25 +1,31 @@
 import {NextFunction, Request, Response} from 'express';
 import {OutputWrapperInterface} from '../interfaces/output-wrapper.interface';
-// import {HttpStatusCode} from '../types/http-status-code.type';
 
 export const outputHandler = (req: Request, res: Response, next: NextFunction): void => {
-    res.output = new OutputWrapper(res);
+    res.output = new OutputWrapper(req, res);
 
     next();
 };
 
 class OutputWrapper {
-    // private ƒ: HttpStatusCode = 200;
     private readonly result: OutputWrapperInterface;
     private res: Response;
 
-    constructor(res: Response) {
+    constructor(req: Request, res: Response) {
         this.result = {
             success: false,
             message: '',
             errors: [],
             data: [],
             meta: [],
+            request: {
+                url: req.originalUrl,
+                method: req.method,
+                headers: req.headers,
+                body: req.body,
+                params: req.params,
+                query: req.query
+            }
         };
 
         this.res = res
@@ -88,17 +94,9 @@ class OutputWrapper {
         return this;
     }
 
-    // code(value?: HttpStatusCode): HttpStatusCode  {
-    //     if (value) {
-    //         return this.httpStatusCode = value;
-    //     }
-    //
-    //     return this.httpStatusCode;
-    // }
-
     raw(filter: boolean = true): OutputWrapperInterface {
         // If statusCode is 200, force success to true
-        if (this.res.statusCode === 200) {
+        if ([200].includes(this.res.statusCode)) {
             this.success(true)
         }
 

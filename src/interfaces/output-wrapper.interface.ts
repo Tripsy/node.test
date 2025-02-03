@@ -3,5 +3,13 @@ export interface OutputWrapperInterface {
     message: string,
     errors: (string | { [key: string]: string })[],
     data: any,
-    meta: any[]
+    meta: any[],
+    request: {
+        url: string
+        headers: any;
+        method: string;
+        query: any;
+        body: any;
+        params: any;
+    }
 }

@@ -11,16 +11,9 @@ const AppDataSource: DataSource = new DataSource({
     database: settings.database.name,
     synchronize: false, // settings.app.env === 'local', // TODO
     logging: false,
-    entities: [buildSrcPath('entities', '*.{ts,js}')],
+    entities: [buildSrcPath('entities', '*.entity.{ts,js}')],
     migrations: [buildSrcPath('migrations', '*.{ts,js}')],
-    // cli: {
-    //     'entitiesDir': buildSrcPath('entities'),
-    //     'migrationsDir': buildSrcPath('migrations'),
-    //     // 'subscribersDir': __dirname + '../subscribers',
-    // },
     poolSize: 10, // The maximum number of connections in the poolSize
-    // retryAttempts: 3, // Number of retry attempts
-    // retryDelay: 2000, // Delay between retries in milliseconds
 });
 
 export default AppDataSource;

@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import express from 'express';
+import helmet from 'helmet';
 import {corsHandler} from './middleware/cors-handler.middleware';
 import cookieParser from 'cookie-parser';
 import i18n from './config/i18n-setup.config';
@@ -9,9 +10,12 @@ import {notFoundHandler} from "./middleware/not-found-handler.middleware";
 import {errorHandler} from './middleware/error-handler.middleware';
 import {initializeDatabase, destroyDatabase} from './services/database.service';
 import {settings} from './config/settings.config';
-import {initRoutesService} from "./services/init-routes.service";
+import {initRoutesService} from './services/init-routes.service';
 
 const app: express.Application = express();
+
+// Helmet adds an extra layer of protection
+app.use(helmet());
 
 // Middleware for handling CORS
 app.use(corsHandler);
