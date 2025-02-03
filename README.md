@@ -37,6 +37,14 @@ docker $ pnpm run dev
 
 ### Pino
 
+Levels:
+    trace (10),
+    debug (20),
+    info (30),
+    warn (40),
+    error (50),
+    fatal (60)
+
 ```
 import logger from './services/logger'
 import {childLogger} from './helpers/log'
@@ -56,11 +64,14 @@ userLogger.info('This is a log from user')
 ```
 ### TypeORM
 
-### 1. Generate and run migrations
-
 ```bash
+// Generate migration file
 docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/migrations/init
+
+// Run new migrations - update DB structure
 docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts
+
+// Revert last migration
 docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts
 ```
 
@@ -71,6 +82,8 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 - [TypeORM](https://github.com/typeorm/typeorm)
 - [i18n](https://github.com/i18next/i18next)
 - [nodemailer](https://nodemailer.com/)
+- [zod](https://zod.dev)
+- [helmet](https://helmetjs.github.io/)
 
 # Documentation
 
@@ -85,71 +98,12 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 3. build pino-transport-mysql
 5. test pino-transport-email
 
-# Ides
+# Ideas
+
+git commit -m "migrations issue solved; update res.output with req ..details
 
 https://expressjs.com/en/advanced/best-practice-performance.html
 
 Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app. Use the compression middleware for gzip compression in your Express app. 
 
 https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts
-------------
-
-// Custom transport function
-const customTransport = {
-target: 'pino/file',
-options: { destination: 1 }, // 1 corresponds to process.stdout
-level: 'info',
-write(chunk: any) {
-const logEntry = JSON.parse(chunk);
-const level = logEntry.level;
-const logRepository =
-level === 'error'
-? AppDataSource.getRepository(LogError)
-: AppDataSource.getRepository(LogInfo);
-
-    const log =
-      level === 'error' ? new LogError() : new LogInfo();
-    log.level = level;
-    log.message = logEntry.msg;
-    log.meta = logEntry;
-
-    logRepository.save(log).catch((err) => {
-      console.error('Error saving log to database', err);
-    });
-},
-};
-
-// src/entities/Log.ts
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-
-@Entity()
-export class Log {
-@PrimaryGeneratedColumn()
-id: number;
-
-@Column()
-level: string;
-
-@Column()
-message: string;
-
-@Column('simple-json', { nullable: true })
-meta: Record<string, any>;
-
-@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-timestamp: Date;
-}
-
-
-
-trace (10)
-
-debug (20)
-
-info (30)
-
-warn (40)
-
-error (50)
-
-fatal (60)

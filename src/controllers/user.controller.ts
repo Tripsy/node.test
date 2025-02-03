@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
-// import userRepository from '../repositories/user.repository';
+import userRepository from '../repositories/user.repository';
 import UserEntity from '../entities/user.entity';
 
 export const Create = asyncHandler(async (req: Request, res: Response) => {
