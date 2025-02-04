@@ -9,7 +9,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 
     systemLogger.error(
         {
-            errorInstance: err,
+            err: err,
             request: {
                 method: req.method,
                 url: req.originalUrl,

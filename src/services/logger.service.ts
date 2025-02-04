@@ -45,13 +45,17 @@ const logger = pino({
     //     };
     // },
     mixin: (context, level, logger) => {
-        if (context.errorInstance) {
-            const debugStack: string = context.errorInstance.stack || '';
+        if (level === 30) {
+            return context;
+        }
 
-            const {errorInstance, ...newContext}: Omit<object, "errorInstance"> = context;
+        if ('err' in context && context.err instanceof Error) {
+            const debugStack: string = context.err.stack || '';
+
+            delete context.err; // Removes the 'err' key from the context object
 
             return {
-                ...newContext,
+                ...context,
                 debugStack: formatCallStack(debugStack)
             };
         }
