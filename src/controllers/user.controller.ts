@@ -1,10 +1,42 @@
 import {Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
-import userRepository from '../repositories/user.repository';
+import UserRepository from '../repositories/user.repository';
 import UserEntity from '../entities/user.entity';
+import UserCreateValidator from "../validators/user-create.validator";
+import {lang} from '../config/i18n-setup.config';
 
 export const Create = asyncHandler(async (req: Request, res: Response) => {
-    res.output.data('Create user');
+    // Validate the request body against the schema
+    const validated = UserCreateValidator.safeParse(req.body);
+
+    if (!validated.success) {
+        res.status(400);
+        res.output.errors(validated.error.errors);
+        res.json(res.output);
+
+        return;
+    }
+
+    const existingUser = await UserRepository.findByEmail(validated.data.email);
+
+    if (existingUser) {
+        res.status(409); // Conflict
+        res.output.message(lang('user.error.email_already_used'));
+        res.json(res.output);
+    }
+
+    const userEntity = new UserEntity();
+    userEntity.name = validated.data.name;
+    userEntity.email = validated.data.email;
+    userEntity.password = validated.data.password;
+    userEntity.status = validated.data.status;
+
+    await UserRepository.save(userEntity);
+
+    // return data + id
+    // should I use CQRS?
+
+    res.output.message(lang('user.success.create'));
 
     res.json(res.output);
 });

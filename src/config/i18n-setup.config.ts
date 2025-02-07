@@ -12,4 +12,8 @@ i18n.configure({
     autoReload: settings.app.env === 'local',  // Watch for changes in JSON files to reload locale on updates - defaults to false
 });
 
+export const lang = (key: string, replacements: Record<string, string> = {}): string => {
+    return i18n.__(key, replacements);
+};
+
 export default i18n;

@@ -107,3 +107,11 @@ https://expressjs.com/en/advanced/best-practice-performance.html
 Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app. Use the compression middleware for gzip compression in your Express app. 
 
 https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts
+
+
+validators
+
+listeners
+events
+providers
+policies

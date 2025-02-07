@@ -1,10 +1,33 @@
 {
-  "email": {
-    "subject": {
-      "pino-transport-email": "Logging Alert - {{ source }}"
-    },
-    "content": {
-      "pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
-    }
-  }
+	"email": {
+		"subject": {
+			"pino-transport-email": "Logging Alert - {{ source }}"
+		},
+		"content": {
+			"pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
+		}
+	},
+	"user": {
+		"validation": {
+			"name_required": "Name is required",
+			"name_min": "Name must be at least {{min}} characters long",
+			"email_required": "Email is required",
+			"email_invalid": "Email is invalid",
+			"password_required": "Password must be at least {{min}} characters long",
+			"password_condition_capital_letter": "Password must contain at least one capital letter",
+			"password_condition_number": "Password must contain at least one number",
+			"password_condition_special_character": "Password must contain at least one special character",
+			"password_confirmation_required": "Password confirmation is required",
+			"password_confirmation_mismatch": "Passwords does not match",
+			"password": "user.validation.password"
+		},
+		"error": {
+			"email_already_used": "Email already used by existing user"
+		},
+		"success": {
+			"create": "User created successfully",
+			"update": "User updated successfully",
+			"delete": "User deleted successfully"
+		}
+	}
 }
