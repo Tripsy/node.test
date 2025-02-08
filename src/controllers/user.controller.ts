@@ -1,28 +1,29 @@
 import {Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
-import UserRepository from '../repositories/user.repository';
+import UserRepository, {UserReadQuery} from '../repositories/user.repository';
 import UserEntity from '../entities/user.entity';
-import UserCreateValidator from "../validators/user-create.validator";
+import UserCreateValidator from '../validators/user-create.validator';
 import {lang} from '../config/i18n-setup.config';
+import BadRequestError from '../exceptions/bad-request.error';
+import CustomError from '../exceptions/custom.error';
+import NotFoundError from "../exceptions/not-found.error";
 
 export const Create = asyncHandler(async (req: Request, res: Response) => {
     // Validate the request body against the schema
     const validated = UserCreateValidator.safeParse(req.body);
 
     if (!validated.success) {
-        res.status(400);
         res.output.errors(validated.error.errors);
-        res.json(res.output);
 
-        return;
+        throw new BadRequestError();
     }
 
-    const existingUser = await UserRepository.findByEmail(validated.data.email);
+    const existingUser = await new UserReadQuery()
+        .filterByEmail(validated.data.email)
+        .first();
 
     if (existingUser) {
-        res.status(409); // Conflict
-        res.output.message(lang('user.error.email_already_used'));
-        res.json(res.output);
+        throw new CustomError(409, lang('user.error.email_already_used'));
     }
 
     const userEntity = new UserEntity();
@@ -31,20 +32,27 @@ export const Create = asyncHandler(async (req: Request, res: Response) => {
     userEntity.password = validated.data.password;
     userEntity.status = validated.data.status;
 
-    await UserRepository.save(userEntity);
+    const {
+        password,
+        created_at,
+        updated_at,
+        deleted_at,
+        ...user
+    } = await UserRepository.save(userEntity);
 
-    // return data + id
-    // should I use CQRS?
-
+    res.output.data(user);
     res.output.message(lang('user.success.create'));
 
     res.json(res.output);
 });
 
 export const Read = asyncHandler(async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const user = await new UserReadQuery()
+        .select(['user.id', 'user.name', 'user.email', 'user.status', 'user.created_at', 'user.updated_at'])
+        .filterById(res.locals.validatedId)
+        .firstOrFail();
 
-    res.output.data('View user #' + id);
+    res.output.data(user);
 
     res.json(res.output);
 });

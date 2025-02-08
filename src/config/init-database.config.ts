@@ -11,8 +11,9 @@ export const dataSource = new DataSource({
     database: settings.database.name,
     synchronize: false,
     logging: false,
-    entities: [buildSrcPath('entities', '*.entity.{ts,js}')],
-    migrations: [buildSrcPath('migrations', '*.{ts,js}')],
+    entities: [buildSrcPath('entities', '*.entity.ts')],
+    migrations: [buildSrcPath('migrations', '*.ts')],
+    subscribers: [buildSrcPath('subscribers', '*.ts')],
     poolSize: 10,
 });
 

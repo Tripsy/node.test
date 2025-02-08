@@ -7,6 +7,9 @@
 			"pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
 		}
 	},
+	"error": {
+		"invalid_id": "Invalid ID parameter. ID must be a positive number"
+	},
 	"user": {
 		"validation": {
 			"name_required": "Name is required",
@@ -22,12 +25,19 @@
 			"password": "user.validation.password"
 		},
 		"error": {
+			"not_found": "User not found",
 			"email_already_used": "Email already used by existing user"
 		},
 		"success": {
 			"create": "User created successfully",
 			"update": "User updated successfully",
 			"delete": "User deleted successfully"
+		},
+		"history": {
+			"created": "User #{{id}} created",
+			"updated": "User #{{id}} updated",
+			"deleted": "User #{{id}} has been marked as deleted",
+			"removed": "User #{{id}} has been removed"
 		}
 	}
 }
