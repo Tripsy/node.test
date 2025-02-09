@@ -22,6 +22,14 @@ export const settings= {
         password: process.env.DB_PASSWORD || '',
         name: process.env.DB_DATABASE || 'sample-node-api',
     },
+    redis: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+        password: process.env.REDIS_PASSWORD || '',
+    },
+    cache: {
+        ttl: parseInt(process.env.CACHE_TTL || '60', 10)
+    },
     pino: {
         logLevel: process.env.PINO_LOG_LEVEL || 'trace',
         logEmail: process.env.PINO_LOG_EMAIL || '',

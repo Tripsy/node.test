@@ -2,31 +2,26 @@ import dataSource from '../config/init-database.config';
 import UserEntity from '../entities/user.entity';
 import AbstractQuery from './abstract.query';
 
-const UserRepository = dataSource.getRepository(UserEntity).extend({
-    // async findByEmail(email: string): Promise<UserEntity | null> {
-    //     return this.createQueryBuilder("user")
-    //         .where("user.email = :email", {email})
-    //         .getOne();
-    // }
-    // findByName(name: string, status: string) {
-    //     return this.createQueryBuilder("user")
-    //         .where("user.name = :name", { name })
-    //         .andWhere("user.status = :status", { status })
-    //         .getMany();
-    // },
-})
-
 export class UserReadQuery extends AbstractQuery {
-    private entityAlias: string = 'user';
-    private query = UserRepository.createQueryBuilder(this.entityAlias);
+    constructor(private repository: ReturnType<typeof dataSource.getRepository<UserEntity>>) {
+        super(repository.createQueryBuilder(UserRepository.entityAlias), UserRepository.entityAlias);
+    }
 
-    filterByEmail(email: string) {
+    filterByEmail(email: string): this {
         if (email) {
-            this.query.andWhere(`${this.entityAlias}.email = :email`, {email});
+            this.query.andWhere(`${UserRepository.entityAlias}.email = :email`, { email });
         }
-
         return this;
     }
 }
+
+export const UserRepository = dataSource.getRepository(UserEntity).extend({
+    entityAlias: 'user',
+
+    createReadQuery() {
+        return new UserReadQuery(this);
+    },
+});
+
 
 export default UserRepository;

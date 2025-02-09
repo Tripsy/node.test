@@ -16,8 +16,8 @@ class OutputWrapper {
             success: false,
             message: '',
             errors: [],
-            data: [],
-            meta: [],
+            data: {},
+            meta: {},
             request: {
                 url: req.originalUrl,
                 method: req.method,
@@ -31,12 +31,8 @@ class OutputWrapper {
         this.res = res
     }
 
-    #set(path, value): void  {
-        if (typeof path !== 'string' || path.trim() === '') {
-            throw new Error('Path must be a non-empty string');
-        }
-
-        const keys = path.split('.');
+    #set(path: string, value: any): void  {
+        const keys = path.trim().split('.');
         let current: OutputWrapperInterface = this.result;
 
         for (let i = 0; i < keys.length - 1; i++) {
@@ -113,6 +109,18 @@ class OutputWrapper {
 
             if (filteredResult.meta && Object.keys(filteredResult.meta).length === 0) {
                 delete filteredResult.meta;
+            }
+
+            if (filteredResult.request?.body && Object.keys(filteredResult.request.body).length === 0) {
+                delete filteredResult.request.body;
+            }
+
+            if (filteredResult.request?.params && Object.keys(filteredResult.request.params).length === 0) {
+                delete filteredResult.request.params;
+            }
+
+            if (filteredResult.request?.query && Object.keys(filteredResult.request.query).length === 0) {
+                delete filteredResult.request.query;
             }
 
             return filteredResult as OutputWrapperInterface;

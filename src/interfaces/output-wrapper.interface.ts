@@ -3,7 +3,7 @@ export interface OutputWrapperInterface {
     message: string,
     errors: (string | { [key: string]: string })[],
     data: any,
-    meta: any[],
+    meta: { [key: string]: any },
     request: {
         url: string
         headers: any;

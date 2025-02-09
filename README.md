@@ -84,6 +84,7 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 - [nodemailer](https://nodemailer.com/)
 - [zod](https://zod.dev)
 - [helmet](https://helmetjs.github.io/)
+- [ioredis](https://github.com/luin/ioredis)
 
 # Documentation
 
@@ -94,8 +95,6 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 
 # TODO
 
-1. setup subscribers
-2. add caching - view
 3. setup policy
 4. handle authorization
 5. build pino-transport-mysql

@@ -11,6 +11,8 @@ import {encryptPassword} from '../helpers/security';
 import logger from '../services/logger.service';
 import {lang} from '../config/i18n-setup.config';
 import {childLogger} from '../helpers/log';
+import {cacheService} from '../services/cache.service';
+import UserRepository from '../repositories/user.repository';
 
 const historyLogger = childLogger(logger, 'history');
 
@@ -37,11 +39,23 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         }
     }
 
+    /**
+     * When entry is removed from the database
+     *
+     * @param event
+     */
     beforeRemove(event: RemoveEvent<any>) {
+        void cacheService.delete(cacheService.buildKey(UserRepository.entityAlias, event.entity.id.toString()));
         historyLogger.info(lang('user.history.removed', {id: event.entity.id.toString()}));
     }
 
+    /**
+     * When entry is marked as deleted in the database
+     *
+     * @param event
+     */
     afterSoftRemove(event: SoftRemoveEvent<any>) {
+        void cacheService.delete(cacheService.buildKey(UserRepository.entityAlias, event.entity.id.toString()));
         historyLogger.info(lang('user.history.deleted', {id: event.entity.id.toString()}));
     }
 
@@ -51,7 +65,10 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
     }
 
     afterUpdate(event: UpdateEvent<UserEntity>) {
-        historyLogger.info(lang('user.history.updated', {id: event.entity.id.toString()}));
+        const id = event.entity.id || event.databaseEntity.id;
+
+        void cacheService.delete(cacheService.buildKey(UserRepository.entityAlias, id.toString()));
+        historyLogger.info(lang('user.history.updated', {id: id.toString()}));
         // Send email notification for profile changes
     }
 }

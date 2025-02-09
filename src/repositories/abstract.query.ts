@@ -6,6 +6,11 @@ class AbstractQuery {
     protected query: SelectQueryBuilder<any>;
     protected entityAlias: string;
 
+    constructor(query: SelectQueryBuilder<any>, entityAlias: string) {
+        this.query = query;
+        this.entityAlias = entityAlias;
+    }
+
     /**
      * Ensure the primary key is included; If id is missing, TypeORM won’t map the entity correctly.
      *

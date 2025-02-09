@@ -9,9 +9,10 @@ import logger from './services/logger.service';
 import {outputHandler} from './middleware/output-handler.middleware';
 import {notFoundHandler} from "./middleware/not-found-handler.middleware";
 import {errorHandler} from './middleware/error-handler.middleware';
-import {initDatabase} from './config/init-database.config';
+import {destroyDatabase, initDatabase} from './config/init-database.config';
 import {settings} from './config/settings.config';
 import {initRoutes} from './config/init-routes.config';
+import {cacheService} from './services/cache.service';
 
 const app: express.Application = express();
 let server: Server;
@@ -40,6 +41,7 @@ const shutdown = (server: Server, signal: string,): void => {
         server.close(async () => {
             try {
                 await destroyDatabase();
+                await cacheService.disconnect()
 
                 logger.debug('Server closed gracefully');
                 process.exit(0);

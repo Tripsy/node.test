@@ -1,12 +1,12 @@
 import {Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
-import UserRepository, {UserReadQuery} from '../repositories/user.repository';
+import UserRepository from '../repositories/user.repository';
 import UserEntity from '../entities/user.entity';
 import UserCreateValidator from '../validators/user-create.validator';
 import {lang} from '../config/i18n-setup.config';
 import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
-import NotFoundError from "../exceptions/not-found.error";
+import {cacheService} from '../services/cache.service';
 
 export const Create = asyncHandler(async (req: Request, res: Response) => {
     // Validate the request body against the schema
@@ -18,7 +18,7 @@ export const Create = asyncHandler(async (req: Request, res: Response) => {
         throw new BadRequestError();
     }
 
-    const existingUser = await new UserReadQuery()
+    const existingUser = await UserRepository.createReadQuery()
         .filterByEmail(validated.data.email)
         .first();
 
@@ -47,11 +47,16 @@ export const Create = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const Read = asyncHandler(async (req: Request, res: Response) => {
-    const user = await new UserReadQuery()
-        .select(['user.id', 'user.name', 'user.email', 'user.status', 'user.created_at', 'user.updated_at'])
-        .filterById(res.locals.validatedId)
-        .firstOrFail();
+    const cacheKey = cacheService.buildKey(UserRepository.entityAlias, res.locals.validatedId);
+    const user = await cacheService.get(cacheKey, async () => {
+        return UserRepository
+            .createReadQuery()
+            .select(['user.id', 'user.name', 'user.email', 'user.status', 'user.created_at', 'user.updated_at'])
+            .filterById(res.locals.validatedId)
+            .firstOrFail();
+    });
 
+    res.output.meta(cacheService.isCached, 'isCached');
     res.output.data(user);
 
     res.json(res.output);
@@ -73,7 +78,7 @@ export const Delete = asyncHandler(async (req: Request, res: Response) => {
     res.json(res.output);
 });
 
-export const List = asyncHandler(async (req: Request, res: Response) => {
+export const Find = asyncHandler(async (req: Request, res: Response) => {
     // Example: Fetch all users
     // const users: UserEntity[] = await userRepository.find();
 
