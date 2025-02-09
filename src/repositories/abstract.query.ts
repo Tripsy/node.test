@@ -12,15 +12,33 @@ class AbstractQuery {
     }
 
     /**
-     * Ensure the primary key is included; If id is missing, TypeORM won’t map the entity correctly.
+     * Note: Without primaryKey TypeORM won’t map the entity correctly.
      *
      * ex: ['user.id', 'user.name', 'user.email', 'user.status', 'user.created_at', 'user.updated_at']
+     * ex: ['id', 'name', 'email', 'status', 'created_at', 'updated_at']
      */
-    select(strings: string[]) {
-        this.query.select(strings);
+    select(strings: string[]): this {
+        // Define possible primary key variations
+        const primaryKeys = [`${this.entityAlias}.id`, 'id'];
+
+        // Check if either 'id' or 'user.id' is already included
+        const hasPrimaryKey = strings.some(field => primaryKeys.includes(field));
+
+        // If not present, add the fully qualified primary key
+        if (!hasPrimaryKey) {
+            strings.unshift(`${this.entityAlias}.id`);
+        }
+
+        // Ensure all fields are prefixed with an entity alias if not add this.entityAlias
+        const prefixedFields = strings.map(field =>
+            field.includes('.') ? field : `${this.entityAlias}.${field}`
+        );
+
+        this.query.select(prefixedFields);
 
         return this;
     }
+
     /**
      * Note: When using getOne(), TypeORM expects only entity fields to be selected.
      *       If you manually select raw SQL fields (e.g., COUNT(user.id) as count), getOne() will return null.

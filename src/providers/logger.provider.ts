@@ -18,7 +18,7 @@ function targets(): [] {
     }
 
     targets.push({
-        target: buildSrcPath('services', 'pino-transports', 'log.transport.ts'),
+        target: buildSrcPath('providers', 'pino-transports', 'log.transport.ts'),
         level: 'info',
     });
 
@@ -62,7 +62,7 @@ const logger = pino({
 
         return {
             ...context,
-            debugStack: formatCallStack(new Error().stack || '', ['logger.service.ts'])
+            debugStack: formatCallStack(new Error().stack || '', ['logger.provider.ts'])
         };
 
         // if (['error', 'warn', 'fatal'].includes(logger.levels.labels[level]))

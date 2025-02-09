@@ -33,6 +33,34 @@ Finally, start the application in development mode with:
 docker $ pnpm run dev
 ```
 
+# Structure
+
+```
+/docker
+/logs
+/src
+    /config
+    /controllers
+    /entities
+    /enums
+    /exceptions
+    /helpers
+    /interfaces
+    /middleware
+    /migrations
+    /policies
+    /providers
+        - Reusable utilities, external integrations; Encapsulates infrastructure (e.g., Redis, DB connections)
+    /repositories
+    /routes
+    /services
+        - Business logic, high-level functionality; Manages operations, workflows
+    /subscribers
+    /types
+    /validators
+    app.ts
+```
+
 # Usage
 
 ### Pino
@@ -95,14 +123,15 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 
 # TODO
 
-3. setup policy
+1. update
+2. list
+3. delete
 4. handle authorization
-5. build pino-transport-mysql
+3. setup policy
+5. build pino-transport-mysql - log.entity is created in /entities but add .ts
 6. test pino-transport-email
 
 # Ideas
-
-git commit -m "migrations issue solved; update res.output with req ..details
 
 https://expressjs.com/en/advanced/best-practice-performance.html
 
@@ -111,20 +140,11 @@ Gzip compressing can greatly decrease the size of the response body and hence in
 https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts
 
 
-validators
-
-listeners
-events
-providers
-policies
-
-
-
 class UserPolicy {
-static create(req: Request): boolean {
-// Example: Only admins can create users
-return req.user?.role === 'admin';
-}
+    static create(req: Request): boolean {
+        // Example: Only admins can create users
+        return req.user?.role === 'admin';
+    }
 
     static update(req: Request, user: UserEntity): boolean {
         // Users can only update their own profiles, unless they're an admin

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../services/logger.service';
+import logger from '../providers/logger.provider';
 import { childLogger } from '../helpers/log';
 // import NotFoundError from '../exceptions/not-found.error';
 // import NotAllowedError from '../exceptions/not-allowed.error';

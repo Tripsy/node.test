@@ -8,10 +8,10 @@ import {
 } from 'typeorm';
 import UserEntity from '../entities/user.entity';
 import {encryptPassword} from '../helpers/security';
-import logger from '../services/logger.service';
+import logger from '../providers/logger.provider';
 import {lang} from '../config/i18n-setup.config';
 import {childLogger} from '../helpers/log';
-import {cacheService} from '../services/cache.service';
+import {cacheProvider} from '../providers/cache.provider';
 import UserRepository from '../repositories/user.repository';
 
 const historyLogger = childLogger(logger, 'history');
@@ -45,7 +45,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
      * @param event
      */
     beforeRemove(event: RemoveEvent<any>) {
-        void cacheService.delete(cacheService.buildKey(UserRepository.entityAlias, event.entity.id.toString()));
+        void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, event.entity.id.toString()));
         historyLogger.info(lang('user.history.removed', {id: event.entity.id.toString()}));
     }
 
@@ -55,7 +55,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
      * @param event
      */
     afterSoftRemove(event: SoftRemoveEvent<any>) {
-        void cacheService.delete(cacheService.buildKey(UserRepository.entityAlias, event.entity.id.toString()));
+        void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, event.entity.id.toString()));
         historyLogger.info(lang('user.history.deleted', {id: event.entity.id.toString()}));
     }
 
@@ -67,7 +67,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
     afterUpdate(event: UpdateEvent<UserEntity>) {
         const id = event.entity.id || event.databaseEntity.id;
 
-        void cacheService.delete(cacheService.buildKey(UserRepository.entityAlias, id.toString()));
+        void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, id.toString()));
         historyLogger.info(lang('user.history.updated', {id: id.toString()}));
         // Send email notification for profile changes
     }

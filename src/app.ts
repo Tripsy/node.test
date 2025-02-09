@@ -5,14 +5,14 @@ import helmet from 'helmet';
 import {corsHandler} from './middleware/cors-handler.middleware';
 import cookieParser from 'cookie-parser';
 import i18n from './config/i18n-setup.config';
-import logger from './services/logger.service';
+import logger from './providers/logger.provider';
 import {outputHandler} from './middleware/output-handler.middleware';
 import {notFoundHandler} from "./middleware/not-found-handler.middleware";
 import {errorHandler} from './middleware/error-handler.middleware';
 import {destroyDatabase, initDatabase} from './config/init-database.config';
 import {settings} from './config/settings.config';
 import {initRoutes} from './config/init-routes.config';
-import {cacheService} from './services/cache.service';
+import {cacheProvider} from './providers/cache.provider';
 
 const app: express.Application = express();
 let server: Server;
@@ -41,7 +41,7 @@ const shutdown = (server: Server, signal: string,): void => {
         server.close(async () => {
             try {
                 await destroyDatabase();
-                await cacheService.disconnect()
+                await cacheProvider.disconnect()
 
                 logger.debug('Server closed gracefully');
                 process.exit(0);

@@ -1,11 +1,11 @@
 import Redis from 'ioredis';
 import {settings} from '../config/settings.config';
 import {childLogger} from '../helpers/log';
-import logger from './logger.service';
+import logger from './logger.provider';
 
 const systemLogger = childLogger(logger, 'system');
 
-class CacheService {
+class CacheProvider {
     private redisInstance: Redis | null = null;
     public isCached: boolean = false;
 
@@ -144,4 +144,4 @@ class CacheService {
     }
 }
 
-export const cacheService = new CacheService();
+export const cacheProvider = new CacheProvider();

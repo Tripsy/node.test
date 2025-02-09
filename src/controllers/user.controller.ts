@@ -6,7 +6,7 @@ import UserCreateValidator from '../validators/user-create.validator';
 import {lang} from '../config/i18n-setup.config';
 import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
-import {cacheService} from '../services/cache.service';
+import {cacheProvider} from '../providers/cache.provider';
 
 export const Create = asyncHandler(async (req: Request, res: Response) => {
     // Validate the request body against the schema
@@ -47,16 +47,16 @@ export const Create = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const Read = asyncHandler(async (req: Request, res: Response) => {
-    const cacheKey = cacheService.buildKey(UserRepository.entityAlias, res.locals.validatedId);
-    const user = await cacheService.get(cacheKey, async () => {
+    const cacheKey = cacheProvider.buildKey(UserRepository.entityAlias, res.locals.validatedId);
+    const user = await cacheProvider.get(cacheKey, async () => {
         return UserRepository
             .createReadQuery()
-            .select(['user.id', 'user.name', 'user.email', 'user.status', 'user.created_at', 'user.updated_at'])
+            .select(['id', 'name', 'email', 'status', 'created_at', 'updated_at'])
             .filterById(res.locals.validatedId)
             .firstOrFail();
     });
 
-    res.output.meta(cacheService.isCached, 'isCached');
+    res.output.meta(cacheProvider.isCached, 'isCached');
     res.output.data(user);
 
     res.json(res.output);
