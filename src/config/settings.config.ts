@@ -41,5 +41,9 @@ export const settings= {
         password: process.env.MAIL_PASSWORD || '',
         fromAddress: process.env.MAIL_FROM_ADDRESS || 'hello@example.com',
         fromName: process.env.MAIL_FROM_NAME || 'sample-node-api',
+    },
+    user: {
+        nameMinLength: 3,
+        passwordMinLength: 8,
     }
 };

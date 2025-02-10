@@ -1,24 +1,22 @@
 import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
 import {UserStatusEnum} from '../enums/user-status.enum';
-
-const nameMinLength = 3;
-const passwordMinLength = 8;
+import {settings} from '../config/settings.config';
 
 const UserCreateValidator = z
     .object({
         name: z
             .string({message: lang('user.validation.name_required')})
-            .min(passwordMinLength, {
-                message: lang('user.validation.name_min', {min: nameMinLength.toString()}),
+            .min(settings.user.passwordMinLength, {
+                message: lang('user.validation.name_min', {min: settings.user.nameMinLength.toString()}),
             }),
         email: z
             .string({message: lang('user.validation.email_required')})
             .email({message: lang('user.validation.email_invalid')}),
         password: z
             .string({message: lang('user.validation.password_required')})
-            .min(passwordMinLength, {
-                message: lang('user.validation.password', {min: passwordMinLength.toString()}),
+            .min(settings.user.passwordMinLength, {
+                message: lang('user.validation.password', {min: settings.user.passwordMinLength.toString()}),
             })
             .refine((value) => /[A-Z]/.test(value), {
                 message: lang('user.validation.password_condition_capital_letter'),

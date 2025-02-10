@@ -12,3 +12,7 @@ export function buildRootPath(...args: string[]): string {
 export function buildSrcPath(...args: string[]): string {
     return buildPath(settings.app.srcPath, ...args);
 }
+
+export function apiDocumentationUrl(...args: string[]): string {
+    return `${settings.app.url}/api-docs/${args.join('/')}`;
+}

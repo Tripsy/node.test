@@ -8,7 +8,8 @@
 		}
 	},
 	"error": {
-		"invalid_id": "Invalid ID parameter. ID must be a positive number"
+		"invalid_id": "Invalid ID parameter. ID must be a positive number",
+		"params_at_least_one": "At least one parameter is required (eg: {{params}})"
 	},
 	"user": {
 		"validation": {

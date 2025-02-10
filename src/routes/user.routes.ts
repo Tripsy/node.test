@@ -1,16 +1,66 @@
 import {Router} from 'express';
-import {Create, Read, Update, Delete, Find, Status} from '../controllers/user.controller';
 import validateParamId from '../middleware/param-id.middleware';
+import UserController from '../controllers/user.controller';
+import metaDocumentation from '../middleware/meta-documentation.middleware';
 
 const routes: Router = Router();
 const routePrefix = '/users';
 
-routes.post(routePrefix, Create);
-routes.get(`${routePrefix}/:id`, validateParamId, Read);
-routes.put(`${routePrefix}/:id`, validateParamId, Update);
-routes.delete(`${routePrefix}/:id`, validateParamId, Delete);
+// User - Create
+routes.post(
+    routePrefix,
+    [
+        metaDocumentation('user', 'create')
+    ],
+    UserController.create
+);
 
-routes.get(routePrefix, Find);
-routes.patch(`${routePrefix}/:id/status/:status`, Status);
+// User - Read (Single)
+routes.get(
+    `${routePrefix}/:id`,
+    [
+        metaDocumentation('user', 'read'),
+        validateParamId
+    ],
+    UserController.read
+);
+
+// User - Update
+routes.put(
+    `${routePrefix}/:id`,
+    [
+        metaDocumentation('user', 'update'),
+        validateParamId
+    ],
+    UserController.update
+);
+
+// User - Delete
+routes.delete(
+    `${routePrefix}/:id`,
+    [
+        metaDocumentation('user', 'delete'),
+        validateParamId
+    ],
+    UserController.delete
+);
+
+// User - Find
+routes.get(
+    routePrefix,
+    [
+        metaDocumentation('user', 'find')
+    ],
+    UserController.find
+);
+
+// User - Update `status`
+routes.patch(
+    `${routePrefix}/:id/status/:status`,
+    [
+        metaDocumentation('user', 'status'), validateParamId
+    ],
+    UserController.status
+);
 
 export default routes;

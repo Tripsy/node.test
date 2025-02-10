@@ -41,6 +41,7 @@ docker $ pnpm run dev
 /src
     /config
     /controllers
+    /decorators
     /entities
     /enums
     /exceptions
