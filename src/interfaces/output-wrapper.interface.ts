@@ -1,7 +1,9 @@
+import {ZodIssue} from 'zod';
+
 export interface OutputWrapperInterface {
     success: boolean,
     message: string,
-    errors: (string | { [key: string]: string })[],
+    errors: Array<ZodIssue | Record<string, any>>;
     data: any,
     meta: { [key: string]: any },
     request: {

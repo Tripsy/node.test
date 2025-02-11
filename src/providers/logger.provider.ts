@@ -4,7 +4,7 @@ import {buildSrcPath} from '../helpers/system';
 import {formatCallStack} from '../helpers/log';
 import {v4 as uuid} from 'uuid';
 
-function targets(): [] {
+function targets() {
     const targets = [];
 
     if (settings.app.debug) {

@@ -7,7 +7,7 @@ const UserCreateValidator = z
     .object({
         name: z
             .string({message: lang('user.validation.name_required')})
-            .min(settings.user.passwordMinLength, {
+            .min(settings.user.nameMinLength, {
                 message: lang('user.validation.name_min', {min: settings.user.nameMinLength.toString()}),
             }),
         email: z

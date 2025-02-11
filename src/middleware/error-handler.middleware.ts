@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import logger from '../providers/logger.provider';
 import { childLogger } from '../helpers/log';
-// import NotFoundError from '../exceptions/not-found.error';
-// import NotAllowedError from '../exceptions/not-allowed.error';
+import CustomError from '../exceptions/custom.error';
 
 export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
-    const status = err.statusCode ?? 500;
+    const status = err instanceof CustomError ? err.statusCode : 500;
 
     // Logging is disabled for certain response codes (ex: 409 - Conflict
     if (![409].includes(status)) {

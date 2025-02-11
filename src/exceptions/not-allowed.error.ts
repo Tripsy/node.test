@@ -1,13 +1,10 @@
-import {HttpStatusCode} from '../types/http-status-code.type';
+import CustomError from './custom.error';
 
-class NotAllowedError extends Error {
-    public statusCode: HttpStatusCode;
-
+class NotAllowedError extends CustomError {
     constructor() {
-        super();
+        super(403);
 
         this.message = 'Not Allowed';
-        this.statusCode = 403;
     }
 }
 

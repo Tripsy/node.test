@@ -45,7 +45,7 @@ const shutdown = (server: Server, signal: string,): void => {
 
                 logger.debug('Server closed gracefully');
                 process.exit(0);
-            } catch (error) {
+            } catch (error: Error | any) {
                 logger.fatal(error, error.message);
                 process.exit(1);
             }

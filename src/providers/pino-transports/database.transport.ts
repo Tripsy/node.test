@@ -1,3 +1,3 @@
-export default async function (options = { dir }) {
+export default async function (options = {  }) {
 
 }

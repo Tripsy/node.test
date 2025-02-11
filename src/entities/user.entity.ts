@@ -5,23 +5,23 @@ import {BaseEntityAbstract} from './base-entity.abstract';
 @Entity('user')
 export default class UserEntity extends BaseEntityAbstract {
     @Column('char', {nullable: false, length: 64})
-    name: string;
+    name?: string;
 
     @Column('char', {nullable: true, length: 64, unique: true})
-    email: string;
+    email?: string;
 
     @Column('varchar', {nullable: true, select: false})
-    password: string;
+    password?: string;
 
     @Column({
         type: 'enum',
         enum: UserStatusEnum,
         default: UserStatusEnum.PENDING,
     })
-    status: UserStatusEnum;
+    status?: UserStatusEnum;
 
-    @DeleteDateColumn({type: 'timestamp'})
-    deleted_at: Date;
+    @DeleteDateColumn({type: 'timestamp', select: false})
+    deleted_at?: Date;
 
     // @OneToMany(() => Post, post => post.user)
     // posts: Post[];

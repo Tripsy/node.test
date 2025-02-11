@@ -8,7 +8,7 @@ i18n.configure({
     defaultLocale: 'en', // Default locale
     objectNotation: true, // Enable object notation for nested translations
     cookie: 'lang', // Name of the cookie to store the language preference
-    queryParameter: 'lang', // Query parameter to switch locale (ie. /home?lang=ch)
+    queryParameter: 'lang', // Query parameter to switch locale (eg: /home?lang=ch)
     autoReload: settings.app.env === 'local',  // Watch for changes in JSON files to reload locale on updates - defaults to false
 });
 

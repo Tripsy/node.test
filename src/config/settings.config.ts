@@ -42,6 +42,12 @@ export const settings= {
         fromAddress: process.env.MAIL_FROM_ADDRESS || 'hello@example.com',
         fromName: process.env.MAIL_FROM_NAME || 'sample-node-api',
     },
+    filter: {
+        defaultLimit: 20,
+        termMinLength: 3,
+        dateFormatRegex: /^\d{4}-\d{2}-\d{2}$/,
+        dateFormatLiteral: 'YYYY-MM-DD',
+    },
     user: {
         nameMinLength: 3,
         passwordMinLength: 8,

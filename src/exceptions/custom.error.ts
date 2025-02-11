@@ -1,7 +1,7 @@
 import {HttpStatusCode} from '../types/http-status-code.type';
 
 class CustomError extends Error {
-    public statusCode: number;
+    public statusCode: HttpStatusCode;
 
     constructor(statusCode: HttpStatusCode, message?: string) {
         super();

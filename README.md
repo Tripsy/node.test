@@ -124,11 +124,11 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 
 # TODO
 
-1. update
-2. list
-3. delete
+3. list
+4. use extend on UserSubscriber and make generic functions for logging & also move the removeOperation
 4. handle authorization
 3. setup policy
+4. once policy is set up for admin on read and find allow to included entries marked as deleted
 5. build pino-transport-mysql - log.entity is created in /entities but add .ts
 6. test pino-transport-email
 
@@ -171,3 +171,29 @@ res.status(403); // Forbidden
 res.output.message(lang('user.error.unauthorized'));
 return res.json(res.output);
 }
+
+
+-----------------
+
+import { UserRepository } from '../repositories/user.repository';
+import { UserEntity } from '../entities/user.entity';
+
+class UserService {
+async deleteUser(userId: number): Promise<void> {
+await UserRepository.softDelete(userId);
+}
+
+    async restoreUser(userId: number): Promise<void> {
+        await UserRepository.restore(userId);
+    }
+
+    async getDeletedUsers(): Promise<UserEntity[]> {
+        return await UserRepository.find({
+            where: {
+                deletedAt: Not(IsNull()),
+            },
+        });
+    }
+}
+
+export default new UserService();

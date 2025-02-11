@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response} from 'express';
 import {OutputWrapperInterface} from '../interfaces/output-wrapper.interface';
+import {ZodIssue} from 'zod';
 
 export const outputHandler = (req: Request, res: Response, next: NextFunction): void => {
     res.output = new OutputWrapper(req, res);
@@ -7,7 +8,7 @@ export const outputHandler = (req: Request, res: Response, next: NextFunction): 
     next();
 };
 
-class OutputWrapper {
+export class OutputWrapper {
     private readonly result: OutputWrapperInterface;
     private res: Response;
 
@@ -33,7 +34,7 @@ class OutputWrapper {
 
     #set(path: string, value: any): void  {
         const keys = path.trim().split('.');
-        let current: OutputWrapperInterface = this.result;
+        let current: any = this.result;
 
         for (let i = 0; i < keys.length - 1; i++) {
             const key = keys[i];
@@ -58,23 +59,13 @@ class OutputWrapper {
         return this;
     }
 
-    errors(value: string[]): this {
+    errors(value: Array<ZodIssue | Record<string, any>>): this {
         this.result.errors = value;
 
         return this;
     }
 
-    pushError(value: string, key: string = ''): this {
-        if (key) {
-            this.result.errors[key] = value;
-        } else {
-            this.result.errors.push(value);
-        }
-
-        return this;
-    }
-
-    data(value: any, key = null): this {
+    data(value: any, key: string | null = null): this {
         key = key ? `data.${key}` : 'data';
 
         this.#set(key, value);
@@ -82,7 +73,7 @@ class OutputWrapper {
         return this;
     }
 
-    meta(value: any, key = null): this {
+    meta(value: any, key: string | null = null): this {
         key = key ? `meta.${key}` : 'meta';
 
         this.#set(key, value);
@@ -99,7 +90,7 @@ class OutputWrapper {
         if (filter) {
             const filteredResult: Partial<OutputWrapperInterface> = { ...this.result };
 
-            if (filteredResult.errors && filteredResult.errors.length === 0) {
+            if (filteredResult.errors && Array.isArray(filteredResult.errors) && filteredResult.errors.length === 0) {
                 delete filteredResult.errors;
             }
 

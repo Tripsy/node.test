@@ -9,7 +9,14 @@
 	},
 	"error": {
 		"invalid_id": "Invalid ID parameter. ID must be a positive number",
-		"params_at_least_one": "At least one parameter is required (eg: {{params}})"
+		"filter_string": "Filter must be a string (eg: {{term}})",
+		"filter_number": "Filter must be a number (eg: {{term}})",
+		"filter_min": "Filter must be at least {{min}} characters long (eg: {{term}})",
+		"params_at_least_one": "At least one parameter is required (eg: {{params}})",
+		"db_delete_one": "Failed to delete just one entry; Based on filters multiple entries were found",
+		"db_delete_missing_filter": "Failed to delete entries; No filter were provided",
+		"db_nothing_to_delete": "Failed to delete entries; No entries were found",
+		"filter_date_format": "error.filter_date_format"
 	},
 	"user": {
 		"validation": {

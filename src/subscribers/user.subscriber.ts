@@ -41,34 +41,55 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 
     /**
      * When entry is removed from the database
+     * `event.entity` will be undefined if entity is not properly loaded via Repository
      *
      * @param event
      */
     beforeRemove(event: RemoveEvent<any>) {
-        void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, event.entity.id.toString()));
-        historyLogger.info(lang('user.history.removed', {id: event.entity.id.toString()}));
+        this.removeOperation(event.entity.id, false);
     }
 
     /**
      * When entry is marked as deleted in the database
+     * `event.entity` will be undefined if entity is not properly loaded via Repository
      *
      * @param event
      */
     afterSoftRemove(event: SoftRemoveEvent<any>) {
-        void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, event.entity.id.toString()));
-        historyLogger.info(lang('user.history.deleted', {id: event.entity.id.toString()}));
+        console.log(event.entity)
+        this.removeOperation(event.entity.id, true);
     }
 
     afterInsert(event: InsertEvent<UserEntity>) {
-        historyLogger.info(lang('user.history.created', {id: event.entity.id.toString()}));
-        // Send welcome email, log activity, etc.
+        const id = event.entity?.id; // TODO check to see if this works
+
+        if (id) {
+            historyLogger.info(lang('user.history.created', {id: id.toString()}));
+            // Send welcome email, log activity, etc.
+        }
     }
 
     afterUpdate(event: UpdateEvent<UserEntity>) {
-        const id = event.entity.id || event.databaseEntity.id;
+        const id = event.entity?.id || event.databaseEntity.id; // TODO check to see if this works
 
         void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, id.toString()));
         historyLogger.info(lang('user.history.updated', {id: id.toString()}));
         // Send email notification for profile changes
+    }
+
+    /**
+     * Due to internal mechanism and how the delete operation is trigger ed,
+     * the events `beforeRemove`, `afterSoftRemove` cannot be used because occasionally because the event entity is undefined
+     *
+     * This method can be instead and triggered on delete operations
+     *
+     * @param id
+     * @param isSoftDelete
+     */
+    removeOperation(id: number, isSoftDelete: boolean = false) {
+        const action = isSoftDelete ? 'deleted' : 'removed';
+
+        void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, id.toString()));
+        historyLogger.info(lang(`user.history.${action}`, {id: id.toString()}));
     }
 }

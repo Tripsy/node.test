@@ -3,11 +3,11 @@ import {Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn} from
 @Entity()
 export class BaseEntityAbstract {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})
-    id: number;
+    id?: number;
 
     @CreateDateColumn({type: 'timestamp'})
-    created_at: Date;
+    created_at?: Date;
 
     @UpdateDateColumn({type: 'timestamp'})
-    updated_at: Date;
+    updated_at?: Date;
 }

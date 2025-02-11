@@ -3,11 +3,12 @@ import asyncHandler from '../helpers/async.handler';
 import UserRepository from '../repositories/user.repository';
 import UserEntity from '../entities/user.entity';
 import UserCreateValidator from '../validators/user-create.validator';
-import UserUpdateValidator from '../validators/user-update.validator';
+import UserUpdateValidator, {paramsUpdateList} from '../validators/user-update.validator';
 import {lang} from '../config/i18n-setup.config';
 import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
 import {cacheProvider} from '../providers/cache.provider';
+import UserFindValidator from '../validators/user-find.validator';
 
 class UserController {
     public create = asyncHandler(async (req: Request, res: Response) => {
@@ -20,7 +21,7 @@ class UserController {
             throw new BadRequestError();
         }
 
-        const existingUser = await UserRepository.createReadQuery()
+        const existingUser = await UserRepository.createQuery()
             .filterByEmail(validated.data.email)
             .first();
 
@@ -52,8 +53,9 @@ class UserController {
         const cacheKey = cacheProvider.buildKey(UserRepository.entityAlias, res.locals.validatedId);
         const user = await cacheProvider.get(cacheKey, async () => {
             return UserRepository
-                .createReadQuery()
-                .select(['id', 'name', 'email', 'status', 'created_at', 'updated_at'])
+                .createQuery()
+                // .select(['id', 'name', 'email', 'status', 'created_at', 'updated_at'])
+                // .addSelect(['password'])
                 .filterById(res.locals.validatedId)
                 .firstOrFail();
         });
@@ -74,33 +76,59 @@ class UserController {
             throw new BadRequestError();
         }
 
-        const id = res.locals.validatedId;
-
-        const user = await UserRepository.createReadQuery()
-            .filterById(id)
+        const user = await UserRepository.createQuery()
+            .select(paramsUpdateList)
+            .filterById(res.locals.validatedId)
             .firstOrFail();
 
-        console.log(validated)
+        for (const key in validated.data) {
+            // We allow update only for the fields used in the select
+            if (user.hasOwnProperty(key)) {
+                user[key] = (validated.data as Record<string, any>)[key];
+            }
+        }
 
-        // res.output.meta(apiDocumentationUrl('user', 'update'),'documentationUrl');
+        await UserRepository.save(user);
+
         res.output.message(lang('user.success.update'));
 
         res.json(res.output);
     });
 
     public delete = asyncHandler(async (req: Request, res: Response) => {
-        const id = req.params.id;
+        await UserRepository.createQuery()
+            .filterById(res.locals.validatedId)
+            .softDelete();
 
-        res.output.data(`Delete user #${id}`);
+        res.output.message(lang('user.success.delete'));
 
         res.json(res.output);
     });
 
     public find = asyncHandler(async (req: Request, res: Response) => {
-        // Example: Fetch all users
-        // const users: UserEntity[] = await userRepository.find();
+        // Validate the request body against the schema
+        const validated = UserFindValidator.safeParse(req.body);
 
-        res.output.data('List users');
+        if (!validated.success) {
+            res.output.errors(validated.error.errors);
+
+            throw new BadRequestError();
+        }
+
+        const users = await UserRepository.createQuery()
+            .filterById(validated.data.filter.id)
+            .getLike('name', validated.data.filter.name)
+            .getLike('email', validated.data.filter.email)
+            .filterByStatus(validated.data.filter.status)
+            .all();
+    //
+    // .where('user.created_at >= :startDate', { startDate: '2024-01-01' })
+    //         .andWhere('user.created_at <= :endDate', { endDate: '2024-12-31' })
+
+        res.output.data({
+            entries: users,
+            query: validated.data
+        });
 
         res.json(res.output);
     });
