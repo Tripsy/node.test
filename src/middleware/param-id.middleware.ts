@@ -9,7 +9,7 @@ const validateParamId = (req: Request, res: Response, next: NextFunction) => {
         throw new BadRequestError(lang('error.invalid_id'));
     }
 
-    // Attach the validated ID to the request object for later use
+    // Attach the validated ID to the response object for later use
     res.locals.validatedId = id;
 
     next(); // Proceed to the next middleware or route handler

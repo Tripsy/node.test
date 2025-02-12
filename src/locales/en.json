@@ -9,6 +9,7 @@
 	},
 	"error": {
 		"invalid_id": "Invalid ID parameter. ID must be a positive number",
+		"invalid_status": "Invalid status parameter. Accepted: {{allowedStatuses}}",
 		"filter_string": "Filter must be a string (eg: {{term}})",
 		"filter_number": "Filter must be a number (eg: {{term}})",
 		"filter_min": "Filter must be at least {{min}} characters long (eg: {{term}})",
@@ -34,18 +35,21 @@
 		},
 		"error": {
 			"not_found": "User not found",
-			"email_already_used": "Email already used by existing user"
+			"email_already_used": "Email already used by existing user",
+			"status_unchanged": "Status unchanged (eg: {{status}})"
 		},
 		"success": {
 			"create": "User created successfully",
 			"update": "User updated successfully",
-			"delete": "User deleted successfully"
+			"delete": "User deleted successfully",
+			"status": "User status updated successfully"
 		},
 		"history": {
 			"created": "User #{{id}} created",
 			"updated": "User #{{id}} updated",
 			"deleted": "User #{{id}} has been marked as deleted",
-			"removed": "User #{{id}} has been removed"
+			"removed": "User #{{id}} has been removed",
+			"status": "User #{{id}} updated from {{oldStatus}} to {{newStatus}}"
 		}
 	}
 }

@@ -70,11 +70,22 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
     }
 
     afterUpdate(event: UpdateEvent<UserEntity>) {
-        const id = event.entity?.id || event.databaseEntity.id; // TODO check to see if this works
+        const id = event.entity?.id || event.databaseEntity.id;
 
         void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, id.toString()));
         historyLogger.info(lang('user.history.updated', {id: id.toString()}));
-        // Send email notification for profile changes
+
+        // Check if status was updated
+        if (event.entity?.status && event.databaseEntity?.status && event.entity.status !== event.databaseEntity.status) {
+            historyLogger.info(lang('user.history.status', {
+                id: id.toString(),
+                oldStatus: event.databaseEntity.status,
+                newStatus: event.entity.status
+            }));
+
+            // Send email notification for profile changes
+            // sendStatusChangeNotification(id, event.databaseEntity.status, event.entity.status); // TODO
+        }
     }
 
     /**

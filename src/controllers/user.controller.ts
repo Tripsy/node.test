@@ -10,7 +10,6 @@ import CustomError from '../exceptions/custom.error';
 import {cacheProvider} from '../providers/cache.provider';
 import UserFindValidator from '../validators/user-find.validator';
 import {stringToDate} from '../helpers/formatter';
-import {QueryBuilder} from "typeorm";
 
 class UserController {
     public create = asyncHandler(async (req: Request, res: Response) => {
@@ -140,10 +139,22 @@ class UserController {
     });
 
     public status = asyncHandler(async (req: Request, res: Response) => {
-        const id = req.params.id;
-        const status = req.params.status;
+        const user = await UserRepository.createQuery()
+            .select(['id', 'status'])
+            .filterById(res.locals.validatedId)
+            .firstOrFail();
 
-        res.output.data('Set user #' + id + ' status to ' + status);
+        if (user.status === res.locals.validatedStatus) {
+            throw new BadRequestError(lang('user.error.status_unchanged', {
+                status: res.locals.validatedStatus
+            }));
+        }
+
+        user.status = res.locals.validatedStatus;
+
+        await UserRepository.save(user);
+
+        res.output.message(lang('user.success.status'));
 
         res.json(res.output);
     });

@@ -2,6 +2,8 @@ import {Router} from 'express';
 import validateParamId from '../middleware/param-id.middleware';
 import UserController from '../controllers/user.controller';
 import metaDocumentation from '../middleware/meta-documentation.middleware';
+import {UserStatusEnum} from '../enums/user-status.enum';
+import validateParamStatus from '../middleware/param-status.middleware';
 
 const routes: Router = Router();
 const routePrefix = '/users';
@@ -58,7 +60,9 @@ routes.get(
 routes.patch(
     `${routePrefix}/:id/status/:status`,
     [
-        metaDocumentation('user', 'status'), validateParamId
+        metaDocumentation('user', 'status'),
+        validateParamId,
+        validateParamStatus([UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE])
     ],
     UserController.status
 );
