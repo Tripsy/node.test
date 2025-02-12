@@ -44,7 +44,7 @@ class UserController {
         res.json(res.output);
     });
 
-    public read = asyncHandler(async (req: Request, res: Response) => {
+    public read = asyncHandler(async (_req: Request, res: Response) => {
         const cacheKey = cacheProvider.buildKey(UserRepository.entityAlias, res.locals.validatedId);
         const user = await cacheProvider.get(cacheKey, async () => {
             return UserRepository
@@ -90,7 +90,7 @@ class UserController {
         res.json(res.output);
     });
 
-    public delete = asyncHandler(async (req: Request, res: Response) => {
+    public delete = asyncHandler(async (_req: Request, res: Response) => {
         await UserRepository.createQuery()
             .filterById(res.locals.validatedId)
             .softDelete();
@@ -138,7 +138,7 @@ class UserController {
         res.json(res.output);
     });
 
-    public status = asyncHandler(async (req: Request, res: Response) => {
+    public status = asyncHandler(async (_req: Request, res: Response) => {
         const user = await UserRepository.createQuery()
             .select(['id', 'status'])
             .filterById(res.locals.validatedId)

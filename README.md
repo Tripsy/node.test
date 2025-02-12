@@ -128,9 +128,10 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 1. use extend on UserSubscriber and make generic functions for logging & also move the removeOperation
 2. handle authorization
 3. setup policy
-4. once policy is set up for admin on read and find allow to included entries marked as deleted
-5. build pino-transport-mysql - log.entity is created in /entities but add .ts
-6. test pino-transport-email
+4. route to handle password recover & change
+5. once policy is set up for admin on read and find allow to included entries marked as deleted
+6. build pino-transport-mysql - log.entity is created in /entities but add .ts
+7. test pino-transport-email
 
 # Ideas
 
