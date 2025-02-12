@@ -3,6 +3,8 @@ import {QueryBuilder, SelectQueryBuilder} from 'typeorm';
 import {lang} from '../config/i18n-setup.config';
 import NotFoundError from '../exceptions/not-found.error';
 import CustomError from '../exceptions/custom.error';
+import {dateToString} from '../helpers/formatter';
+import {OrderDirectionEnum} from "../enums/order-direction.enum";
 
 class AbstractQuery {
     private repository: Repository<any>;
@@ -14,6 +16,13 @@ class AbstractQuery {
         this.repository = repository;
         this.entityAlias = entityAlias;
         this.query = repository.createQueryBuilder(this.entityAlias);
+    }
+
+    consoleDebug(): this {
+        console.log('SQL:', this.query.getSql());
+        console.log('Parameters:', this.query.getParameters());
+
+        return this;
     }
 
     /**
@@ -57,6 +66,21 @@ class AbstractQuery {
         );
     }
 
+    isValidColumn(column: string): boolean {
+        const columnPattern = /^[a-zA-Z0-9_.]+$/; // Allow only letters, numbers, underscores, and dots
+
+        return columnPattern.test(column);
+    }
+
+    private prepareColumn(column: string): string {
+        // Validate or sanitize the column name
+        if (!this.isValidColumn(column)) {
+            throw new Error(`Invalid column name: ${column}`);
+        }
+
+        return column.includes('.') ? column : `${this.entityAlias}.${column}`
+    }
+
     /**
      * Return query builder object so further TypeOrm methods can be chained
      */
@@ -76,16 +100,32 @@ class AbstractQuery {
         return this.query.getRawOne();
     }
 
-    all() {
+    orderBy(column?: string, direction: OrderDirectionEnum = OrderDirectionEnum.ASC): this {
+        if (column) {
+            this.query.addOrderBy(`${this.prepareColumn(column)}`, direction);
+        }
+
+        return this;
+    }
+
+    pagination(page: number = 1, limit: number = 10): this {
+        this.query
+            .skip((page - 1) * limit)
+            .take(limit);
+
+        return this;
+    }
+
+    all(withCount: boolean = false) {
+        if (withCount) {
+            return this.query.getManyAndCount();
+        }
+
         return this.query.getMany();
     }
 
     async firstOrFail(isRaw: boolean = false) {
         const result = isRaw ? await this.firstRaw() : await this.first();
-
-        // console.log('SQL:', this.query.getSql());
-        // console.log('Parameters:', this.query.getParameters());
-        // console.log('Result:', result);
 
         if (!result) {
             throw new NotFoundError(lang(`${this.entityAlias}.error.not_found`));
@@ -119,12 +159,32 @@ class AbstractQuery {
         results.map(entity => this.repository.softRemove(entity));
     }
 
-    getLike(column: string, value?: string): this {
-        if (value) {
-            column = column.includes('.') ? column : `${this.entityAlias}.${column}`
+    filterBy(column: string, value?: string | number, operator: string = '='): this {
+        if (value !== undefined) {
+            column = this.prepareColumn(column);
 
-            this.hasFilter = value.length > 5; // Condition set to avoid too generic results
-            this.query.andWhere(`${column} LIKE :value`, { value: `%${value}%` });
+            // this.hasFilter = value.length > 5; // Condition set to avoid too generic results
+            this.query.andWhere(`${column} ${operator} :${column}`, { [column]: value });
+        }
+
+        return this;
+    }
+
+    filterByRange(column: string, min?: Date | number, max?: Date | number): this {
+        const minValue = min instanceof Date ? dateToString(min) : min;
+        const maxValue = max instanceof Date ? dateToString(max) : max;
+
+        if (min !== undefined && max !== undefined) {
+            column = this.prepareColumn(column);
+
+            this.query.andWhere(`${column} BETWEEN :min${column} AND :max${column}`, {
+                [`min${column}`]: minValue,
+                [`max${column}`]: maxValue,
+            });
+        } else if (min !== undefined) {
+            this.filterBy(column, minValue, '>=');
+        } else if (max !== undefined) {
+            this.filterBy(column, maxValue, '<=');
         }
 
         return this;
@@ -133,7 +193,7 @@ class AbstractQuery {
     filterById(id?: number) {
         if (id) {
             this.hasFilter = true;
-            this.query.andWhere(`${this.entityAlias}.id = :id`, {id});
+            this.filterBy('id', id);
         }
 
         return this;
@@ -141,8 +201,7 @@ class AbstractQuery {
 
     filterByStatus(status?: string) {
         if (status) {
-            // his.hasFilter = true; // Too generic
-            this.query.andWhere(`${this.entityAlias}.status = :status`, { status });
+            this.filterBy('status', status);
         }
 
         return this;

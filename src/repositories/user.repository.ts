@@ -7,19 +7,10 @@ export class UserQuery extends AbstractQuery {
         super(repository, UserRepository.entityAlias);
     }
 
-    filterByName(name?: string) {
-        if (name) {
-            this.hasFilter = true;
-            this.query.andWhere(`${this.entityAlias}.name = :name`, {name});
-        }
-
-        return this;
-    }
-
     filterByEmail(email?: string): this {
         if (email) {
             this.hasFilter = true;
-            this.query.andWhere(`${UserRepository.entityAlias}.email = :email`, { email });
+            this.filterBy('email', email);
         }
         return this;
     }

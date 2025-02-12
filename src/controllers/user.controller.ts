@@ -9,6 +9,8 @@ import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
 import {cacheProvider} from '../providers/cache.provider';
 import UserFindValidator from '../validators/user-find.validator';
+import {stringToDate} from '../helpers/formatter';
+import {QueryBuilder} from "typeorm";
 
 class UserController {
     public create = asyncHandler(async (req: Request, res: Response) => {
@@ -35,13 +37,7 @@ class UserController {
         userEntity.password = validated.data.password;
         userEntity.status = validated.data.status;
 
-        const {
-            password,
-            created_at,
-            updated_at,
-            deleted_at,
-            ...user
-        } = await UserRepository.save(userEntity);
+        const user: UserEntity = await UserRepository.save(userEntity);
 
         res.output.data(user);
         res.output.message(lang('user.success.create'));
@@ -83,7 +79,7 @@ class UserController {
 
         for (const key in validated.data) {
             // We allow update only for the fields used in the select
-            if (user.hasOwnProperty(key)) {
+            if (paramsUpdateList.includes(key)) {
                 user[key] = (validated.data as Record<string, any>)[key];
             }
         }
@@ -115,18 +111,28 @@ class UserController {
             throw new BadRequestError();
         }
 
-        const users = await UserRepository.createQuery()
+        const validatedCreateDateStart = validated.data.filter.create_date_start ? stringToDate(validated.data.filter.create_date_start) : undefined;
+        const validatedCreateDateEnd = validated.data.filter.create_date_end ? stringToDate(validated.data.filter.create_date_end) : undefined;
+
+        const [users, total] = await UserRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .getLike('name', validated.data.filter.name)
-            .getLike('email', validated.data.filter.email)
+            .filterBy('name', `%${validated.data.filter.name}%`, 'LIKE')
+            .filterBy('email', `%${validated.data.filter.email}%`, 'LIKE')
             .filterByStatus(validated.data.filter.status)
-            .all();
-    //
-    // .where('user.created_at >= :startDate', { startDate: '2024-01-01' })
-    //         .andWhere('user.created_at <= :endDate', { endDate: '2024-12-31' })
+            .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
+            .orderBy(validated.data.order_by, validated.data.direction)
+            .pagination(validated.data.page, validated.data.limit)
+            // .consoleDebug()s
+            .all(true);
 
         res.output.data({
             entries: users,
+            pagination: {
+                page: validated.data.page,
+                limit: validated.data.limit,
+                total: total,
+                totalPages: Math.ceil(total / validated.data.limit)
+            },
             query: validated.data
         });
 
