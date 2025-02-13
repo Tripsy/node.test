@@ -20,8 +20,8 @@ export default class UserEntity extends BaseEntityAbstract {
     })
     status?: UserStatusEnum;
 
-    @DeleteDateColumn({type: 'timestamp', select: false})
-    deleted_at?: Date;
+    @Column({type: 'timestamp'})
+    login_at?: Date; // Last login date
 
     // @OneToMany(() => Post, post => post.user)
     // posts: Post[];

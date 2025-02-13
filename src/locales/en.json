@@ -49,7 +49,16 @@
 			"updated": "User #{{id}} updated",
 			"deleted": "User #{{id}} has been marked as deleted",
 			"removed": "User #{{id}} has been removed",
-			"status": "User #{{id}} updated from {{oldStatus}} to {{newStatus}}"
+			"status": "User #{{id}} updated from {{oldStatus}} to {{newStatus}}",
+			"password_change": "Password changed for user #{{id}}"
+		}
+	},
+	"account": {
+		"error": {
+		},
+		"success": {
+			"login": "Logged in successfully",
+			"logout": "Logged out successfully"
 		}
 	}
 }

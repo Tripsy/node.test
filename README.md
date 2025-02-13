@@ -115,6 +115,7 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 - [zod](https://zod.dev)
 - [helmet](https://helmetjs.github.io/)
 - [ioredis](https://github.com/luin/ioredis)
+- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
 
 # Documentation
 
@@ -126,6 +127,7 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 # TODO
 
 2. handle authorization
+3. for account routes - recoverPassword, changePassword
 3. setup policy
 4. route to handle password recover & change
 5. once policy is set up for admin on read and find allow to included entries marked as deleted
@@ -134,12 +136,15 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 
 # Ideas
 
-https://expressjs.com/en/advanced/best-practice-performance.html
+1. https://expressjs.com/en/advanced/best-practice-performance.html
 
 Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app. Use the compression middleware for gzip compression in your Express app. 
 
-https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts
+2. https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts
 
+3. Tests
+
+# Temp
 
 class UserPolicy {
     static create(req: Request): boolean {

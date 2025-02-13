@@ -84,7 +84,14 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
             });
 
             // Send email notification for profile changes
-            // sendStatusChangeNotification(id, event.databaseEntity.status, event.entity.status); // TODO
+            // sendStatusChangeNotification(id, event.databaseEntity.status, event.entity.status); // TODO do implementation
+        }
+
+        // Check if password was updated // TODO check if works
+        if (event.entity?.password && event.databaseEntity?.password && event.entity.password !== event.databaseEntity.password) {
+            logHistory(UserRepository.entityAlias, 'password_change', {
+                id: id.toString()
+            });
         }
     }
 }
