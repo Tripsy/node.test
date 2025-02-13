@@ -8,13 +8,8 @@ import {
 } from 'typeorm';
 import UserEntity from '../entities/user.entity';
 import {encryptPassword} from '../helpers/security';
-import logger from '../providers/logger.provider';
-import {lang} from '../config/i18n-setup.config';
-import {childLogger} from '../helpers/log';
-import {cacheProvider} from '../providers/cache.provider';
 import UserRepository from '../repositories/user.repository';
-
-const historyLogger = childLogger(logger, 'history');
+import {cacheClean, logHistory, removeOperation} from '../helpers/subscriber';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
@@ -46,7 +41,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
      * @param event
      */
     beforeRemove(event: RemoveEvent<any>) {
-        this.removeOperation(event.entity.id, false);
+        removeOperation(event.entity.id, false);
     }
 
     /**
@@ -56,51 +51,40 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
      * @param event
      */
     afterSoftRemove(event: SoftRemoveEvent<any>) {
-        console.log(event.entity)
-        this.removeOperation(event.entity.id, true);
+        removeOperation(event.entity.id, true);
     }
 
     afterInsert(event: InsertEvent<UserEntity>) {
-        const id = event.entity?.id; // TODO check to see if this works
+        const id = event.entity?.id;
 
         if (id) {
-            historyLogger.info(lang('user.history.created', {id: id.toString()}));
+            logHistory(UserRepository.entityAlias, 'created', {
+                id: id.toString()
+            });
+
             // Send welcome email, log activity, etc.
         }
     }
 
     afterUpdate(event: UpdateEvent<UserEntity>) {
-        const id = event.entity?.id || event.databaseEntity.id;
+        const id: number = event.entity?.id || event.databaseEntity.id;
 
-        void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, id.toString()));
-        historyLogger.info(lang('user.history.updated', {id: id.toString()}));
+        cacheClean(UserRepository.entityAlias, id);
+
+        logHistory(UserRepository.entityAlias, 'updated', {
+            id: id.toString()
+        });
 
         // Check if status was updated
         if (event.entity?.status && event.databaseEntity?.status && event.entity.status !== event.databaseEntity.status) {
-            historyLogger.info(lang('user.history.status', {
+            logHistory(UserRepository.entityAlias, 'status', {
                 id: id.toString(),
                 oldStatus: event.databaseEntity.status,
                 newStatus: event.entity.status
-            }));
+            });
 
             // Send email notification for profile changes
             // sendStatusChangeNotification(id, event.databaseEntity.status, event.entity.status); // TODO
         }
-    }
-
-    /**
-     * Due to internal mechanism and how the delete operation is trigger ed,
-     * the events `beforeRemove`, `afterSoftRemove` cannot be used because occasionally because the event entity is undefined
-     *
-     * This method can be instead and triggered on delete operations
-     *
-     * @param id
-     * @param isSoftDelete
-     */
-    removeOperation(id: number, isSoftDelete: boolean = false) {
-        const action = isSoftDelete ? 'deleted' : 'removed';
-
-        void cacheProvider.delete(cacheProvider.buildKey(UserRepository.entityAlias, id.toString()));
-        historyLogger.info(lang(`user.history.${action}`, {id: id.toString()}));
     }
 }

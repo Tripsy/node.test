@@ -125,7 +125,6 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 
 # TODO
 
-1. use extend on UserSubscriber and make generic functions for logging & also move the removeOperation
 2. handle authorization
 3. setup policy
 4. route to handle password recover & change
