@@ -7,7 +7,7 @@ import {
     SoftRemoveEvent
 } from 'typeorm';
 import UserEntity from '../entities/user.entity';
-import {encryptPassword} from '../helpers/security';
+import {encryptPassword} from '../services/account.service';
 import UserRepository from '../repositories/user.repository';
 import {cacheClean, logHistory, removeOperation} from '../helpers/subscriber';
 
@@ -31,6 +31,11 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         // Hash password before updating if it has changed.
         if (event.entity?.password) {
             event.entity.password = await encryptPassword(event.entity.password);
+        }
+
+        // Prevent updating `updated_at` when `login_at` is updated.
+        if (event.entity?.login_at && event.databaseEntity) {
+            event.entity.updated_at = event.databaseEntity.updated_at;
         }
     }
 

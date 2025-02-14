@@ -1,0 +1,28 @@
+import {Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index} from 'typeorm';
+import UserEntity from './user.entity';
+
+@Entity('account_token', {
+    comment: 'Stores `ident` for account tokens to manage token revocation'
+})
+export default class AccountTokenEntity {
+    @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})
+    id!: number;
+
+    @Column('bigint', {unsigned: false, nullable: false})
+    @Index('IDX_account_token_user_id')
+    user_id!: number;
+
+    @Column('char', {length: 36, nullable: false, unique: true})
+    @Index('IDX_account_token_ident', { unique: true })
+    ident!: string;
+
+    @Column({type: 'timestamp', nullable: false})
+    expire_at!: Date;
+
+    @ManyToOne(() => UserEntity, (user) => user.account_tokens, {onDelete: 'CASCADE'})
+    @JoinColumn({
+        name: 'user_id',
+        referencedColumnName: 'id'
+    })
+    user?: UserEntity;
+}

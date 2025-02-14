@@ -3,14 +3,14 @@ import {Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Dele
 @Entity()
 export class BaseEntityAbstract {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})
-    id?: number;
+    id!: number;
 
-    @CreateDateColumn({type: 'timestamp'})
-    created_at?: Date;
+    @CreateDateColumn({type: 'timestamp', nullable: false})
+    created_at!: Date;
 
-    @UpdateDateColumn({type: 'timestamp'})
+    @UpdateDateColumn({type: 'timestamp', nullable: true})
     updated_at?: Date;
 
-    @DeleteDateColumn({type: 'timestamp', select: false})
+    @DeleteDateColumn({type: 'timestamp', nullable: true, select: false})
     deleted_at?: Date;
 }

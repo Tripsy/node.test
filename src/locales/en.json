@@ -55,10 +55,17 @@
 	},
 	"account": {
 		"error": {
+			"not_active": "Account not found",
+			"not_authorized": "Invalid email or password"
 		},
 		"success": {
 			"login": "Logged in successfully",
 			"logout": "Logged out successfully"
+		},
+		"validation": {
+			"email_required": "Email is required",
+			"email_invalid": "Email is invalid",
+			"password_required": "Password required"
 		}
 	}
 }

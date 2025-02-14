@@ -49,6 +49,8 @@ export const settings= {
         dateFormatLiteral: 'YYYY-MM-DD',
     },
     user: {
+        jwt_secret: process.env.JWT_SECRET as string || 'secret',
+        jwt_expires_in: parseInt(process.env.JWT_EXPIRES_IN || '60', 10) * 60, // converted to seconds
         nameMinLength: 3,
         passwordMinLength: 8,
     }

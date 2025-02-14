@@ -3,7 +3,7 @@ import {QueryBuilder, SelectQueryBuilder} from 'typeorm';
 import {lang} from '../config/i18n-setup.config';
 import NotFoundError from '../exceptions/not-found.error';
 import CustomError from '../exceptions/custom.error';
-import {dateToString} from '../helpers/formatter';
+import {dateToString} from '../helpers/utils';
 import {OrderDirectionEnum} from "../enums/order-direction.enum";
 
 class AbstractQuery {

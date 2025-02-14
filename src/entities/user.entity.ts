@@ -1,28 +1,31 @@
-import {Entity, Column, DeleteDateColumn} from 'typeorm';
+import {Entity, Column, OneToMany, Index} from 'typeorm';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {BaseEntityAbstract} from './base-entity.abstract';
+import AccountTokenEntity from './account_token.entity';
 
 @Entity('user')
 export default class UserEntity extends BaseEntityAbstract {
-    @Column('char', {nullable: false, length: 64})
-    name?: string;
+    @Column('varchar', {nullable: false})
+    name!: string
 
-    @Column('char', {nullable: true, length: 64, unique: true})
-    email?: string;
+    @Column('varchar', {nullable: false, unique: true})
+    @Index('IDX_user_email', { unique: true })
+    email!: string;
 
-    @Column('varchar', {nullable: true, select: false})
-    password?: string;
+    @Column('varchar', {nullable: false, select: false})
+    password!: string;
 
     @Column({
         type: 'enum',
         enum: UserStatusEnum,
         default: UserStatusEnum.PENDING,
+        nullable: false
     })
-    status?: UserStatusEnum;
+    status!: UserStatusEnum;
 
-    @Column({type: 'timestamp'})
-    login_at?: Date; // Last login date
+    @Column({type: 'timestamp', nullable: true, comment: 'Timestamp of the last login'})
+    login_at?: Date;
 
-    // @OneToMany(() => Post, post => post.user)
-    // posts: Post[];
+    @OneToMany(() => AccountTokenEntity, (accountToken) => accountToken.user)
+    account_tokens?: AccountTokenEntity[];
 }

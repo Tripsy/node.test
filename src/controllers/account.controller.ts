@@ -1,16 +1,13 @@
 import {Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
 import UserRepository from '../repositories/user.repository';
-import UserEntity from '../entities/user.entity';
-import UserCreateValidator from '../validators/user-create.validator';
-import UserUpdateValidator, {paramsUpdateList} from '../validators/user-update.validator';
 import {lang} from '../config/i18n-setup.config';
 import BadRequestError from '../exceptions/bad-request.error';
-import CustomError from '../exceptions/custom.error';
-import {cacheProvider} from '../providers/cache.provider';
-import UserFindValidator from '../validators/user-find.validator';
-import {stringToDate} from '../helpers/formatter';
-import bcrypt from "bcrypt";
+import AccountLoginValidator from '../validators/account-login.validator';
+import {UserStatusEnum} from '../enums/user-status.enum';
+import NotFoundError from '../exceptions/not-found.error';
+import UnauthorizedError from '../exceptions/unauthorized.error';
+import {setupToken, verifyPassword} from '../services/account.service';
 
 class AccountController {
     public login = asyncHandler(async (req: Request, res: Response) => {
@@ -24,32 +21,21 @@ class AccountController {
         }
 
         const user = await UserRepository.createQuery()
-            .select(['id', 'password', 'status'])
+            .select(['id', 'password', 'status', 'created_at'])
             .filterByEmail(validated.data.email)
             .firstOrFail();
 
-        // check if account is active
+        if (user.status !== UserStatusEnum.ACTIVE) {
+            throw new NotFoundError(lang('account.error.not_active'));
+        }
 
-        // check if password is correct
-        // // Compare the provided password with the hashed password
-        // const isPasswordValid = await bcrypt.compare(password, user.password);
-        //
-        // if (!isPasswordValid) {
-        //     return res.status(401).json({ message: "Invalid email or password." });
-        // }
+        const isValidPassword: boolean = await verifyPassword(validated.data.password, user.password);
 
+        if (!isValidPassword) {
+            throw new UnauthorizedError(lang('account.error.not_authorized'));
+        }
 
-        // // Payload to be signed in JWT
-        // const payload = {
-        //     id: user.id,
-        //     username: user.username,
-        //     role: user.role, // Useful for role-based access control
-        // };
-        //
-        // // Generate token
-        // const token = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '1h' });
-
-        // create entry in account_jwt table [jti, expirationDate]
+        const token = await setupToken(user);
 
         user.login_at = new Date();
 
@@ -65,7 +51,7 @@ class AccountController {
 
     public logout = asyncHandler(async (_req: Request, res: Response) => {
 
-        // check entry in account_jwt table [jti, expirationDate]
+        // check entry in account_token
         // if found remove entry and return success message
         // if not found return error message
 
@@ -107,6 +93,7 @@ class AccountController {
         // if not authenticated user allow password change based on password recovery token
 
         // how do I remove entry from account_jwt_table if they are not authenticated
+        // check against last password change date and compare with date of the issued token
     });
 }
 
