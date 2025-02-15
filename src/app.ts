@@ -9,7 +9,7 @@ import logger from './providers/logger.provider';
 import {outputHandler} from './middleware/output-handler.middleware';
 import {notFoundHandler} from "./middleware/not-found-handler.middleware";
 import {errorHandler} from './middleware/error-handler.middleware';
-import {destroyDatabase, initDatabase} from './config/init-database.config';
+import {destroyDatabase, initDatabase} from './providers/database.provider';
 import {settings} from './config/settings.config';
 import {initRoutes} from './config/init-routes.config';
 import {cacheProvider} from './providers/cache.provider';
@@ -19,6 +19,9 @@ let server: Server;
 
 // Helmet adds an extra layer of protection
 app.use(helmet());
+
+// This makes req.ip return the correct client IP instead of the proxy’s IP.
+app.set('trust proxy', true);
 
 // Middleware for handling CORS
 app.use(corsHandler);

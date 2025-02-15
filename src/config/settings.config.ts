@@ -51,6 +51,7 @@ export const settings= {
     user: {
         jwt_secret: process.env.JWT_SECRET as string || 'secret',
         jwt_expires_in: parseInt(process.env.JWT_EXPIRES_IN || '60', 10) * 60, // converted to seconds
+        maxActiveSessions: 2, // maximum number of active sessions per user; on valid login and max number will have to chose to remove old session(s)
         nameMinLength: 3,
         passwordMinLength: 8,
     }

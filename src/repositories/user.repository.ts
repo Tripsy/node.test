@@ -1,4 +1,4 @@
-import dataSource from '../config/init-database.config';
+import dataSource from '../config/data-source.config';
 import UserEntity from '../entities/user.entity';
 import AbstractQuery from './abstract.query';
 

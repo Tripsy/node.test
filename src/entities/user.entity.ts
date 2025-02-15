@@ -23,9 +23,6 @@ export default class UserEntity extends BaseEntityAbstract {
     })
     status!: UserStatusEnum;
 
-    @Column({type: 'timestamp', nullable: true, comment: 'Timestamp of the last login'})
-    login_at?: Date;
-
     @OneToMany(() => AccountTokenEntity, (accountToken) => accountToken.user)
     account_tokens?: AccountTokenEntity[];
 }

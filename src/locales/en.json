@@ -56,7 +56,8 @@
 	"account": {
 		"error": {
 			"not_active": "Account not found",
-			"not_authorized": "Invalid email or password"
+			"not_authorized": "Invalid email or password",
+			"max_active_sessions": "Too many active sessions"
 		},
 		"success": {
 			"login": "Logged in successfully",

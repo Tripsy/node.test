@@ -94,15 +94,21 @@ userLogger.info('This is a log from user')
 ```
 ### TypeORM
 
+> **Warning**
+> Always check the migrations before run it, sometimes columns are dropped
+
 ```bash
 // Generate migration file
-docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/init-database.config.ts /var/www/html/src/migrations/init
+docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/migrations/init
 
 // Run new migrations - update DB structure
-docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/init-database.config.ts
+docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts
 
 // Revert last migration
-docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/init-database.config.ts
+docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts
+
+// Reset 
+docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 ```
 
 # Packages

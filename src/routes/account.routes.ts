@@ -23,22 +23,22 @@ routes.delete(
     AccountController.logout
 );
 
-// User - Recover password
-routes.post(
-    `${routePrefix}/password-recover`,
-    [
-        metaDocumentation('account', 'password-recover'),
-    ],
-    AccountController.passwordRecover
-);
-
-// User - Change password
-routes.post(
-    `${routePrefix}/password-change`,
-    [
-        metaDocumentation('account', 'password-change'),
-    ],
-    AccountController.passwordChange
-);
+// // User - Recover password
+// routes.post(
+//     `${routePrefix}/password-recover`,
+//     [
+//         metaDocumentation('account', 'password-recover'),
+//     ],
+//     AccountController.passwordRecover
+// );
+//
+// // User - Change password
+// routes.post(
+//     `${routePrefix}/password-change`,
+//     [
+//         metaDocumentation('account', 'password-change'),
+//     ],
+//     AccountController.passwordChange
+// );
 
 export default routes;
