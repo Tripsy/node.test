@@ -13,7 +13,8 @@ import {destroyDatabase, initDatabase} from './providers/database.provider';
 import {settings} from './config/settings.config';
 import {initRoutes} from './config/init-routes.config';
 import {cacheProvider} from './providers/cache.provider';
-import sessionMiddleware from './middleware/session.middleware';
+import authMiddleware from './middleware/auth.middleware';
+import languageMiddleware from './middleware/language.middleware';
 
 const app: express.Application = express();
 let server: Server;
@@ -33,6 +34,9 @@ app.use(express.json());
 
 // Initialize i18n for localization
 app.use(i18n.init);
+
+// Middleware for handling language
+app.use(languageMiddleware);
 
 // Add res.output object used to present standardized responses
 app.use(outputHandler);
@@ -68,8 +72,8 @@ const shutdown = (server: Server, signal: string,): void => {
 // Initialize database and routes, set handlers (notFoundHandler and errorHandler) && start server
 Promise.all([initDatabase(), initRoutes()])
     .then(([, router]) => {
-        // Middleware for handling sessions
-        app.use(sessionMiddleware);
+        // Middleware for handling user authentication
+        app.use(authMiddleware);
 
         // Load routes
         app.use('/', router);

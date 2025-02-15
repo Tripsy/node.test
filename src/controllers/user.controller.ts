@@ -36,6 +36,10 @@ class UserController {
         userEntity.password = validated.data.password;
         userEntity.status = validated.data.status;
 
+        if (validated.data.language) {
+            userEntity.language = validated.data.language;
+        }
+
         const user: UserEntity = await UserRepository.save(userEntity);
 
         res.output.data(user);

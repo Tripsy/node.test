@@ -66,3 +66,5 @@ routes.patch(
     ],
     UserController.status
 );
+
+export default routes;

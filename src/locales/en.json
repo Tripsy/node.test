@@ -1,11 +1,7 @@
 {
-	"email": {
-		"subject": {
-			"pino-transport-email": "Logging Alert - {{ source }}"
-		},
-		"content": {
-			"pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
-		}
+	"debug": {
+		"email_error": "Failed to send email with subject `{{subject}}` to `{{to}}` (eg: {{error}})",
+		"email_sent": "Email with subject `{{subject}}` sent successfully to `{{to}}`"
 	},
 	"error": {
 		"invalid_id": "Invalid ID parameter. ID must be a positive number",
@@ -21,17 +17,18 @@
 	},
 	"user": {
 		"validation": {
-			"name_required": "Name is required",
+			"name_invalid": "Name is invalid",
 			"name_min": "Name must be at least {{min}} characters long",
-			"email_required": "Email is required",
 			"email_invalid": "Email is invalid",
-			"password_required": "Password must be at least {{min}} characters long",
+			"password_invalid": "Invalid password",
+			"password_min": "Password must be at least {{min}} characters long",
 			"password_condition_capital_letter": "Password must contain at least one capital letter",
 			"password_condition_number": "Password must contain at least one number",
 			"password_condition_special_character": "Password must contain at least one special character",
 			"password_confirmation_required": "Password confirmation is required",
 			"password_confirmation_mismatch": "Passwords does not match",
-			"password": "user.validation.password"
+			"password": "user.validation.password",
+			"language_invalid": "user.validation.language_invalid"
 		},
 		"error": {
 			"not_found": "User not found",
@@ -58,19 +55,22 @@
 			"not_active": "Account not found",
 			"not_authorized": "Invalid email or password",
 			"max_active_sessions": "Too many active sessions",
-			"not_logged_in": "Not logged in"
+			"not_logged_in": "Not logged in",
+			"recovery_attempts_exceeded": "Recovery attempts exceeded. Try again later"
 		},
 		"success": {
 			"login": "Logged in successfully",
 			"logout": "Logged out successfully",
-			"token_deleted": "Token deleted successfully"
+			"token_deleted": "Token deleted successfully",
+			"password_recover": "Password recover email sent successfully"
 		},
 		"validation": {
 			"email_required": "Email is required",
 			"email_invalid": "Email is invalid",
 			"password_required": "Password required",
 			"ident_required": "Ident is required",
-			"ident_invalid": "Ident is invalid"
+			"ident_invalid": "Ident is invalid",
+			"password_invalid": "account.validation.password_invalid"
 		}
 	}
 }

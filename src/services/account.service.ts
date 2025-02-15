@@ -3,7 +3,7 @@ import UserEntity from '../entities/user.entity';
 import jwt from 'jsonwebtoken';
 import {settings} from '../config/settings.config';
 import {v4 as uuid} from 'uuid';
-import {createExpireDate} from '../helpers/utils';
+import {createFutureDate} from '../helpers/utils';
 import AccountTokenEntity from '../entities/account_token.entity';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import {Request} from 'express';
@@ -11,6 +11,8 @@ import {getClientIp} from '../helpers/system';
 import {TokenPayload} from '../types/token-payload.type';
 import {getMetadataValue} from '../helpers/metadata';
 import {ValidToken} from '../types/valid-token.type';
+import AccountRecoveryEntity from '../entities/account_recovery.entity';
+import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 
 export async function encryptPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -34,14 +36,14 @@ export function createAuthToken(user: UserWithRequiredTokenProperties): {
     }
 
     const ident: string = uuid();
-    const expire_at: Date = createExpireDate(settings.user.jwt_expires_in);
+    const expire_at: Date = createFutureDate(settings.user.jwtExpiresIn);
 
     const payload: TokenPayload = {
         user_id: user.id,
         ident: ident
     };
 
-    const token = jwt.sign(payload, settings.user.jwt_secret);
+    const token = jwt.sign(payload, settings.user.jwtSecret);
 
     return {token, ident, expire_at};
 }
@@ -96,3 +98,20 @@ export async function getValidTokens(user_id: number): Promise<ValidToken[]> {
 export function readToken(req: Request): string | undefined {
     return req.headers.authorization?.split(' ')[1];
 }
+
+export async function setupRecovery(user: UserWithRequiredTokenProperties, req: Request): Promise<[string, Date]> {
+    const ident: string = uuid();
+    const expire_at = createFutureDate(settings.user.recoveryIdentExpiresIn);
+
+    const accountRecoveryEntity = new AccountRecoveryEntity();
+    accountRecoveryEntity.user_id = user.id;
+    accountRecoveryEntity.ident = uuid();
+    accountRecoveryEntity.metadata = buildMetadata(req);
+    accountRecoveryEntity.used_at = new Date();
+    accountRecoveryEntity.expire_at = expire_at;
+
+    await AccountRecoveryRepository.save(accountRecoveryEntity);
+
+    return [ident, expire_at];
+}
+

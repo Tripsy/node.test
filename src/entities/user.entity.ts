@@ -2,6 +2,7 @@ import {Entity, Column, OneToMany, Index} from 'typeorm';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {BaseEntityAbstract} from './base-entity.abstract';
 import AccountTokenEntity from './account_token.entity';
+import AccountRecoveryEntity from './account_recovery.entity';
 
 @Entity('user')
 export default class UserEntity extends BaseEntityAbstract {
@@ -15,6 +16,9 @@ export default class UserEntity extends BaseEntityAbstract {
     @Column('varchar', {nullable: false, select: false})
     password!: string;
 
+    @Column('char', {length: 2, nullable: false})
+    language!: string;
+
     @Column({
         type: 'enum',
         enum: UserStatusEnum,
@@ -25,4 +29,7 @@ export default class UserEntity extends BaseEntityAbstract {
 
     @OneToMany(() => AccountTokenEntity, (accountToken) => accountToken.user)
     account_tokens?: AccountTokenEntity[];
+
+    @OneToMany(() => AccountRecoveryEntity, (accountRecovery) => accountRecovery.user)
+    account_recoveries?: AccountRecoveryEntity[];
 }

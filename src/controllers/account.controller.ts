@@ -7,11 +7,16 @@ import AccountLoginValidator from '../validators/account-login.validator';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import NotFoundError from '../exceptions/not-found.error';
 import UnauthorizedError from '../exceptions/unauthorized.error';
-import {getValidTokens, setupToken, verifyPassword} from '../services/account.service';
+import {getValidTokens, setupRecovery, setupToken, verifyPassword} from '../services/account.service';
 import {settings} from '../config/settings.config';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import AccountRemoveTokenValidator from '../validators/account-remove-token.validator';
+import AccountPasswordRecoverValidator from '../validators/account-password-recover.validator';
 import {ValidToken} from '../types/valid-token.type';
+import AccountRecoveryRepository from '../repositories/account-recovery.repository';
+import {createPastDate} from '../helpers/utils';
+import {prepareEmailContent, queueEmail} from '../services/email.service';
+import {EmailContent} from '../types/email-content.type';
 
 class AccountController {
     public login = asyncHandler(async (req: Request, res: Response) => {
@@ -79,13 +84,13 @@ class AccountController {
     });
 
     public logout = asyncHandler(async (req: Request, res: Response) => {
-        if (!req.session?.user) {
+        if (!req.user) {
             throw new BadRequestError(lang('account.error.not_logged_in'));
         }
 
         try {
             await AccountTokenRepository.createQuery()
-                .filterBy('user_id', req.session?.user.id)
+                .filterBy('user_id', req.user.id)
                 .delete(false, true);
         } catch (error) {
             if (!(error instanceof NotFoundError)) {
@@ -98,7 +103,7 @@ class AccountController {
         res.json(res.output);
     });
 
-    public passwordRecover = asyncHandler(async (_req: Request, res: Response) => {
+    public passwordRecover = asyncHandler(async (req: Request, res: Response) => {
         // Validate the request body against the schema
         const validated = AccountPasswordRecoverValidator.safeParse(req.body);
 
@@ -108,13 +113,41 @@ class AccountController {
             throw new BadRequestError();
         }
 
-        // validate email address
-        // check if user exists
-        // check if user is active
-        // Ensure rate limiting to prevent abuse - Rate limit password reset attempts per email/IP.
-        // create password recovery token - based on JWT probably or UUID - with expiration time
-        // save entry in account_password_recovery table [user_id, token, expires_at, used_at]
-        // send password recovery email
+        const user = await UserRepository.createQuery()
+            .select(['id', 'name', 'email', 'language', 'status'])
+            .filterByEmail(validated.data.email)
+            .firstOrFail();
+
+        if (user.status !== UserStatusEnum.ACTIVE) {
+            throw new NotFoundError(lang('account.error.not_active'));
+        }
+
+        const countRecoveryAttempts: number = await AccountRecoveryRepository.createQuery()
+            .select(['id'])
+            .filterBy('user_id', user.id)
+            .filterByRange('created_at', createPastDate(6 * 60 * 60)) // Last 6 hours
+            .count();
+
+        if (countRecoveryAttempts >= settings.user.recoveryAttemptsInLastSixHours) {
+            throw new BadRequestError(lang('account.error.recovery_attempts_exceeded'));
+        }
+
+        const [ident, expire_at] = await setupRecovery(user, req);
+
+        const emailContent: EmailContent = prepareEmailContent('password-recover', user.language || req.lang, {
+            'name': user.name,
+            'ident': ident,
+            'expire_at': expire_at.toISOString()
+        });
+
+        void queueEmail(emailContent, {
+            name: user.name,
+            address: user.email
+        });
+
+        res.output.message(lang('account.success.password_recover'));
+
+        res.json(res.output);
     });
 
     // split to two routes

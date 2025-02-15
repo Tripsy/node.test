@@ -100,6 +100,16 @@ class AbstractQuery {
         return this.query.getRawOne();
     }
 
+    async firstOrFail(isRaw: boolean = false) {
+        const result = isRaw ? await this.firstRaw() : await this.first();
+
+        if (!result) {
+            throw new NotFoundError(lang(`${this.entityAlias}.error.not_found`));
+        }
+
+        return result;
+    }
+
     orderBy(column?: string, direction: OrderDirectionEnum = OrderDirectionEnum.ASC): this {
         if (column) {
             this.query.addOrderBy(`${this.prepareColumn(column)}`, direction);
@@ -124,14 +134,8 @@ class AbstractQuery {
         return this.query.getMany();
     }
 
-    async firstOrFail(isRaw: boolean = false) {
-        const result = isRaw ? await this.firstRaw() : await this.first();
-
-        if (!result) {
-            throw new NotFoundError(lang(`${this.entityAlias}.error.not_found`));
-        }
-
-        return result;
+    count() {
+        return this.query.getCount();
     }
 
     /**

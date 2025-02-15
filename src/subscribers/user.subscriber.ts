@@ -10,6 +10,7 @@ import UserEntity from '../entities/user.entity';
 import {encryptPassword} from '../services/account.service';
 import UserRepository from '../repositories/user.repository';
 import {cacheClean, logHistory, removeOperation} from '../helpers/subscriber';
+import {settings} from '../config/settings.config';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
@@ -24,6 +25,11 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         // Hash password before inserting a new user.
         if (event.entity.password) {
             event.entity.password = await encryptPassword(event.entity.password);
+        }
+
+        // Set default language
+        if (!event.entity.language) {
+            event.entity.language = settings.app.defaultLanguage;
         }
     }
 

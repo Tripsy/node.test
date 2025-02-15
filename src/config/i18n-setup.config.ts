@@ -3,7 +3,7 @@ import i18n from 'i18n';
 import {buildSrcPath} from '../helpers/system';
 
 i18n.configure({
-    locales: ['en'], // List of supported locales
+    locales: settings.app.supportedLanguages, // List of supported locales
     directory: buildSrcPath('locales'), // Path to the locales directory
     defaultLocale: 'en', // Default locale
     objectNotation: true, // Enable object notation for nested translations

@@ -6,17 +6,17 @@ import {settings} from '../config/settings.config';
 const UserCreateValidator = z
     .object({
         name: z
-            .string({message: lang('user.validation.name_required')})
+            .string({message: lang('user.validation.name_invalid')})
             .min(settings.user.nameMinLength, {
                 message: lang('user.validation.name_min', {min: settings.user.nameMinLength.toString()}),
             }),
         email: z
-            .string({message: lang('user.validation.email_required')})
+            .string({message: lang('user.validation.email_invalid')})
             .email({message: lang('user.validation.email_invalid')}),
         password: z
-            .string({message: lang('user.validation.password_required')})
+            .string({message: lang('user.validation.password_invalid')})
             .min(settings.user.passwordMinLength, {
-                message: lang('user.validation.password', {min: settings.user.passwordMinLength.toString()}),
+                message: lang('user.validation.password_min', {min: settings.user.passwordMinLength.toString()}),
             })
             .refine((value) => /[A-Z]/.test(value), {
                 message: lang('user.validation.password_condition_capital_letter'),
@@ -29,6 +29,10 @@ const UserCreateValidator = z
             }),
         password_confirmation: z
             .string({message: lang('user.validation.password_confirmation_required')}),
+        language: z
+            .string({message: lang('user.validation.language_invalid')})
+            .length(2, {message: lang('user.validation.language_invalid')})
+            .optional(),
         status: z
             .nativeEnum(UserStatusEnum)
             .optional()

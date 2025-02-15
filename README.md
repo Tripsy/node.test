@@ -63,6 +63,10 @@ docker $ pnpm run dev
     app.ts
 ```
 
+# Notes
+
+ - req & res objects have injected additional properties - check /src/types/express.d.ts
+
 # Usage
 
 ### Pino
@@ -135,11 +139,11 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-s
 2. account.controller -> passwordRecover && passwordChange (Which needs to be splitted in two routes for sure)
 3. create cron to remove expired account tokens
 4. add user role & user maybe user permission
-3. setup policy
-4. route to handle password recover & change
-5. once policy is set up for admin on read and find allow to included entries marked as deleted
-6. build pino-transport-mysql - log.entity is created in /entities but add .ts
-7. test pino-transport-email
+5. setup policy
+6. route to handle password recover & change
+7. once policy is set up for admin on read and find allow to included entries marked as deleted
+8. build pino-transport-mysql - log.entity is created in /entities but add .ts
+9. test pino-transport-email
 
 # Ideas
 
@@ -187,25 +191,11 @@ return res.json(res.output);
 
 -----------------
 
-import { UserRepository } from '../repositories/user.repository';
-import { UserEntity } from '../entities/user.entity';
-
-class UserService {
-async deleteUser(userId: number): Promise<void> {
-await UserRepository.softDelete(userId);
-}
-
-    async restoreUser(userId: number): Promise<void> {
-        await UserRepository.restore(userId);
-    }
-
-    async getDeletedUsers(): Promise<UserEntity[]> {
-        return await UserRepository.find({
-            where: {
-                deletedAt: Not(IsNull()),
-            },
-        });
-    }
-}
-
-export default new UserService();
+//	"email": {
+//		"subject": {
+//			"pino-transport-email": "Logging Alert - {{ source }}"
+//		},
+//		"content": {
+//			"pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
+//		}
+//	},

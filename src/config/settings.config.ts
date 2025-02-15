@@ -8,6 +8,8 @@ export const settings= {
         timezone: process.env.APP_TIMEZONE || 'UTC',
         url: process.env.APP_URL || 'http://node.test',
         port: parseInt(process.env.APP_PORT || '3000', 10),
+        defaultLanguage: process.env.APP_LANG || 'en',
+        supportedLanguages: (process.env.APP_SUPPORTED_LANGUAGES || 'en').trim().split(','),
         rootPath: process.env.ROOT_PATH || '/var/www/html',
         srcPath: process.env.SRC_PATH || '/var/www/html/src',
         allowedOrigins: [
@@ -41,6 +43,7 @@ export const settings= {
         password: process.env.MAIL_PASSWORD || '',
         fromAddress: process.env.MAIL_FROM_ADDRESS || 'hello@example.com',
         fromName: process.env.MAIL_FROM_NAME || 'sample-node-api',
+        mailtrapToken: process.env.MAILTRAP_TOKEN || ''
     },
     filter: {
         defaultLimit: 20,
@@ -49,10 +52,12 @@ export const settings= {
         dateFormatLiteral: 'YYYY-MM-DD',
     },
     user: {
-        jwt_secret: process.env.JWT_SECRET as string || 'secret',
-        jwt_expires_in: parseInt(process.env.JWT_EXPIRES_IN || '60', 10) * 60, // converted to seconds
-        jwt_refresh_expires_in: parseInt(process.env.JWT_REFRESH_EXPIRES_IN || '60', 10) * 60, // converted to seconds; must be less than jwt_expires_in; used to refresh token if token expires before this value
+        jwtSecret: process.env.JWT_SECRET as string || 'secret',
+        jwtExpiresIn: parseInt(process.env.JWT_EXPIRES_IN || '60', 10) * 60, // converted to seconds
+        jwtRefreshExpiresIn: parseInt(process.env.JWT_REFRESH_EXPIRES_IN || '60', 10) * 60, // converted to seconds; used to refresh token if token expires before this value
         maxActiveSessions: 2, // maximum number of active sessions per user; on valid login and max number will have to chose to remove old session(s)
+        recoveryIdentExpiresIn: 7200, // converted to seconds
+        recoveryAttemptsInLastSixHours: 3,
         nameMinLength: 3,
         passwordMinLength: 8,
     }

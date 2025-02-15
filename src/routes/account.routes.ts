@@ -51,3 +51,5 @@ routes.post(
     ],
     AccountController.passwordChange
 );
+
+export default routes;

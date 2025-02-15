@@ -7,9 +7,9 @@ import AccountTokenRepository from '../repositories/account-token.repository';
 import {compareMetadataValue} from '../helpers/metadata';
 import UserRepository from '../repositories/user.repository';
 import {UserStatusEnum} from '../enums/user-status.enum';
-import {createExpireDate} from '../helpers/utils';
+import {createFutureDate} from '../helpers/utils';
 
-async function sessionMiddleware(req: Request, _res: Response, next: NextFunction) {
+async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
     const token: string | undefined = readToken(req);
 
     if (!token) {
@@ -20,7 +20,7 @@ async function sessionMiddleware(req: Request, _res: Response, next: NextFunctio
     let payload: TokenPayload;
 
     try {
-        payload = jwt.verify(token, settings.user.jwt_secret) as TokenPayload;
+        payload = jwt.verify(token, settings.user.jwtSecret) as TokenPayload;
     } catch (err) {
         return next();
     }
@@ -48,7 +48,7 @@ async function sessionMiddleware(req: Request, _res: Response, next: NextFunctio
     }
 
     const user = await UserRepository.createQuery()
-        .select(['id', 'email', 'name', 'status'])
+        .select(['id', 'name', 'email', 'language', 'status'])
         .filterById(payload.user_id)
         .first();
 
@@ -60,10 +60,10 @@ async function sessionMiddleware(req: Request, _res: Response, next: NextFunctio
     // Refresh the token if it's close to expiration
     const diffInMinutes = Math.floor((activeToken.expire_at.getTime() - Date.now()) / 60000);
 
-    if (diffInMinutes < settings.user.jwt_refresh_expires_in) {
+    if (diffInMinutes < settings.user.jwtRefreshExpiresIn) {
         await AccountTokenRepository.update(activeToken.id, {
             used_at: new Date(),
-            expire_at: createExpireDate(settings.user.jwt_expires_in),
+            expire_at: createFutureDate(settings.user.jwtExpiresIn),
         });
     } else {
         await AccountTokenRepository.update(activeToken.id, {
@@ -72,15 +72,14 @@ async function sessionMiddleware(req: Request, _res: Response, next: NextFunctio
     }
 
     // Attach user information to the request object
-    req.session = {
-        user: {
-            id: user.id,
-            email: user.email,
-            name: user.name
-        }
+    req.user = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        language: user.language
     };
 
     next();
 }
 
-export default sessionMiddleware;
+export default authMiddleware;

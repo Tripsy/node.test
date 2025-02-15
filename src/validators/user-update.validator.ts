@@ -2,15 +2,19 @@ import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
 import {settings} from '../config/settings.config';
 
-export const paramsUpdateList: string[] = ['name'];
+export const paramsUpdateList: string[] = ['name', 'language'];
 
 const UserUpdateValidator = z
     .object({
         name: z
-            .string({message: lang('user.validation.name_required')})
+            .string({message: lang('user.validation.name_invalid')})
             .min(settings.user.nameMinLength, {
                 message: lang('user.validation.name_min', {min: settings.user.nameMinLength.toString()}),
             })
+            .optional(),
+        language: z
+            .string({message: lang('user.validation.language_invalid')})
+            .length(2, {message: lang('user.validation.language_invalid')})
             .optional(),
     })
     .refine((data) => Object.values(data).some((value) => value !== undefined), {
