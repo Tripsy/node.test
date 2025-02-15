@@ -19,5 +19,11 @@ export function apiDocumentationUrl(...args: string[]): string {
 }
 
 export function getClientIp(req: Request): string | undefined {
-    return (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip;
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip;
+
+    if (typeof ip === 'string') {
+        return ip.replace(/^::ffff:/, '');
+    }
+
+    return undefined;
 }

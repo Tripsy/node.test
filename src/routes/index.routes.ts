@@ -22,5 +22,3 @@ routes.get('/', asyncHandler(async (req: Request, res: Response) => {
     // res.json(res.output.raw(false)); // Does not remove errors, data and meta keys even when they are empty
     res.json(res.output); // Based on toJSON() it automatically calls raw()
 }));
-
-export default routes;

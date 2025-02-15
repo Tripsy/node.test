@@ -93,7 +93,7 @@ class UserController {
     public delete = asyncHandler(async (_req: Request, res: Response) => {
         await UserRepository.createQuery()
             .filterById(res.locals.validatedId)
-            .softDelete();
+            .delete();
 
         res.output.message(lang('user.success.delete'));
 

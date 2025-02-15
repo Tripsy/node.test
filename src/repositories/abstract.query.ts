@@ -135,13 +135,14 @@ class AbstractQuery {
     }
 
     /**
-     * Used to delete a single entity or multiple entities
-     * Events (ex: beforeRemove, afterSoftRemove) will be triggered
+     * Used to (soft) delete a single entity or multiple entities
+     * Events will be triggered (ex: beforeRemove for delete, afterSoftRemove for soft delete)
      *
+     * @param isSoftDelete - if set as `true` will soft delete
      * @param multiple - must be set as `true` to allow multiple entity deletion
      * @param force - if set as `true` will allow deletion without filter (note: Use with caution!!!)
      */
-    async softDelete(multiple: boolean = false, force: boolean = false) {
+    async delete(isSoftDelete: boolean = true, multiple: boolean = false, force: boolean = false) {
         if (!force && !this.hasFilter) {
             throw new CustomError(500, lang('error.db_delete_missing_filter'));
         }
@@ -156,7 +157,11 @@ class AbstractQuery {
             throw new CustomError(500, lang('error.db_delete_one'));
         }
 
-        results.map(entity => this.repository.softRemove(entity));
+        if (isSoftDelete) {
+            results.map(entity => this.repository.softRemove(entity));
+        } else {
+            results.map(entity => this.repository.remove(entity));
+        }
     }
 
     filterBy(column: string, value?: string | number, operator: string = '='): this {

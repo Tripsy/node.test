@@ -132,8 +132,9 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-s
 
 # TODO
 
-2. handle authorization
-3. for account routes - recoverPassword, changePassword
+2. account.controller -> passwordRecover && passwordChange (Which needs to be splitted in two routes for sure)
+3. create cron to remove expired account tokens
+4. add user role & user maybe user permission
 3. setup policy
 4. route to handle password recover & change
 5. once policy is set up for admin on read and find allow to included entries marked as deleted

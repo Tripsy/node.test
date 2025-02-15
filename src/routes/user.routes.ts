@@ -17,7 +17,7 @@ routes.post(
     UserController.create
 );
 
-// User - Read (Single)
+// User - Read
 routes.get(
     `${routePrefix}/:id`,
     [
@@ -66,5 +66,3 @@ routes.patch(
     ],
     UserController.status
 );
-
-export default routes;

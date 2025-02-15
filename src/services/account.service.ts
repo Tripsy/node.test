@@ -8,6 +8,9 @@ import AccountTokenEntity from '../entities/account_token.entity';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import {Request} from 'express';
 import {getClientIp} from '../helpers/system';
+import {TokenPayload} from '../types/token-payload.type';
+import {getMetadataValue} from '../helpers/metadata';
+import {ValidToken} from '../types/valid-token.type';
 
 export async function encryptPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -26,15 +29,15 @@ export function createAuthToken(user: UserWithRequiredTokenProperties): {
     ident: string,
     expire_at: Date
 } {
-    if (!user.id || !user.created_at) {
+    if (!user.id) {
         throw new Error('User object must contain `id` property.');
     }
 
     const ident: string = uuid();
     const expire_at: Date = createExpireDate(settings.user.jwt_expires_in);
 
-    const payload = {
-        id: user.id,
+    const payload: TokenPayload = {
+        user_id: user.id,
         ident: ident
     };
 
@@ -74,18 +77,22 @@ export async function setupToken(user: UserWithRequiredTokenProperties, req: Req
     return token;
 }
 
-export async function getActiveSessions(user_id: number): Promise<{ id: number, label: string, used_at: Date }[]> {
-    const activeSessions = await AccountTokenRepository.createQuery()
-        .select(['id, metadata, used_at'])
+export async function getValidTokens(user_id: number): Promise<ValidToken[]> {
+    const validTokens = await AccountTokenRepository.createQuery()
+        .select(['id', 'ident', 'metadata', 'used_at'])
         .filterBy('user_id', user_id)
         .filterByRange('expire_at', new Date())
         .all();
 
-    return activeSessions.map(session => {
+    return validTokens.map(token => {
         return {
-            id: session.id,
-            label: session.metadata && session.metadata['user-agent'] ? session.metadata['user-agent'] : '',
-            used_at: session.used_at
+            ident: token.ident,
+            label: getMetadataValue(token.metadata, 'user-agent'),
+            used_at: token.used_at
         };
     });
+}
+
+export function readToken(req: Request): string | undefined {
+    return req.headers.authorization?.split(' ')[1];
 }

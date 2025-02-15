@@ -13,6 +13,7 @@ import {destroyDatabase, initDatabase} from './providers/database.provider';
 import {settings} from './config/settings.config';
 import {initRoutes} from './config/init-routes.config';
 import {cacheProvider} from './providers/cache.provider';
+import sessionMiddleware from './middleware/session.middleware';
 
 const app: express.Application = express();
 let server: Server;
@@ -67,6 +68,9 @@ const shutdown = (server: Server, signal: string,): void => {
 // Initialize database and routes, set handlers (notFoundHandler and errorHandler) && start server
 Promise.all([initDatabase(), initRoutes()])
     .then(([, router]) => {
+        // Middleware for handling sessions
+        app.use(sessionMiddleware);
+
         // Load routes
         app.use('/', router);
 
@@ -98,3 +102,5 @@ process.on('unhandledRejection', (reason, promise) => {
     logger.error({reason, promise}, 'Unhandled rejection detected');
     shutdown(server, 'Unhandled Rejection');
 });
+
+export default app;
