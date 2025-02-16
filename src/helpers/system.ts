@@ -27,9 +27,3 @@ export function getClientIp(req: Request): string | undefined {
 
     return undefined;
 }
-
-export function determineUserLanguage(userLanguage: string, requestLanguage?: string): string {
-    const language = requestLanguage || userLanguage;
-
-    return settings.app.supportedLanguages.includes(language) ? language : settings.app.defaultLanguage;
-}

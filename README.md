@@ -140,7 +140,7 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-s
 3. create cron to remove expired account tokens
 4. add user role & user maybe user permission
 5. setup policy
-6. route to handle password recover & change
+6. table templates: id, label, language, type, content[json - subject, text, html]created_at, updated_at, deleted_at
 7. once policy is set up for admin on read and find allow to included entries marked as deleted
 8. build pino-transport-mysql - log.entity is created in /entities but add .ts
 9. test pino-transport-email

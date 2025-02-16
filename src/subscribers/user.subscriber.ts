@@ -9,8 +9,9 @@ import {
 import UserEntity from '../entities/user.entity';
 import {encryptPassword} from '../services/account.service';
 import UserRepository from '../repositories/user.repository';
-import {cacheClean, logHistory, removeOperation} from '../helpers/subscriber';
+import {cacheClean, removeOperation} from '../helpers/subscriber';
 import {settings} from '../config/settings.config';
+import {logHistory} from '../helpers/log';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
@@ -68,7 +69,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
                 id: id.toString()
             });
 
-            // Send welcome email, log activity, etc.
+            // TODO Send welcome email, log activity, etc.
         }
     }
 
@@ -89,11 +90,11 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
                 newStatus: event.entity.status
             });
 
-            // Send email notification for profile changes
-            // sendStatusChangeNotification(id, event.databaseEntity.status, event.entity.status); // TODO do implementation
+            // TODO Send email notification for profile changes
+            // sendStatusChangeNotification(id, event.databaseEntity.status, event.entity.status);
         }
 
-        // Check if password was updated // TODO check if works
+        // Check if password was updated
         if (event.entity?.password && event.databaseEntity?.password && event.entity.password !== event.databaseEntity.password) {
             logHistory(UserRepository.entityAlias, 'password_change', {
                 id: id.toString()

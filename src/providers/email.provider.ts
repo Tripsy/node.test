@@ -1,10 +1,27 @@
 import Mail from 'nodemailer/lib/mailer';
 import {settings} from '../config/settings.config';
 import {EmailContent} from '../types/email-content.type';
-import emailTransporter from '../providers/mailtrap.provider';
 import {replaceTemplateVars} from '../helpers/utils';
-import logger from '../providers/logger.provider';
+import logger from './logger.provider';
 import {lang} from '../config/i18n-setup.config';
+import nodemailer, {Transporter} from 'nodemailer';
+
+let emailTransporter: Transporter | null = null;
+
+export function getEmailTransporter(): Transporter {
+    if (!emailTransporter) {
+        emailTransporter = nodemailer.createTransport({
+            host: settings.mail.host,
+            port: settings.mail.port,
+            auth: {
+                user: settings.mail.username,
+                pass: settings.mail.password
+            }
+        });
+    }
+
+    return emailTransporter;
+}
 
 const systemFrom: Mail.Address = {
     name: settings.mail.fromName,
@@ -28,7 +45,7 @@ export function prepareEmailContent(templateLabel: string, lang: string, templat
 }
 
 export function queueEmail(emailContent: EmailContent, to: Mail.Address, from?: Mail.Address): void {
-    emailTransporter
+    getEmailTransporter()
         .sendMail({
             to: to,
             from: from ?? systemFrom,

@@ -1,4 +1,4 @@
-import pino from 'pino';
+import pino, {Logger} from 'pino';
 import {settings} from '../config/settings.config';
 import {buildSrcPath} from '../helpers/system';
 import {formatCallStack} from '../helpers/log';
@@ -87,5 +87,15 @@ const logger = pino({
     targets: targets(),
     dedupe: false, //  When true - logs only to the stream with the higher level
 }))
+
+export function childLogger(logger: Logger, category: string) {
+    return logger.child({
+        category: category
+    });
+}
+
+export const systemLogger: Logger = childLogger(logger, 'system'); // TODO ask Bogdan for loading optimization
+
+export const historyLogger: Logger = childLogger(logger, 'history'); // TODO ask Bogdan for loading optimization
 
 export default logger;

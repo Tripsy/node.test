@@ -15,7 +15,7 @@ import AccountPasswordRecoverValidator from '../validators/account-password-reco
 import {ValidToken} from '../types/valid-token.type';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 import {createPastDate} from '../helpers/utils';
-import {prepareEmailContent, queueEmail} from '../services/email.service';
+import {prepareEmailContent, queueEmail} from '../providers/email.provider';
 import {EmailContent} from '../types/email-content.type';
 
 class AccountController {

@@ -1,14 +1,7 @@
-import logger from '../providers/logger.provider';
-import {lang} from '../config/i18n-setup.config';
-import {childLogger} from './log';
 import {cacheProvider} from '../providers/cache.provider';
 import UserRepository from "../repositories/user.repository";
+import {logHistory} from './log';
 
-export function logHistory(entity: string, action: string, replacements: Record<string, string> = {}) {
-    const historyLogger = childLogger(logger, 'history');
-
-    historyLogger.info(lang(`${entity}.history.${action}`, replacements));
-}
 export function cacheClean(entity: string, id: number) {
     void cacheProvider.delete(cacheProvider.buildKey(entity, id.toString()));
 }

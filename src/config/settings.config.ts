@@ -42,8 +42,7 @@ export const settings= {
         username: process.env.MAIL_USERNAME || '',
         password: process.env.MAIL_PASSWORD || '',
         fromAddress: process.env.MAIL_FROM_ADDRESS || 'hello@example.com',
-        fromName: process.env.MAIL_FROM_NAME || 'sample-node-api',
-        mailtrapToken: process.env.MAILTRAP_TOKEN || ''
+        fromName: process.env.MAIL_FROM_NAME || 'sample-node-api'
     },
     filter: {
         defaultLimit: 20,

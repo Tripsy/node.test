@@ -1,9 +1,6 @@
 import Redis from 'ioredis';
 import {settings} from '../config/settings.config';
-import {childLogger} from '../helpers/log';
-import logger from './logger.provider';
-
-const systemLogger = childLogger(logger, 'system');
+import {systemLogger} from './logger.provider';
 
 class CacheProvider {
     private redisInstance: Redis | null = null;

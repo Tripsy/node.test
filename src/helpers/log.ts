@@ -1,11 +1,6 @@
-import {Logger} from 'pino';
 import {CallStackInterface} from '../interfaces/call-stack.interface';
-
-export function childLogger(logger: Logger, category: string) {
-    return logger.child({
-        category: category
-    });
-}
+import {lang} from '../config/i18n-setup.config';
+import {historyLogger} from '../providers/logger.provider';
 
 export function formatCallStack(stack: string, filtersForCallStack: string[] = []): CallStackInterface {
     const result: CallStackInterface = {
@@ -41,4 +36,8 @@ export function formatCallStack(stack: string, filtersForCallStack: string[] = [
     }
 
     return result;
+}
+
+export function logHistory(entity: string, action: string, replacements: Record<string, string> = {}) {
+    historyLogger.info(lang(`${entity}.history.${action}`, replacements));
 }
