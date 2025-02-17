@@ -57,6 +57,7 @@ export const settings= {
         maxActiveSessions: 2, // maximum number of active sessions per user; on valid login and max number will have to chose to remove old session(s)
         recoveryIdentExpiresIn: 7200, // converted to seconds
         recoveryAttemptsInLastSixHours: 3,
+        recoveryEnableMetadataCheck: true, // if set to false, will not check fingerprinting data
         nameMinLength: 3,
         passwordMinLength: 8,
     }

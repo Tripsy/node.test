@@ -1,18 +1,9 @@
 import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
-import {UserStatusEnum} from '../enums/user-status.enum';
 import {settings} from '../config/settings.config';
 
-const UserCreateValidator = z
+const AccountPasswordChangeValidator = z
     .object({
-        name: z
-            .string({message: lang('user.validation.name_invalid')})
-            .min(settings.user.nameMinLength, {
-                message: lang('user.validation.name_min', {min: settings.user.nameMinLength.toString()}),
-            }),
-        email: z
-            .string({message: lang('user.validation.email_invalid')})
-            .email({message: lang('user.validation.email_invalid')}),
         password: z
             .string({message: lang('user.validation.password_invalid')})
             .min(settings.user.passwordMinLength, {
@@ -29,14 +20,6 @@ const UserCreateValidator = z
             }),
         password_confirm: z
             .string({message: lang('user.validation.password_confirm_required')}),
-        language: z
-            .string({message: lang('user.validation.language_invalid')})
-            .length(2, {message: lang('user.validation.language_invalid')})
-            .optional(),
-        status: z
-            .nativeEnum(UserStatusEnum)
-            .optional()
-            .default(UserStatusEnum.PENDING),
     })
     .superRefine(({password, password_confirm}, ctx) => {
         if (password !== password_confirm) {
@@ -48,4 +31,4 @@ const UserCreateValidator = z
         }
     });
 
-export default UserCreateValidator;
+export default AccountPasswordChangeValidator;

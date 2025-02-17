@@ -7,7 +7,7 @@ import AccountLoginValidator from '../validators/account-login.validator';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import NotFoundError from '../exceptions/not-found.error';
 import UnauthorizedError from '../exceptions/unauthorized.error';
-import {getValidTokens, setupRecovery, setupToken, verifyPassword} from '../services/account.service';
+import {buildMetadata, getValidTokens, setupRecovery, setupToken, verifyPassword} from '../services/account.service';
 import {settings} from '../config/settings.config';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import AccountRemoveTokenValidator from '../validators/account-remove-token.validator';
@@ -17,6 +17,8 @@ import AccountRecoveryRepository from '../repositories/account-recovery.reposito
 import {createPastDate} from '../helpers/utils';
 import {prepareEmailContent, queueEmail} from '../providers/email.provider';
 import {EmailContent} from '../types/email-content.type';
+import AccountPasswordChangeValidator from '../validators/account-password-change.validator';
+import {compareMetadataValue} from '../helpers/metadata';
 
 class AccountController {
     public login = asyncHandler(async (req: Request, res: Response) => {
@@ -150,8 +152,13 @@ class AccountController {
         res.json(res.output);
     });
 
-    // split to two routes
-    public passwordChange = asyncHandler(async (_req: Request, res: Response) => {
+    public passwordChange = asyncHandler(async (req: Request, res: Response) => {
+        const ident = req.params.ident;
+
+        if (!ident) {
+            throw new BadRequestError(lang('account.error.recovery_token_not_found'));
+        }
+
         // Validate the request body against the schema
         const validated = AccountPasswordChangeValidator.safeParse(req.body);
 
@@ -161,11 +168,63 @@ class AccountController {
             throw new BadRequestError();
         }
 
-        // if authenticated user allow password change based on old password and new password
-        // if not authenticated user allow password change based on password recovery token
+        const recovery = await AccountRecoveryRepository.createQuery()
+            .select(['id', 'user_id', 'metadata', 'used_at', 'expire_at'])
+            .filterByIdent(ident)
+            .firstOrFail();
 
-        // how do I remove entry from account_jwt_table if they are not authenticated
-        // check against last password change date and compare with date of the issued token
+        if (recovery.used_at) {
+            throw new BadRequestError(lang('account.error.recovery_token_used'));
+        }
+
+        if (recovery.expire_at < new Date()) {
+            throw new BadRequestError(lang('account.error.recovery_token_expired'));
+        }
+
+        if (settings.user.recoveryEnableMetadataCheck) {
+            // Validate metadata (e.g., user-agent check)
+            if (!compareMetadataValue(recovery.metadata, buildMetadata(req), 'user-agent')) {
+                throw new BadRequestError(lang('account.error.recovery_token_not_authorized'));
+            }
+        }
+
+        const user = await UserRepository.createQuery()
+            .select(['id', 'name', 'email', 'language', 'status'])
+            .filterById(recovery.user_id)
+            .first();
+
+        // User not found or inactive
+        if (!user || user.status !== UserStatusEnum.ACTIVE) {
+            throw new NotFoundError(lang('account.error.not_found'));
+        }
+
+        // Update user password
+        await UserRepository.update(recovery.user_id, {
+            password: validated.data.password,
+        });
+
+        // Remove all account tokens
+        await AccountTokenRepository.createQuery()
+            .filterBy('user_id', recovery.user_id)
+            .delete(false, true);
+
+        // Mark recovery token as used
+        await AccountRecoveryRepository.update(recovery.id, {
+            used_at: new Date(),
+        });
+
+        const emailContent: EmailContent = prepareEmailContent('password-change', user.language || req.lang, {
+            'name': user.name
+        });
+
+        void queueEmail(emailContent, {
+            name: user.name,
+            address: user.email
+        });
+
+        res.output.message(lang('account.success.password_changed'));
+
+        res.json(res.output);
     });
 }
 

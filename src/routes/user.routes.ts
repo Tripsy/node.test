@@ -56,15 +56,27 @@ routes.get(
     UserController.find
 );
 
-// User - Update `status`
-routes.patch(
-    `${routePrefix}/:id/status/:status`,
-    [
-        metaDocumentation('user', 'status'),
-        validateParamId,
-        validateParamStatus([UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE])
-    ],
-    UserController.status
-);
+// // User - Update `status`
+// only for admin?
+// on email confirm ?
+// routes.patch(
+//     `${routePrefix}/:id/status/:status`,
+//     [
+//         metaDocumentation('user', 'update-status'),
+//         validateParamId,
+//         validateParamStatus([UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE])
+//     ],
+//     UserController.updateStatus
+// );
+//
+// // User - Update `status`
+// routes.patch(
+//     `${routePrefix}/:id/password`,
+//     [
+//         metaDocumentation('user', 'update-password'),
+//         validateParamId
+//     ],
+//     UserController.updatePassword
+// );
 
 export default routes;

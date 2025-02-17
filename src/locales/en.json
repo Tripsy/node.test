@@ -25,9 +25,8 @@
 			"password_condition_capital_letter": "Password must contain at least one capital letter",
 			"password_condition_number": "Password must contain at least one number",
 			"password_condition_special_character": "Password must contain at least one special character",
-			"password_confirmation_required": "Password confirmation is required",
-			"password_confirmation_mismatch": "Passwords does not match",
-			"password": "user.validation.password",
+			"password_confirm_required": "Password confirmation is required",
+			"password_confirm_mismatch": "Passwords does not match",
 			"language_invalid": "user.validation.language_invalid"
 		},
 		"error": {
@@ -39,7 +38,8 @@
 			"create": "User created successfully",
 			"update": "User updated successfully",
 			"delete": "User deleted successfully",
-			"status": "User status updated successfully"
+			"update_status": "User status updated successfully",
+			"update_password": "User password updated successfully"
 		},
 		"history": {
 			"created": "User #{{id}} created",
@@ -52,17 +52,23 @@
 	},
 	"account": {
 		"error": {
+			"not_found": "Account not found",
 			"not_active": "Account not found",
 			"not_authorized": "Invalid email or password",
 			"max_active_sessions": "Too many active sessions",
 			"not_logged_in": "Not logged in",
-			"recovery_attempts_exceeded": "Recovery attempts exceeded. Try again later"
+			"recovery_attempts_exceeded": "Recovery attempts exceeded. Try again later",
+			"recovery_token_not_found": "Recovery token not found",
+			"recovery_token_expired": "Recovery token expired",
+			"recovery_token_used": "Recovery token already used",
+			"recovery_token_not_authorized": "Recovery token not authorized"
 		},
 		"success": {
 			"login": "Logged in successfully",
 			"logout": "Logged out successfully",
 			"token_deleted": "Token deleted successfully",
-			"password_recover": "Password recover email sent successfully"
+			"password_recover": "Password recover email sent successfully",
+			"password_changed": "Password changed successfully"
 		},
 		"validation": {
 			"email_required": "Email is required",

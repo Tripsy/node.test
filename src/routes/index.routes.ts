@@ -12,7 +12,7 @@ routes.get('/', asyncHandler(async (req: Request, res: Response) => {
     // res.status(true); // The default value for success key is false; When responseStatus code is 200 force status to true (via raw())
 
     res.output.data({
-        'lang': lang('user.validation.password_confirmation_mismatch'),
+        'lang': lang('user.validation.password_confirm_mismatch'),
         'sample': 'text',
         'and': 'more',
         'things': 'inside data'

@@ -136,14 +136,17 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-s
 
 # TODO
 
-2. account.controller -> passwordRecover && passwordChange (Which needs to be splitted in two routes for sure)
-3. create cron to remove expired account tokens
-4. add user role & user maybe user permission
-5. setup policy
-6. table templates: id, label, language, type, content[json - subject, text, html]created_at, updated_at, deleted_at
-7. once policy is set up for admin on read and find allow to included entries marked as deleted
-8. build pino-transport-mysql - log.entity is created in /entities but add .ts
-9. test pino-transport-email
+1. Create postman request for password-change & test it
+2. user.controller -> updateStatus && updatePassword
+3. User email change feature
+4. create cron to remove expired account tokens
+5. add user role & user maybe user permission
+6. setup policy
+7. loading optimization - export constants or functions ?!
+8. table templates: id, label, language, type [email, page], content[json - subject, text, html], created_at, updated_at, deleted_at
+9. once policy is set up for admin on read and find allow to included entries marked as deleted
+10. build pino-transport-mysql - log.entity is created in /entities but add .ts
+11. test pino-transport-email
 
 # Ideas
 

@@ -36,7 +36,7 @@ routes.delete(
 
 // User - Recover password
 routes.post(
-    `${routePrefix}/password-recover`,
+    `${routePrefix}/ `,
     [
         metaDocumentation('account', 'password-recover'),
     ],
@@ -45,7 +45,7 @@ routes.post(
 
 // User - Change password
 routes.post(
-    `${routePrefix}/password-change`,
+    `${routePrefix}/password-change/:ident`,
     [
         metaDocumentation('account', 'password-change'),
     ],
