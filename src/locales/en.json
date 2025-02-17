@@ -13,7 +13,7 @@
 		"db_delete_one": "Failed to delete just one entry; Based on filters multiple entries were found",
 		"db_delete_missing_filter": "Failed to delete entries; No filter were provided",
 		"db_nothing_to_delete": "Failed to delete entries; No entries were found",
-		"filter_date_format": "error.filter_date_format"
+		"filter_date_format": "Invalid date format (eg: {{format}})"
 	},
 	"user": {
 		"validation": {
@@ -27,7 +27,7 @@
 			"password_condition_special_character": "Password must contain at least one special character",
 			"password_confirm_required": "Password confirmation is required",
 			"password_confirm_mismatch": "Passwords does not match",
-			"language_invalid": "user.validation.language_invalid"
+			"language_invalid": "Invalid language"
 		},
 		"error": {
 			"not_found": "User not found",
@@ -76,7 +76,12 @@
 			"password_required": "Password required",
 			"ident_required": "Ident is required",
 			"ident_invalid": "Ident is invalid",
-			"password_invalid": "account.validation.password_invalid"
+			"password_invalid": "Invalid password"
+		}
+	},
+	"account_recovery": {
+		"error": {
+			"not_found": "Account recovery entry not found"
 		}
 	}
 }

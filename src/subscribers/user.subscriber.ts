@@ -7,11 +7,12 @@ import {
     SoftRemoveEvent
 } from 'typeorm';
 import UserEntity from '../entities/user.entity';
-import {encryptPassword} from '../services/account.service';
+import {encryptPassword, sendConfirmEmail, sendWelcomeEmail} from '../services/account.service';
 import UserRepository from '../repositories/user.repository';
 import {cacheClean, removeOperation} from '../helpers/subscriber';
 import {settings} from '../config/settings.config';
 import {logHistory} from '../helpers/log';
+import {UserStatusEnum} from '../enums/user-status.enum';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
@@ -69,7 +70,14 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
                 id: id.toString()
             });
 
-            // TODO Send welcome email, log activity, etc.
+            switch (event.entity.status) {
+                case UserStatusEnum.ACTIVE:
+                    void sendWelcomeEmail(event.entity);
+                    break;
+                case UserStatusEnum.PENDING:
+                    void sendConfirmEmail(event.entity);
+                    break;
+            }
         }
     }
 

@@ -2,7 +2,7 @@ import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 import {buildMetadata, readToken} from '../services/account.service';
 import {settings} from '../config/settings.config';
-import {TokenPayload} from '../types/token-payload.type';
+import {AuthTokenPayload} from '../types/token.type';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import {compareMetadataValue} from '../helpers/metadata';
 import UserRepository from '../repositories/user.repository';
@@ -17,10 +17,10 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
     }
 
     // Verify JWT and extract payload
-    let payload: TokenPayload;
+    let payload: AuthTokenPayload;
 
     try {
-        payload = jwt.verify(token, settings.user.jwtSecret) as TokenPayload;
+        payload = jwt.verify(token, settings.user.authSecret) as AuthTokenPayload;
     } catch (err) {
         return next();
     }
@@ -60,10 +60,10 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
     // Refresh the token if it's close to expiration
     const diffInMinutes = Math.floor((activeToken.expire_at.getTime() - Date.now()) / 60000);
 
-    if (diffInMinutes < settings.user.jwtRefreshExpiresIn) {
+    if (diffInMinutes < settings.user.authRefreshExpiresIn) {
         await AccountTokenRepository.update(activeToken.id, {
             used_at: new Date(),
-            expire_at: createFutureDate(settings.user.jwtExpiresIn),
+            expire_at: createFutureDate(settings.user.authExpiresIn),
         });
     } else {
         await AccountTokenRepository.update(activeToken.id, {

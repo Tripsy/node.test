@@ -10,6 +10,7 @@ i18n.configure({
     cookie: 'lang', // Name of the cookie to store the language preference
     queryParameter: 'lang', // Query parameter to switch locale (eg: /home?lang=ch)
     autoReload: settings.app.env === 'local',  // Watch for changes in JSON files to reload locale on updates - defaults to false
+    updateFiles: false, // Update JSON files with missing translations - defaults to false
 });
 
 export const lang = (key: string, replacements: Record<string, string> = {}): string => {

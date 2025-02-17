@@ -34,16 +34,16 @@ routes.delete(
     AccountController.logout
 );
 
-// User - Recover password
+// Account - Recover password
 routes.post(
-    `${routePrefix}/ `,
+    `${routePrefix}/password-recover`,
     [
         metaDocumentation('account', 'password-recover'),
     ],
     AccountController.passwordRecover
 );
 
-// User - Change password
+// Account - Change password
 routes.post(
     `${routePrefix}/password-change/:ident`,
     [

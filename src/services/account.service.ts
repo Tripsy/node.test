@@ -8,11 +8,12 @@ import AccountTokenEntity from '../entities/account_token.entity';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import {Request} from 'express';
 import {getClientIp} from '../helpers/system';
-import {TokenPayload} from '../types/token-payload.type';
+import {AuthTokenPayload, ConfirmationTokenPayload, AuthValidToken} from '../types/token.type';
 import {getMetadataValue} from '../helpers/metadata';
-import {ValidToken} from '../types/valid-token.type';
 import AccountRecoveryEntity from '../entities/account_recovery.entity';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
+import {EmailContent} from '../types/email-content.type';
+import {prepareEmailContent, queueEmail} from '../providers/email.provider';
 
 export async function encryptPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -22,11 +23,7 @@ export async function verifyPassword(password: string, hashedPassword: string): 
     return await bcrypt.compare(password, hashedPassword);
 }
 
-type UserWithRequiredTokenProperties = UserEntity & {
-    id: number;
-};
-
-export function createAuthToken(user: UserWithRequiredTokenProperties): {
+export function createAuthToken(user: UserEntity & { id: number; }): {
     token: string,
     ident: string,
     expire_at: Date
@@ -36,14 +33,14 @@ export function createAuthToken(user: UserWithRequiredTokenProperties): {
     }
 
     const ident: string = uuid();
-    const expire_at: Date = createFutureDate(settings.user.jwtExpiresIn);
+    const expire_at: Date = createFutureDate(settings.user.authExpiresIn);
 
-    const payload: TokenPayload = {
+    const payload: AuthTokenPayload = {
         user_id: user.id,
         ident: ident
     };
 
-    const token = jwt.sign(payload, settings.user.jwtSecret);
+    const token = jwt.sign(payload, settings.user.authSecret);
 
     return {token, ident, expire_at};
 }
@@ -64,7 +61,7 @@ export function buildMetadata(req: Request): TokenMetadata {
     }
 }
 
-export async function setupToken(user: UserWithRequiredTokenProperties, req: Request): Promise<string> {
+export async function setupToken(user: UserEntity & { id: number; }, req: Request): Promise<string> {
     const {token, ident, expire_at} = createAuthToken(user);
 
     const accountTokenEntity = new AccountTokenEntity();
@@ -79,14 +76,14 @@ export async function setupToken(user: UserWithRequiredTokenProperties, req: Req
     return token;
 }
 
-export async function getValidTokens(user_id: number): Promise<ValidToken[]> {
-    const validTokens = await AccountTokenRepository.createQuery()
+export async function getAuthValidTokens(user_id: number): Promise<AuthValidToken[]> {
+    const authValidTokens = await AccountTokenRepository.createQuery()
         .select(['id', 'ident', 'metadata', 'used_at'])
         .filterBy('user_id', user_id)
         .filterByRange('expire_at', new Date())
         .all();
 
-    return validTokens.map(token => {
+    return authValidTokens.map(token => {
         return {
             ident: token.ident,
             label: getMetadataValue(token.metadata, 'user-agent'),
@@ -99,7 +96,7 @@ export function readToken(req: Request): string | undefined {
     return req.headers.authorization?.split(' ')[1];
 }
 
-export async function setupRecovery(user: UserWithRequiredTokenProperties, req: Request): Promise<[string, Date]> {
+export async function setupRecovery(user: UserEntity & { id: number; }, req: Request): Promise<[string, Date]> {
     const ident: string = uuid();
     const expire_at = createFutureDate(settings.user.recoveryIdentExpiresIn);
 
@@ -107,7 +104,6 @@ export async function setupRecovery(user: UserWithRequiredTokenProperties, req: 
     accountRecoveryEntity.user_id = user.id;
     accountRecoveryEntity.ident = uuid();
     accountRecoveryEntity.metadata = buildMetadata(req);
-    accountRecoveryEntity.used_at = new Date();
     accountRecoveryEntity.expire_at = expire_at;
 
     await AccountRecoveryRepository.save(accountRecoveryEntity);
@@ -115,3 +111,50 @@ export async function setupRecovery(user: UserWithRequiredTokenProperties, req: 
     return [ident, expire_at];
 }
 
+export function createConfirmationToken(user: UserEntity & { id: number; email: string }): {
+    token: string,
+    expire_at: Date
+} {
+    if (!user.id || !user.email) {
+        throw new Error('User object must contain both `id` and `email` properties.');
+    }
+
+    const payload: ConfirmationTokenPayload = {
+        user_id: user.id,
+        user_email: user.email
+    };
+
+    const token = jwt.sign(payload, settings.user.emailConfirmationSecret, {
+        expiresIn: `${settings.user.emailConfirmationExpiresIn}d`
+    });
+
+    const expire_at = createFutureDate(settings.user.emailConfirmationExpiresIn * 86400);
+
+    return {token, expire_at};
+}
+
+export async function sendConfirmEmail(user: UserEntity): Promise<void> {
+    const {token, expire_at} = createConfirmationToken(user);
+
+    const emailContent: EmailContent = prepareEmailContent('email-confirm', user.language, {
+        'name': user.name,
+        'token': token,
+        'expire_at': expire_at.toISOString()
+    });
+
+    void queueEmail(emailContent, {
+        name: user.name,
+        address: user.email
+    });
+}
+
+export async function sendWelcomeEmail(user: UserEntity): Promise<void> {
+    const emailContent: EmailContent = prepareEmailContent('email-welcome', user.language, {
+        'name': user.name
+    });
+
+    void queueEmail(emailContent, {
+        name: user.name,
+        address: user.email
+    });
+}

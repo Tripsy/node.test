@@ -136,9 +136,8 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-s
 
 # TODO
 
-1. Create postman request for password-change & test it
-2. user.controller -> updateStatus && updatePassword
-3. User email change feature
+2. user.controller -> updateStatus && updatePassword && updateEmail
+3. account.controller -> emailConfirm
 4. create cron to remove expired account tokens
 5. add user role & user maybe user permission
 6. setup policy

@@ -7,18 +7,18 @@ import AccountLoginValidator from '../validators/account-login.validator';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import NotFoundError from '../exceptions/not-found.error';
 import UnauthorizedError from '../exceptions/unauthorized.error';
-import {buildMetadata, getValidTokens, setupRecovery, setupToken, verifyPassword} from '../services/account.service';
+import {buildMetadata, getAuthValidTokens, setupRecovery, setupToken, verifyPassword} from '../services/account.service';
 import {settings} from '../config/settings.config';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import AccountRemoveTokenValidator from '../validators/account-remove-token.validator';
 import AccountPasswordRecoverValidator from '../validators/account-password-recover.validator';
-import {ValidToken} from '../types/valid-token.type';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 import {createPastDate} from '../helpers/utils';
 import {prepareEmailContent, queueEmail} from '../providers/email.provider';
 import {EmailContent} from '../types/email-content.type';
 import AccountPasswordChangeValidator from '../validators/account-password-change.validator';
 import {compareMetadataValue} from '../helpers/metadata';
+import {AuthValidToken} from '../types/token.type';
 
 class AccountController {
     public login = asyncHandler(async (req: Request, res: Response) => {
@@ -46,13 +46,13 @@ class AccountController {
             throw new UnauthorizedError(lang('account.error.not_authorized'));
         }
 
-        const validTokens: ValidToken[] = await getValidTokens(user.id);
+        const authValidTokens: AuthValidToken[] = await getAuthValidTokens(user.id);
 
-        if (validTokens.length >= settings.user.maxActiveSessions) {
+        if (authValidTokens.length >= settings.user.maxActiveSessions) {
             res.status(403); // Forbidden - client's identity is known to the server
             res.output.message(lang('account.error.max_active_sessions'));
             res.output.data({
-                'validTokens': validTokens
+                'authValidTokens': authValidTokens
             });
         } else {
             const token = await setupToken(user, req);
@@ -168,6 +168,8 @@ class AccountController {
             throw new BadRequestError();
         }
 
+        console.log(ident)
+
         const recovery = await AccountRecoveryRepository.createQuery()
             .select(['id', 'user_id', 'metadata', 'used_at', 'expire_at'])
             .filterByIdent(ident)
@@ -199,9 +201,8 @@ class AccountController {
         }
 
         // Update user password
-        await UserRepository.update(recovery.user_id, {
-            password: validated.data.password,
-        });
+        user.password = validated.data.password;
+        await UserRepository.save(user);
 
         // Remove all account tokens
         await AccountTokenRepository.createQuery()

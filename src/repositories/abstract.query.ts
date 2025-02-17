@@ -172,7 +172,10 @@ class AbstractQuery {
         if (value !== undefined) {
             column = this.prepareColumn(column);
 
-            // this.hasFilter = value.length > 5; // Condition set to avoid too generic results
+            if (operator === '=' && column.endsWith('_id')) {
+                this.hasFilter = true;
+            }
+
             this.query.andWhere(`${column} ${operator} :${column}`, { [column]: value });
         }
 
