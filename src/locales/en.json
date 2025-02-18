@@ -54,6 +54,8 @@
 		"error": {
 			"not_found": "Account not found",
 			"not_active": "Account not found",
+			"already_active": "Account already active",
+			"is_inactive": "Account is inactive",
 			"not_authorized": "Invalid email or password",
 			"max_active_sessions": "Too many active sessions",
 			"not_logged_in": "Not logged in",
@@ -61,14 +63,17 @@
 			"recovery_token_not_found": "Recovery token not found",
 			"recovery_token_expired": "Recovery token expired",
 			"recovery_token_used": "Recovery token already used",
-			"recovery_token_not_authorized": "Recovery token not authorized"
+			"recovery_token_not_authorized": "Recovery token not authorized",
+			"confirmation_token_not_found": "Confirmation token not found",
+			"confirmation_token_invalid": "Invalid confirmation token"
 		},
 		"success": {
 			"login": "Logged in successfully",
 			"logout": "Logged out successfully",
 			"token_deleted": "Token deleted successfully",
 			"password_recover": "Password recover email sent successfully",
-			"password_changed": "Password changed successfully"
+			"password_changed": "Password changed successfully",
+			"email_confirmed": "Email confirmed successfully"
 		},
 		"validation": {
 			"email_required": "Email is required",
@@ -82,6 +87,11 @@
 	"account_recovery": {
 		"error": {
 			"not_found": "Account recovery entry not found"
+		}
+	},
+	"template": {
+		"error": {
+			"not_found": "Template not found (eg: {{label}} - {{language}} - {{type}})"
 		}
 	}
 }

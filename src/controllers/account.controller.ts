@@ -14,11 +14,13 @@ import AccountRemoveTokenValidator from '../validators/account-remove-token.vali
 import AccountPasswordRecoverValidator from '../validators/account-password-recover.validator';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 import {createPastDate} from '../helpers/utils';
-import {prepareEmailContent, queueEmail} from '../providers/email.provider';
-import {EmailContent} from '../types/email-content.type';
+import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import AccountPasswordChangeValidator from '../validators/account-password-change.validator';
 import {compareMetadataValue} from '../helpers/metadata';
-import {AuthValidToken} from '../types/token.type';
+import {AuthValidToken, ConfirmationTokenPayload} from '../types/token.type';
+import jwt from 'jsonwebtoken';
+import NotAllowedError from '../exceptions/not-allowed.error';
+import {EmailTemplate} from '../types/template.type';
 
 class AccountController {
     public login = asyncHandler(async (req: Request, res: Response) => {
@@ -136,16 +138,19 @@ class AccountController {
 
         const [ident, expire_at] = await setupRecovery(user, req);
 
-        const emailContent: EmailContent = prepareEmailContent('password-recover', user.language || req.lang, {
-            'name': user.name,
-            'ident': ident,
-            'expire_at': expire_at.toISOString()
-        });
+        const emailTemplate: EmailTemplate = await loadEmailTemplate('password-recover', user.language || req.lang);
 
-        void queueEmail(emailContent, {
-            name: user.name,
-            address: user.email
-        });
+        void queueEmail(
+            emailTemplate,
+            {
+                'name': user.name,
+                'ident': ident,
+                'expire_at': expire_at.toISOString()
+            },
+            {
+                name: user.name,
+                address: user.email
+            });
 
         res.output.message(lang('account.success.password_recover'));
 
@@ -167,8 +172,6 @@ class AccountController {
 
             throw new BadRequestError();
         }
-
-        console.log(ident)
 
         const recovery = await AccountRecoveryRepository.createQuery()
             .select(['id', 'user_id', 'metadata', 'used_at', 'expire_at'])
@@ -214,16 +217,63 @@ class AccountController {
             used_at: new Date(),
         });
 
-        const emailContent: EmailContent = prepareEmailContent('password-change', user.language || req.lang, {
-            'name': user.name
-        });
+        const emailTemplate: EmailTemplate = await loadEmailTemplate('password-change', user.language || req.lang);
 
-        void queueEmail(emailContent, {
-            name: user.name,
-            address: user.email
-        });
+        void queueEmail(
+            emailTemplate,
+            {
+                'name': user.name
+            },
+            {
+                name: user.name,
+                address: user.email
+            }
+        );
 
         res.output.message(lang('account.success.password_changed'));
+
+        res.json(res.output);
+    });
+
+    public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
+        const token = req.params.token;
+
+        if (!token) {
+            throw new BadRequestError(lang('account.error.confirmation_token_not_found'));
+        }
+
+        // Verify JWT and extract payload
+        let payload: ConfirmationTokenPayload;
+
+        try {
+            payload = jwt.verify(token, settings.user.emailConfirmationSecret) as ConfirmationTokenPayload;
+        } catch (err) {
+            throw new BadRequestError(lang('account.error.confirmation_token_invalid'));
+        }
+
+        const user = await UserRepository.createQuery()
+            .select(['id', 'name', 'email', 'language', 'status'])
+            .filterById(payload.user_id)
+            .filterByEmail(payload.user_email)
+            .first();
+
+        // User not found
+        if (!user) {
+            throw new NotFoundError(lang('account.error.not_found'));
+        }
+
+        switch (user.status) {
+            case UserStatusEnum.ACTIVE:
+                throw new BadRequestError(lang('account.error.already_active'));
+            case UserStatusEnum.INACTIVE:
+                throw new NotAllowedError();
+        }
+
+        // Update user status
+        user.status = UserStatusEnum.ACTIVE;
+        await UserRepository.save(user);
+
+        res.output.message(lang('account.success.email_confirmed'));
 
         res.json(res.output);
     });

@@ -98,8 +98,9 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
                 newStatus: event.entity.status
             });
 
-            // TODO Send email notification for profile changes
-            // sendStatusChangeNotification(id, event.databaseEntity.status, event.entity.status);
+            if (event.entity.status === UserStatusEnum.ACTIVE) {
+                void sendWelcomeEmail(event.entity as UserEntity);
+            }
         }
 
         // Check if password was updated

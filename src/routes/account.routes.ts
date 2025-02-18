@@ -52,4 +52,13 @@ routes.post(
     AccountController.passwordChange
 );
 
+// Account - Confirm email
+routes.post(
+    `${routePrefix}/email-confirm/:token`,
+    [
+        metaDocumentation('account', 'email-confirm'),
+    ],
+    AccountController.emailConfirm
+);
+
 export default routes;

@@ -12,8 +12,9 @@ import {AuthTokenPayload, ConfirmationTokenPayload, AuthValidToken} from '../typ
 import {getMetadataValue} from '../helpers/metadata';
 import AccountRecoveryEntity from '../entities/account_recovery.entity';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
-import {EmailContent} from '../types/email-content.type';
-import {prepareEmailContent, queueEmail} from '../providers/email.provider';
+import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
+import {emailConfirmLink} from '../helpers/link';
+import {EmailTemplate} from '../types/template.type';
 
 export async function encryptPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -136,25 +137,34 @@ export function createConfirmationToken(user: UserEntity & { id: number; email: 
 export async function sendConfirmEmail(user: UserEntity): Promise<void> {
     const {token, expire_at} = createConfirmationToken(user);
 
-    const emailContent: EmailContent = prepareEmailContent('email-confirm', user.language, {
-        'name': user.name,
-        'token': token,
-        'expire_at': expire_at.toISOString()
-    });
+    const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm', user.language);
 
-    void queueEmail(emailContent, {
-        name: user.name,
-        address: user.email
-    });
+    void queueEmail(
+        emailTemplate,
+        {
+            'name': user.name,
+            'link': emailConfirmLink(token),
+            'expire_at': expire_at.toISOString()
+        },
+        {
+            name: user.name,
+            address: user.email
+        }
+    );
 }
 
 export async function sendWelcomeEmail(user: UserEntity): Promise<void> {
-    const emailContent: EmailContent = prepareEmailContent('email-welcome', user.language, {
-        'name': user.name
-    });
 
-    void queueEmail(emailContent, {
-        name: user.name,
-        address: user.email
-    });
+    const emailTemplate: EmailTemplate = await loadEmailTemplate('email-welcome', user.language);
+
+    void queueEmail(
+        emailTemplate,
+        {
+            'name': user.name
+        },
+        {
+            name: user.name,
+            address: user.email
+        }
+    );
 }
