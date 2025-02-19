@@ -129,6 +129,7 @@ docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 - [helmet](https://helmetjs.github.io/)
 - [ioredis](https://github.com/luin/ioredis)
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
+- [node-cron](https://github.com/node-cron/node-cron)
 
 # Documentation
 
@@ -139,7 +140,6 @@ docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 
 # TODO
 
-1. create cron to remove expired account recovery entries
 2. create cron to send emails (use bull)
 3. user.controller -> updateStatus && updatePassword && updateEmail
 4. setup policy
@@ -155,6 +155,7 @@ REVIEW AT THIS POINT
 5. create cron table with configuration [id, label - index, expectedRunTime - value in seconds , expressionInterval (ex: * */3 * * *), status (enabled / disabled), last_run_at, created_at, updated_at, deleted_at]
 6. create cron checks: 
     - daily - count errors in last 24 hours (group by label, count)
+    - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
     
