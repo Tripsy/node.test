@@ -113,6 +113,9 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 
 // Reset 
 docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
+
+//Import db-data
+docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 ```
 
 # Packages
@@ -136,16 +139,15 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-s
 
 # TODO
 
-2. user.controller -> updateStatus && updatePassword && updateEmail
-3. account.controller -> emailConfirm
-4. create cron to remove expired account tokens
-5. add user role & user maybe user permission
-6. setup policy
-7. loading optimization - export constants or functions ?!
-8. table templates: id, label, language, type [email, page], content[json - subject, text, html], created_at, updated_at, deleted_at
-9. once policy is set up for admin on read and find allow to included entries marked as deleted
-10. build pino-transport-mysql - log.entity is created in /entities but add .ts
-11. test pino-transport-email
+1. user.controller -> updateStatus && updatePassword && updateEmail
+2. create cron to remove expired account tokens
+3. add user role & user maybe user permission
+4. setup policy
+5. loading optimization - export constants or functions ?! logger and validators
+6. template.routes.ts && template.controller.ts
+7. once policy is set up for admin on read and find allow to included entries marked as deleted
+8. build pino-transport-mysql - log.entity is created in /entities but add .ts
+9. test pino-transport-email
 
 # Ideas
 
@@ -201,3 +203,5 @@ return res.json(res.output);
 //			"pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
 //		}
 //	},
+
+
