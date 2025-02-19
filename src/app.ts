@@ -15,6 +15,7 @@ import {initRoutes} from './config/init-routes.config';
 import {cacheProvider} from './providers/cache.provider';
 import authMiddleware from './middleware/auth.middleware';
 import languageMiddleware from './middleware/language.middleware';
+import startCronJobs from './providers/cron.provider';
 
 const app: express.Application = express();
 let server: Server;
@@ -72,6 +73,9 @@ const shutdown = (server: Server, signal: string,): void => {
 // Initialize database and routes, set handlers (notFoundHandler and errorHandler) && start server
 Promise.all([initDatabase(), initRoutes()])
     .then(([, router]) => {
+        // Start cron jobs
+        startCronJobs();
+
         // Middleware for handling user authentication
         app.use(authMiddleware);
 

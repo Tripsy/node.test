@@ -16,5 +16,4 @@ export const TemplateRepository = dataSource.getRepository(TemplateEntity).exten
     },
 });
 
-
 export default TemplateRepository;

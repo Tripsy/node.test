@@ -1,5 +1,5 @@
 import dataSource from '../config/data-source.config';
-import templateRepository from '../repositories/template.repository';
+import TemplateRepository from '../repositories/template.repository';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
 
 const templateData = [
@@ -51,7 +51,7 @@ async function seedTemplates() {
         await dataSource.initialize();
 
         console.log('Seeding templates...');
-        await templateRepository.save(templateData);
+        await TemplateRepository.save(templateData);
 
         console.log('Templates seeded successfully ✅');
     } catch (error) {

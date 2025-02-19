@@ -24,5 +24,4 @@ export const UserRepository = dataSource.getRepository(UserEntity).extend({
     },
 });
 
-
 export default UserRepository;

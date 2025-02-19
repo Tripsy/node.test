@@ -98,4 +98,6 @@ export const systemLogger: Logger = childLogger(logger, 'system'); // TODO ask B
 
 export const historyLogger: Logger = childLogger(logger, 'history'); // TODO ask Bogdan for loading optimization
 
+export const cronLogger: Logger = childLogger(logger, 'cron'); // TODO ask Bogdan for loading optimization
+
 export default logger;

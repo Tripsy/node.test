@@ -1,16 +1,16 @@
-import build from 'pino-abstract-transport'
-import fs, {WriteStream} from 'fs'
-import {EOL} from 'os'
-import {buildRootPath} from '../../helpers/system'
-import {LogFileTypeEnum} from '../../enums/log-file-type.enum'
+import build from 'pino-abstract-transport';
+import fs, {WriteStream} from 'fs';
+import {EOL} from 'os';
+import {buildRootPath} from '../../helpers/system';
+import {LogFileTypeEnum} from '../../enums/log-file-type.enum';
 
-const logStreams: Record<string, WriteStream> = {
-    info: fs.createWriteStream(buildRootPath('logs', LogFileTypeEnum.INFO), {flags: 'a'}),
-    error: fs.createWriteStream(buildRootPath('logs', LogFileTypeEnum.ERROR), {flags: 'a'}),
-    debug: fs.createWriteStream(buildRootPath('logs', LogFileTypeEnum.DEBUG), {flags: 'a'}),
-};
+export default async function () {
+    const logStreams: Record<string, WriteStream> = {
+        info: fs.createWriteStream(buildRootPath('logs', LogFileTypeEnum.INFO), {flags: 'a'}),
+        error: fs.createWriteStream(buildRootPath('logs', LogFileTypeEnum.ERROR), {flags: 'a'}),
+        debug: fs.createWriteStream(buildRootPath('logs', LogFileTypeEnum.DEBUG), {flags: 'a'}),
+    };
 
-export default async function (options = {}) {
     return build(
         async (source) => {
             for await (const obj of source) {

@@ -1,8 +1,8 @@
 import {Entity, Column, OneToMany, Index} from 'typeorm';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {BaseEntityAbstract} from './base-entity.abstract';
-import AccountTokenEntity from './account_token.entity';
-import AccountRecoveryEntity from './account_recovery.entity';
+import AccountTokenEntity from './account-token.entity';
+import AccountRecoveryEntity from './account-recovery.entity';
 
 @Entity('user')
 export default class UserEntity extends BaseEntityAbstract {

@@ -1,6 +1,6 @@
 import dataSource from '../config/data-source.config';
 import AbstractQuery from './abstract.query';
-import AccountTokenEntity from '../entities/account_token.entity';
+import AccountTokenEntity from '../entities/account-token.entity';
 
 export class AccountTokenQuery extends AbstractQuery {
     constructor(repository: ReturnType<typeof dataSource.getRepository<AccountTokenEntity>>) {
@@ -27,6 +27,5 @@ export const AccountTokenRepository = dataSource.getRepository(AccountTokenEntit
             .delete(false);
     }
 });
-
 
 export default AccountTokenRepository;

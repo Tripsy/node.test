@@ -139,16 +139,25 @@ docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 
 # TODO
 
-1. user.controller -> updateStatus && updatePassword && updateEmail
-2. create cron to remove expired account tokens
-3. add user role & user maybe user permission
+1. create cron to remove expired account recovery entries
+2. create cron to send emails (use bull)
+3. user.controller -> updateStatus && updatePassword && updateEmail
 4. setup policy
-5. loading optimization - export constants or functions ?! logger and validators
-6. template.routes.ts && template.controller.ts
-7. once policy is set up for admin on read and find allow to included entries marked as deleted
-8. build pino-transport-mysql - log.entity is created in /entities but add .ts
-9. test pino-transport-email
+5. add user role & user maybe user permission
+6. loading optimization - export constants or functions ?! logger and validators
 
+REVIEW AT THIS POINT
+
+1. template.routes.ts && template.controller.ts
+2. once policy is set up for admin on read and find allow to included entries marked as deleted
+3. build pino-transport-mysql - log.entity is created in /entities but add .ts
+4. test pino-transport-email
+5. create cron table with configuration [id, label - index, expectedRunTime - value in seconds , expressionInterval (ex: * */3 * * *), status (enabled / disabled), last_run_at, created_at, updated_at, deleted_at]
+6. create cron checks: 
+    - daily - count errors in last 24 hours (group by label, count)
+    - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
+    - monthly - report unused cron jobs based on last_run_at
+    
 # Ideas
 
 1. https://expressjs.com/en/advanced/best-practice-performance.html

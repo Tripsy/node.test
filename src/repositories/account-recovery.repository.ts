@@ -1,6 +1,6 @@
 import dataSource from '../config/data-source.config';
 import AbstractQuery from './abstract.query';
-import AccountRecoveryEntity from '../entities/account_recovery.entity';
+import AccountRecoveryEntity from '../entities/account-recovery.entity';
 
 export class AccountRecoveryQuery extends AbstractQuery {
     constructor(repository: ReturnType<typeof dataSource.getRepository<AccountRecoveryEntity>>) {
@@ -27,6 +27,5 @@ export const AccountRecoveryRepository = dataSource.getRepository(AccountRecover
             .delete(false);
     }
 });
-
 
 export default AccountRecoveryRepository;
