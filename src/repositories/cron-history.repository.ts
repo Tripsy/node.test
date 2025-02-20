@@ -9,7 +9,7 @@ export class CronHistoryQuery extends AbstractQuery {
 }
 
 export const CronHistoryRepository = dataSource.getRepository(CronHistoryEntity).extend({
-    entityAlias: 'cron-history',
+    entityAlias: 'cron_history',
 
     createQuery() {
         return new CronHistoryQuery(this);

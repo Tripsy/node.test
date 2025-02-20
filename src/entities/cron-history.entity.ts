@@ -27,7 +27,7 @@ export default class CronHistoryEntity {
     status!: CronHistoryStatusEnum;
 
     @Column('int', { nullable: false, default: 0, comment: 'Run time in seconds' })
-    run_time?: number;
+    run_time!: number;
 
     @Column({ type: 'json', nullable: true, comment: 'Cron data' })
     content?: Record<string, any>;

@@ -7,6 +7,7 @@ import {dateDiffInSeconds} from '../helpers/utils';
 import NotFoundError from '../exceptions/not-found.error';
 import {cronLogger} from './logger.provider';
 import {cleanAccountRecoveryCron} from '../cron-jobs/clean-account-recovery.cron';
+import {workerMaintenance} from '../cron-jobs/worker-maintenance.cron';
 
 /**
  * Execute cron job and save history
@@ -59,6 +60,11 @@ const startCronJobs = () => {
     // Remove expired account tokens - every 3 hours at minute 2
     cron.schedule('2 */3 * * *', async () => {
         await executeCron(cleanAccountTokenCron, 1);
+    });
+
+    // Handle workers maintenance - every 6 hours at minute 4
+    cron.schedule('4 */6 * * *', async () => {
+        await executeCron(workerMaintenance, 1);
     });
 
     // Remove expired recovery tokens - every 7 days at 03:00

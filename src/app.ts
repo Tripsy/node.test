@@ -73,6 +73,11 @@ const shutdown = (server: Server, signal: string,): void => {
 // Initialize database and routes, set handlers (notFoundHandler and errorHandler) && start server
 Promise.all([initDatabase(), initRoutes()])
     .then(([, router]) => {
+        // Start the worker here since it's database dependent
+        import('./workers/email.worker').then(() => {
+            logger.info('Email worker started.');
+        });
+
         // Start cron jobs
         startCronJobs();
 

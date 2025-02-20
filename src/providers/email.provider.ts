@@ -8,6 +8,8 @@ import {siteLink} from '../helpers/link';
 import TemplateRepository from '../repositories/template.repository';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
 import {EmailContent, EmailTemplate} from '../types/template.type';
+import MailQueueEntity from '../entities/mail-queue.entity';
+import MailQueueRepository from '../repositories/mail-queue.repository';
 
 let emailTransporter: Transporter | null = null;
 
@@ -26,10 +28,17 @@ export function getEmailTransporter(): Transporter {
     return emailTransporter;
 }
 
-const systemFrom: Mail.Address = {
+export const systemFrom: Mail.Address = {
     name: settings.mail.fromName,
     address: settings.mail.fromAddress
 };
+
+export type EmailQueueData = {
+    mailQueueId: number;
+    emailContent: EmailContent;
+    to: Mail.Address;
+    from: Mail.Address | null;
+}
 
 export async function loadEmailTemplate(label: string, language: string): Promise<EmailTemplate> {
     const template = await TemplateRepository.createQuery()
@@ -69,16 +78,21 @@ export function prepareEmailContent(emailContent: EmailContent, vars: Record<str
     };
 }
 
-// TODO: at some point this function needs to insert data in mail_queue table and the email sending should be done by a cron job
 export async function queueEmail(
     template: EmailTemplate,
     vars: Record<string, string> = {},
     to: Mail.Address,
     from?: Mail.Address
 ): Promise<void> {
-    const preparedEmailContent: EmailContent = prepareEmailContent(template.emailContent, vars);
+    const mailQueueEntity = new MailQueueEntity();
+    mailQueueEntity.template_id = template.templateId;
+    mailQueueEntity.language = template.language;
+    mailQueueEntity.content = template.emailContent;
+    mailQueueEntity.vars = vars;
+    mailQueueEntity.to = to;
+    mailQueueEntity.from = from;
 
-    void sendEmail(preparedEmailContent, to, from ?? systemFrom);
+    await MailQueueRepository.save(mailQueueEntity);
 }
 
 export async function sendEmail(emailContent: EmailContent, to: Mail.Address, from: Mail.Address): Promise<void> {

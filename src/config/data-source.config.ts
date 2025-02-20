@@ -13,7 +13,7 @@ const dataSource = new DataSource({
     logging: false,
     entities: [buildSrcPath('entities', '*.entity.ts')],
     migrations: [buildSrcPath('migrations', '*.ts')],
-    subscribers: [buildSrcPath('subscribers', '*.ts')],
+    subscribers: [buildSrcPath('subscribers', '*.subscriber.ts')],
     poolSize: 10,
 });
 

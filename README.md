@@ -65,7 +65,8 @@ docker $ pnpm run dev
 
 # Notes
 
- - req & res objects have injected additional properties - check /src/types/express.d.ts
+- req & res objects have injected additional properties - check /src/types/express.d.ts
+- workers are not set run on separate process (updates will be required to workers if they will be set to run on separate process) // TODO @Bogdan
 
 # Usage
 
@@ -130,6 +131,7 @@ docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 - [ioredis](https://github.com/luin/ioredis)
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
 - [node-cron](https://github.com/node-cron/node-cron)
+- [BullMQ](https://docs.bullmq.io/)
 
 # Documentation
 
@@ -140,10 +142,11 @@ docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 
 # TODO
 
-2. create cron to send emails (use bull)
-3. user.controller -> updateStatus && updatePassword && updateEmail
-4. setup policy
-5. add user role & user maybe user permission
+1. migrations - mail_queue 
+2. tests
+3. setup policy
+4. add user role & user maybe user permission
+5. user.controller -> updateStatus && updatePassword && updateEmail
 6. loading optimization - export constants or functions ?! logger and validators
 
 REVIEW AT THIS POINT

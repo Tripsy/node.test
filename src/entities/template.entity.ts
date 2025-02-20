@@ -20,5 +20,5 @@ export default class TemplateEntity extends BaseEntityAbstract {
     type!: TemplateTypeEnum;
 
     @Column({ type: 'json', nullable: false, comment: 'Template data' })
-    content?: Record<string, any>;
+    content!: Record<string, any>;
 }
