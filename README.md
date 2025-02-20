@@ -1,3 +1,34 @@
+# Description
+
+This project is a simple Node.js API that provides a set of features for managing settings, error handling, logging, 
+database interactions, request validation, and more.
+
+# Features
+
+- [x] Settings Management
+- [x] Automatic Error Handling
+- [x] Logging (powered by Pino)
+- [x] TypeORM Wrapper: A layer over TypeORM for smoother database interactions.
+- [x] Request validators (using Zod)
+- [x] Standardized JSON Responses: Consistent response structures for better frontend integration (eg: req.output)
+- [x] Caching (powered by ioredis)
+- [x] Cron Jobs (with history)
+- [x] Email Sending via Queue (powered by BullMQ)
+- [x] Template management (for emails, pages) + seed data (eg: templates.seed.ts)
+- [x] Subscribers (powered by TypeORM)
+- [x] Custom Middlewares
+    - Auth (auth.middleware -> req.user)
+    - REST API Documentation Link (meta-documentation.middleware)
+    - Determine language (language.middleware -> req.lang)
+- [x] Language management (powered by i18next)
+- [x] User system (eg: signup, login, logout, password recover, password change, email confirm)
+   - user roles (eg: admin, user, operator)
+   - login based on JWT tokens (managed by account-token.repository)
+   - password recovery (managed by account-recovery.repository)
+- [x] Policies (based on user roles & user permissions)
+- [x] Controllers (eg: REST Api)
+    - user.controller (create, read, update, delete, find, updateStatus, updatePassword, updateEmail)
+    - account.controller (login, removeToken, logout, passwordRecover, passwordChange, emailConfirm)
 
 # Setup
 
@@ -33,34 +64,7 @@ Finally, start the application in development mode with:
 docker $ pnpm run dev
 ```
 
-# Features
-
-- [x] Settings Management
-- [x] Automatic Error Handling
-- [x] Logging (powered by Pino)
-- [x] TypeORM Wrapper: A layer over TypeORM for smoother database interactions.
-- [x] Request validators (using Zod)
-- [x] Standardized JSON Responses: Consistent response structures for better frontend integration (eg: req.output)
-- [x] Caching (powered by ioredis)
-- [x] Cron Jobs (with history)
-- [x] Email Sending via Queue (powered by BullMQ)
-- [x] Template management (for emails, pages) + seed data (eg: templates.seed.ts)
-- [x] Subscribers (powered by TypeORM)
-- [x] Custom Middlewares
-    - Auth (auth.middleware -> req.user)
-    - REST API Documentation Link (meta-documentation.middleware)
-    - Determine language (language.middleware -> req.lang)
-- [x] Language management (powered by i18next)
-- [x] User system (eg: signup, login, logout, password recover, password change, email confirm)
-   - user roles (eg: admin, user, operator)
-   - login based on JWT tokens (managed by account-token.repository)
-   - password recovery (managed by account-recovery.repository)
-- [x] Policies (based on user roles & user permissions)
-- [x] Controllers (eg: REST Api)
-    - user.controller (create, read, update, delete, find, updateStatus, updatePassword, updateEmail)
-    - account.controller (login, removeToken, logout, passwordRecover, passwordChange, emailConfirm)
-
-# Notes
+# Notes & Limitations
 
 - req & res objects have injected additional properties - check /src/types/express.d.ts
 - workers are not set run on separate process (updates will be required to workers if they will be set to run on separate process) // TODO @Bogdan
@@ -118,7 +122,7 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-s
 docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 ```
 
-# Packages
+# Dependencies
 
 - [Pino](https://github.com/pinojs/pino)
 - [Mysql2](https://github.com/sidorares/node-mysql2)
@@ -131,13 +135,6 @@ docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
 - [node-cron](https://github.com/node-cron/node-cron)
 - [BullMQ](https://docs.bullmq.io/)
-
-# Documentation
-
-- https://typeorm.io/entities#column-types-for-mysql--mariadb
-- https://typeorm.io/repository-api
-- https://typeorm.io/select-query-builder
-- https://zod.dev
 
 # TODO
 
@@ -154,66 +151,15 @@ REVIEW AT THIS POINT
 2. once policy is set up for admin on read and find allow to included entries marked as deleted
 3. build pino-transport-mysql - log.entity is created in /entities but add .ts
 4. test pino-transport-email
-5. create cron table with configuration [id, label - index, expectedRunTime - value in seconds , expressionInterval (ex: * */3 * * *), status (enabled / disabled), last_run_at, created_at, updated_at, deleted_at]
-6. create cron checks: 
+5. create cron checks: 
     - daily - count errors in last 24 hours (group by label, count)
     - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
     
-# Ideas
+IDEAS
 
-1. https://expressjs.com/en/advanced/best-practice-performance.html
-
-Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app. Use the compression middleware for gzip compression in your Express app. 
-
-2. https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts
-
-3. Tests
-
-# Temp
-
-class UserPolicy {
-    static create(req: Request): boolean {
-        // Example: Only admins can create users
-        return req.user?.role === 'admin';
-    }
-
-    static update(req: Request, user: UserEntity): boolean {
-        // Users can only update their own profiles, unless they're an admin
-        return req.user?.id === user.id || req.user?.role === 'admin';
-    }
-
-    static delete(req: Request, user: UserEntity): boolean {
-        // Only admins can delete users
-        return req.user?.role === 'admin';
-    }
-
-    static view(req: Request, user: UserEntity): boolean {
-        // Users can view their own profile or if they are admin
-        return req.user?.id === user.id || req.user?.role === 'admin';
-    }
-}
-
-
-export const Create = asyncHandler(async (req: Request, res: Response) => {
-// Check if the user is authorized to create a new user
-if (!UserPolicy.create(req)) {
-res.status(403); // Forbidden
-res.output.message(lang('user.error.unauthorized'));
-return res.json(res.output);
-}
-
-
------------------
-
-//	"email": {
-//		"subject": {
-//			"pino-transport-email": "Logging Alert - {{ source }}"
-//		},
-//		"content": {
-//			"pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
-//		}
-//	},
-
-
+1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
+2. https://expressjs.com/en/advanced/best-practice-performance.html
+3. Functional tests - Super test
+4. Unit tests - Jest

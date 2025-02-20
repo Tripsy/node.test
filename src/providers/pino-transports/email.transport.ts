@@ -4,6 +4,16 @@ import { prettyFactory } from 'pino-pretty';
 import nodemailer from 'nodemailer';
 import {lang} from '../../config/i18n-setup.config';
 
+//	"email": {
+//		"subject": {
+//			"pino-transport-email": "Logging Alert - {{ source }}"
+//		},
+//		"content": {
+//			"pino-transport-email": "Your app has logged an alert:\n\n {{message}}."
+//		}
+//	},
+
+
 export default async function (options = {}) {
     const emailTransporter = nodemailer.createTransport({
         host: settings.mail.host,
