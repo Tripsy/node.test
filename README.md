@@ -33,40 +33,39 @@ Finally, start the application in development mode with:
 docker $ pnpm run dev
 ```
 
-# Structure
+# Features
 
-```
-/docker
-/logs
-/src
-    /config
-    /controllers
-    /decorators
-    /entities
-    /enums
-    /exceptions
-    /helpers
-    /interfaces
-    /locales
-    /middleware
-    /migrations
-    /policies
-    /providers
-        - Reusable utilities, external integrations; Encapsulates infrastructure (e.g., Redis, DB connections)
-    /repositories
-    /routes
-    /services
-        - Business logic, high-level functionality; Manages operations, workflows
-    /subscribers
-    /types
-    /validators
-    app.ts
-```
+- [x] Settings Management
+- [x] Automatic Error Handling
+- [x] Logging (powered by Pino)
+- [x] TypeORM Wrapper: A layer over TypeORM for smoother database interactions.
+- [x] Request validators (using Zod)
+- [x] Standardized JSON Responses: Consistent response structures for better frontend integration (eg: req.output)
+- [x] Caching (powered by ioredis)
+- [x] Cron Jobs (with history)
+- [x] Email Sending via Queue (powered by BullMQ)
+- [x] Template management (for emails, pages) + seed data (eg: templates.seed.ts)
+- [x] Subscribers (powered by TypeORM)
+- [x] Custom Middlewares
+    - Auth (auth.middleware -> req.user)
+    - REST API Documentation Link (meta-documentation.middleware)
+    - Determine language (language.middleware -> req.lang)
+- [x] Language management (powered by i18next)
+- [x] User system (eg: signup, login, logout, password recover, password change, email confirm)
+   - user roles (eg: admin, user, operator)
+   - login based on JWT tokens (managed by account-token.repository)
+   - password recovery (managed by account-recovery.repository)
+- [x] Policies (based on user roles & user permissions)
+- [x] Controllers (eg: REST Api)
+    - user.controller (create, read, update, delete, find, updateStatus, updatePassword, updateEmail)
+    - account.controller (login, removeToken, logout, passwordRecover, passwordChange, emailConfirm)
 
 # Notes
 
 - req & res objects have injected additional properties - check /src/types/express.d.ts
 - workers are not set run on separate process (updates will be required to workers if they will be set to run on separate process) // TODO @Bogdan
+- /providers - Reusable utilities, external integrations; Encapsulates infrastructure (e.g., Redis, DB connections)
+- /subscriber - Business logic, high-level functionality; Manages operations, workflows
 
 # Usage
 
