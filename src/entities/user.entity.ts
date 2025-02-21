@@ -3,6 +3,7 @@ import {UserStatusEnum} from '../enums/user-status.enum';
 import {BaseEntityAbstract} from './base-entity.abstract';
 import AccountTokenEntity from './account-token.entity';
 import AccountRecoveryEntity from './account-recovery.entity';
+import {UserRoleEnum} from '../enums/user-role.enum';
 
 @Entity('user')
 export default class UserEntity extends BaseEntityAbstract {
@@ -26,6 +27,14 @@ export default class UserEntity extends BaseEntityAbstract {
         nullable: false
     })
     status!: UserStatusEnum;
+
+    @Column({
+        type: 'enum',
+        enum: UserRoleEnum,
+        default: UserRoleEnum.MEMBER,
+        nullable: false
+    })
+    role!: UserRoleEnum;
 
     @OneToMany(() => AccountTokenEntity, (accountToken) => accountToken.user)
     account_tokens?: AccountTokenEntity[];

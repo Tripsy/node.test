@@ -62,7 +62,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         removeOperation(event.entity.id, true);
     }
 
-    afterInsert(event: InsertEvent<UserEntity>) {
+    async afterInsert(event: InsertEvent<UserEntity>) {
         const id = event.entity?.id;
 
         if (id) {
@@ -72,10 +72,10 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 
             switch (event.entity.status) {
                 case UserStatusEnum.ACTIVE:
-                    void sendWelcomeEmail(event.entity);
+                    await sendWelcomeEmail(event.entity);
                     break;
                 case UserStatusEnum.PENDING:
-                    void sendConfirmEmail(event.entity);
+                    await sendConfirmEmail(event.entity);
                     break;
             }
         }

@@ -1,7 +1,6 @@
 import { Worker } from 'bullmq';
 import {settings} from '../config/settings.config';
 import {EmailQueueData, sendEmail, systemFrom} from '../providers/email.provider';
-import logger from '../providers/logger.provider';
 import MailQueueRepository from '../repositories/mail-queue.repository';
 import {MailQueueStatusEnum} from '../enums/mail-queue-status.enum';
 
@@ -11,24 +10,20 @@ const emailWorker = new Worker(
         const { mailQueueId, emailContent, to, from } = job.data as EmailQueueData;
 
         try {
-            console.log(`Processing email job ${mailQueueId}...`);
-
             await sendEmail(emailContent, to, from ?? systemFrom);
-
-            console.log(`Email job ${mailQueueId} sent successfully.`);
 
             // Update `mail_queue` table
             await MailQueueRepository.update(mailQueueId, {
                 status: MailQueueStatusEnum.SENT,
                 error: null,
+                sent_at: new Date(),
             });
         } catch (error) {
-            console.error(`Failed to process email job ${mailQueueId}:`, error);
-
             // Update `mail_queue` table
             await MailQueueRepository.update(mailQueueId, {
                 status: MailQueueStatusEnum.ERROR,
                 error: error instanceof Error ? error.message : 'Unknown error',
+                sent_at: new Date(),
             });
 
             throw error;
@@ -42,8 +37,6 @@ const emailWorker = new Worker(
         concurrency: 5, // Process up to 5 jobs concurrently
     }
 );
-
-
 
 // Use it only worker runs on a separate process
 //

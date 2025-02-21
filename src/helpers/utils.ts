@@ -19,7 +19,7 @@ export function createPastDate(seconds: number): Date {
 }
 
 export function replaceTemplateVars(content: string, vars: Record<string, string> = {}): string {
-    return content.replace(/\$\{(\w+)}/g, (_, key) => vars[key] || '');
+    return content.replace(/{{(\w+)}}/g, (_, key) => vars[key] || '');
 }
 
 export function dateDiffInSeconds(date1: Date, date2: Date): number {

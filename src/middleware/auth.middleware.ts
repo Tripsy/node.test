@@ -10,6 +10,17 @@ import {UserStatusEnum} from '../enums/user-status.enum';
 import {createFutureDate} from '../helpers/utils';
 
 async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
+    // Initialize the user as a visitor
+    req.user = {
+        id: 0,
+        email: '',
+        name: '',
+        language: settings.app.defaultLanguage,
+        role: 'visitor',
+        permissions: [],
+    };
+
+    // Read the token from the request
     const token: string | undefined = readToken(req);
 
     if (!token) {
@@ -48,12 +59,14 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
     }
 
     const user = await UserRepository.createQuery()
-        .select(['id', 'name', 'email', 'language', 'status'])
+        .select(['id', 'name', 'email', 'language', 'role', 'status'])
         .filterById(payload.user_id)
         .first();
 
     // User not found or inactive
     if (!user || user.status !== UserStatusEnum.ACTIVE) {
+        AccountTokenRepository.removeTokenById(activeToken.id);
+
         return next();
     }
 
@@ -76,7 +89,9 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
         id: user.id,
         name: user.name,
         email: user.email,
-        language: user.language
+        language: user.language,
+        permissions: [],
+        role: user.role,
     };
 
     next();

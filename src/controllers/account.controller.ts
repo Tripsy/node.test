@@ -66,7 +66,7 @@ class AccountController {
         }
 
         res.json(res.output);
-    });
+    }); // TODO test
 
     public removeToken = asyncHandler(async (req: Request, res: Response) => {
         // Validate the request body against the schema
@@ -85,7 +85,7 @@ class AccountController {
         res.output.message(lang('account.success.token_deleted'));
 
         res.json(res.output);
-    });
+    }); // TODO test
 
     public logout = asyncHandler(async (req: Request, res: Response) => {
         if (!req.user) {
@@ -105,7 +105,7 @@ class AccountController {
         res.output.message(lang('account.success.logout'));
 
         res.json(res.output);
-    });
+    }); // TODO test
 
     public passwordRecover = asyncHandler(async (req: Request, res: Response) => {
         // Validate the request body against the schema
@@ -155,7 +155,7 @@ class AccountController {
         res.output.message(lang('account.success.password_recover'));
 
         res.json(res.output);
-    });
+    }); // TODO test
 
     public passwordChange = asyncHandler(async (req: Request, res: Response) => {
         const ident = req.params.ident;
@@ -233,7 +233,7 @@ class AccountController {
         res.output.message(lang('account.success.password_changed'));
 
         res.json(res.output);
-    });
+    }); // TODO test
 
     public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
         const token = req.params.token;

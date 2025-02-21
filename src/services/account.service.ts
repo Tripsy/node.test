@@ -126,7 +126,7 @@ export function createConfirmationToken(user: UserEntity & { id: number; email: 
     };
 
     const token = jwt.sign(payload, settings.user.emailConfirmationSecret, {
-        expiresIn: `${settings.user.emailConfirmationExpiresIn}d`
+        expiresIn: settings.user.emailConfirmationExpiresIn * 86400
     });
 
     const expire_at = createFutureDate(settings.user.emailConfirmationExpiresIn * 86400);

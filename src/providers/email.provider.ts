@@ -49,7 +49,7 @@ export async function loadEmailTemplate(label: string, language: string): Promis
         .first();
 
     if (!template) {
-        throw new Error(lang('error.template.not_found', {
+        throw new Error(lang('template.error.not_found', {
             label,
             language,
             type: TemplateTypeEnum.EMAIL

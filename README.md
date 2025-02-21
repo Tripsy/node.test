@@ -1,8 +1,3 @@
-# Description
-
-This project is a simple Node.js API that provides a set of features for managing settings, error handling, logging, 
-database interactions, request validation, and more.
-
 # Features
 
 - [x] Settings Management
@@ -138,12 +133,13 @@ docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 
 # TODO
 
-1. migrations - mail_queue 
-2. tests
-3. setup policy
-4. add user role & user maybe user permission
+1. tests
+2. setup policy
+3. add user role & user maybe user permission
+4. user.controller -> create is only for authorized so add role & permissions
 5. user.controller -> updateStatus && updatePassword && updateEmail
-6. loading optimization - export constants or functions ?! logger and validators
+6. account.controller -> signUp
+7. loading optimization - export constants or functions ?! logger and validators
 
 REVIEW AT THIS POINT
 
@@ -156,6 +152,7 @@ REVIEW AT THIS POINT
     - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
+6. Add rate limiting for failed logins
     
 IDEAS
 

@@ -10,9 +10,15 @@ import CustomError from '../exceptions/custom.error';
 import {cacheProvider} from '../providers/cache.provider';
 import UserFindValidator from '../validators/user-find.validator';
 import {stringToDate} from '../helpers/utils';
+import UserPolicy from '../policies/user.policy';
 
 class UserController {
     public create = asyncHandler(async (req: Request, res: Response) => {
+        const userPolicy = new UserPolicy(req);
+
+        // Check permission
+        userPolicy.create();
+
         // Validate the request body against the schema
         const validated = UserCreateValidator.safeParse(req.body);
 

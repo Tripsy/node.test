@@ -30,7 +30,7 @@ export const settings= {
         password: process.env.REDIS_PASSWORD || null,
     },
     cache: {
-        ttl: parseInt(process.env.CACHE_TTL || '60', 10)
+        ttl: Number(process.env.EMAIL_JWT_EXPIRES_IN) || 60
     },
     pino: {
         logLevel: process.env.PINO_LOG_LEVEL || 'trace',
@@ -52,10 +52,10 @@ export const settings= {
     },
     user: {
         authSecret: process.env.AUTH_JWT_SECRET as string || 'secret',
-        authExpiresIn: parseInt(process.env.AUTH_JWT_EXPIRES_IN || '60', 10) * 60, // converted to seconds
-        authRefreshExpiresIn: parseInt(process.env.AUTH_JWT_REFRESH_EXPIRES_IN || '60', 10) * 60, // converted to seconds; used to refresh token if token expires before this value
+        authExpiresIn: (Number(process.env.EMAIL_JWT_EXPIRES_IN) || 60) * 60, // converted to seconds
+        authRefreshExpiresIn: (Number(process.env.EMAIL_JWT_EXPIRES_IN) || 60) * 60, // converted to seconds; used to refresh token if token expires before this value
         emailConfirmationSecret: process.env.EMAIL_JWT_SECRET as string || 'secret',
-        emailConfirmationExpiresIn: parseInt(process.env.EMAIL_JWT_EXPIRES_IN || '30', 10), // days
+        emailConfirmationExpiresIn: Number(process.env.EMAIL_JWT_EXPIRES_IN) || 30, // days
         maxActiveSessions: 2, // maximum number of active sessions per user; on valid login and max number will have to chose to remove old session(s)
         recoveryIdentExpiresIn: 7200, // converted to seconds
         recoveryAttemptsInLastSixHours: 3,
