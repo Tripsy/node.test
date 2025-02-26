@@ -3,14 +3,14 @@ import MailQueueEntity from '../entities/mail-queue.entity';
 import AbstractQuery from './abstract.query';
 
 export class MailQueueQuery extends AbstractQuery {
+    static entityAlias: string = 'mail_queue';
+    
     constructor(repository: ReturnType<typeof dataSource.getRepository<MailQueueEntity>>) {
-        super(repository, MailQueueRepository.entityAlias);
+        super(repository, MailQueueQuery.entityAlias);
     }
 }
 
 export const MailQueueRepository = dataSource.getRepository(MailQueueEntity).extend({
-    entityAlias: 'mail_queue',
-
     createQuery() {
         return new MailQueueQuery(this);
     },

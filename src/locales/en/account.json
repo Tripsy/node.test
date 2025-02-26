@@ -1,0 +1,34 @@
+{
+	"error": {
+		"not_found": "Account not found",
+		"not_active": "Account not found",
+		"already_active": "Account already active",
+		"is_inactive": "Account is inactive",
+		"not_authorized": "Invalid email or password",
+		"max_active_sessions": "Too many active sessions",
+		"not_logged_in": "Not logged in",
+		"recovery_attempts_exceeded": "Recovery attempts exceeded. Try again later",
+		"recovery_token_not_found": "Recovery token not found",
+		"recovery_token_expired": "Recovery token expired",
+		"recovery_token_used": "Recovery token already used",
+		"recovery_token_not_authorized": "Recovery token not authorized",
+		"confirmation_token_not_found": "Confirmation token not found",
+		"confirmation_token_invalid": "Invalid confirmation token"
+	},
+	"success": {
+		"login": "Logged in successfully",
+		"logout": "Logged out successfully",
+		"token_deleted": "Token deleted successfully",
+		"password_recover": "Password recover email sent successfully",
+		"password_changed": "Password changed successfully",
+		"email_confirmed": "Email confirmed successfully"
+	},
+	"validation": {
+		"email_required": "Email is required",
+		"email_invalid": "Email is invalid",
+		"password_required": "Password required",
+		"ident_required": "Ident is required",
+		"ident_invalid": "Ident is invalid",
+		"password_invalid": "Invalid password"
+	}
+}

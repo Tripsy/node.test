@@ -4,7 +4,8 @@ import {Server} from 'http';
 import helmet from 'helmet';
 import {corsHandler} from './middleware/cors-handler.middleware';
 import cookieParser from 'cookie-parser';
-import i18n from './config/i18n-setup.config';
+import {handle as i18nextMiddleware} from 'i18next-http-middleware';
+import i18next from './config/i18n-setup.config';
 import logger from './providers/logger.provider';
 import {outputHandler} from './middleware/output-handler.middleware';
 import {notFoundHandler} from "./middleware/not-found-handler.middleware";
@@ -33,8 +34,8 @@ app.use(corsHandler);
 app.use(cookieParser());
 app.use(express.json());
 
-// Initialize i18n for localization
-app.use(i18n.init);
+// Use i18next middleware
+app.use(i18nextMiddleware(i18next));
 
 // Middleware for handling language
 app.use(languageMiddleware);

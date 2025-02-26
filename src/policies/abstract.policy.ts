@@ -19,6 +19,14 @@ class AbstractPolicy {
         this.isAuthenticated = this.userId > 0;
     }
 
+    public getUserId(): number {
+        return this.userId;
+    }
+
+    public permission(operation: string, entity?:string): string {
+        return (entity || this.entity) + '.' + operation;
+    }
+
     protected isVisitor(): boolean {
         return this.userRole === 'visitor';
     }
@@ -52,7 +60,7 @@ class AbstractPolicy {
     }
 
     /**
-     * Check if user is allowed to perform the action
+     * Check if user is allowed to perform the operation
      * Returns `true` if the user is admin or the user is the owner of the resource or owns the permission
      */
     protected isAllowed(permission: string, user_id?: number): boolean {
@@ -68,7 +76,7 @@ class AbstractPolicy {
     }
 
     public create(entity?: string): void {
-        const permission = (entity || this.entity) + '.create';
+        const permission: string = this.permission('create', entity);
 
         if (!this.isAdmin() && !this.hasPermission(permission)) {
             this.useError();
@@ -76,7 +84,7 @@ class AbstractPolicy {
     }
 
     public read(entity?: string, user_id?: number): void {
-        const permission = (entity || this.entity) + '.read';
+        const permission: string = this.permission('read', entity);
 
         if (!this.isAllowed(permission, user_id)) {
             this.useError();
@@ -84,7 +92,7 @@ class AbstractPolicy {
     }
 
     public update(entity?: string, user_id?: number): void {
-        const permission = (entity || this.entity) + '.update';
+        const permission: string = this.permission('update', entity);
 
         if (!this.isAllowed(permission, user_id)) {
             this.useError();
@@ -92,7 +100,7 @@ class AbstractPolicy {
     }
 
     public delete(entity?: string, user_id?: number): void {
-        const permission = (entity || this.entity) + '.delete';
+        const permission: string = this.permission('delete', entity);
 
         if (!this.isAllowed(permission, user_id)) {
             this.useError();
@@ -100,7 +108,7 @@ class AbstractPolicy {
     }
 
     public find(entity?: string, user_id?: number): void {
-        const permission: string = (entity || this.entity) + '.find';
+        const permission: string = this.permission('find', entity);
 
         if (!this.isAllowed(permission, user_id)) {
             this.useError();

@@ -88,6 +88,14 @@ class AbstractQuery {
         return this.query;
     }
 
+    withDeleted(condition: boolean = true) {
+        if (condition) {
+            this.query.withDeleted();
+        }
+
+        return this;
+    }
+
     /**
      * Note: When using getOne(), TypeORM expects only entity fields to be selected.
      *       If you manually select raw SQL fields (e.g., COUNT(user.id) as count), getOne() will return null.
@@ -174,8 +182,23 @@ class AbstractQuery {
         if (value !== undefined) {
             column = this.prepareColumn(column);
 
-            if (operator === '=' && column.endsWith('_id')) {
-                this.hasFilter = true;
+            switch (operator) {
+                case '=':
+                    if (column.endsWith('_id')) {
+                        this.hasFilter = true;
+                    }
+                    break;
+                case 'LIKE':
+                    value = `%${value}%`;
+                    break;
+                case 'START_LIKE':
+                    operator = 'LIKE';
+                    value = `${value}%`;
+                    break;
+                case 'END_LIKE':
+                    operator = 'LIKE';
+                    value = `%${value}`;
+                    break;
             }
 
             this.query.andWhere(`${column} ${operator} :${column}`, { [column]: value });

@@ -3,8 +3,10 @@ import AbstractQuery from './abstract.query';
 import AccountRecoveryEntity from '../entities/account-recovery.entity';
 
 export class AccountRecoveryQuery extends AbstractQuery {
+    static entityAlias: string = 'account_recovery';
+    
     constructor(repository: ReturnType<typeof dataSource.getRepository<AccountRecoveryEntity>>) {
-        super(repository, AccountRecoveryRepository.entityAlias);
+        super(repository, AccountRecoveryQuery.entityAlias);
     }
 
     filterByIdent(ident: string): this {
@@ -15,8 +17,6 @@ export class AccountRecoveryQuery extends AbstractQuery {
 }
 
 export const AccountRecoveryRepository = dataSource.getRepository(AccountRecoveryEntity).extend({
-    entityAlias: 'account_recovery',
-
     createQuery() {
         return new AccountRecoveryQuery(this);
     },

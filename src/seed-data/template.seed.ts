@@ -62,4 +62,6 @@ async function seedTemplates() {
     }
 }
 
-await seedTemplates();
+(async () => {
+    await seedTemplates();
+})();

@@ -3,8 +3,10 @@ import UserEntity from '../entities/user.entity';
 import AbstractQuery from './abstract.query';
 
 export class UserQuery extends AbstractQuery {
+    static entityAlias: string = 'user';
+    
     constructor(repository: ReturnType<typeof dataSource.getRepository<UserEntity>>) {
-        super(repository, UserRepository.entityAlias);
+        super(repository, UserQuery.entityAlias);
     }
 
     filterByEmail(email?: string): this {
@@ -17,8 +19,6 @@ export class UserQuery extends AbstractQuery {
 }
 
 export const UserRepository = dataSource.getRepository(UserEntity).extend({
-    entityAlias: 'user',
-
     createQuery() {
         return new UserQuery(this);
     },

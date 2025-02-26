@@ -114,7 +114,8 @@ docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/htm
 docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 
 //Import db-data
-docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
+docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts  
+docker $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 ```
 
 # Dependencies
@@ -133,13 +134,16 @@ docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts
 
 # TODO
 
-1. tests
-2. setup policy
-3. add user role & user maybe user permission
-4. user.controller -> create is only for authorized so add role & permissions
-5. user.controller -> updateStatus && updatePassword && updateEmail
-6. account.controller -> signUp
-7. loading optimization - export constants or functions ?! logger and validators
+1. replace operator permission with user permission
+1. check TODO
+1. cache req.user ?!
+2. tests
+3. setup policy
+4. add user role & user maybe user permission
+5. user.controller -> create is only for authorized so add role & permissions
+6. user.controller -> updateRole, setPermissions, updatePassword, updateStatus, updateEmail
+7. account.controller -> signUp
+8. loading optimization - export constants or functions ?! logger and validators
 
 REVIEW AT THIS POINT
 

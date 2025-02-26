@@ -3,14 +3,14 @@ import TemplateEntity from '../entities/template.entity';
 import AbstractQuery from './abstract.query';
 
 export class TemplateQuery extends AbstractQuery {
+    static entityAlias: string = 'template';
+    
     constructor(repository: ReturnType<typeof dataSource.getRepository<TemplateEntity>>) {
-        super(repository, TemplateRepository.entityAlias);
+        super(repository, TemplateQuery.entityAlias);
     }
 }
 
 export const TemplateRepository = dataSource.getRepository(TemplateEntity).extend({
-    entityAlias: 'template',
-
     createQuery() {
         return new TemplateQuery(this);
     },

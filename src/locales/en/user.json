@@ -1,0 +1,35 @@
+{
+	"validation": {
+		"name_invalid": "Name is invalid",
+		"name_min": "Name must be at least {{min}} characters long",
+		"email_invalid": "Email is invalid",
+		"password_invalid": "Invalid password",
+		"password_min": "Password must be at least {{min}} characters long",
+		"password_condition_capital_letter": "Password must contain at least one capital letter",
+		"password_condition_number": "Password must contain at least one number",
+		"password_condition_special_character": "Password must contain at least one special character",
+		"password_confirm_required": "Password confirmation is required",
+		"password_confirm_mismatch": "Passwords does not match",
+		"language_invalid": "Invalid language"
+	},
+	"error": {
+		"not_found": "User not found",
+		"email_already_used": "Email already used by existing user",
+		"status_unchanged": "Status unchanged (eg: {{status}})"
+	},
+	"success": {
+		"create": "User created successfully",
+		"update": "User updated successfully",
+		"delete": "User deleted successfully",
+		"update_status": "User status updated successfully",
+		"update_password": "User password updated successfully"
+	},
+	"history": {
+		"created": "User #{{id}} created",
+		"updated": "User #{{id}} updated",
+		"deleted": "User #{{id}} has been marked as deleted",
+		"removed": "User #{{id}} has been removed",
+		"status": "User #{{id}} updated from {{oldStatus}} to {{newStatus}}",
+		"password_change": "Password changed for user #{{id}}"
+	}
+}

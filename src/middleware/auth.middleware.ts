@@ -7,7 +7,7 @@ import AccountTokenRepository from '../repositories/account-token.repository';
 import {compareMetadataValue} from '../helpers/metadata';
 import UserRepository from '../repositories/user.repository';
 import {UserStatusEnum} from '../enums/user-status.enum';
-import {createFutureDate} from '../helpers/utils';
+import {createFutureDate, dateDiffInSeconds} from '../helpers/utils';
 
 async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
     // Initialize the user as a visitor
@@ -71,7 +71,7 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
     }
 
     // Refresh the token if it's close to expiration
-    const diffInMinutes = Math.floor((activeToken.expire_at.getTime() - Date.now()) / 60000);
+    const diffInMinutes = dateDiffInSeconds(activeToken.expire_at.getTime(), new Date()) / 60;
 
     if (diffInMinutes < settings.user.authRefreshExpiresIn) {
         await AccountTokenRepository.update(activeToken.id, {

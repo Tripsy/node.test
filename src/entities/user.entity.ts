@@ -4,6 +4,7 @@ import {BaseEntityAbstract} from './base-entity.abstract';
 import AccountTokenEntity from './account-token.entity';
 import AccountRecoveryEntity from './account-recovery.entity';
 import {UserRoleEnum} from '../enums/user-role.enum';
+import OperatorPermissionEntity from './operator_permission.entity';
 
 @Entity('user')
 export default class UserEntity extends BaseEntityAbstract {
@@ -41,4 +42,10 @@ export default class UserEntity extends BaseEntityAbstract {
 
     @OneToMany(() => AccountRecoveryEntity, (accountRecovery) => accountRecovery.user)
     account_recoveries?: AccountRecoveryEntity[];
+
+    @OneToMany(() => OperatorPermissionEntity, (operatorPermission) => operatorPermission.user)
+    permissions?: OperatorPermissionEntity[];
+
+    // Virtual column
+    contextData: Record<string, string | number> = {};
 }

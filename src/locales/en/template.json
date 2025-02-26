@@ -1,0 +1,5 @@
+{
+	"error": {
+		"not_found": "Template not found (eg: {{label}} - {{language}} - {{type}})"
+	}
+}

@@ -1,5 +1,4 @@
 import {cacheProvider} from '../providers/cache.provider';
-import UserRepository from "../repositories/user.repository";
 import {logHistory} from './log';
 
 export function cacheClean(entity: string, id: number) {
@@ -10,17 +9,26 @@ export function cacheClean(entity: string, id: number) {
  * Due to internal mechanism and how the delete operation is triggered,
  * the events `beforeRemove`, `afterSoftRemove` cannot be used because occasionally because the event entity is undefined
  *
- * This method can be used instead and triggered on delete operations
- *
- * @param id
- * @param isSoftDelete
+ * `removeOperation` can be used instead and triggered on delete operations
  */
-export function removeOperation(id: number, isSoftDelete: boolean = false) {
-    const action = isSoftDelete ? 'deleted' : 'removed';
 
-    cacheClean(UserRepository.entityAlias, id);
+type RemoveOperationData = {
+    entity: string,
+    id: number,
+    userId?: number
+}
 
-    logHistory(UserRepository.entityAlias, action, {
-        id: id.toString()
+export function removeOperation(data: RemoveOperationData, isSoftDelete: boolean = false) {
+    const action: string = isSoftDelete ? 'deleted' : 'removed';
+
+    cacheClean(data.entity, data.id);
+
+    logHistory(data.entity, action, {
+        id: data.id.toString(),
+        userId: data.userId?.toString() || '0'
     });
+}
+
+export function getUserIdFromContext(contextData?: Record<string, string>): number {
+    return Number(contextData?.user_id) || 0;
 }

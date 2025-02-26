@@ -3,8 +3,10 @@ import AbstractQuery from './abstract.query';
 import AccountTokenEntity from '../entities/account-token.entity';
 
 export class AccountTokenQuery extends AbstractQuery {
+    static entityAlias: string = 'account_token';
+    
     constructor(repository: ReturnType<typeof dataSource.getRepository<AccountTokenEntity>>) {
-        super(repository, AccountTokenRepository.entityAlias);
+        super(repository, AccountTokenQuery.entityAlias);
     }
 
     filterByIdent(ident: string): this {
@@ -15,8 +17,6 @@ export class AccountTokenQuery extends AbstractQuery {
 }
 
 export const AccountTokenRepository = dataSource.getRepository(AccountTokenEntity).extend({
-    entityAlias: 'account_token',
-
     createQuery() {
         return new AccountTokenQuery(this);
     },

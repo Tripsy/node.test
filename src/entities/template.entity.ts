@@ -21,4 +21,7 @@ export default class TemplateEntity extends BaseEntityAbstract {
 
     @Column({ type: 'json', nullable: false, comment: 'Template data' })
     content!: Record<string, any>;
+
+    // Virtual column
+    contextData: Record<string, string | number> = {};
 }
