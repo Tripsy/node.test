@@ -1,5 +1,6 @@
 import {Entity, Column, Index, PrimaryGeneratedColumn, DeleteDateColumn, OneToMany} from 'typeorm';
-import OperatorPermissionEntity from './operator_permission.entity';
+import UserPermissionEntity from './user-permission.entity';
+import {EntityContextData} from '../types/entity-context-data.type';
 
 @Entity('permission')
 @Index('IDX_permission', ['entity', 'operation'], { unique: true })
@@ -16,9 +17,9 @@ export default class PermissionEntity {
     @DeleteDateColumn({type: 'timestamp', nullable: true, select: false})
     deleted_at?: Date;
 
-    @OneToMany(() => OperatorPermissionEntity, (operatorPermission) => operatorPermission.permission_id)
-    operator_permissions?: OperatorPermissionEntity[];
+    @OneToMany(() => UserPermissionEntity, (userPermission) => userPermission.permission_id)
+    user_permissions?: UserPermissionEntity[];
 
     // Virtual column
-    contextData: Record<string, string | number> = {};
+    contextData: EntityContextData = {};
 }

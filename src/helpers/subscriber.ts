@@ -1,5 +1,6 @@
 import {cacheProvider} from '../providers/cache.provider';
 import {logHistory} from './log';
+import {EntityContextData} from '../types/entity-context-data.type';
 
 export function cacheClean(entity: string, id: number) {
     void cacheProvider.delete(cacheProvider.buildKey(entity, id.toString()));
@@ -29,6 +30,6 @@ export function removeOperation(data: RemoveOperationData, isSoftDelete: boolean
     });
 }
 
-export function getUserIdFromContext(contextData?: Record<string, string>): number {
+export function getUserIdFromContext(contextData?: EntityContextData): number {
     return Number(contextData?.user_id) || 0;
 }

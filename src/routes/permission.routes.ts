@@ -1,7 +1,7 @@
 import {Router} from 'express';
-import validateParamId from '../middleware/param-id.middleware';
 import PermissionController from '../controllers/permission.controller';
 import metaDocumentation from '../middleware/meta-documentation.middleware';
+import {validateParamsWhenId} from '../middleware/validate-params.middleware';
 
 const routes: Router = Router();
 const routePrefix = '/permissions';
@@ -20,7 +20,7 @@ routes.get(
     `${routePrefix}/:id`,
     [
         metaDocumentation('permission', 'read'),
-        validateParamId
+        validateParamsWhenId('id')
     ],
     PermissionController.read
 );
@@ -30,7 +30,7 @@ routes.put(
     `${routePrefix}/:id`,
     [
         metaDocumentation('permission', 'update'),
-        validateParamId
+        validateParamsWhenId('id')
     ],
     PermissionController.update
 );
@@ -40,7 +40,7 @@ routes.delete(
     `${routePrefix}/:id`,
     [
         metaDocumentation('permission', 'delete'),
-        validateParamId
+        validateParamsWhenId('id')
     ],
     PermissionController.delete
 );

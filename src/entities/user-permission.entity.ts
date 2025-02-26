@@ -11,11 +11,11 @@ import {
 import UserEntity from './user.entity';
 import PermissionEntity from './permission.entity';
 
-@Entity('operator_permission', {
-    comment: 'Stores operator permissions'
+@Entity('user_permission', {
+    comment: 'Stores user permissions'
 })
-@Index('IDX_operator_permission_permission', ['user_id', 'permission_id'], { unique: true })
-export default class OperatorPermissionEntity {
+@Index('IDX_user_permission_permission', ['user_id', 'permission_id'], { unique: true })
+export default class UserPermissionEntity {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})
     id!: number;
 
@@ -23,7 +23,6 @@ export default class OperatorPermissionEntity {
     user_id!: number;
 
     @Column('bigint', {unsigned: false, nullable: false})
-    @Index('IDX_operator_permission_permission_id')
     permission_id!: number;
 
     @CreateDateColumn({type: 'timestamp', nullable: false})
@@ -36,15 +35,15 @@ export default class OperatorPermissionEntity {
     @JoinColumn({
         name: 'user_id', // The column in this entity that references the foreign key
         referencedColumnName: 'id', // The column in the referenced entity (UserEntity)
-        foreignKeyConstraintName: 'FK_operator_permission_user_id', // Custom foreign key name
+        foreignKeyConstraintName: 'FK_user_permission_user_id', // Custom foreign key name
     })
     user?: UserEntity;
 
-    @ManyToOne(() => PermissionEntity, (permission) => permission.operator_permissions, {onDelete: 'CASCADE'})
+    @ManyToOne(() => PermissionEntity, (permission) => permission.user_permissions, {onDelete: 'CASCADE'})
     @JoinColumn({
         name: 'permission_id', // The column in this entity that references the foreign key
         referencedColumnName: 'id', // The column in the referenced entity (UserEntity)
-        foreignKeyConstraintName: 'FK_operator_permission_permission_id', // Custom foreign key name
+        foreignKeyConstraintName: 'FK_user_permission_permission_id', // Custom foreign key name
     })
     permission?: PermissionEntity;
 }

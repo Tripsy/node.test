@@ -60,13 +60,13 @@ class UserController {
         // Check permission (admin, operator with permission or owner)
         policy.read('user', req.user?.id);
 
-        const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, res.locals.validatedId);
+        const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, res.locals.validated.id);
         const user = await cacheProvider.get(cacheKey, async () => {
             return UserRepository
                 .createQuery()
                 // .select(['id', 'name', 'email', 'status', 'created_at', 'updated_at'])
                 // .addSelect(['password'])
-                .filterById(res.locals.validatedId)
+                .filterById(res.locals.validated.id)
                 .firstOrFail();
         });
 
@@ -93,7 +93,7 @@ class UserController {
 
         const user = await UserRepository.createQuery()
             .select(paramsUpdateList)
-            .filterById(res.locals.validatedId)
+            .filterById(res.locals.validated.id)
             .firstOrFail();
 
         for (const key in validated.data) {
@@ -117,7 +117,7 @@ class UserController {
         policy.delete();
 
         await UserRepository.createQuery()
-            .filterById(res.locals.validatedId)
+            .filterById(res.locals.validated.id)
             .delete();
 
         res.output.message(lang('user.success.delete'));
@@ -176,7 +176,7 @@ class UserController {
 
     //     const user = await UserRepository.createQuery()
     //         .select(['id', 'status'])
-    //         .filterById(res.locals.validatedId)
+    //         .filterById(res.locals.validated.id)
     //         .firstOrFail();
     //
     //     if (user.status === res.locals.validatedStatus) {
@@ -213,7 +213,7 @@ class UserController {
     //
     //     // const user = await UserRepository.createQuery()
     //     //     .select(['id', 'status'])
-    //     //     .filterById(res.locals.validatedId)
+    //     //     .filterById(res.locals.validated.id)
     //     //     .firstOrFail();
     //     //
     //     // if (user.status === res.locals.validatedStatus) {

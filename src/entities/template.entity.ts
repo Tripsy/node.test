@@ -1,6 +1,7 @@
 import {Entity, Column, Index} from 'typeorm';
 import {BaseEntityAbstract} from './base-entity.abstract';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
+import {EntityContextData} from '../types/entity-context-data.type';
 
 @Entity('template')
 @Index('IDX_label_language_type', ['label', 'language', 'type'], { unique: true })
@@ -23,5 +24,5 @@ export default class TemplateEntity extends BaseEntityAbstract {
     content!: Record<string, any>;
 
     // Virtual column
-    contextData: Record<string, string | number> = {};
+    contextData: EntityContextData = {};
 }

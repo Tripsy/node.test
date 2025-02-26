@@ -1,7 +1,6 @@
 import {Router} from 'express';
 import metaDocumentation from '../middleware/meta-documentation.middleware';
 import AccountController from '../controllers/account.controller';
-import validateParamId from '../middleware/param-id.middleware';
 
 const routes: Router = Router();
 const routePrefix = '/account';
@@ -17,10 +16,9 @@ routes.post(
 
 // Account - Remove token
 routes.delete(
-    `${routePrefix}/token/:id`,
+    `${routePrefix}/token`,
     [
-        metaDocumentation('account', 'removeToken'),
-        validateParamId
+        metaDocumentation('account', 'removeToken')
     ],
     AccountController.removeToken
 );

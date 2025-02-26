@@ -1,5 +1,5 @@
 {
-	"invalid_id": "Invalid ID parameter. ID must be a positive number",
+	"invalid_parameter": "Invalid parameter (eg: {{name}})",
 	"invalid_status": "Invalid status parameter. Accepted: {{allowedStatuses}}",
 	"filter_string": "Filter must be a string (eg: {{term}})",
 	"filter_number": "Filter must be a number (eg: {{term}})",

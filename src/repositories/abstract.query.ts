@@ -5,12 +5,14 @@ import NotFoundError from '../exceptions/not-found.error';
 import CustomError from '../exceptions/custom.error';
 import {dateToString} from '../helpers/utils';
 import {OrderDirectionEnum} from "../enums/order-direction.enum";
+import {EntityContextData} from '../types/entity-context-data.type';
 
 class AbstractQuery {
     private repository: Repository<any>;
     protected entityAlias: string;
     protected query: SelectQueryBuilder<any>;
     protected hasFilter: boolean = false; // Flag used to signal if any query builder filters have been applied
+    protected contextData: EntityContextData | undefined;
 
     constructor(repository: Repository<any>, entityAlias: string) {
         this.repository = repository;
@@ -23,6 +25,16 @@ class AbstractQuery {
         console.log('Parameters:', this.query.getParameters());
 
         return this;
+    }
+
+    setContextData(data: EntityContextData): this {
+        this.contextData = data;
+
+        return this;
+    }
+
+    getContextData(): EntityContextData | undefined {
+        return this.contextData;
     }
 
     /**
@@ -167,6 +179,15 @@ class AbstractQuery {
 
         if (!multiple && results.length > 1) {
             throw new CustomError(500, lang('error.db_delete_one'));
+        }
+
+        const contextData: EntityContextData | undefined = this.getContextData();
+
+        // Set contextData for each entity
+        if (contextData !== undefined) {
+            results.forEach(entity => {
+                (entity as any).contextData = contextData;
+            });
         }
 
         if (isSoftDelete) {

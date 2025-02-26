@@ -123,7 +123,7 @@ docker $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 - [Pino](https://github.com/pinojs/pino)
 - [Mysql2](https://github.com/sidorares/node-mysql2)
 - [TypeORM](https://github.com/typeorm/typeorm)
-- [i18n](https://github.com/i18next/i18next)
+- [i18next](https://github.com/i18next/i18next)
 - [nodemailer](https://nodemailer.com/)
 - [zod](https://zod.dev)
 - [helmet](https://helmetjs.github.io/)
@@ -134,16 +134,13 @@ docker $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 
 # TODO
 
-1. replace operator permission with user permission
-1. check TODO
-1. cache req.user ?!
-2. tests
-3. setup policy
-4. add user role & user maybe user permission
-5. user.controller -> create is only for authorized so add role & permissions
-6. user.controller -> updateRole, setPermissions, updatePassword, updateStatus, updateEmail
-7. account.controller -> signUp
-8. loading optimization - export constants or functions ?! logger and validators
+1. user-permission routes
+2. check TODO
+3. cache req.user ?!
+4. tests
+5. user.controller -> updateRole, setPermissions, updatePassword, updateStatus, updateEmail
+6. account.controller -> signUp
+7. loading optimization - export constants or functions ?! logger and validators
 
 REVIEW AT THIS POINT
 

@@ -1,0 +1,1 @@
+export type EntityContextData = Record<string, string | number | boolean | null>;

@@ -1,9 +1,9 @@
 import {Router} from 'express';
-import validateParamId from '../middleware/param-id.middleware';
 import UserController from '../controllers/user.controller';
 import metaDocumentation from '../middleware/meta-documentation.middleware';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import validateParamStatus from '../middleware/param-status.middleware';
+import {validateParamsWhenId} from '../middleware/validate-params.middleware';
 
 const routes: Router = Router();
 const routePrefix = '/users';
@@ -22,7 +22,7 @@ routes.get(
     `${routePrefix}/:id`,
     [
         metaDocumentation('user', 'read'),
-        validateParamId
+        validateParamsWhenId('id')
     ],
     UserController.read
 );
@@ -32,7 +32,7 @@ routes.put(
     `${routePrefix}/:id`,
     [
         metaDocumentation('user', 'update'),
-        validateParamId
+        validateParamsWhenId('id')
     ],
     UserController.update
 );
@@ -42,7 +42,7 @@ routes.delete(
     `${routePrefix}/:id`,
     [
         metaDocumentation('user', 'delete'),
-        validateParamId
+        validateParamsWhenId('id')
     ],
     UserController.delete
 );
@@ -63,8 +63,8 @@ routes.get(
 //     `${routePrefix}/:id/status/:status`,
 //     [
 //         metaDocumentation('user', 'update-status'),
-//         validateParamId,
-//         validateParamStatus([UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE])
+//         validateParamsWhenId('id'),
+//         validateParamStatus([UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE]) // TODO refactor
 //     ],
 //     UserController.updateStatus
 // );
@@ -74,7 +74,7 @@ routes.get(
 //     `${routePrefix}/:id/password`,
 //     [
 //         metaDocumentation('user', 'update-password'),
-//         validateParamId
+//         validateParamsWhenId('id')
 //     ],
 //     UserController.updatePassword
 // );

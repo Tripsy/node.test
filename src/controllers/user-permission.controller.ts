@@ -11,7 +11,7 @@ import {cacheProvider} from '../providers/cache.provider';
 import PermissionPolicy from '../policies/permission.policy';
 import PermissionFindValidator from '../validators/permission-find.validator';
 
-class PermissionController {
+class UserPermissionController {
     public create = asyncHandler(async (req: Request, res: Response) => {
         const policy = new PermissionPolicy(req);
 
@@ -63,27 +63,6 @@ class PermissionController {
             res.output.data(entry);
             res.output.message(lang('permission.success.create'));
         }
-
-        res.json(res.output);
-    });
-
-    public read = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new PermissionPolicy(req);
-
-        // Check permission (admin, operator with permission)
-        policy.read();
-
-        const cacheKey = cacheProvider.buildKey(PermissionQuery.entityAlias, res.locals.validated.id);
-        const permission = await cacheProvider.get(cacheKey, async () => {
-            return PermissionRepository
-                .createQuery()
-                .filterById(res.locals.validated.id)
-                .withDeleted()
-                .firstOrFail();
-        });
-
-        res.output.meta(cacheProvider.isCached, 'isCached');
-        res.output.data(permission);
 
         res.json(res.output);
     });
@@ -190,4 +169,4 @@ class PermissionController {
     });
 }
 
-export default new PermissionController();
+export default new UserPermissionController();
