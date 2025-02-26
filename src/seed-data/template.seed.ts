@@ -4,7 +4,17 @@ import {TemplateTypeEnum} from '../enums/template-type.enum';
 
 const templateData = [
     {
-        label: 'email-confirm',
+        label: 'email-confirm-create',
+        language: 'en',
+        type: TemplateTypeEnum.EMAIL,
+        content: {
+            subject: 'Confirm your email',
+            text: 'Please confirm your email by clicking on the following link: {{link}}',
+            html: '<p>Please confirm your email by clicking on the following link: {{link}}</p>'
+        }
+    },
+    {
+        label: 'email-confirm-update',
         language: 'en',
         type: TemplateTypeEnum.EMAIL,
         content: {

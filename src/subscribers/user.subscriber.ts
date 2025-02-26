@@ -7,7 +7,7 @@ import {
     SoftRemoveEvent
 } from 'typeorm';
 import UserEntity from '../entities/user.entity';
-import {encryptPassword, sendConfirmEmail, sendWelcomeEmail} from '../services/account.service';
+import {encryptPassword, sendEmailConfirmCreate, sendWelcomeEmail} from '../services/account.service';
 import {UserQuery} from '../repositories/user.repository';
 import {cacheClean, getUserIdFromContext, removeOperation} from '../helpers/subscriber';
 import {settings} from '../config/settings.config';
@@ -83,7 +83,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
                 await sendWelcomeEmail(event.entity);
                 break;
             case UserStatusEnum.PENDING:
-                await sendConfirmEmail(event.entity);
+                await sendEmailConfirmCreate(event.entity);
                 break;
         }
     }

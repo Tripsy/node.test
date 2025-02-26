@@ -1,9 +1,8 @@
 import {Router} from 'express';
 import UserController from '../controllers/user.controller';
 import metaDocumentation from '../middleware/meta-documentation.middleware';
+import {validateParamsWhenId, validateParamsWhenStatus} from '../middleware/validate-params.middleware';
 import {UserStatusEnum} from '../enums/user-status.enum';
-import validateParamStatus from '../middleware/param-status.middleware';
-import {validateParamsWhenId} from '../middleware/validate-params.middleware';
 
 const routes: Router = Router();
 const routePrefix = '/users';
@@ -56,27 +55,17 @@ routes.get(
     UserController.find
 );
 
-// // User - Update `status`
-// only for admin?
-// on email confirm ?
-// routes.patch(
-//     `${routePrefix}/:id/status/:status`,
-//     [
-//         metaDocumentation('user', 'update-status'),
-//         validateParamsWhenId('id'),
-//         validateParamStatus([UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE]) // TODO refactor
-//     ],
-//     UserController.updateStatus
-// );
-//
-// // User - Update `status`
-// routes.patch(
-//     `${routePrefix}/:id/password`,
-//     [
-//         metaDocumentation('user', 'update-password'),
-//         validateParamsWhenId('id')
-//     ],
-//     UserController.updatePassword
-// );
+// User - Update status
+routes.patch(
+    `${routePrefix}/:id/status/:status`,
+    [
+        metaDocumentation('user', 'update-status'),
+        validateParamsWhenId('id'),
+        validateParamsWhenStatus({
+            'status': [UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE]
+        })
+    ],
+    UserController.statusUpdate
+);
 
 export default routes;

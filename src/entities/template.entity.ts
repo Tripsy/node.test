@@ -24,5 +24,5 @@ export default class TemplateEntity extends BaseEntityAbstract {
     content!: Record<string, any>;
 
     // Virtual column
-    contextData: EntityContextData = {};
+    contextData?: EntityContextData;
 }

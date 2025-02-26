@@ -1,4 +1,4 @@
-import {Entity, Column, OneToMany, Index} from 'typeorm';
+import {Entity, Column, OneToMany, Index, VirtualColumn} from 'typeorm';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {BaseEntityAbstract} from './base-entity.abstract';
 import AccountTokenEntity from './account-token.entity';
@@ -13,7 +13,7 @@ export default class UserEntity extends BaseEntityAbstract {
     name!: string
 
     @Column('varchar', {nullable: false, unique: true})
-    @Index('IDX_user_email', { unique: true })
+    @Index('IDX_user_email', {unique: true})
     email!: string;
 
     @Column('varchar', {nullable: false, select: false})
@@ -48,5 +48,5 @@ export default class UserEntity extends BaseEntityAbstract {
     permissions?: UserPermissionEntity[];
 
     // Virtual column
-    contextData: EntityContextData = {};
+    contextData?: EntityContextData;
 }

@@ -14,15 +14,14 @@
 	},
 	"error": {
 		"not_found": "User not found",
-		"email_already_used": "Email already used by existing user",
+		"email_already_used": "Email already used by another account",
 		"status_unchanged": "Status unchanged (eg: {{status}})"
 	},
 	"success": {
 		"create": "User created successfully",
 		"update": "User updated successfully",
 		"delete": "User deleted successfully",
-		"update_status": "User status updated successfully",
-		"update_password": "User password updated successfully"
+		"status_update": "User status updated successfully"
 	},
 	"history": {
 		"created": "User #{{id}} created",

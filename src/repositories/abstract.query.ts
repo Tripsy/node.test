@@ -11,7 +11,7 @@ class AbstractQuery {
     private repository: Repository<any>;
     protected entityAlias: string;
     protected query: SelectQueryBuilder<any>;
-    protected hasFilter: boolean = false; // Flag used to signal if any query builder filters have been applied
+    protected hasFilter: boolean = false; // Flag used to signal if query builder filters have been applied in preparation for delete operations
     protected contextData: EntityContextData | undefined;
 
     constructor(repository: Repository<any>, entityAlias: string) {
@@ -199,8 +199,8 @@ class AbstractQuery {
         return results.length;
     }
 
-    filterBy(column: string, value?: string | number, operator: string = '='): this {
-        if (value !== undefined) {
+    filterBy(column: string, value?: string | number | null, operator: string = '='): this {
+        if (value) {
             column = this.prepareColumn(column);
 
             switch (operator) {
@@ -228,27 +228,27 @@ class AbstractQuery {
         return this;
     }
 
-    filterByRange(column: string, min?: Date | number, max?: Date | number): this {
+    filterByRange(column: string, min?: Date | number | null, max?: Date | number | null): this {
         const minValue = min instanceof Date ? dateToString(min) : min;
         const maxValue = max instanceof Date ? dateToString(max) : max;
 
-        if (min !== undefined && max !== undefined) {
+        if (min && max) {
             column = this.prepareColumn(column);
 
             this.query.andWhere(`${column} BETWEEN :min${column} AND :max${column}`, {
                 [`min${column}`]: minValue,
                 [`max${column}`]: maxValue,
             });
-        } else if (min !== undefined) {
+        } else if (min) {
             this.filterBy(column, minValue, '>=');
-        } else if (max !== undefined) {
+        } else if (max) {
             this.filterBy(column, maxValue, '<=');
         }
 
         return this;
     }
 
-    filterById(id?: number) {
+    filterById(id?: number | null) {
         if (id) {
             this.hasFilter = true;
             this.filterBy('id', id);
@@ -257,7 +257,7 @@ class AbstractQuery {
         return this;
     }
 
-    filterByStatus(status?: string) {
+    filterByStatus(status?: string | null) {
         if (status) {
             this.filterBy('status', status);
         }

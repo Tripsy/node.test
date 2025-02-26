@@ -6,25 +6,27 @@ import NotAllowedError from '../exceptions/not-allowed.error';
 class AbstractPolicy {
     protected entity: string;
 
-    readonly userId: number;
+    readonly userId: number | null;
     readonly userRole: UserRoleEnum | 'visitor';
     readonly userPermissions: string[];
-    readonly isAuthenticated: boolean;
 
     constructor(req: Request, entity: string) {
         this.entity = entity;
-        this.userId = req.user?.id || 0;
+        this.userId = req.user?.id || null;
         this.userRole = req.user?.role || 'visitor';
         this.userPermissions = req.user?.permissions || [];
-        this.isAuthenticated = this.userId > 0;
     }
 
-    public getUserId(): number {
-        return this.userId;
+    public getUserId(): number | null{
+        return this.userId || null;
     }
 
     public permission(operation: string, entity?:string): string {
         return (entity || this.entity) + '.' + operation;
+    }
+
+    public isAuthenticated(): boolean {
+        return this.userId !== null!;
     }
 
     protected isVisitor(): boolean {
@@ -56,7 +58,7 @@ class AbstractPolicy {
      * Returns `true` if the user is the owner of the resource
      */
     protected isOwner(user_id?: number): boolean {
-        return user_id !== undefined && this.userId === user_id;
+        return this.userId === user_id;
     }
 
     /**
@@ -68,7 +70,7 @@ class AbstractPolicy {
     }
 
     protected useError() {
-        if (this.isAuthenticated) {
+        if (this.isAuthenticated()) {
             throw new NotAllowedError();
         }
 

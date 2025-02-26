@@ -112,7 +112,14 @@ export async function setupRecovery(user: UserEntity & { id: number; }, req: Req
     return [ident, expire_at];
 }
 
-export function createConfirmationToken(user: UserEntity & { id: number; email: string }): {
+/**
+ * This method has a double utility:
+ *  - creates a JWT token which is used to confirm the email address of the user on account creation
+ *  - creates a JWT token which is used to confirm the email address of the user on email update
+ *
+ * @param user
+ */
+export function createConfirmationToken(user: UserEntity & { id: number; email: string; email_new?: string }): {
     token: string,
     expire_at: Date
 } {
@@ -122,7 +129,8 @@ export function createConfirmationToken(user: UserEntity & { id: number; email: 
 
     const payload: ConfirmationTokenPayload = {
         user_id: user.id,
-        user_email: user.email
+        user_email: user.email,
+        user_email_new: user.email_new
     };
 
     const token = jwt.sign(payload, settings.user.emailConfirmationSecret, {
@@ -134,10 +142,29 @@ export function createConfirmationToken(user: UserEntity & { id: number; email: 
     return {token, expire_at};
 }
 
-export async function sendConfirmEmail(user: UserEntity): Promise<void> {
+export async function sendEmailConfirmCreate(user: UserEntity): Promise<void> {
     const {token, expire_at} = createConfirmationToken(user);
 
-    const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm', user.language);
+    const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-create', user.language);
+
+    void queueEmail(
+        emailTemplate,
+        {
+            'name': user.name,
+            'link': emailConfirmLink(token),
+            'expire_at': expire_at.toISOString()
+        },
+        {
+            name: user.name,
+            address: user.email
+        }
+    );
+}
+
+export async function sendEmailConfirmUpdate(user: UserEntity): Promise<void> {
+    const {token, expire_at} = createConfirmationToken(user);
+
+    const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-update', user.language);
 
     void queueEmail(
         emailTemplate,
@@ -154,7 +181,6 @@ export async function sendConfirmEmail(user: UserEntity): Promise<void> {
 }
 
 export async function sendWelcomeEmail(user: UserEntity): Promise<void> {
-
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-welcome', user.language);
 
     void queueEmail(

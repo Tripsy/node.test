@@ -13,7 +13,9 @@
 		"recovery_token_used": "Recovery token already used",
 		"recovery_token_not_authorized": "Recovery token not authorized",
 		"confirmation_token_not_found": "Confirmation token not found",
-		"confirmation_token_invalid": "Invalid confirmation token"
+		"confirmation_token_invalid": "Invalid confirmation token",
+		"email_same": "This email is already in use",
+		"email_already_used": "Email already used by another account"
 	},
 	"success": {
 		"login": "Logged in successfully",
@@ -21,7 +23,10 @@
 		"token_deleted": "Token deleted successfully",
 		"password_recover": "Password recover email sent successfully",
 		"password_changed": "Password changed successfully",
-		"email_confirmed": "Email confirmed successfully"
+		"password_updated": "User password updated successfully",
+		"email_confirmed": "Email confirmed successfully",
+		"email_updated": "Email updated successfully",
+		"email_update": "Follow email confirmation instructions"
 	},
 	"validation": {
 		"email_required": "Email is required",
@@ -29,6 +34,7 @@
 		"password_required": "Password required",
 		"ident_required": "Ident is required",
 		"ident_invalid": "Ident is invalid",
-		"password_invalid": "Invalid password"
+		"password_invalid": "Invalid password",
+		"old_password_invalid": "Invalid old password"
 	}
 }

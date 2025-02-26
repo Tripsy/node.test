@@ -23,7 +23,7 @@ const loadRoutes = async (router: Router): Promise<void> => {
             if (typeof routeModule.default === 'function') {
                 router.use('/', routeModule.default);
             } else {
-                throw new Error(` ${file} does not export a valid router.`);
+                throw new Error(`${file} does not export a valid router.`);
             }
         })
     );

@@ -6,6 +6,7 @@ export type AuthTokenPayload = {
 export type ConfirmationTokenPayload = {
     user_id: number;
     user_email: string;
+    user_email_new?: string;
 };
 
 export type AuthValidToken = {

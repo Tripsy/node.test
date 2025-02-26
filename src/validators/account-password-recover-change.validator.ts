@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
 import {settings} from '../config/settings.config';
 
-const AccountPasswordChangeValidator = z
+const AccountPasswordRecoverChangeValidator = z
     .object({
         password: z
             .string({message: lang('user.validation.password_invalid')})
@@ -31,4 +31,4 @@ const AccountPasswordChangeValidator = z
         }
     });
 
-export default AccountPasswordChangeValidator;
+export default AccountPasswordRecoverChangeValidator;

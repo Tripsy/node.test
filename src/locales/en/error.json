@@ -1,6 +1,6 @@
 {
-	"invalid_parameter": "Invalid parameter (eg: {{name}})",
-	"invalid_status": "Invalid status parameter. Accepted: {{allowedStatuses}}",
+	"invalid_id": "Invalid ID parameter (eg: {{name}})",
+	"invalid_status": "Invalid status parameter (eg: {{name}}). Accepted: {{allowedValues}}",
 	"filter_string": "Filter must be a string (eg: {{term}})",
 	"filter_number": "Filter must be a number (eg: {{term}})",
 	"filter_boolean": "Filter must have a boolean value (eg: {{term}})",

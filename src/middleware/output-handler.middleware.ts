@@ -104,6 +104,14 @@ export class OutputWrapper {
 
             if (filteredResult.request?.body && Object.keys(filteredResult.request.body).length === 0) {
                 delete filteredResult.request.body;
+            } else {
+                const sensitiveFields = ['password', 'password_confirm', 'old_password'];
+
+                sensitiveFields.forEach((field) => {
+                    if (filteredResult.request?.body?.[field]) {
+                        filteredResult.request.body[field] = '*****';
+                    }
+                });
             }
 
             if (filteredResult.request?.params && Object.keys(filteredResult.request.params).length === 0) {

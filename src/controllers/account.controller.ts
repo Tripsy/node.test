@@ -7,7 +7,14 @@ import AccountLoginValidator from '../validators/account-login.validator';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import NotFoundError from '../exceptions/not-found.error';
 import UnauthorizedError from '../exceptions/unauthorized.error';
-import {buildMetadata, getAuthValidTokens, setupRecovery, setupToken, verifyPassword} from '../services/account.service';
+import {
+    buildMetadata,
+    getAuthValidTokens,
+    sendEmailConfirmUpdate,
+    setupRecovery,
+    setupToken,
+    verifyPassword
+} from '../services/account.service';
 import {settings} from '../config/settings.config';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import AccountRemoveTokenValidator from '../validators/account-remove-token.validator';
@@ -15,12 +22,16 @@ import AccountPasswordRecoverValidator from '../validators/account-password-reco
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 import {createPastDate} from '../helpers/utils';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
-import AccountPasswordChangeValidator from '../validators/account-password-change.validator';
+import AccountPasswordRecoverChangeValidator from '../validators/account-password-recover-change.validator';
 import {compareMetadataValue} from '../helpers/metadata';
 import {AuthValidToken, ConfirmationTokenPayload} from '../types/token.type';
 import jwt from 'jsonwebtoken';
 import NotAllowedError from '../exceptions/not-allowed.error';
 import {EmailTemplate} from '../types/template.type';
+import AccountPolicy from '../policies/account.policy';
+import AccountPasswordUpdateValidator from '../validators/account-password-update.validator';
+import CustomError from '../exceptions/custom.error';
+import AccountEmailUpdateValidator from '../validators/account-email-update.validator';
 
 class AccountController {
     public login = asyncHandler(async (req: Request, res: Response) => {
@@ -157,7 +168,7 @@ class AccountController {
         res.json(res.output);
     }); // TODO test
 
-    public passwordChange = asyncHandler(async (req: Request, res: Response) => {
+    public passwordRecoverChange = asyncHandler(async (req: Request, res: Response) => {
         const ident = req.params.ident;
 
         if (!ident) {
@@ -165,7 +176,7 @@ class AccountController {
         }
 
         // Validate the request body against the schema
-        const validated = AccountPasswordChangeValidator.safeParse(req.body);
+        const validated = AccountPasswordRecoverChangeValidator.safeParse(req.body);
 
         if (!validated.success) {
             res.output.errors(validated.error.errors);
@@ -235,6 +246,56 @@ class AccountController {
         res.json(res.output);
     }); // TODO test
 
+    public passwordUpdate = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (needs to be authenticated)
+        policy.passwordUpdate();
+
+        // Validate the request body against the schema
+        const validated = AccountPasswordUpdateValidator.safeParse(req.body);
+
+        if (!validated.success) {
+            res.output.errors(validated.error.errors);
+
+            throw new BadRequestError();
+        }
+
+        const user = await UserRepository.createQuery()
+            .select(['id', 'password'])
+            .filterById(policy.getUserId())
+            .firstOrFail();
+
+        const isValidPassword: boolean = await verifyPassword(validated.data.old_password, user.password);
+
+        if (!isValidPassword) {
+            res.output.errors([
+                {'old_password': lang('account.validation.old_password_invalid')}
+            ]);
+
+            throw new BadRequestError();
+        }
+
+        // Update user password
+        user.password = validated.data.password;
+        await UserRepository.save(user);
+
+        // Remove all account tokens
+        await AccountTokenRepository.createQuery()
+            .filterBy('user_id', policy.getUserId())
+            .delete(false, true);
+
+        // Generate new token
+        const token = await setupToken(user, req);
+
+        res.output.message(lang('account.success.password_updated'));
+        res.output.data({
+            'token': token
+        }); // TODO test
+
+        res.json(res.output);
+    });
+
     public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
         const token = req.params.token;
 
@@ -252,7 +313,7 @@ class AccountController {
         }
 
         const user = await UserRepository.createQuery()
-            .select(['id', 'name', 'email', 'language', 'status'])
+            .select(['id', 'status'])
             .filterById(payload.user_id)
             .filterByEmail(payload.user_email)
             .first();
@@ -262,21 +323,76 @@ class AccountController {
             throw new NotFoundError(lang('account.error.not_found'));
         }
 
-        switch (user.status) {
-            case UserStatusEnum.ACTIVE:
-                throw new BadRequestError(lang('account.error.already_active'));
-            case UserStatusEnum.INACTIVE:
-                throw new NotAllowedError();
+        if (payload.user_email_new) {
+            // Confirm procedure for email update
+            user.email = payload.user_email_new;
+            await UserRepository.save(user);
+
+            res.output.message(lang('account.success.email_updated'));
+        } else {
+            // Confirm procedure for email confirmation
+            switch (user.status) {
+                case UserStatusEnum.ACTIVE:
+                    throw new BadRequestError(lang('account.error.already_active'));
+                case UserStatusEnum.INACTIVE:
+                    throw new NotAllowedError();
+            }
+
+            // Update user status
+            user.status = UserStatusEnum.ACTIVE;
+            await UserRepository.save(user);
+
+            res.output.message(lang('account.success.email_confirmed'));
         }
-
-        // Update user status
-        user.status = UserStatusEnum.ACTIVE;
-        await UserRepository.save(user);
-
-        res.output.message(lang('account.success.email_confirmed'));
 
         res.json(res.output);
     });
+
+    public emailUpdate = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (needs to be authenticated)
+        policy.emailUpdate();
+
+        // Validate the request body against the schema
+        const validated = AccountEmailUpdateValidator.safeParse(req.body);
+
+        if (!validated.success) {
+            res.output.errors(validated.error.errors);
+
+            throw new BadRequestError();
+        }
+
+        const existingUser = await UserRepository.createQuery()
+            .filterBy('id', policy.getUserId(), '!=')
+            .filterByEmail(validated.data.email)
+            .first();
+
+        // Return error if email already in use by another account
+        if (existingUser) {
+            throw new CustomError(409, lang('account.error.email_already_used'));
+        }
+
+        const user = await UserRepository.createQuery()
+            .select(['id', 'name', 'email', 'language'])
+            .filterById(policy.getUserId())
+            .firstOrFail();
+
+        // Return error if email is the same
+        if (user.email === validated.data.email) {
+            throw new CustomError(409, lang('account.error.email_same'));
+        }
+
+        // Add new email to user entity (added in the confirmation token payload)
+        user.email_new = validated.data.email;
+
+        // Send confirmation email
+        await sendEmailConfirmUpdate(user);
+
+        res.output.message(lang('account.success.email_update'));
+
+        res.json(res.output);
+    }); // TODO test
 }
 
 export default new AccountController();

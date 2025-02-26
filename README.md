@@ -66,8 +66,6 @@ docker $ pnpm run dev
 - /providers - Reusable utilities, external integrations; Encapsulates infrastructure (e.g., Redis, DB connections)
 - /subscriber - Business logic, high-level functionality; Manages operations, workflows
 
-# Usage
-
 ### Pino
 
 Levels:
@@ -78,23 +76,6 @@ Levels:
     error (50),
     fatal (60)
 
-```
-import logger from './services/logger'
-import {childLogger} from './helpers/log'
-
-logger.debug('Test debug')
-logger.info('Test info')
-logger.error({
-        transaction_id: 1234,
-        user_id: 'johndoe'
-    },
-    'Transaction failed'
-)
-
-const userLogger = childLogger(logger, 'user')
-
-userLogger.info('This is a log from user')
-```
 ### TypeORM
 
 > **Warning**
@@ -134,30 +115,29 @@ docker $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 
 # TODO
 
-1. user-permission routes
-2. check TODO
-3. cache req.user ?!
-4. tests
-5. user.controller -> updateRole, setPermissions, updatePassword, updateStatus, updateEmail
-6. account.controller -> signUp
+1. account.controller -> signUp & review policy on all methods
+2. Add rate limiting for failed logins
+3. Functional tests - Super test
+4. Unit tests - Jest
+5. check TODO
+6. after permissions load > cache req.user ?!
 7. loading optimization - export constants or functions ?! logger and validators
 
 REVIEW AT THIS POINT
 
-1. template.routes.ts && template.controller.ts
-2. once policy is set up for admin on read and find allow to included entries marked as deleted
-3. build pino-transport-mysql - log.entity is created in /entities but add .ts
-4. test pino-transport-email
-5. create cron checks: 
+1. user-permission routes
+2. template.routes.ts && template.controller.ts
+3. once policy is set up for admin on read and find allow to included entries marked as deleted
+4. build pino-transport-mysql - log.entity is created in /entities but add .ts
+5. test pino-transport-email
+6. create cron checks: 
     - daily - count errors in last 24 hours (group by label, count)
     - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
-6. Add rate limiting for failed logins
-    
+
 IDEAS
 
 1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
 2. https://expressjs.com/en/advanced/best-practice-performance.html
-3. Functional tests - Super test
-4. Unit tests - Jest
+

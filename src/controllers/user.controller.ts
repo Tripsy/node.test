@@ -11,6 +11,7 @@ import {cacheProvider} from '../providers/cache.provider';
 import UserFindValidator from '../validators/user-find.validator';
 import {stringToDate} from '../helpers/utils';
 import UserPolicy from '../policies/user.policy';
+import AccountTokenRepository from '../repositories/account-token.repository';
 
 class UserController {
     public create = asyncHandler(async (req: Request, res: Response) => {
@@ -76,6 +77,9 @@ class UserController {
         res.json(res.output);
     });
 
+    /**
+     * This method lacks some safety measures regarding password & email update => no confirmation required from user side
+     */
     public update = asyncHandler(async (req: Request, res: Response) => {
         const policy = new UserPolicy(req);
 
@@ -96,6 +100,22 @@ class UserController {
             .filterById(res.locals.validated.id)
             .firstOrFail();
 
+        const existingUser = await UserRepository.createQuery()
+            .filterBy('id', res.locals.validated.id, '!=')
+            .filterByEmail(validated.data.email)
+            .first();
+
+        // Return error if email already in use by another account
+        if (existingUser) {
+            throw new CustomError(409, lang('user.error.email_already_used'));
+        }
+
+        // Remove all account tokens
+        await AccountTokenRepository.createQuery()
+            .filterBy('user_id', policy.getUserId())
+            .delete(false, true);
+
+        // Set entity data
         for (const key in validated.data) {
             // We allow update only for the fields used in the select
             if (paramsUpdateList.includes(key)) {
@@ -168,68 +188,31 @@ class UserController {
         res.json(res.output);
     });
 
-    // public updateStatus = asyncHandler(async (_req: Request, res: Response) => {
-    // const policy = new UserPolicy(req);
-    //
-    // // Check permission (admin or operator with permission)
-    // policy.updateStatus();
+    public statusUpdate = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new UserPolicy(req);
 
-    //     const user = await UserRepository.createQuery()
-    //         .select(['id', 'status'])
-    //         .filterById(res.locals.validated.id)
-    //         .firstOrFail();
-    //
-    //     if (user.status === res.locals.validatedStatus) {
-    //         throw new BadRequestError(lang('user.error.status_unchanged', {
-    //             status: res.locals.validatedStatus
-    //         }));
-    //     }
-    //
-    //     user.status = res.locals.validatedStatus;
-    //
-    //     await UserRepository.save(user);
-    //
-    //     res.output.message(lang('user.success.update_status'));
-    //
-    //     res.json(res.output);
-    // });
+        // Check permission (admin or operator with permission)
+        policy.update();
 
-    // public updatePassword = asyncHandler(async (_req: Request, res: Response) => {
-    // const policy = new UserPolicy(req);
-    //
-    // // Check permission (only owner)
-    // policy.updatePassword();
-    //     // // Validate the request body against the schema
-    //     // const validated = UserFindValidator.safeParse(req.body);
-    //     //
-    //     // if (!validated.success) {
-    //     //     res.output.errors(validated.error.errors);
-    //     //
-    //     //     throw new BadRequestError();
-    //     // }
-    //
-    //     // depending on the user role
-    //     // if admin oldPassword is not required
-    //
-    //     // const user = await UserRepository.createQuery()
-    //     //     .select(['id', 'status'])
-    //     //     .filterById(res.locals.validated.id)
-    //     //     .firstOrFail();
-    //     //
-    //     // if (user.status === res.locals.validatedStatus) {
-    //     //     throw new BadRequestError(lang('user.error.status_unchanged', {
-    //     //         status: res.locals.validatedStatus
-    //     //     }));
-    //     // }
-    //
-    //     user.password = data.validated.newPassword;
-    //
-    //     await UserRepository.save(user);
-    //
-    //     res.output.message(lang('user.success.update_password'));
-    //
-    //     res.json(res.output);
-    // });
+        const user = await UserRepository.createQuery()
+            .select(['id', 'status'])
+            .filterById(res.locals.validated.id)
+            .firstOrFail();
+
+        if (user.status === res.locals.validated.status) {
+            throw new BadRequestError(lang('user.error.status_unchanged', {
+                status: res.locals.validated.status
+            }));
+        }
+
+        user.status = res.locals.validated.status;
+
+        await UserRepository.save(user);
+
+        res.output.message(lang('user.success.status_update'));
+
+        res.json(res.output);
+    }); // TODO test
 }
 
 export default new UserController();

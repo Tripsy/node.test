@@ -41,13 +41,22 @@ routes.post(
     AccountController.passwordRecover
 );
 
-// Account - Change password
+// Account - Change password based on recovery token
 routes.post(
-    `${routePrefix}/password-change/:ident`,
+    `${routePrefix}/password-recover-change/:ident`,
     [
-        metaDocumentation('account', 'password-change'),
+        metaDocumentation('account', 'password-recover-change'),
     ],
-    AccountController.passwordChange
+    AccountController.passwordRecoverChange
+);
+
+// Account - Update password (when logged in based on old password)
+routes.post(
+    `${routePrefix}/password-update`,
+    [
+        metaDocumentation('account', 'password-update'),
+    ],
+    AccountController.passwordUpdate
 );
 
 // Account - Confirm email
@@ -57,6 +66,15 @@ routes.post(
         metaDocumentation('account', 'email-confirm'),
     ],
     AccountController.emailConfirm
+);
+
+// Account - Update email
+routes.post(
+    `${routePrefix}/email-update`,
+    [
+        metaDocumentation('account', 'email-update'),
+    ],
+    AccountController.emailUpdate
 );
 
 export default routes;
