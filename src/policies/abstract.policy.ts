@@ -69,51 +69,63 @@ class AbstractPolicy {
         return this.isOwner(user_id) || this.isAdmin() || this.hasPermission(permission);
     }
 
-    protected useError() {
-        if (this.isAuthenticated()) {
+    public create(entity?: string): void {
+        if (!this.isAuthenticated()) {
             throw new NotAllowedError();
         }
 
-        throw new UnauthorizedError();
-    }
-
-    public create(entity?: string): void {
         const permission: string = this.permission('create', entity);
 
         if (!this.isAdmin() && !this.hasPermission(permission)) {
-            this.useError();
+            throw new UnauthorizedError();
         }
     }
 
     public read(entity?: string, user_id?: number): void {
+        if (!this.isAuthenticated()) {
+            throw new NotAllowedError();
+        }
+
         const permission: string = this.permission('read', entity);
 
         if (!this.isAllowed(permission, user_id)) {
-            this.useError();
+            throw new UnauthorizedError();
         }
     }
 
     public update(entity?: string, user_id?: number): void {
+        if (!this.isAuthenticated()) {
+            throw new NotAllowedError();
+        }
+
         const permission: string = this.permission('update', entity);
 
         if (!this.isAllowed(permission, user_id)) {
-            this.useError();
+            throw new UnauthorizedError();
         }
     }
 
     public delete(entity?: string, user_id?: number): void {
+        if (!this.isAuthenticated()) {
+            throw new NotAllowedError();
+        }
+
         const permission: string = this.permission('delete', entity);
 
         if (!this.isAllowed(permission, user_id)) {
-            this.useError();
+            throw new UnauthorizedError();
         }
     }
 
     public find(entity?: string, user_id?: number): void {
+        if (!this.isAuthenticated()) {
+            throw new NotAllowedError();
+        }
+
         const permission: string = this.permission('find', entity);
 
         if (!this.isAllowed(permission, user_id)) {
-            this.useError();
+            throw new UnauthorizedError();
         }
     }
 }

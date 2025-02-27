@@ -8,10 +8,6 @@ class PermissionPolicy extends AbstractPolicy {
 
         super(req, entity);
     }
-
-    useError() {
-        return; // debug //TODO - remove it when testing is finished
-    }
 }
 
 export default PermissionPolicy;

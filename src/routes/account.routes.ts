@@ -5,9 +5,18 @@ import AccountController from '../controllers/account.controller';
 const routes: Router = Router();
 const routePrefix = '/account';
 
+// Account - Register
+routes.post(
+    `${routePrefix}/register`,
+    [
+        metaDocumentation('account', 'register')
+    ],
+    AccountController.register
+);
+
 // Account - Login
 routes.post(
-    routePrefix,
+    `${routePrefix}/login`,
     [
         metaDocumentation('account', 'login')
     ],
@@ -25,7 +34,7 @@ routes.delete(
 
 // Account - Logout
 routes.delete(
-    routePrefix,
+    `${routePrefix}/logout`,
     [
         metaDocumentation('account', 'logout')
     ],

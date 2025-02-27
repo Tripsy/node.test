@@ -32,9 +32,53 @@ import AccountPolicy from '../policies/account.policy';
 import AccountPasswordUpdateValidator from '../validators/account-password-update.validator';
 import CustomError from '../exceptions/custom.error';
 import AccountEmailUpdateValidator from '../validators/account-email-update.validator';
+import UserEntity from '../entities/user.entity';
+import AccountRegisterValidator from '../validators/account-register.validator';
 
 class AccountController {
+    public register = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (should not be authenticated)
+        policy.register();
+
+        // Validate the request body against the schema
+        const validated = AccountRegisterValidator.safeParse(req.body);
+
+        if (!validated.success) {
+            res.output.errors(validated.error.errors);
+
+            throw new BadRequestError();
+        }
+
+        const existingUser = await UserRepository.createQuery()
+            .filterByEmail(validated.data.email)
+            .first();
+
+        if (existingUser) {
+            throw new CustomError(409, lang('account.error.email_already_used'));
+        }
+
+        const user = new UserEntity();
+        user.name = validated.data.name;
+        user.email = validated.data.email;
+        user.password = validated.data.password;
+        user.language = validated.data.language || req.lang;
+
+        const entry: UserEntity = await UserRepository.save(user);
+
+        res.output.data(entry);
+        res.output.message(lang('account.success.register'));
+
+        res.json(res.output);
+    }); // TODO test
+
     public login = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (should not be authenticated)
+        policy.login();
+
         // Validate the request body against the schema
         const validated = AccountLoginValidator.safeParse(req.body);
 
@@ -79,6 +123,15 @@ class AccountController {
         res.json(res.output);
     }); // TODO test
 
+    /**
+     * With this endpoint account tokens can be removed
+     * It is allowed to be used authenticated or not; "safety" is only guaranteed by the ident parameter which is hard to guess
+     *
+     * Practical aspects:
+     *      - On login (with valid credentials) if too many sessions are active a list of tokens will be returned
+     *        in the response -> front-end implementation can allow token(s) to be removed before login retry
+     *      - From his account page user could see all active tokens and allow removal
+     */
     public removeToken = asyncHandler(async (req: Request, res: Response) => {
         // Validate the request body against the schema
         const validated = AccountRemoveTokenValidator.safeParse(req.body);
@@ -99,13 +152,14 @@ class AccountController {
     }); // TODO test
 
     public logout = asyncHandler(async (req: Request, res: Response) => {
-        if (!req.user) {
-            throw new BadRequestError(lang('account.error.not_logged_in'));
-        }
+        const policy = new AccountPolicy(req);
+
+        // Check permission (should be authenticated)
+        policy.logout();
 
         try {
             await AccountTokenRepository.createQuery()
-                .filterBy('user_id', req.user.id)
+                .filterBy('user_id', policy.getUserId())
                 .delete(false, true);
         } catch (error) {
             if (!(error instanceof NotFoundError)) {
@@ -119,6 +173,11 @@ class AccountController {
     }); // TODO test
 
     public passwordRecover = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (should not be authenticated)
+        policy.passwordRecover();
+
         // Validate the request body against the schema
         const validated = AccountPasswordRecoverValidator.safeParse(req.body);
 
@@ -169,6 +228,11 @@ class AccountController {
     }); // TODO test
 
     public passwordRecoverChange = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (should not be authenticated)
+        policy.passwordRecoverChange();
+
         const ident = req.params.ident;
 
         if (!ident) {
@@ -296,6 +360,11 @@ class AccountController {
         res.json(res.output);
     });
 
+    /**
+     * This endpoint is used to confirm user email after account registration or email update
+     * It is allowed to be used authenticated or not; "safety" is guaranteed by the token parameter which is pretty much impossible to guess
+     * & "Yes" - based on implementation (maybe auto-login on registration) - confirmation can take place even if logged in
+     */
     public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
         const token = req.params.token;
 

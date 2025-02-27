@@ -8,14 +8,6 @@ class UserPolicy extends AbstractPolicy {
 
         super(req, entity);
     }
-
-    public updateStatus(): void {
-        const permission: string = this.permission('updateStatus', this.entity);
-
-        if (!this.isAllowed(permission)) {
-            this.useError();
-        }
-    }
 }
 
 export default UserPolicy;

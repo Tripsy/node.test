@@ -1,5 +1,6 @@
 {
 	"error": {
+		"already_logged_in": "Already logged in",
 		"not_found": "Account not found",
 		"not_active": "Account not found",
 		"already_active": "Account already active",
@@ -18,6 +19,7 @@
 		"email_already_used": "Email already used by another account"
 	},
 	"success": {
+		"register": "Account registered successfully",
 		"login": "Logged in successfully",
 		"logout": "Logged out successfully",
 		"token_deleted": "Token deleted successfully",
