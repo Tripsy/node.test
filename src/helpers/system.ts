@@ -18,12 +18,12 @@ export function apiDocumentationUrl(...args: string[]): string {
     return `${settings.app.url}/api-docs/${args.join('/')}`;
 }
 
-export function getClientIp(req: Request): string | undefined {
+export function getClientIp(req: Request): string {
     const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip;
 
     if (typeof ip === 'string') {
         return ip.replace(/^::ffff:/, '');
     }
 
-    return undefined;
+    return 'n/a';
 }

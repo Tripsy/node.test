@@ -44,7 +44,7 @@ const logger = pino({
     //         host: bindings.hostname,
     //     };
     // },
-    mixin: (context, level, logger) => {
+    mixin: (context, level, _logger) => {
         if (level === 30) {
             return context;
         }

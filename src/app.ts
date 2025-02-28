@@ -13,10 +13,10 @@ import {errorHandler} from './middleware/error-handler.middleware';
 import {destroyDatabase, initDatabase} from './providers/database.provider';
 import {settings} from './config/settings.config';
 import {initRoutes} from './config/init-routes.config';
-import {cacheProvider} from './providers/cache.provider';
 import authMiddleware from './middleware/auth.middleware';
 import languageMiddleware from './middleware/language.middleware';
 import startCronJobs from './providers/cron.provider';
+import {closeRedis} from './config/init-redis.config';
 
 const app: express.Application = express();
 let server: Server;
@@ -51,7 +51,7 @@ const shutdown = (server: Server, signal: string,): void => {
         server.close(async () => {
             try {
                 await destroyDatabase();
-                await cacheProvider.disconnect()
+                await closeRedis();
 
                 logger.debug('Server closed gracefully');
                 process.exit(0);

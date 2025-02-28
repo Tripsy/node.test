@@ -115,13 +115,11 @@ docker $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 
 # TODO
 
-1. account.controller -> signUp & review policy on all methods
-2. Add rate limiting for failed logins
-3. Functional tests - Super test
-4. Unit tests - Jest
-5. check TODO
-6. after permissions load > cache req.user ?!
-7. loading optimization - export constants or functions ?! logger and validators
+1. Functional tests - Super test
+2. Unit tests - Jest
+3. check TODO
+4. after permissions load > cache req.user ?!
+5. loading optimization - export constants or functions ?! logger and validators
 
 REVIEW AT THIS POINT
 

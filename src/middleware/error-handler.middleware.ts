@@ -3,7 +3,7 @@ import CustomError from '../exceptions/custom.error';
 import {systemLogger} from '../providers/logger.provider';
 import {settings} from '../config/settings.config';
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
+export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction): void => {
     const status = err instanceof CustomError ? err.statusCode : 500;
 
     // Logging is disabled for certain response codes (ex: 400 - Bad Request, 409 - Conflict) when APP debug is false

@@ -57,7 +57,7 @@ export function buildMetadata(req: Request): TokenMetadata {
     return {
         'user-agent': req.headers['user-agent'] || '',
         'accept-language': req.headers['accept-language'] || '',
-        'ip': getClientIp(req) || '',
+        'ip': getClientIp(req),
         'os': req.body.os || ''
     }
 }

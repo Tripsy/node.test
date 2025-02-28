@@ -34,6 +34,7 @@ import CustomError from '../exceptions/custom.error';
 import AccountEmailUpdateValidator from '../validators/account-email-update.validator';
 import UserEntity from '../entities/user.entity';
 import AccountRegisterValidator from '../validators/account-register.validator';
+import {getClientIp} from '../helpers/system';
 
 class AccountController {
     public register = asyncHandler(async (req: Request, res: Response) => {
@@ -88,6 +89,11 @@ class AccountController {
             throw new BadRequestError();
         }
 
+        const ipKey = 'failed_login:ip:' + getClientIp(req);
+        const emailKey = `failed_login:email:${validated.data.email}`;
+
+        await policy.checkRateLimitOnLogin(ipKey, emailKey);
+
         const user = await UserRepository.createQuery()
             .select(['id', 'password', 'status'])
             .filterByEmail(validated.data.email)
@@ -100,6 +106,9 @@ class AccountController {
         const isValidPassword: boolean = await verifyPassword(validated.data.password, user.password);
 
         if (!isValidPassword) {
+            // Update failed login attempts
+            await policy.updateFailedAttemptsOnLogin(ipKey, emailKey);
+
             throw new UnauthorizedError(lang('account.error.not_authorized'));
         }
 

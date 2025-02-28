@@ -1,4 +1,4 @@
-import {Entity, Column, OneToMany, Index, VirtualColumn} from 'typeorm';
+import {Entity, Column, OneToMany, Index} from 'typeorm';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {BaseEntityAbstract} from './base-entity.abstract';
 import AccountTokenEntity from './account-token.entity';

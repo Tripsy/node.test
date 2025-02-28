@@ -1,36 +1,13 @@
-import Redis from 'ioredis';
 import {settings} from '../config/settings.config';
 import {systemLogger} from './logger.provider';
+import redisClient from '../config/init-redis.config';
+import Redis from 'ioredis';
 
 class CacheProvider {
-    private redisInstance: Redis | null = null;
     public isCached: boolean = false;
 
-    private get redis(): Redis {
-        if (!this.redisInstance) {
-            const redisConfig: any = {
-                host: settings.redis.host,
-                port: settings.redis.port,
-            };
-
-            // Only set password if it's provided
-            if (settings.redis.password) {
-                redisConfig.password = settings.redis.password;
-            }
-
-            this.redisInstance = new Redis(redisConfig);
-
-            // Handle Redis connection errors
-            this.redisInstance.on('error', (err) => {
-                systemLogger.error(err, 'Redis connection error');
-            });
-
-            this.redisInstance.on('connect', () => {
-                systemLogger.debug('Connected to Redis');
-            });
-        }
-
-        return this.redisInstance;
+    private get cache(): Redis {
+        return redisClient;
     }
 
     buildKey(...args: string[]) {
@@ -61,6 +38,16 @@ class CacheProvider {
         }
     }
 
+    async exists(key: string): Promise<boolean> {
+        try {
+            const exists = await this.cache.exists(key);
+            return exists === 1; // Redis returns 1 if key exists, 0 otherwise
+        } catch (error) {
+            systemLogger.error(error, `Error checking existence for key: ${key}`);
+            return false;
+        }
+    }
+
     async get<T>(key: string, fetchFunction: () => Promise<T>, ttl?: number): Promise<T> {
         try {
             ttl = this.determineTtl(ttl);
@@ -69,7 +56,7 @@ class CacheProvider {
                 return await fetchFunction();
             }
 
-            const cachedData = await this.redis.get(key);
+            const cachedData = await this.cache.get(key);
 
             if (cachedData) {
                 this.isCached = true;
@@ -89,7 +76,7 @@ class CacheProvider {
     async set(key: string, data: any, ttl?: number) {
         try {
             if (data !== null) {
-                await this.redis.set(key, this.formatInputData(data), 'EX', this.determineTtl(ttl));
+                await this.cache.set(key, this.formatInputData(data), 'EX', this.determineTtl(ttl));
             }
         } catch (error) {
             systemLogger.error(error, `Error setting cache for key: ${key}`);
@@ -98,7 +85,7 @@ class CacheProvider {
 
     async delete(key: string): Promise<void> {
         try {
-            await this.redis.del(key);
+            await this.cache.del(key);
         } catch (error) {
             systemLogger.error(error, `Error deleting cache for key: ${key}`);
         }
@@ -116,27 +103,17 @@ class CacheProvider {
 
             do {
                 // Scan for matching keys in small batches
-                const [nextCursor, keys] = await this.redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+                const [nextCursor, keys] = await this.cache.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
                 cursor = nextCursor;
 
                 if (keys.length > 0) {
-                    await this.redis.del(...keys);
+                    const pipeline = this.cache.pipeline();
+                    keys.forEach((key) => pipeline.del(key));
+                    await pipeline.exec();
                 }
             } while (cursor !== '0'); // Continue until all keys are scanned
         } catch (error) {
             systemLogger.error(error, `Error deleting cache with pattern: ${pattern}`);
-        }
-    }
-
-    /**
-     * Gracefully disconnect the Redis client.
-     */
-    async disconnect(): Promise<void> {
-        try {
-            await this.redis.quit();
-            systemLogger.info('Redis client disconnected gracefully');
-        } catch (error) {
-            systemLogger.error('Error disconnecting Redis client:', error);
         }
     }
 }

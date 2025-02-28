@@ -62,5 +62,8 @@ export const settings= {
         recoveryEnableMetadataCheck: true, // if set to false, will not check fingerprinting data
         nameMinLength: 3,
         passwordMinLength: 8,
+        loginMaxFailedAttemptsForIp: 5,
+        loginMaxFailedAttemptsForEmail: 3,
+        LoginFailedAttemptsLockTime: 900, // block logins for 15 minutes when too many failed attempts
     }
 };
