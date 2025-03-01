@@ -1,5 +1,5 @@
 import {cacheProvider} from '../providers/cache.provider';
-import {logHistory} from './log';
+import {logHistory} from './log.helper';
 import {EntityContextData} from '../types/entity-context-data.type';
 
 export function cacheClean(entity: string, id: number) {

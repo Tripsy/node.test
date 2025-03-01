@@ -9,7 +9,7 @@ import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
 import {cacheProvider} from '../providers/cache.provider';
 import UserFindValidator from '../validators/user-find.validator';
-import {stringToDate} from '../helpers/utils';
+import {stringToDate} from '../helpers/utils.helper';
 import UserPolicy from '../policies/user.policy';
 import AccountTokenRepository from '../repositories/account-token.repository';
 

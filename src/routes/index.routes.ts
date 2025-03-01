@@ -1,7 +1,7 @@
 import {Router, Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
 import {lang} from '../config/i18n-setup.config';
-import {replaceTemplateVars} from '../helpers/utils';
+import {replaceTemplateVars} from '../helpers/utils.helper';
 
 const routes: Router = Router();
 

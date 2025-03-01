@@ -34,29 +34,29 @@ To configure your hosts file, refer to this guide:
 ### 2. Initialize Docker container
 Start the Docker container using the following command:
 
-```bash
-local $ docker compose up
+```
+docker compose up
 ```
 
 ### 3. Connect to the Docker container
 Once the container is running, connect to it with:
 
-```bash
-local $ docker exec -it node.test /bin/bash
+```
+docker exec -it node.test /bin/bash
 ```
 
 ### 4. Install dependencies inside the container
 Run the following command to install project dependencies:
 
-```bash
-docker $ pnpm install
+```
+$ pnpm install
 ```
 
 ### 5. Run the application
 Finally, start the application in development mode with:
 
-```bash
-docker $ pnpm run dev
+```
+$ pnpm run dev
 ```
 
 # Notes & Limitations
@@ -81,22 +81,22 @@ Levels:
 > **Warning**
 > Always check the migrations before run it, sometimes columns are dropped
 
-```bash
+```
 // Generate migration file
-docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/migrations/init
+$ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/migrations/init
 
 // Run new migrations - update DB structure
-docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts
+$ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts
 
 // Revert last migration
-docker $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts
+$ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts
 
 // Reset 
-docker $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
+$ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 
-//Import db-data
-docker $ pnpx tsx /var/www/html/src/seed-data/template.seed.ts  
-docker $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
+// Import db-data
+$ pnpx tsx /var/www/html/src/seed-data/template.seed.ts  
+$ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 ```
 
 # Dependencies
@@ -113,8 +113,15 @@ docker $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 - [node-cron](https://github.com/node-cron/node-cron)
 - [BullMQ](https://docs.bullmq.io/)
 
+# TETS
+
+```
+$ pnpx jest utility.test.ts
+```
+
 # TODO
 
+1. create separate types based on express.d.ts
 1. Functional tests - Super test
 2. Unit tests - Jest
 3. check TODO

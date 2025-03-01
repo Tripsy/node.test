@@ -1,10 +1,10 @@
 import Mail from 'nodemailer/lib/mailer';
 import {settings} from '../config/settings.config';
-import {replaceTemplateVars} from '../helpers/utils';
+import {replaceTemplateVars} from '../helpers/utils.helper';
 import logger from './logger.provider';
 import {lang} from '../config/i18n-setup.config';
 import nodemailer, {Transporter} from 'nodemailer';
-import {siteLink} from '../helpers/link';
+import {siteLink} from '../helpers/link.helper';
 import TemplateRepository from '../repositories/template.repository';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
 import {EmailContent, EmailTemplate} from '../types/template.type';
@@ -62,7 +62,7 @@ export async function loadEmailTemplate(label: string, language: string): Promis
         emailContent: {
             subject: template.content.subject,
             text: template.content.text,
-            html:  template.content.html
+            html: template.content.html
         }
     };
 }

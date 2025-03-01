@@ -1,13 +1,13 @@
 import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
-import {buildMetadata, readToken} from '../services/account.service';
+import {readToken} from '../services/account.service';
 import {settings} from '../config/settings.config';
 import {AuthTokenPayload} from '../types/token.type';
 import AccountTokenRepository from '../repositories/account-token.repository';
-import {compareMetadataValue} from '../helpers/metadata';
+import {compareMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
 import UserRepository from '../repositories/user.repository';
 import {UserStatusEnum} from '../enums/user-status.enum';
-import {createFutureDate, dateDiffInSeconds} from '../helpers/utils';
+import {createFutureDate, dateDiffInSeconds} from '../helpers/utils.helper';
 
 async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
     // Initialize the user as a visitor
@@ -54,7 +54,7 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
     }
 
     // Validate metadata (e.g., user-agent check)
-    if (!compareMetadataValue(activeToken.metadata, buildMetadata(req), 'user-agent')) {
+    if (!compareMetaDataValue(activeToken.metadata, tokenMetaData(req), 'user-agent')) {
        return next();
     }
 

@@ -3,17 +3,16 @@ import UserEntity from '../entities/user.entity';
 import jwt from 'jsonwebtoken';
 import {settings} from '../config/settings.config';
 import {v4 as uuid} from 'uuid';
-import {createFutureDate} from '../helpers/utils';
+import {createFutureDate} from '../helpers/utils.helper';
 import AccountTokenEntity from '../entities/account-token.entity';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import {Request} from 'express';
-import {getClientIp} from '../helpers/system';
 import {AuthTokenPayload, ConfirmationTokenPayload, AuthValidToken} from '../types/token.type';
-import {getMetadataValue} from '../helpers/metadata';
+import {getMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
 import AccountRecoveryEntity from '../entities/account-recovery.entity';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
-import {emailConfirmLink} from '../helpers/link';
+import {emailConfirmLink} from '../helpers/link.helper';
 import {EmailTemplate} from '../types/template.type';
 
 export async function encryptPassword(password: string): Promise<string> {
@@ -46,21 +45,6 @@ export function createAuthToken(user: UserEntity & { id: number; }): {
     return {token, ident, expire_at};
 }
 
-export type TokenMetadata = {
-    'user-agent': string;
-    'accept-language': string;
-    'ip': string;
-    'os': string;
-};
-
-export function buildMetadata(req: Request): TokenMetadata {
-    return {
-        'user-agent': req.headers['user-agent'] || '',
-        'accept-language': req.headers['accept-language'] || '',
-        'ip': getClientIp(req),
-        'os': req.body.os || ''
-    }
-}
 
 export async function setupToken(user: UserEntity & { id: number; }, req: Request): Promise<string> {
     const {token, ident, expire_at} = createAuthToken(user);
@@ -68,7 +52,7 @@ export async function setupToken(user: UserEntity & { id: number; }, req: Reques
     const accountTokenEntity = new AccountTokenEntity();
     accountTokenEntity.user_id = user.id;
     accountTokenEntity.ident = ident;
-    accountTokenEntity.metadata = buildMetadata(req);
+    accountTokenEntity.metadata = tokenMetaData(req);
     accountTokenEntity.used_at = new Date();
     accountTokenEntity.expire_at = expire_at;
 
@@ -87,7 +71,7 @@ export async function getAuthValidTokens(user_id: number): Promise<AuthValidToke
     return authValidTokens.map(token => {
         return {
             ident: token.ident,
-            label: getMetadataValue(token.metadata, 'user-agent'),
+            label: getMetaDataValue(token.metadata, 'user-agent'),
             used_at: token.used_at
         };
     });
@@ -104,7 +88,7 @@ export async function setupRecovery(user: UserEntity & { id: number; }, req: Req
     const accountRecoveryEntity = new AccountRecoveryEntity();
     accountRecoveryEntity.user_id = user.id;
     accountRecoveryEntity.ident = uuid();
-    accountRecoveryEntity.metadata = buildMetadata(req);
+    accountRecoveryEntity.metadata = tokenMetaData(req);
     accountRecoveryEntity.expire_at = expire_at;
 
     await AccountRecoveryRepository.save(accountRecoveryEntity);

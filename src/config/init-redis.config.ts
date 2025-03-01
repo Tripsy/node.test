@@ -12,7 +12,7 @@ if (settings.redis.password) {
     redisConfig.password = settings.redis.password;
 }
 
-// Create a single Redis instance
+// Create Redis instance
 const redisClient = new Redis(redisConfig);
 
 // Handle Redis connection events

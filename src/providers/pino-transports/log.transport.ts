@@ -1,7 +1,7 @@
 import build from 'pino-abstract-transport';
 import fs, {WriteStream} from 'fs';
 import {EOL} from 'os';
-import {buildRootPath} from '../../helpers/system';
+import {buildRootPath} from '../../helpers/system.helper';
 import {LogFileTypeEnum} from '../../enums/log-file-type.enum';
 
 export default async function () {

@@ -1,6 +1,6 @@
 import {DataSource} from 'typeorm';
 import {settings} from './settings.config';
-import { buildSrcPath } from '../helpers/system';
+import {buildSrcPath} from '../helpers/system.helper';
 
 const dataSource = new DataSource({
     type: 'mariadb',

@@ -3,7 +3,7 @@ import {cleanAccountTokenCron} from '../cron-jobs/clean-account-token.cron';
 import CronHistoryEntity from '../entities/cron-history.entity';
 import {CronHistoryStatusEnum} from '../enums/cron-history-status.enum';
 import CronHistoryRepository from '../repositories/cron-history.repository';
-import {dateDiffInSeconds} from '../helpers/utils';
+import {dateDiffInSeconds} from '../helpers/utils.helper';
 import NotFoundError from '../exceptions/not-found.error';
 import {cronLogger} from './logger.provider';
 import {cleanAccountRecoveryCron} from '../cron-jobs/clean-account-recovery.cron';

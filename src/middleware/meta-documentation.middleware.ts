@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import {apiDocumentationUrl} from '../helpers/system';
+import {apiDocumentationUrl} from '../helpers/system.helper';
 
 export const metaDocumentation = (...args: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {

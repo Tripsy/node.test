@@ -8,7 +8,6 @@ import {UserStatusEnum} from '../enums/user-status.enum';
 import NotFoundError from '../exceptions/not-found.error';
 import UnauthorizedError from '../exceptions/unauthorized.error';
 import {
-    buildMetadata,
     getAuthValidTokens,
     sendEmailConfirmUpdate,
     setupRecovery,
@@ -20,10 +19,10 @@ import AccountTokenRepository from '../repositories/account-token.repository';
 import AccountRemoveTokenValidator from '../validators/account-remove-token.validator';
 import AccountPasswordRecoverValidator from '../validators/account-password-recover.validator';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
-import {createPastDate} from '../helpers/utils';
+import {createPastDate} from '../helpers/utils.helper';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import AccountPasswordRecoverChangeValidator from '../validators/account-password-recover-change.validator';
-import {compareMetadataValue} from '../helpers/metadata';
+import {compareMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
 import {AuthValidToken, ConfirmationTokenPayload} from '../types/token.type';
 import jwt from 'jsonwebtoken';
 import NotAllowedError from '../exceptions/not-allowed.error';
@@ -34,7 +33,7 @@ import CustomError from '../exceptions/custom.error';
 import AccountEmailUpdateValidator from '../validators/account-email-update.validator';
 import UserEntity from '../entities/user.entity';
 import AccountRegisterValidator from '../validators/account-register.validator';
-import {getClientIp} from '../helpers/system';
+import {getClientIp} from '../helpers/system.helper';
 
 class AccountController {
     public register = asyncHandler(async (req: Request, res: Response) => {
@@ -272,7 +271,7 @@ class AccountController {
 
         if (settings.user.recoveryEnableMetadataCheck) {
             // Validate metadata (e.g., user-agent check)
-            if (!compareMetadataValue(recovery.metadata, buildMetadata(req), 'user-agent')) {
+            if (!compareMetaDataValue(recovery.metadata, tokenMetaData(req), 'user-agent')) {
                 throw new BadRequestError(lang('account.error.recovery_token_not_authorized'));
             }
         }

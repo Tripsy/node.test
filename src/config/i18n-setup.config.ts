@@ -2,7 +2,7 @@ import {settings} from './settings.config';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import {LanguageDetector} from 'i18next-http-middleware';
-import {buildSrcPath} from '../helpers/system';
+import {buildSrcPath} from '../helpers/system.helper';
 import fs from 'fs/promises';
 import {cacheProvider} from '../providers/cache.provider';
 import logger from '../providers/logger.provider';

@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {buildSrcPath} from '../helpers/system';
+import {buildSrcPath} from '../helpers/system.helper';
 import fs from 'fs/promises';
 
 const router: Router = Router();

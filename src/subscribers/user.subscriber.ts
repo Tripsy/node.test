@@ -9,9 +9,9 @@ import {
 import UserEntity from '../entities/user.entity';
 import {encryptPassword, sendEmailConfirmCreate, sendWelcomeEmail} from '../services/account.service';
 import {UserQuery} from '../repositories/user.repository';
-import {cacheClean, getUserIdFromContext, removeOperation} from '../helpers/subscriber';
+import {cacheClean, getUserIdFromContext, removeOperation} from '../helpers/subscriber.helper';
 import {settings} from '../config/settings.config';
-import {logHistory} from '../helpers/log';
+import {logHistory} from '../helpers/log.helper';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {PermissionQuery} from '../repositories/permission.repository';
 

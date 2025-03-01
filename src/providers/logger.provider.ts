@@ -1,7 +1,7 @@
 import pino, {Logger} from 'pino';
 import {settings} from '../config/settings.config';
-import {buildSrcPath} from '../helpers/system';
-import {formatCallStack} from '../helpers/log';
+import {buildSrcPath} from '../helpers/system.helper';
+import {formatCallStack} from '../helpers/log.helper';
 import {v4 as uuid} from 'uuid';
 
 function targets() {
@@ -94,10 +94,10 @@ export function childLogger(logger: Logger, category: string) {
     });
 }
 
-export const systemLogger: Logger = childLogger(logger, 'system'); // TODO ask Bogdan for loading optimization
+export const systemLogger: Logger = childLogger(logger, 'system');
 
-export const historyLogger: Logger = childLogger(logger, 'history'); // TODO ask Bogdan for loading optimization
+export const historyLogger: Logger = childLogger(logger, 'history');
 
-export const cronLogger: Logger = childLogger(logger, 'cron'); // TODO ask Bogdan for loading optimization
+export const cronLogger: Logger = childLogger(logger, 'cron');
 
 export default logger;

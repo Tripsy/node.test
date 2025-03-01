@@ -8,8 +8,8 @@ import {
 } from 'typeorm';
 import PermissionEntity from '../entities/permission.entity';
 import {PermissionQuery} from '../repositories/permission.repository';
-import {cacheClean, getUserIdFromContext, removeOperation} from '../helpers/subscriber';
-import {logHistory} from '../helpers/log';
+import {cacheClean, getUserIdFromContext, removeOperation} from '../helpers/subscriber.helper';
+import {logHistory} from '../helpers/log.helper';
 
 @EventSubscriber()
 export class PermissionSubscriber implements EntitySubscriberInterface<PermissionEntity> {

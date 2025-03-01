@@ -1,4 +1,4 @@
-import {createPastDate} from '../helpers/utils';
+import {createPastDate} from '../helpers/utils.helper';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 
 // Remove expired recovery tokens
