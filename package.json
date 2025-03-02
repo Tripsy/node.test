@@ -16,7 +16,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "test": "jest"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -37,6 +38,7 @@
     "pino": "^9.6.0",
     "pino-abstract-transport": "^2.0.0",
     "reflect-metadata": "^0.2.2",
+    "ts-jest": "^29.2.6",
     "typeorm": "^0.3.20",
     "uuid": "^11.0.5",
     "zod": "^3.24.1"
@@ -46,13 +48,17 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^22.10.8",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^6.4.17",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
     "mailtrap": "^3.4.0",
     "nodemon": "^3.1.9",
     "pino-pretty": "^13.0.0",
+    "supertest": "^7.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },

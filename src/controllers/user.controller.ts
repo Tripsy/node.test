@@ -212,7 +212,7 @@ class UserController {
         res.output.message(lang('user.success.status_update'));
 
         res.json(res.output);
-    }); // TODO test
+    });
 }
 
 export default new UserController();

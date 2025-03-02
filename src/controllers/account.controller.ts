@@ -71,7 +71,7 @@ class AccountController {
         res.output.message(lang('account.success.register'));
 
         res.json(res.output);
-    }); // TODO test
+    });
 
     public login = asyncHandler(async (req: Request, res: Response) => {
         const policy = new AccountPolicy(req);
@@ -129,7 +129,7 @@ class AccountController {
         }
 
         res.json(res.output);
-    }); // TODO test
+    });
 
     /**
      * With this endpoint account tokens can be removed
@@ -157,7 +157,7 @@ class AccountController {
         res.output.message(lang('account.success.token_deleted'));
 
         res.json(res.output);
-    }); // TODO test
+    });
 
     public logout = asyncHandler(async (req: Request, res: Response) => {
         const policy = new AccountPolicy(req);
@@ -178,7 +178,7 @@ class AccountController {
         res.output.message(lang('account.success.logout'));
 
         res.json(res.output);
-    }); // TODO test
+    });
 
     public passwordRecover = asyncHandler(async (req: Request, res: Response) => {
         const policy = new AccountPolicy(req);
@@ -233,7 +233,7 @@ class AccountController {
         res.output.message(lang('account.success.password_recover'));
 
         res.json(res.output);
-    }); // TODO test
+    });
 
     public passwordRecoverChange = asyncHandler(async (req: Request, res: Response) => {
         const policy = new AccountPolicy(req);
@@ -316,7 +316,7 @@ class AccountController {
         res.output.message(lang('account.success.password_changed'));
 
         res.json(res.output);
-    }); // TODO test
+    });
 
     public passwordUpdate = asyncHandler(async (req: Request, res: Response) => {
         const policy = new AccountPolicy(req);
@@ -363,7 +363,7 @@ class AccountController {
         res.output.message(lang('account.success.password_updated'));
         res.output.data({
             'token': token
-        }); // TODO test
+        });
 
         res.json(res.output);
     });
@@ -469,7 +469,7 @@ class AccountController {
         res.output.message(lang('account.success.email_update'));
 
         res.json(res.output);
-    }); // TODO test
+    });
 }
 
 export default new AccountController();

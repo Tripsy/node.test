@@ -40,7 +40,7 @@ docker compose up
 
 ### 3. Connect to the Docker container
 Once the container is running, connect to it with:
-
+pn
 ```
 docker exec -it node.test /bin/bash
 ```
@@ -116,17 +116,21 @@ $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 # TETS
 
 ```
-$ pnpx jest utility.test.ts
+$ pnpx jest
+$ pnpx jest helpers.unit.ts
+
 ```
 
 # TODO
 
 1. create separate types based on express.d.ts
-1. Functional tests - Super test
-2. Unit tests - Jest
-3. check TODO
-4. after permissions load > cache req.user ?!
-5. loading optimization - export constants or functions ?! logger and validators
+2. Write tests 
+    - helpers
+    - services ?
+    - providers
+    - controllers
+3. after permissions load > cache req.user ?!
+4. loading optimization - export constants or functions ?! logger and validators
 
 REVIEW AT THIS POINT
 
