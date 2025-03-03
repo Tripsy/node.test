@@ -24,6 +24,7 @@
 - [x] Controllers (eg: REST Api)
     - user.controller (create, read, update, delete, find, updateStatus, updatePassword, updateEmail)
     - account.controller (login, removeToken, logout, passwordRecover, passwordChange, emailConfirm)
+- [x] Tests (powered by Jest & Supertest)
 
 # Setup
 
@@ -112,12 +113,14 @@ $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
 - [node-cron](https://github.com/node-cron/node-cron)
 - [BullMQ](https://docs.bullmq.io/)
+- [jest](https://jestjs.io/)
+- [supertest](https://www.npmjs.com/package/supertest)
 
 # TETS
 
 ```
 $ pnpx jest
-$ pnpx jest helpers.unit.ts
+$ pnpx jest system.unit.ts
 
 ```
 
@@ -125,21 +128,19 @@ $ pnpx jest helpers.unit.ts
 
 1. create separate types based on express.d.ts
 2. Write tests 
-    - helpers
     - services ?
     - providers
     - controllers
-3. after permissions load > cache req.user ?!
-4. loading optimization - export constants or functions ?! logger and validators
 
 REVIEW AT THIS POINT
 
 1. user-permission routes
-2. template.routes.ts && template.controller.ts
-3. once policy is set up for admin on read and find allow to included entries marked as deleted
-4. build pino-transport-mysql - log.entity is created in /entities but add .ts
-5. test pino-transport-email
-6. create cron checks: 
+2. after permissions load > cache req.user ?!
+3. template.routes.ts && template.controller.ts
+4. once policy is set up for admin on read and find allow to included entries marked as deleted
+5. build pino-transport-mysql - log.entity is created in /entities but add .ts
+6. test pino-transport-email
+7. create cron checks: 
     - daily - count errors in last 24 hours (group by label, count)
     - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
