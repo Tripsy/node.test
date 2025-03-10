@@ -7,9 +7,9 @@ import {loadEmailTemplate, queueEmail} from '../../providers/email.provider';
 import {createRequest} from 'node-mocks-http';
 import {createFutureDate} from '../../helpers/utils.helper';
 import {EmailTemplate} from '../../types/template.type';
-import {emailConfirmLink} from '../../helpers/link.helper';
 import {settings} from '../../config/settings.config';
 import {redisClose} from '../../config/init-redis.config';
+import {routeLink} from '../../config/init-routes.config';
 
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
@@ -25,13 +25,13 @@ const mockUser = {
     language: 'en',
 };
 
+afterAll(async () => {
+    await redisClose();
+});
+
 describe('Account Service', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-    });
-
-    afterAll(async () => {
-        await redisClose();
     });
 
     describe('encryptPassword', () => {
@@ -153,7 +153,7 @@ describe('Account Service', () => {
                 emailTemplate,
                 {
                     'name': mockUser.name,
-                    'link': emailConfirmLink(token),
+                    'link': routeLink('account.emailConfirm', {token: token}, true),
                     'expire_at': expire_at.toISOString()
                 },
                 {
@@ -187,7 +187,7 @@ describe('Account Service', () => {
                 emailTemplate,
                 {
                     'name': mockUser.name,
-                    'link': emailConfirmLink(token),
+                    'link': routeLink('account.emailConfirm', {token: token}, true),
                     'expire_at': expire_at.toISOString()
                 },
                 {
