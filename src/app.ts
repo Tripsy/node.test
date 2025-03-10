@@ -4,11 +4,11 @@ import {Server} from 'http';
 import helmet from 'helmet';
 import {corsHandler} from './middleware/cors-handler.middleware';
 import cookieParser from 'cookie-parser';
+import logger from './providers/logger.provider';
 import {handle as i18nextMiddleware} from 'i18next-http-middleware';
 import i18next from './config/i18n-setup.config';
-import logger from './providers/logger.provider';
 import {outputHandler} from './middleware/output-handler.middleware';
-import {notFoundHandler} from "./middleware/not-found-handler.middleware";
+import {notFoundHandler} from './middleware/not-found-handler.middleware';
 import {errorHandler} from './middleware/error-handler.middleware';
 import {destroyDatabase, initDatabase} from './providers/database.provider';
 import {settings} from './config/settings.config';
@@ -16,10 +16,11 @@ import {initRoutes} from './config/init-routes.config';
 import authMiddleware from './middleware/auth.middleware';
 import languageMiddleware from './middleware/language.middleware';
 import startCronJobs from './providers/cron.provider';
-import {closeRedis} from './config/init-redis.config';
+import {redisClose} from './config/init-redis.config';
+import emailQueue from './queues/email.queue';
 
 const app: express.Application = express();
-let server: Server;
+export let server: Server;
 
 // Helmet adds an extra layer of protection
 app.use(helmet());
@@ -34,46 +35,49 @@ app.use(corsHandler);
 app.use(cookieParser());
 app.use(express.json());
 
-// Use i18next middleware
-app.use(i18nextMiddleware(i18next));
-
 // Middleware for handling language
 app.use(languageMiddleware);
 
-// Add res.output object used to present standardized responses
-app.use(outputHandler);
+let appReadyResolve: () => void;
 
-// Shutdown server
-const shutdown = (server: Server, signal: string,): void => {
-    logger.debug(`${signal} received. Closing server...`);
+export const appReady = new Promise<void>((resolve) => {
+    appReadyResolve = resolve;
+});
 
-    if (server) {
-        server.close(async () => {
-            try {
-                await destroyDatabase();
-                await closeRedis();
+async function initializeApp() {
+    // Initialize the database
+    await initDatabase();
 
-                logger.debug('Server closed gracefully');
-                process.exit(0);
-            } catch (error: Error | any) {
-                logger.fatal(error, error.message);
-                process.exit(1);
-            }
-        });
-    } else {
-        process.exit(1);
-    }
+    // Initialize i18next
+    await i18next.init();
 
-    // Force shutdown if cleanup takes too long
-    setTimeout(() => {
-        logger.fatal('Forcing shutdown...');
-        process.exit(1);
-    }, 10000).unref();
-};
+    // Language middleware
+    app.use(i18nextMiddleware(i18next));
 
-// Initialize database and routes, set handlers (notFoundHandler and errorHandler) && start server
-Promise.all([initDatabase(), initRoutes()])
-    .then(([, router]) => {
+    // Authentication middleware
+    app.use(authMiddleware);
+
+    // Standardized response handler
+    app.use(outputHandler);
+
+    // Initialize routes
+    const router = await initRoutes();
+
+    // Add route handling middleware
+    app.use('/', router);
+
+    // Set up error handlers
+    app.use(notFoundHandler); // 404 handler
+    app.use(errorHandler); // Error handler
+
+    // Start the server
+    const port: number = settings.app.port;
+
+    server = app.listen(port, () => {
+        logger.info(`App listening on port ${port}`);
+    });
+
+    if (settings.app.env !== 'test') {
         // Start the worker here since it's database dependent
         import('./workers/email.worker').then(() => {
             logger.info('Email worker started.');
@@ -81,29 +85,69 @@ Promise.all([initDatabase(), initRoutes()])
 
         // Start cron jobs
         startCronJobs();
+    }
 
-        // Middleware for handling user authentication
-        app.use(authMiddleware);
+    // Mark app as ready
+    appReadyResolve();
+}
 
-        // Load routes
-        app.use('/', router);
+export async function closeHandler(): Promise<void> {
+    try {
+        await redisClose();
+        await emailQueue.close();
+        await emailQueue.disconnect();
 
-        // Handle 404 errors after all routes
-        app.use(notFoundHandler);
+        await destroyDatabase();
 
-        // Log errors and send error response
-        app.use(errorHandler);
+        logger.debug('All resources closed.');
+    } catch (error) {
+        logger.error('Error occurred while closing resources', error);
+    }
+}
 
-        const port: number = settings.app.port;
+// Gracefully shut down the server on error or signal
+const shutdown = (server: Server, signal: string): void => {
+    logger.debug(`${signal} received. Closing server...`);
 
-        server = app.listen(port, () => {
-            logger.info(`App listening on port ${port}`);
+    if (server) {
+        server.close(async () => {
+            try {
+                await closeHandler();
+
+                logger.debug('Server closed gracefully');
+
+                if (settings.app.env !== 'test') {
+                    process.exit(0);
+                }
+            } catch (error: Error | any) {
+                logger.fatal(error, error.message);
+
+                if (settings.app.env !== 'test') {
+                    process.exit(1);
+                }
+            }
         });
-    })
-    .catch((error) => {
-        logger.fatal(error, error.message);
-        shutdown(server, 'INIT_FAIL');
-    });
+    } else {
+        if (settings.app.env !== 'test') {
+            process.exit(1);
+        }
+    }
+
+    // Force shutdown if cleanup takes too long
+    setTimeout(() => {
+        logger.fatal('Forcing shutdown...');
+
+        if (settings.app.env !== 'test') {
+            process.exit(1);
+        }
+
+    }, 10000).unref();
+};
+
+initializeApp().catch((error) => {
+    logger.fatal(error, error.message);
+    shutdown(server, 'INIT_FAIL');
+});
 
 // Handle process signals
 process.on('SIGINT', () => shutdown(server, 'SIGINT'));

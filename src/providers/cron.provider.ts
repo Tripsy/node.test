@@ -5,9 +5,12 @@ import {CronHistoryStatusEnum} from '../enums/cron-history-status.enum';
 import CronHistoryRepository from '../repositories/cron-history.repository';
 import {dateDiffInSeconds} from '../helpers/utils.helper';
 import NotFoundError from '../exceptions/not-found.error';
-import {cronLogger} from './logger.provider';
+import logger, {childLogger} from './logger.provider';
 import {cleanAccountRecoveryCron} from '../cron-jobs/clean-account-recovery.cron';
 import {workerMaintenance} from '../cron-jobs/worker-maintenance.cron';
+import {Logger} from 'pino';
+
+const cronLogger: Logger = childLogger(logger, 'cron');
 
 /**
  * Execute cron job and save history

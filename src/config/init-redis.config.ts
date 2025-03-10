@@ -2,38 +2,46 @@ import Redis from 'ioredis';
 import {settings} from './settings.config';
 import {systemLogger} from '../providers/logger.provider';
 
-const redisConfig: any = {
-    host: settings.redis.host,
-    port: settings.redis.port,
-};
+class RedisClient {
+    private static instance: Redis;
 
-// Set password only if provided
-if (settings.redis.password) {
-    redisConfig.password = settings.redis.password;
-}
+    private constructor() {
+    }
 
-// Create Redis instance
-const redisClient = new Redis(redisConfig);
+    public static getInstance(): Redis {
+        if (!RedisClient.instance) {
+            RedisClient.instance = new Redis({
+                host: settings.redis.host,
+                port: settings.redis.port,
+                password: settings.redis.password || undefined,
+            });
 
-// Handle Redis connection events
-redisClient.on('error', (err) => {
-    systemLogger.error(err, 'Redis connection error');
-});
+            RedisClient.instance.on('error', (error) => {
+                systemLogger.error('Redis connection error', error);
+            });
 
-redisClient.on('connect', () => {
-    systemLogger.debug('Connected to Redis');
-});
+            RedisClient.instance.on('connect', () => {
+                systemLogger.debug('Connected to Redis');
+            });
+        }
 
-/**
- * Gracefully disconnect the Redis client.
- */
-export async function closeRedis(): Promise<void> {
-    try {
-        await redisClient.quit();
-        systemLogger.info('Redis client disconnected gracefully');
-    } catch (error) {
-        systemLogger.error('Error disconnecting Redis client:', error);
+        return RedisClient.instance;
+    }
+
+    public static async close(): Promise<void> {
+        if (RedisClient.instance) {
+            try {
+                await RedisClient.instance.quit();
+
+                systemLogger.debug('Redis connection closed gracefully');
+            } catch (error) {
+                systemLogger.error('Error closing Redis connection', error);
+
+                throw error;
+            }
+        }
     }
 }
 
-export default redisClient;
+export const redisClient = RedisClient.getInstance();
+export const redisClose = RedisClient.close;

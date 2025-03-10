@@ -119,16 +119,14 @@ $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 # TETS
 
 ```
-$ pnpx jest
-$ pnpx jest system.unit.ts
+$ pnpm run test account.functional.ts --detectOpenHandles
 
 ```
 
 # TODO
 
-1. create separate types based on express.d.ts
+1. Check sourcetree
 2. Write tests 
-    - services ?
     - providers
     - controllers
 
@@ -150,4 +148,3 @@ IDEAS
 
 1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
 2. https://expressjs.com/en/advanced/best-practice-performance.html
-

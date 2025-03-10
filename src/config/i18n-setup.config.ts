@@ -4,8 +4,8 @@ import Backend from 'i18next-fs-backend';
 import {LanguageDetector} from 'i18next-http-middleware';
 import {buildSrcPath} from '../helpers/system.helper';
 import fs from 'fs/promises';
-import {cacheProvider} from '../providers/cache.provider';
 import logger from '../providers/logger.provider';
+import {cacheProvider} from '../providers/cache.provider';
 
 /**
  * Determine the list of namespaces by reading the translation files in the `locales/en` directory.
@@ -40,6 +40,7 @@ async function initializeI18next() {
             lng: 'en', // Default language
             fallbackLng: 'en', // Fallback language
             supportedLngs: settings.app.supportedLanguages, // List of supported languages
+            // ns: ['account', 'account_recovery', 'debug', 'error', 'permission', 'template', 'user'], // Defined namespaces
             ns: namespaces, // Dynamically determined namespaces
             backend: {
                 loadPath: buildSrcPath('locales/{{lng}}/{{ns}}.json'), // Path to translation files
@@ -54,8 +55,8 @@ async function initializeI18next() {
         });
 }
 
-initializeI18next().catch((error) => {
-    logger.debug(error, 'Failed to initialize i18next');
+initializeI18next().catch(() => {
+    logger.debug('Failed to initialize i18next');
 });
 
 /**
@@ -63,6 +64,10 @@ initializeI18next().catch((error) => {
  * The key should be in the format `namespace.key`.
  */
 export const lang = (key: string, replacements: Record<string, string> = {}): string => {
+    if (settings.app.env === 'test') {
+        return key;
+    }
+
     if (!key.includes('.')) {
         throw Error(`Invalid translation key format: "${key}". Expected format: "namespace.key".`);
     }

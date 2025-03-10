@@ -1,8 +1,44 @@
 import pino, {Logger} from 'pino';
 import {settings} from '../config/settings.config';
 import {buildSrcPath} from '../helpers/system.helper';
-import {formatCallStack} from '../helpers/log.helper';
 import {v4 as uuid} from 'uuid';
+import {CallStackInterface} from '../interfaces/call-stack.interface';
+
+function formatCallStack(stack: string, filtersForCallStack: string[] = []): CallStackInterface {
+    const result: CallStackInterface = {
+        file: 'Unknown file',
+        line: 0,
+        function: 'Unknown function',
+        trace: [],
+    };
+
+    const combinedFilters = [...filtersForCallStack, '/node_modules', 'internal/modules'];
+
+    let [, ...stackArray]: string[] = stack.split('\n').map(line => line.trim()); // The first line from the call stack is removed
+
+    stackArray = stackArray.filter((item) => {
+            // Check if the item contains any of the words in combinedFilters
+            return !combinedFilters.some((word) => item.includes(word));
+        }
+    );
+
+    if (stackArray.length > 0) {
+        const match = stackArray[0].match(/at (?:([^ ]+) )?\(?(.+):(\d+):(\d+)\)?/);
+
+        if (match) {
+            const [, functionName = '<anonymous>', filePath, line] = match;
+
+            result.file = filePath;
+            result.line = parseInt(line, 10) || 0;
+            result.function = functionName;
+            result.trace = stackArray;
+        } else {
+            result.trace = stackArray;
+        }
+    }
+
+    return result;
+}
 
 function targets() {
     const targets = [];
@@ -14,13 +50,16 @@ function targets() {
                 colorize: true,
             },
             level: settings.pino.logLevel,
+            sync: false,
         });
     }
 
-    targets.push({
-        target: buildSrcPath('providers', 'pino-transports', 'log.transport.ts'),
-        level: 'info',
-    });
+    if (settings.app.env !== 'test') {
+        targets.push({
+            target: buildSrcPath('providers', 'pino-transports', 'log.transport.ts'),
+            level: 'info',
+        });
+    }
 
     return targets;
 }
@@ -29,7 +68,7 @@ const logger = pino({
     // The minimum level to log: Pino will not log messages with a lower level.
     // Setting this option reduces the load, as typically, debug and trace logs are only valid for development, and not needed in production.
     // 'fatal', 'error', 'warn', 'info', 'debug', 'trace' or 'silent'
-    level: settings.pino.logLevel,
+    level: settings.app.env === 'test' ? 'error' : settings.pino.logLevel,
     // Defines how and where to send log data, such as to files, external services, or streams.
     nestedKey: 'context',
     // Define default properties included in every log line.
@@ -96,8 +135,9 @@ export function childLogger(logger: Logger, category: string) {
 
 export const systemLogger: Logger = childLogger(logger, 'system');
 
-export const historyLogger: Logger = childLogger(logger, 'history');
-
-export const cronLogger: Logger = childLogger(logger, 'cron');
+if (settings.app.env === 'test') {
+    systemLogger.debug = console.log;
+    systemLogger.error = console.error;
+}
 
 export default logger;

@@ -1,10 +1,22 @@
 import {settings} from '../config/settings.config';
 import {systemLogger} from './logger.provider';
-import redisClient from '../config/init-redis.config';
+import {redisClient} from '../config/init-redis.config';
 import Redis from 'ioredis';
 
 class CacheProvider {
+    private static instance: CacheProvider;
+
     public isCached: boolean = false;
+
+    private constructor() {}
+
+    public static getInstance(): CacheProvider {
+        if (!CacheProvider.instance) {
+            CacheProvider.instance = new CacheProvider();
+        }
+
+        return CacheProvider.instance;
+    }
 
     private get cache(): Redis {
         return redisClient;
@@ -69,6 +81,7 @@ class CacheProvider {
             return freshData;
         } catch (error) {
             systemLogger.error(error, `Error fetching cache for key: ${key}`);
+
             return await fetchFunction(); // Fallback to fetching fresh data
         }
     }
@@ -118,4 +131,4 @@ class CacheProvider {
     }
 }
 
-export const cacheProvider = new CacheProvider();
+export const cacheProvider = CacheProvider.getInstance();

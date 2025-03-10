@@ -23,7 +23,7 @@ export async function verifyPassword(password: string, hashedPassword: string): 
     return await bcrypt.compare(password, hashedPassword);
 }
 
-export function createAuthToken(user: UserEntity & { id: number; }): {
+export function createAuthToken(user: Partial<UserEntity> & { id: number }): {
     token: string,
     ident: string,
     expire_at: Date
@@ -46,7 +46,7 @@ export function createAuthToken(user: UserEntity & { id: number; }): {
 }
 
 
-export async function setupToken(user: UserEntity & { id: number; }, req: Request): Promise<string> {
+export async function setupToken(user: Partial<UserEntity> & { id: number }, req: Request): Promise<string> {
     const {token, ident, expire_at} = createAuthToken(user);
 
     const accountTokenEntity = new AccountTokenEntity();
@@ -81,7 +81,7 @@ export function readToken(req: Request): string | undefined {
     return req.headers.authorization?.split(' ')[1];
 }
 
-export async function setupRecovery(user: UserEntity & { id: number; }, req: Request): Promise<[string, Date]> {
+export async function setupRecovery(user: Partial<UserEntity> & { id: number }, req: Request): Promise<[string, Date]> {
     const ident: string = uuid();
     const expire_at = createFutureDate(settings.user.recoveryIdentExpiresIn);
 
@@ -103,7 +103,11 @@ export async function setupRecovery(user: UserEntity & { id: number; }, req: Req
  *
  * @param user
  */
-export function createConfirmationToken(user: UserEntity & { id: number; email: string; email_new?: string }): {
+export function createConfirmationToken(user: Partial<UserEntity> & {
+    id: number;
+    email: string;
+    email_new?: string
+}): {
     token: string,
     expire_at: Date
 } {
@@ -126,7 +130,12 @@ export function createConfirmationToken(user: UserEntity & { id: number; email: 
     return {token, expire_at};
 }
 
-export async function sendEmailConfirmCreate(user: UserEntity): Promise<void> {
+export async function sendEmailConfirmCreate(user: Partial<UserEntity> & {
+    id: number,
+    name: string,
+    email: string,
+    language: string
+}): Promise<void> {
     const {token, expire_at} = createConfirmationToken(user);
 
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-create', user.language);
@@ -145,7 +154,12 @@ export async function sendEmailConfirmCreate(user: UserEntity): Promise<void> {
     );
 }
 
-export async function sendEmailConfirmUpdate(user: UserEntity): Promise<void> {
+export async function sendEmailConfirmUpdate(user: Partial<UserEntity> & {
+    id: number,
+    name: string,
+    email: string,
+    language: string
+}): Promise<void> {
     const {token, expire_at} = createConfirmationToken(user);
 
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-update', user.language);
@@ -164,7 +178,11 @@ export async function sendEmailConfirmUpdate(user: UserEntity): Promise<void> {
     );
 }
 
-export async function sendWelcomeEmail(user: UserEntity): Promise<void> {
+export async function sendWelcomeEmail(user: Partial<UserEntity> & {
+    name: string,
+    email: string,
+    language: string
+}): Promise<void> {
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-welcome', user.language);
 
     void queueEmail(

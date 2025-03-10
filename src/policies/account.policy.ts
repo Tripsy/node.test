@@ -5,7 +5,7 @@ import NotAllowedError from '../exceptions/not-allowed.error';
 import {lang} from '../config/i18n-setup.config';
 import {settings} from '../config/settings.config';
 import CustomError from '../exceptions/custom.error';
-import redisClient from '../config/init-redis.config';
+import {redisClient} from '../config/init-redis.config';
 import logger from '../providers/logger.provider';
 
 class AccountPolicy extends AbstractPolicy {

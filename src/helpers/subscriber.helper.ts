@@ -1,9 +1,17 @@
 import {cacheProvider} from '../providers/cache.provider';
-import {logHistory} from './log.helper';
 import {EntityContextData} from '../types/entity-context-data.type';
+import {Logger} from 'pino';
+import logger, {childLogger} from '../providers/logger.provider';
+import {lang} from '../config/i18n-setup.config';
 
 export function cacheClean(entity: string, id: number) {
     void cacheProvider.delete(cacheProvider.buildKey(entity, id.toString()));
+}
+
+const historyLogger: Logger = childLogger(logger, 'history');
+
+export function logHistory(entity: string, action: string, replacements: Record<string, string> = {}) {
+    historyLogger.info(lang(`${entity}.history.${action}`, replacements));
 }
 
 /**

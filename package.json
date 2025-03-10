@@ -17,7 +17,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules APP_ENV=test NODE_ENV=test jest"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

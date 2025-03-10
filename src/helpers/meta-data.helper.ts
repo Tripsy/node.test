@@ -21,6 +21,6 @@ export function tokenMetaData(req: Request): TokenMetadata {
         'user-agent': req.headers['user-agent'] || '',
         'accept-language': req.headers['accept-language'] || '',
         'ip': getClientIp(req),
-        'os': req.body.os || ''
+        'os': req.body?.os || ''
     }
 }
