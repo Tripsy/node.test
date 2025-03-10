@@ -3,13 +3,13 @@ import UserController from '../controllers/user.controller';
 import metaDocumentation from '../middleware/meta-documentation.middleware';
 import {validateParamsWhenId, validateParamsWhenStatus} from '../middleware/validate-params.middleware';
 import {UserStatusEnum} from '../enums/user-status.enum';
+import {routesConfig} from '../config/init-routes.config';
 
 const routes: Router = Router();
-const routePrefix = '/users';
 
 // User - Create
 routes.post(
-    routePrefix,
+    routesConfig.user.create,
     [
         metaDocumentation('user', 'create')
     ],
@@ -18,7 +18,7 @@ routes.post(
 
 // User - Read
 routes.get(
-    `${routePrefix}/:id`,
+    routesConfig.user.read,
     [
         metaDocumentation('user', 'read'),
         validateParamsWhenId('id')
@@ -28,7 +28,7 @@ routes.get(
 
 // User - Update
 routes.put(
-    `${routePrefix}/:id`,
+    routesConfig.user.update,
     [
         metaDocumentation('user', 'update'),
         validateParamsWhenId('id')
@@ -38,7 +38,7 @@ routes.put(
 
 // User - Delete
 routes.delete(
-    `${routePrefix}/:id`,
+    routesConfig.user.delete,
     [
         metaDocumentation('user', 'delete'),
         validateParamsWhenId('id')
@@ -48,7 +48,7 @@ routes.delete(
 
 // User - Find
 routes.get(
-    routePrefix,
+    routesConfig.user.find,
     [
         metaDocumentation('user', 'find')
     ],
@@ -57,7 +57,7 @@ routes.get(
 
 // User - Update status
 routes.patch(
-    `${routePrefix}/:id/status/:status`,
+    routesConfig.user.updateStatus,
     [
         metaDocumentation('user', 'update-status'),
         validateParamsWhenId('id'),

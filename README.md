@@ -125,7 +125,7 @@ $ pnpm run test account.functional.ts --detectOpenHandles
 
 # TODO
 
-1. Check sourcetree
+1. redis stays open after test run
 2. Write tests 
     - providers
     - controllers

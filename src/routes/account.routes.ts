@@ -1,13 +1,13 @@
 import {Router} from 'express';
 import metaDocumentation from '../middleware/meta-documentation.middleware';
 import AccountController from '../controllers/account.controller';
+import {routesConfig} from '../config/init-routes.config';
 
 const routes: Router = Router();
-const routePrefix = '/account';
 
 // Account - Register
 routes.post(
-    `${routePrefix}/register`,
+    routesConfig.account.register,
     [
         metaDocumentation('account', 'register')
     ],
@@ -16,7 +16,7 @@ routes.post(
 
 // Account - Login
 routes.post(
-    `${routePrefix}/login`,
+    routesConfig.account.login,
     [
         metaDocumentation('account', 'login')
     ],
@@ -25,7 +25,7 @@ routes.post(
 
 // Account - Remove token
 routes.delete(
-    `${routePrefix}/token`,
+    routesConfig.account.removeToken,
     [
         metaDocumentation('account', 'removeToken')
     ],
@@ -34,7 +34,7 @@ routes.delete(
 
 // Account - Logout
 routes.delete(
-    `${routePrefix}/logout`,
+    routesConfig.account.logout,
     [
         metaDocumentation('account', 'logout')
     ],
@@ -43,7 +43,7 @@ routes.delete(
 
 // Account - Recover password
 routes.post(
-    `${routePrefix}/password-recover`,
+    routesConfig.account.passwordRecover,
     [
         metaDocumentation('account', 'password-recover'),
     ],
@@ -52,7 +52,7 @@ routes.post(
 
 // Account - Change password based on recovery token
 routes.post(
-    `${routePrefix}/password-recover-change/:ident`,
+    routesConfig.account.passwordRecoverChange,
     [
         metaDocumentation('account', 'password-recover-change'),
     ],
@@ -61,7 +61,7 @@ routes.post(
 
 // Account - Update password (when logged in based on old password)
 routes.post(
-    `${routePrefix}/password-update`,
+    routesConfig.account.passwordUpdate,
     [
         metaDocumentation('account', 'password-update'),
     ],
@@ -70,7 +70,7 @@ routes.post(
 
 // Account - Confirm email
 routes.post(
-    `${routePrefix}/email-confirm/:token`,
+    routesConfig.account.emailConfirm,
     [
         metaDocumentation('account', 'email-confirm'),
     ],
@@ -79,7 +79,7 @@ routes.post(
 
 // Account - Update email
 routes.post(
-    `${routePrefix}/email-update`,
+    routesConfig.account.emailUpdate,
     [
         metaDocumentation('account', 'email-update'),
     ],

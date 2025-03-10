@@ -4,12 +4,12 @@ import {replaceTemplateVars} from '../helpers/utils.helper';
 import logger from './logger.provider';
 import {lang} from '../config/i18n-setup.config';
 import nodemailer, {Transporter} from 'nodemailer';
-import {siteLink} from '../helpers/link.helper';
 import TemplateRepository from '../repositories/template.repository';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
 import {EmailContent, EmailTemplate} from '../types/template.type';
 import MailQueueEntity from '../entities/mail-queue.entity';
 import MailQueueRepository from '../repositories/mail-queue.repository';
+import {baseLink} from '../config/init-routes.config';
 
 let emailTransporter: Transporter | null = null;
 
@@ -69,7 +69,7 @@ export async function loadEmailTemplate(label: string, language: string): Promis
 
 export function prepareEmailContent(emailContent: EmailContent, vars: Record<string, string> = {}): EmailContent {
     vars.currentYear = new Date().getFullYear().toString();
-    vars.siteLink = siteLink();
+    vars.siteLink = baseLink();
 
     return {
         subject: replaceTemplateVars(emailContent.subject, vars),

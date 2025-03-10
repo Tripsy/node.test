@@ -12,8 +12,8 @@ import {getMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
 import AccountRecoveryEntity from '../entities/account-recovery.entity';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
-import {emailConfirmLink} from '../helpers/link.helper';
 import {EmailTemplate} from '../types/template.type';
+import {routeLink} from '../config/init-routes.config';
 
 export async function encryptPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -144,7 +144,7 @@ export async function sendEmailConfirmCreate(user: Partial<UserEntity> & {
         emailTemplate,
         {
             'name': user.name,
-            'link': emailConfirmLink(token),
+            'link': routeLink('account.emailConfirm', {token: token}, true),
             'expire_at': expire_at.toISOString()
         },
         {
@@ -168,7 +168,7 @@ export async function sendEmailConfirmUpdate(user: Partial<UserEntity> & {
         emailTemplate,
         {
             'name': user.name,
-            'link': emailConfirmLink(token),
+            'link': routeLink('account.emailConfirm', {token: token}, true),
             'expire_at': expire_at.toISOString()
         },
         {

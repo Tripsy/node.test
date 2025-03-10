@@ -2,13 +2,13 @@ import {Router} from 'express';
 import UserPermissionController from '../controllers/user-permission.controller';
 import metaDocumentation from '../middleware/meta-documentation.middleware';
 import {validateParamsWhenId} from '../middleware/validate-params.middleware';
+import {routesConfig} from '../config/init-routes.config';
 
 const routes: Router = Router();
-const routePrefix = '/user';
 
 // Permission - Create
 routes.post(
-    `${routePrefix}/:userId/permissions`,
+    routesConfig.userPermission.create,
     [
         metaDocumentation('user-permission', 'create'),
         validateParamsWhenId('userId')
@@ -18,7 +18,7 @@ routes.post(
 
 // Permission - Update
 routes.put(
-    `${routePrefix}/:userId/permissions/:id`,
+    routesConfig.userPermission.update,
     [
         metaDocumentation('user-permission', 'update'),
         validateParamsWhenId('userId', 'id')
@@ -28,7 +28,7 @@ routes.put(
 
 // Permission - Delete
 routes.delete(
-    `${routePrefix}/:userId/permissions/:id`,
+    routesConfig.userPermission.delete,
     [
         metaDocumentation('user-permission', 'delete'),
         validateParamsWhenId('userId', 'id')
@@ -38,7 +38,7 @@ routes.delete(
 
 // Permission - Find
 routes.get(
-    `${routePrefix}/:userId/permissions`,
+    routesConfig.userPermission.find,
     [
         metaDocumentation('user-permission', 'find'),
         validateParamsWhenId('userId')

@@ -82,6 +82,35 @@ describe('AccountController - Login', () => {
         expect(response.body.message).toBe('account.error.not_active');
     });
 
+    it('should return 401 Unauthorized with invalid credentials', async () => {
+        // Create mock data
+        const mockUser: Partial<UserEntity> = {
+            id: 1,
+            email: 'john.doe@example.com',
+            password: 'password123',
+            status: UserStatusEnum.ACTIVE
+        };
+
+        jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByEmail: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockUser), // Resolve with mock user
+        } as any);
+
+        jest.spyOn(accountService, 'verifyPassword').mockResolvedValue(false);
+
+        const response = await request(app)
+            .post('/account/login') // TODO
+            .send({
+                email: 'john.doe@example.com',
+                password: 'password123',
+            });
+
+        // Assertions
+        expect(response.status).toBe(401);
+        expect(response.body.message).toBe('account.error.not_authorized');
+    });
+
     it('should login successfully with valid credentials', async () => {
         // Create mock data
         const mockUser: Partial<UserEntity> = {

@@ -129,3 +129,15 @@ export function dateDiffInSeconds(date1: Date, date2: Date): number {
 export function replaceTemplateVars(content: string, vars: Record<string, string> = {}): string {
     return content.replace(/{{(\w+)}}/g, (_, key) => (key in vars ? vars[key] : `{{${key}}}`));
 }
+
+/**
+ * Get the value of a key in an object
+ * ex: key = "user.create"
+ *
+ * @param {Record<string, any>} obj - The object to get the value from
+ * @param {string} key - The key to get the value of
+ * @returns {any} - The value of the key
+ */
+export function getObjectValue(obj: Record<string, any>, key: string): any {
+    return key.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
