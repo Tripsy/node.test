@@ -74,13 +74,13 @@ async function initializeApp() {
     const port: number = settings.app.port;
 
     server = app.listen(port, () => {
-        logger.info(`App listening on port ${port}`);
+        logger.debug(`App listening on port ${port}`);
     });
 
     if (settings.app.env !== 'test') {
         // Start the worker here since it's database dependent
         import('./workers/email.worker').then(() => {
-            logger.info('Email worker started.');
+            logger.debug('Email worker started.');
         });
 
         // Start cron jobs

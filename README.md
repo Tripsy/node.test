@@ -22,8 +22,9 @@
    - password recovery (managed by account-recovery.repository)
 - [x] Policies (based on user roles & user permissions)
 - [x] Controllers (eg: REST Api)
-    - user.controller (create, read, update, delete, find, updateStatus, updatePassword, updateEmail)
-    - account.controller (login, removeToken, logout, passwordRecover, passwordChange, emailConfirm)
+    - user.controller (create, read, update, delete, find, statusUpdate)
+    - account.controller (register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate)
+    - permission.controller (create, read, update, delete, find)
 - [x] Tests (powered by Jest & Supertest)
 
 # Setup
@@ -119,16 +120,26 @@ $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 # TETS
 
 ```
+$ pnpm run test --testTimeout=60000
 $ pnpm run test account.functional.ts --detectOpenHandles
+$ pnpm run test account-register.unit.ts --detect-open-handles
 
 ```
 
 # TODO
 
-1. redis stays open after test run
-2. Write tests 
-    - providers
+1. Write tests
     - controllers
+      - account.controller - wip
+      - user.controller
+      - permission.controller
+    - middleware
+      - auth.middleware
+      - output-handler.middleware
+      - validate-params.middleware
+    - policies
+    - providers
+
 
 REVIEW AT THIS POINT
 
@@ -143,8 +154,20 @@ REVIEW AT THIS POINT
     - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
+8. Tests 
+    - all validators
+    - 
+    - 
 
 IDEAS
 
 1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
 2. https://expressjs.com/en/advanced/best-practice-performance.html
+3. router.param - Adds callback triggers to route parameters, where name is the name of the parameter and callback is the callback function
+
+TEMP
+
+"scripts": {
+"dev": "nodemon",
+"test": "NODE_OPTIONS=--experimental-vm-modules APP_ENV=test NODE_ENV=test jest"
+},

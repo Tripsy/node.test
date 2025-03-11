@@ -136,7 +136,8 @@ export function childLogger(logger: Logger, category: string) {
 export const systemLogger: Logger = childLogger(logger, 'system');
 
 if (settings.app.env === 'test') {
-    systemLogger.debug = console.log;
+    // systemLogger.debug = console.log;
+    systemLogger.debug = () => {};
     systemLogger.error = console.error;
 }
 
