@@ -29,11 +29,11 @@ class AbstractPolicy {
         return this.userId !== null!;
     }
 
-    protected isVisitor(): boolean {
+    public isVisitor(): boolean {
         return this.userRole === 'visitor';
     }
 
-    protected isAdmin(): boolean {
+    public isAdmin(): boolean {
         return this.userRole === UserRoleEnum.ADMIN;
     }
 
@@ -46,18 +46,18 @@ class AbstractPolicy {
      *
      * @param permission (eg: `user.delete`, `user.update`, etc...)
      */
-    protected hasPermission(permission: string): boolean {
+    public hasPermission(permission: string): boolean {
         if (!/^[^.]+\.[^.]+$/.test(permission)) {
             throw new Error(`Invalid permission format: ${permission}`);
         }
 
-        return this.isOperator() && this.userPermissions.includes(permission);
+        return this.userPermissions.includes(permission);
     }
 
     /**
      * Returns `true` if the user is the owner of the resource
      */
-    protected isOwner(user_id?: number): boolean {
+    public isOwner(user_id?: number): boolean {
         return this.userId === user_id;
     }
 
@@ -65,7 +65,7 @@ class AbstractPolicy {
      * Check if user is allowed to perform the operation
      * Returns `true` if the user is admin or the user is the owner of the resource or owns the permission
      */
-    protected isAllowed(permission: string, user_id?: number): boolean {
+    public isAllowed(permission: string, user_id?: number): boolean {
         return this.isOwner(user_id) || this.isAdmin() || this.hasPermission(permission);
     }
 
@@ -117,14 +117,14 @@ class AbstractPolicy {
         }
     }
 
-    public find(entity?: string, user_id?: number): void {
+    public find(entity?: string): void {
         if (!this.isAuthenticated()) {
             throw new NotAllowedError();
         }
 
         const permission: string = this.permission('find', entity);
 
-        if (!this.isAllowed(permission, user_id)) {
+        if (!this.isAllowed(permission)) {
             throw new UnauthorizedError();
         }
     }
