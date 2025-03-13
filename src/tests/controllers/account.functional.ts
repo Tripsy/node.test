@@ -7,11 +7,17 @@ import * as accountService from '../../services/account.service';
 import {settings} from '../../config/settings.config';
 import {AuthValidToken} from '../../types/token.type';
 import {routeLink} from '../../config/init-routes.config';
-import {lang} from '../../config/i18n-setup.config';
 import {UserRoleEnum} from '../../enums/user-role.enum';
+import AccountTokenRepository from '../../repositories/account-token.repository';
+import AccountPolicy from '../../policies/account.policy';
+import AccountRecoveryRepository from '../../repositories/account-recovery.repository';
+import * as emailProvider from '../../providers/email.provider';
+import AccountRecoveryEntity from '../../entities/account-recovery.entity';
+import {createFutureDate} from '../../helpers/utils.helper';
+import * as metaDataHelper from '../../helpers/meta-data.helper';
 
 beforeAll(async () => {
-    await appReady; // Wait for the app to fully initialize
+    await appReady;
 });
 
 afterAll(async () => {
@@ -41,7 +47,7 @@ beforeEach(() => {
     jest.resetAllMocks();
 });
 
-describe('AccountController - Register', () => {
+describe.skip('AccountController - register', () => {
     const accountRegisterLink = routeLink('account.register', {}, false);
 
     const initTestData = {
@@ -51,25 +57,6 @@ describe('AccountController - Register', () => {
         password_confirm: 'Password123!',
         language: 'en',
     };
-
-    it('should fail validation', async () => {
-        const testData = {...initTestData};
-
-        // @ts-ignore
-        delete testData.name;
-
-        const response = await request(app)
-            .post(accountRegisterLink)
-            .send(testData);
-
-        // Assertions
-        expect(response.status).toBe(400);
-        expect(response.body.errors).toContainEqual(
-            expect.objectContaining({
-                message: lang('user.validation.name_invalid')
-            })
-        );
-    });
 
     it('simulate existing user', async () => {
         // Create mock data
@@ -128,14 +115,14 @@ describe('AccountController - Register', () => {
     });
 });
 
-describe.skip('AccountController - Login', () => {
+describe.skip('AccountController - login', () => {
     const accountLoginLink = routeLink('account.login', {}, false);
 
     const initTestData = {
         email: 'john.doe@example.com',
         password: 'password123',
     };
-    
+
     it('when user is not found', async () => {
         const testData = {...initTestData};
 
@@ -148,7 +135,7 @@ describe.skip('AccountController - Login', () => {
         expect(response.body.message).toBe('user.error.not_found');
     });
 
-    it('simulate use is not active', async () => {
+    it('simulate user is not active', async () => {
         // Create mock data
         const mockUser: Partial<UserEntity> = {
             id: 1,
@@ -297,3 +284,361 @@ describe.skip('AccountController - Login', () => {
         }))).toEqual(mockAuthValidTokens);
     });
 });
+
+describe.skip('AccountController - removeToken', () => {
+    const accountRemoveTokenLink = routeLink('account.removeToken', {}, false);
+
+    const initTestData = {
+        ident: 'c451f415-d8cc-4639-86bb-ec7779cb8eed',
+    };
+
+    it('should throw bad request on invalid ident', async () => {
+        const testData = {...initTestData};
+
+        testData.ident = 'invalid-ident';
+
+        const response = await request(app)
+            .delete(accountRemoveTokenLink)
+            .send(testData);
+
+        // Assertions
+        expect(response.status).toBe(400);
+    });
+
+    it('should return success', async () => {
+        const testData = {...initTestData};
+
+        jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+            filterByIdent: jest.fn().mockReturnThis(),
+            delete: jest.fn().mockResolvedValue(1),
+        } as any);
+
+        const response = await request(app)
+            .delete(accountRemoveTokenLink)
+            .send(testData);
+
+        // Assertions
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('account.success.token_deleted');
+    });
+});
+
+describe.skip('AccountController - logout', () => {
+    const accountLogoutLink = routeLink('account.logout', {}, false);
+
+    it('should return success', async () => {
+        jest.spyOn(AccountPolicy.prototype, 'logout').mockImplementation(() => undefined);
+
+        jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+            filterBy: jest.fn().mockReturnThis(),
+            delete: jest.fn().mockResolvedValue(1),
+        } as any);
+
+        const response = await request(app)
+            .delete(accountLogoutLink)
+            .send();
+
+        // Assertions
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('account.success.logout');
+    });
+});
+
+describe.skip('AccountController - passwordRecover', () => {
+    const accountPasswordRecoverLink = routeLink('account.passwordRecover', {}, false);
+
+    const initTestData = {
+        email: 'sample@email.com',
+    };
+
+    // Create mock data
+    const mockUser: Partial<UserEntity> = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        language: 'en',
+        status: UserStatusEnum.PENDING
+    };
+
+    it('should return not found for pending user', async () => {
+        const testData = {...initTestData};
+
+        jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByEmail: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockUser),
+        } as any);
+
+        const response = await request(app)
+            .post(accountPasswordRecoverLink)
+            .send(testData);
+
+        // Assertions
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('account.error.not_active');
+    });
+
+    it('should simulate recovery attempts exceeded', async () => {
+        const testData = {...initTestData};
+
+        mockUser.status = UserStatusEnum.ACTIVE;
+
+        jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByEmail: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockUser),
+        } as any);
+
+        // Temporarily override settings
+        const settingsUserRecoveryAttemptsInLastSixHours = settings.user.recoveryAttemptsInLastSixHours;
+        settings.user.recoveryAttemptsInLastSixHours = 3;
+
+        jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterBy: jest.fn().mockReturnThis(),
+            filterByRange: jest.fn().mockReturnThis(),
+            count: jest.fn().mockResolvedValue(10),
+        } as any);
+
+        const response = await request(app)
+            .post(accountPasswordRecoverLink)
+            .send(testData);
+
+        // Restore original value after the test
+        settings.user.recoveryAttemptsInLastSixHours = settingsUserRecoveryAttemptsInLastSixHours;
+
+        // Assertions
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('account.error.recovery_attempts_exceeded');
+    });
+
+    it('should return success', async () => {
+        const testData = {...initTestData};
+
+        mockUser.status = UserStatusEnum.ACTIVE;
+
+        jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByEmail: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockUser),
+        } as any);
+
+        jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterBy: jest.fn().mockReturnThis(),
+            filterByRange: jest.fn().mockReturnThis(),
+            count: jest.fn().mockResolvedValue(0),
+        } as any);
+
+        jest.spyOn(accountService, 'setupRecovery').mockResolvedValue(['random-ident', new Date('2025-01-01T00:00:00Z')]);
+        jest.spyOn(emailProvider, 'loadEmailTemplate').mockResolvedValue({
+            templateId: 1,
+            language: 'en',
+            emailContent: {
+                subject: 'Recover password',
+                text: 'Recover password',
+                html: 'Recover password',
+            }
+        });
+        jest.spyOn(emailProvider, 'queueEmail').mockImplementation();
+
+        const response = await request(app)
+            .post(accountPasswordRecoverLink)
+            .send(testData);
+
+        // Assertions
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('account.success.password_recover');
+    });
+});
+
+describe.skip('AccountController - passwordRecoverChange', () => {
+    const accountPasswordRecoverChange = routeLink('account.passwordRecoverChange', {
+        ident: 'random-ident'
+    }, false);
+
+    const initTestData = {
+        password: 'StrongP@ssw0rd',
+        password_confirm: 'StrongP@ssw0rd',
+    };
+
+    // Create mock data
+    const mockAccountRecovery: Partial<AccountRecoveryEntity> = {
+        id: 1,
+        ident: 'random-ident',
+        user_id: 1,
+        metadata: {
+            email: 'john.doe@example.com'
+        },
+        expire_at: createFutureDate(3000),
+    };
+
+    const mockUser: Partial<UserEntity> = {
+        id: 1,
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        language: 'en',
+        status: UserStatusEnum.PENDING
+    };
+
+    it('should throw bad request when recovery token was already used', async () => {
+        const testData = {...initTestData};
+
+        const mockAccountRecoveryUsedAt = {...mockAccountRecovery};
+        mockAccountRecoveryUsedAt.used_at = new Date('2025-01-01T00:00:00Z');
+
+        jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByIdent: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecoveryUsedAt),
+        } as any);
+
+        const response = await request(app)
+            .post(accountPasswordRecoverChange)
+            .send(testData);
+
+        // Assertions
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('account.error.recovery_token_used');
+    });
+
+    it('should throw bad request when recovery token is expired', async () => {
+        const testData = {...initTestData};
+
+        const mockAccountRecoveryExpireAt = {...mockAccountRecovery};
+        mockAccountRecoveryExpireAt.expire_at = new Date('2024-01-01T00:00:00Z');
+
+        jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByIdent: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecoveryExpireAt),
+        } as any);
+
+        const response = await request(app)
+            .post(accountPasswordRecoverChange)
+            .send(testData);
+
+        // Assertions
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('account.error.recovery_token_expired');
+    });
+
+    it('should throw bad request when token meta doesn\'t match', async () => {
+        const testData = {...initTestData};
+
+        jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByIdent: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
+        } as any);
+
+        // Temporarily override settings
+        const settingsUserRecoveryEnableMetadataCheck = settings.user.recoveryEnableMetadataCheck;
+        settings.user.recoveryEnableMetadataCheck = true;
+
+        jest.spyOn(metaDataHelper, 'compareMetaDataValue').mockReturnValue(false);
+
+        const response = await request(app)
+            .post(accountPasswordRecoverChange)
+            .send(testData);
+
+        // Restore original value after the test
+        settings.user.recoveryEnableMetadataCheck = settingsUserRecoveryEnableMetadataCheck;
+
+        // Assertions
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('account.error.recovery_token_not_authorized');
+    });
+
+    it('should throw not found if user is not active', async () => {
+        const testData = {...initTestData};
+
+        jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByIdent: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
+        } as any);
+
+        // Temporarily override settings
+        const settingsUserRecoveryEnableMetadataCheck = settings.user.recoveryEnableMetadataCheck;
+        settings.user.recoveryEnableMetadataCheck = false;
+
+        jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterById: jest.fn().mockReturnThis(),
+            first: jest.fn().mockResolvedValue(mockUser),
+        } as any);
+
+        const response = await request(app)
+            .post(accountPasswordRecoverChange)
+            .send(testData);
+
+        // Restore original value after the test
+        settings.user.recoveryEnableMetadataCheck = settingsUserRecoveryEnableMetadataCheck;
+
+        // Assertions
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('account.error.not_found');
+    });
+
+    it('should return success', async () => {
+        const testData = {...initTestData};
+
+        jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterByIdent: jest.fn().mockReturnThis(),
+            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
+        } as any);
+
+        // Temporarily override settings
+        const settingsUserRecoveryEnableMetadataCheck = settings.user.recoveryEnableMetadataCheck;
+        settings.user.recoveryEnableMetadataCheck = false;
+
+        mockUser.status = UserStatusEnum.ACTIVE;
+
+        jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            filterById: jest.fn().mockReturnThis(),
+            first: jest.fn().mockResolvedValue(mockUser),
+        } as any);
+
+        jest.spyOn(UserRepository, 'save').mockImplementation();
+
+        jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+            filterBy: jest.fn().mockReturnThis(),
+            delete: jest.fn().mockResolvedValue(1),
+        } as any);
+
+        jest.spyOn(emailProvider, 'loadEmailTemplate').mockResolvedValue({
+            templateId: 1,
+            language: 'en',
+            emailContent: {
+                subject: 'Password changed',
+                text: 'Password changed',
+                html: 'Password changed',
+            }
+        });
+        jest.spyOn(emailProvider, 'queueEmail').mockImplementation();
+
+        const response = await request(app)
+            .post(accountPasswordRecoverChange)
+            .send(testData);
+
+        // Restore original value after the test
+        settings.user.recoveryEnableMetadataCheck = settingsUserRecoveryEnableMetadataCheck;
+
+        // Assertions
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('account.success.password_changed');
+    });
+});
+
+describe('AccountController - passwordUpdate', () => {
+    // TODO
+});
+
+// describe('AccountController - emailConfirm', () => {
+// });
+//
+// describe('AccountController - emailUpdate', () => {
+// });

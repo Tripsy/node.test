@@ -5,6 +5,13 @@ export function getMetaDataValue(metadata: Record<string, string>, key: string):
     return metadata?.[key] ?? '';
 }
 
+/**
+ * Return true if values are the same for the given key
+ *
+ * @param metadata1
+ * @param metadata2
+ * @param key
+ */
 export function compareMetaDataValue(metadata1: Record<string, string>, metadata2: Record<string, string>, key: string): boolean {
     return getMetaDataValue(metadata1, key) === getMetaDataValue(metadata2, key);
 }

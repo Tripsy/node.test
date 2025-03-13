@@ -9,7 +9,6 @@
 		"max_active_sessions": "Too many active sessions",
 		"not_logged_in": "Not logged in",
 		"recovery_attempts_exceeded": "Recovery attempts exceeded. Try again later",
-		"recovery_token_not_found": "Recovery token not found",
 		"recovery_token_expired": "Recovery token expired",
 		"recovery_token_used": "Recovery token already used",
 		"recovery_token_not_authorized": "Recovery token not authorized",

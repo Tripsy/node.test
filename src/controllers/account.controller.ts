@@ -243,10 +243,6 @@ class AccountController {
 
         const ident = req.params.ident;
 
-        if (!ident) {
-            throw new BadRequestError(lang('account.error.recovery_token_not_found'));
-        }
-
         // Validate the request body against the schema
         const validated = AccountPasswordRecoverChangeValidator.safeParse(req.body);
 
