@@ -44,13 +44,13 @@ afterAll(async () => {
 
 beforeEach(() => {
     jest.clearAllMocks();
-    jest.resetAllMocks();
+    jest.restoreAllMocks();
 });
 
 describe.skip('AccountController - register', () => {
     const accountRegisterLink = routeLink('account.register', {}, false);
 
-    const initTestData = {
+    const testData = {
         name: 'John Doe',
         email: 'john.doe@example.com',
         password: 'Password123!',
@@ -70,8 +70,6 @@ describe.skip('AccountController - register', () => {
             filterByEmail: jest.fn().mockReturnThis(),
             first: jest.fn().mockResolvedValue(mockUser),
         } as any);
-
-        const testData = {...initTestData};
 
         const response = await request(app)
             .post(accountRegisterLink)
@@ -102,8 +100,6 @@ describe.skip('AccountController - register', () => {
 
         jest.spyOn(UserRepository, 'save').mockResolvedValue(mockUser);
 
-        const testData = {...initTestData};
-
         const response = await request(app)
             .post(accountRegisterLink)
             .send(testData);
@@ -118,14 +114,12 @@ describe.skip('AccountController - register', () => {
 describe.skip('AccountController - login', () => {
     const accountLoginLink = routeLink('account.login', {}, false);
 
-    const initTestData = {
+    const testData = {
         email: 'john.doe@example.com',
         password: 'password123',
     };
 
     it('when user is not found', async () => {
-        const testData = {...initTestData};
-
         const response = await request(app)
             .post(accountLoginLink)
             .send(testData);
@@ -149,8 +143,6 @@ describe.skip('AccountController - login', () => {
             filterByEmail: jest.fn().mockReturnThis(),
             firstOrFail: jest.fn().mockResolvedValue(mockUser),
         } as any);
-
-        const testData = {...initTestData};
 
         const response = await request(app)
             .post(accountLoginLink)
@@ -178,8 +170,6 @@ describe.skip('AccountController - login', () => {
 
         jest.spyOn(accountService, 'verifyPassword').mockResolvedValue(false);
 
-        const testData = {...initTestData};
-
         const response = await request(app)
             .post(accountLoginLink)
             .send(testData);
@@ -206,9 +196,7 @@ describe.skip('AccountController - login', () => {
             },
         ];
 
-        // Temporarily override settings
-        const settingsUserMaxActiveSessions = settings.user.maxActiveSessions;
-        settings.user.maxActiveSessions = 3; // Set a higher number than mockAuthValidTokens.length to avoid condition authValidTokens.length >= settings.user.maxActiveSessions
+        jest.replaceProperty(settings.user, 'maxActiveSessions', 3); // Set a higher number than mockAuthValidTokens.length to avoid condition authValidTokens.length >= settings.user.maxActiveSessions
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -220,14 +208,9 @@ describe.skip('AccountController - login', () => {
         jest.spyOn(accountService, 'getAuthValidTokens').mockResolvedValue(mockAuthValidTokens);
         jest.spyOn(accountService, 'setupToken').mockResolvedValue(mockToken);
 
-        const testData = {...initTestData};
-
         const response = await request(app)
             .post(accountLoginLink)
             .send(testData);
-
-        // Restore original value after the test
-        settings.user.maxActiveSessions = settingsUserMaxActiveSessions;
 
         // Assertions
         expect(response.status).toBe(200);
@@ -252,9 +235,8 @@ describe.skip('AccountController - login', () => {
             },
         ];
 
-        // Temporarily override settings
-        const settingsUserMaxActiveSessions = settings.user.maxActiveSessions;
-        settings.user.maxActiveSessions = 1; // Set a number lower or equal than mockAuthValidTokens.length to trigger condition authValidTokens.length >= settings.user.maxActiveSessions
+        // Set a number lower or equal than mockAuthValidTokens.length to trigger condition authValidTokens.length >= settings.user.maxActiveSessions
+        jest.replaceProperty(settings.user, 'maxActiveSessions', 1);
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -266,14 +248,9 @@ describe.skip('AccountController - login', () => {
         jest.spyOn(accountService, 'getAuthValidTokens').mockResolvedValue(mockAuthValidTokens);
         jest.spyOn(accountService, 'setupToken').mockResolvedValue(mockToken);
 
-        const testData = {...initTestData};
-
         const response = await request(app)
             .post(accountLoginLink)
             .send(testData);
-
-        // Restore original value after the test
-        settings.user.maxActiveSessions = settingsUserMaxActiveSessions;
 
         // Assertions
         expect(response.status).toBe(403);
@@ -288,14 +265,12 @@ describe.skip('AccountController - login', () => {
 describe.skip('AccountController - removeToken', () => {
     const accountRemoveTokenLink = routeLink('account.removeToken', {}, false);
 
-    const initTestData = {
+    const testData = {
         ident: 'c451f415-d8cc-4639-86bb-ec7779cb8eed',
     };
 
     it('should throw bad request on invalid ident', async () => {
-        const testData = {...initTestData};
-
-        testData.ident = 'invalid-ident';
+        jest.replaceProperty(testData, 'ident', 'invalid-ident');
 
         const response = await request(app)
             .delete(accountRemoveTokenLink)
@@ -306,8 +281,6 @@ describe.skip('AccountController - removeToken', () => {
     });
 
     it('should return success', async () => {
-        const testData = {...initTestData};
-
         jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
             filterByIdent: jest.fn().mockReturnThis(),
             delete: jest.fn().mockResolvedValue(1),
@@ -347,7 +320,7 @@ describe.skip('AccountController - logout', () => {
 describe.skip('AccountController - passwordRecover', () => {
     const accountPasswordRecoverLink = routeLink('account.passwordRecover', {}, false);
 
-    const initTestData = {
+    const testData = {
         email: 'sample@email.com',
     };
 
@@ -361,8 +334,6 @@ describe.skip('AccountController - passwordRecover', () => {
     };
 
     it('should return not found for pending user', async () => {
-        const testData = {...initTestData};
-
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
             filterByEmail: jest.fn().mockReturnThis(),
@@ -379,9 +350,7 @@ describe.skip('AccountController - passwordRecover', () => {
     });
 
     it('should simulate recovery attempts exceeded', async () => {
-        const testData = {...initTestData};
-
-        mockUser.status = UserStatusEnum.ACTIVE;
+        jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -389,9 +358,7 @@ describe.skip('AccountController - passwordRecover', () => {
             firstOrFail: jest.fn().mockResolvedValue(mockUser),
         } as any);
 
-        // Temporarily override settings
-        const settingsUserRecoveryAttemptsInLastSixHours = settings.user.recoveryAttemptsInLastSixHours;
-        settings.user.recoveryAttemptsInLastSixHours = 3;
+        jest.replaceProperty(settings.user, 'recoveryAttemptsInLastSixHours', 3);
 
         jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -404,18 +371,13 @@ describe.skip('AccountController - passwordRecover', () => {
             .post(accountPasswordRecoverLink)
             .send(testData);
 
-        // Restore original value after the test
-        settings.user.recoveryAttemptsInLastSixHours = settingsUserRecoveryAttemptsInLastSixHours;
-
         // Assertions
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('account.error.recovery_attempts_exceeded');
     });
 
     it('should return success', async () => {
-        const testData = {...initTestData};
-
-        mockUser.status = UserStatusEnum.ACTIVE;
+        jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -452,12 +414,12 @@ describe.skip('AccountController - passwordRecover', () => {
     });
 });
 
-describe.skip('AccountController - passwordRecoverChange', () => {
+describe('AccountController - passwordRecoverChange', () => {
     const accountPasswordRecoverChange = routeLink('account.passwordRecoverChange', {
         ident: 'random-ident'
     }, false);
 
-    const initTestData = {
+    const testData = {
         password: 'StrongP@ssw0rd',
         password_confirm: 'StrongP@ssw0rd',
     };
@@ -470,6 +432,7 @@ describe.skip('AccountController - passwordRecoverChange', () => {
         metadata: {
             email: 'john.doe@example.com'
         },
+        used_at: undefined,
         expire_at: createFutureDate(3000),
     };
 
@@ -482,15 +445,12 @@ describe.skip('AccountController - passwordRecoverChange', () => {
     };
 
     it('should throw bad request when recovery token was already used', async () => {
-        const testData = {...initTestData};
-
-        const mockAccountRecoveryUsedAt = {...mockAccountRecovery};
-        mockAccountRecoveryUsedAt.used_at = new Date('2025-01-01T00:00:00Z');
+        jest.replaceProperty(mockAccountRecovery, 'used_at', new Date('2025-01-01T00:00:00Z'))
 
         jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
             filterByIdent: jest.fn().mockReturnThis(),
-            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecoveryUsedAt),
+            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
         } as any);
 
         const response = await request(app)
@@ -503,15 +463,12 @@ describe.skip('AccountController - passwordRecoverChange', () => {
     });
 
     it('should throw bad request when recovery token is expired', async () => {
-        const testData = {...initTestData};
-
-        const mockAccountRecoveryExpireAt = {...mockAccountRecovery};
-        mockAccountRecoveryExpireAt.expire_at = new Date('2024-01-01T00:00:00Z');
+        jest.replaceProperty(mockAccountRecovery, 'expire_at', new Date('2024-01-01T00:00:00Z'));
 
         jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
             filterByIdent: jest.fn().mockReturnThis(),
-            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecoveryExpireAt),
+            firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
         } as any);
 
         const response = await request(app)
@@ -524,17 +481,13 @@ describe.skip('AccountController - passwordRecoverChange', () => {
     });
 
     it('should throw bad request when token meta doesn\'t match', async () => {
-        const testData = {...initTestData};
-
         jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
             filterByIdent: jest.fn().mockReturnThis(),
             firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
         } as any);
 
-        // Temporarily override settings
-        const settingsUserRecoveryEnableMetadataCheck = settings.user.recoveryEnableMetadataCheck;
-        settings.user.recoveryEnableMetadataCheck = true;
+        jest.replaceProperty(settings.user, 'recoveryEnableMetadataCheck', true);
 
         jest.spyOn(metaDataHelper, 'compareMetaDataValue').mockReturnValue(false);
 
@@ -542,26 +495,19 @@ describe.skip('AccountController - passwordRecoverChange', () => {
             .post(accountPasswordRecoverChange)
             .send(testData);
 
-        // Restore original value after the test
-        settings.user.recoveryEnableMetadataCheck = settingsUserRecoveryEnableMetadataCheck;
-
         // Assertions
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('account.error.recovery_token_not_authorized');
     });
 
     it('should throw not found if user is not active', async () => {
-        const testData = {...initTestData};
-
         jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
             filterByIdent: jest.fn().mockReturnThis(),
             firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
         } as any);
 
-        // Temporarily override settings
-        const settingsUserRecoveryEnableMetadataCheck = settings.user.recoveryEnableMetadataCheck;
-        settings.user.recoveryEnableMetadataCheck = false;
+        jest.replaceProperty(settings.user, 'recoveryEnableMetadataCheck', false);
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -573,28 +519,21 @@ describe.skip('AccountController - passwordRecoverChange', () => {
             .post(accountPasswordRecoverChange)
             .send(testData);
 
-        // Restore original value after the test
-        settings.user.recoveryEnableMetadataCheck = settingsUserRecoveryEnableMetadataCheck;
-
         // Assertions
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('account.error.not_found');
     });
 
     it('should return success', async () => {
-        const testData = {...initTestData};
-
         jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
             filterByIdent: jest.fn().mockReturnThis(),
             firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
         } as any);
 
-        // Temporarily override settings
-        const settingsUserRecoveryEnableMetadataCheck = settings.user.recoveryEnableMetadataCheck;
-        settings.user.recoveryEnableMetadataCheck = false;
+        jest.replaceProperty(settings.user, 'recoveryEnableMetadataCheck', false);
 
-        mockUser.status = UserStatusEnum.ACTIVE;
+        jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -623,9 +562,6 @@ describe.skip('AccountController - passwordRecoverChange', () => {
         const response = await request(app)
             .post(accountPasswordRecoverChange)
             .send(testData);
-
-        // Restore original value after the test
-        settings.user.recoveryEnableMetadataCheck = settingsUserRecoveryEnableMetadataCheck;
 
         // Assertions
         expect(response.status).toBe(200);
