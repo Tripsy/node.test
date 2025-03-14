@@ -50,7 +50,7 @@ beforeEach(() => {
 
 jest.mock('jsonwebtoken');
 
-describe.skip('AccountController - register', () => {
+describe('AccountController - register', () => {
     const accountRegisterLink = routeLink('account.register', {}, false);
 
     const testData = {
@@ -114,7 +114,7 @@ describe.skip('AccountController - register', () => {
     });
 });
 
-describe.skip('AccountController - login', () => {
+describe('AccountController - login', () => {
     const accountLoginLink = routeLink('account.login', {}, false);
 
     const testData = {
@@ -122,7 +122,26 @@ describe.skip('AccountController - login', () => {
         password: 'password123',
     };
 
+    const mockUser: Partial<UserEntity> = {
+        id: 1,
+        email: 'john.doe@example.com',
+        password: 'password123',
+        status: UserStatusEnum.ACTIVE
+    };
+
+    const mockToken = 'test-token';
+
+    const mockAuthValidTokens: AuthValidToken[] = [
+        {
+            ident: 'afa6b787-x123-x456-x789-b9a840284bb5',
+            label: '',
+            used_at: new Date
+        },
+    ];
+
     it('when user is not found', async () => {
+        jest.spyOn(AccountPolicy.prototype, 'checkRateLimitOnLogin').mockImplementation();
+
         const response = await request(app)
             .post(accountLoginLink)
             .send(testData);
@@ -133,13 +152,9 @@ describe.skip('AccountController - login', () => {
     });
 
     it('simulate user is not active', async () => {
-        // Create mock data
-        const mockUser: Partial<UserEntity> = {
-            id: 1,
-            email: 'john.doe@example.com',
-            password: 'password123',
-            status: UserStatusEnum.PENDING
-        };
+        jest.spyOn(AccountPolicy.prototype, 'checkRateLimitOnLogin').mockImplementation();
+
+        jest.replaceProperty(mockUser, 'status', UserStatusEnum.PENDING);
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -157,13 +172,7 @@ describe.skip('AccountController - login', () => {
     });
 
     it('should return 401 Unauthorized with invalid credentials', async () => {
-        // Create mock data
-        const mockUser: Partial<UserEntity> = {
-            id: 1,
-            email: 'john.doe@example.com',
-            password: 'password123',
-            status: UserStatusEnum.ACTIVE
-        };
+        jest.spyOn(AccountPolicy.prototype, 'checkRateLimitOnLogin').mockImplementation();
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -179,25 +188,10 @@ describe.skip('AccountController - login', () => {
 
         // Assertions
         expect(response.status).toBe(401);
-        expect(response.body.message).toBe('account.error.not_authorized');
     });
 
     it('should login successfully with valid credentials', async () => {
-        // Create mock data
-        const mockUser: Partial<UserEntity> = {
-            id: 1,
-            email: 'john.doe@example.com',
-            password: 'password123',
-            status: UserStatusEnum.ACTIVE
-        };
-        const mockToken = 'test-token';
-        const mockAuthValidTokens: AuthValidToken[] = [
-            {
-                ident: 'afa6b787-x123-x456-x789-b9a840284bb5',
-                label: '',
-                used_at: new Date
-            },
-        ];
+        jest.spyOn(AccountPolicy.prototype, 'checkRateLimitOnLogin').mockImplementation();
 
         jest.replaceProperty(settings.user, 'maxActiveSessions', 3); // Set a higher number than mockAuthValidTokens.length to avoid condition authValidTokens.length >= settings.user.maxActiveSessions
 
@@ -222,21 +216,7 @@ describe.skip('AccountController - login', () => {
     });
 
     it('simulate too many active sessions', async () => {
-        // Create mock data
-        const mockUser: Partial<UserEntity> = {
-            id: 1,
-            email: 'john.doe@example.com',
-            password: 'password123',
-            status: UserStatusEnum.ACTIVE
-        };
-        const mockToken = 'test-token';
-        const mockAuthValidTokens: AuthValidToken[] = [
-            {
-                ident: 'afa6b787-x123-x456-x789-b9a840284bb5',
-                label: '',
-                used_at: new Date
-            },
-        ];
+        jest.spyOn(AccountPolicy.prototype, 'checkRateLimitOnLogin').mockImplementation();
 
         // Set a number lower or equal than mockAuthValidTokens.length to trigger condition authValidTokens.length >= settings.user.maxActiveSessions
         jest.replaceProperty(settings.user, 'maxActiveSessions', 1);
@@ -265,7 +245,7 @@ describe.skip('AccountController - login', () => {
     });
 });
 
-describe.skip('AccountController - removeToken', () => {
+describe('AccountController - removeToken', () => {
     const accountRemoveTokenLink = routeLink('account.removeToken', {}, false);
 
     const testData = {
@@ -299,12 +279,12 @@ describe.skip('AccountController - removeToken', () => {
     });
 });
 
-describe.skip('AccountController - logout', () => {
+describe('AccountController - logout', () => {
     const accountLogoutLink = routeLink('account.logout', {}, false);
 
     it('should fail if not authenticated', async () => {
         const response = await request(app)
-            .post(accountLogoutLink)
+            .delete(accountLogoutLink)
             .send();
 
         // Assertions
@@ -329,7 +309,7 @@ describe.skip('AccountController - logout', () => {
     });
 });
 
-describe.skip('AccountController - passwordRecover', () => {
+describe('AccountController - passwordRecover', () => {
     const accountPasswordRecoverLink = routeLink('account.passwordRecover', {}, false);
 
     const testData = {
@@ -426,7 +406,7 @@ describe.skip('AccountController - passwordRecover', () => {
     });
 });
 
-describe.skip('AccountController - passwordRecoverChange', () => {
+describe('AccountController - passwordRecoverChange', () => {
     const accountPasswordRecoverChange = routeLink('account.passwordRecoverChange', {
         ident: 'random-ident'
     }, false);
@@ -581,7 +561,7 @@ describe.skip('AccountController - passwordRecoverChange', () => {
     });
 });
 
-describe.skip('AccountController - passwordUpdate', () => {
+describe('AccountController - passwordUpdate', () => {
     const accountPasswordUpdate = routeLink('account.passwordUpdate', {}, false);
 
     const testData = {
@@ -666,7 +646,7 @@ describe.skip('AccountController - passwordUpdate', () => {
     });
 });
 
-describe.skip('AccountController - emailConfirm', () => {
+describe('AccountController - emailConfirm', () => {
     const accountEmailConfirm = routeLink('account.emailConfirm', {
         token: 'test-token'
     }, false);

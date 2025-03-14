@@ -29,7 +29,7 @@ class AccountPolicy extends AbstractPolicy {
 
     public logout(): void {
         if (!this.isAuthenticated()) {
-            throw new NotAllowedError(lang('account.error.not_logged_in'));
+            throw new UnauthorizedError(lang('account.error.not_logged_in'));
         }
     }
 
