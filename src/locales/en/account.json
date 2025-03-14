@@ -12,7 +12,6 @@
 		"recovery_token_expired": "Recovery token expired",
 		"recovery_token_used": "Recovery token already used",
 		"recovery_token_not_authorized": "Recovery token not authorized",
-		"confirmation_token_not_found": "Confirmation token not found",
 		"confirmation_token_invalid": "Invalid confirmation token",
 		"email_same": "This email is already in use",
 		"email_already_used": "Email already used by another account",

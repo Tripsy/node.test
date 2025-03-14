@@ -367,14 +367,10 @@ class AccountController {
     /**
      * This endpoint is used to confirm user email after account registration or email update
      * It is allowed to be used authenticated or not; "safety" is guaranteed by the token parameter which is pretty much impossible to guess
-     * & "Yes" - based on implementation (maybe auto-login on registration) - confirmation can take place even if logged in
+     * & "Yes" - based on implementation (maybe auto-login after registration) - confirmation can take place even if logged in
      */
     public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
         const token = req.params.token;
-
-        if (!token) {
-            throw new BadRequestError(lang('account.error.confirmation_token_not_found'));
-        }
 
         // Verify JWT and extract payload
         let payload: ConfirmationTokenPayload;

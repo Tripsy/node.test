@@ -139,7 +139,6 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
       - validate-params.middleware
     - providers
 
-
 REVIEW AT THIS POINT
 
 1. user-permission routes
@@ -166,7 +165,3 @@ IDEAS
 
 TEMP
 
-"scripts": {
-"dev": "nodemon",
-"test": "NODE_OPTIONS=--experimental-vm-modules APP_ENV=test NODE_ENV=test jest"
-},
