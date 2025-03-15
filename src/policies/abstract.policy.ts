@@ -71,61 +71,61 @@ class AbstractPolicy {
 
     public create(entity?: string): void {
         if (!this.isAuthenticated()) {
-            throw new NotAllowedError();
+            throw new UnauthorizedError();
         }
 
         const permission: string = this.permission('create', entity);
 
         if (!this.isAdmin() && !this.hasPermission(permission)) {
-            throw new UnauthorizedError();
+            throw new NotAllowedError();
         }
     }
 
     public read(entity?: string, user_id?: number): void {
         if (!this.isAuthenticated()) {
-            throw new NotAllowedError();
+            throw new UnauthorizedError();
         }
 
         const permission: string = this.permission('read', entity);
 
         if (!this.isAllowed(permission, user_id)) {
-            throw new UnauthorizedError();
+            throw new NotAllowedError();
         }
     }
 
     public update(entity?: string, user_id?: number): void {
         if (!this.isAuthenticated()) {
-            throw new NotAllowedError();
+            throw new UnauthorizedError();
         }
 
         const permission: string = this.permission('update', entity);
 
         if (!this.isAllowed(permission, user_id)) {
-            throw new UnauthorizedError();
+            throw new NotAllowedError();
         }
     }
 
     public delete(entity?: string, user_id?: number): void {
         if (!this.isAuthenticated()) {
-            throw new NotAllowedError();
+            throw new UnauthorizedError();
         }
 
         const permission: string = this.permission('delete', entity);
 
         if (!this.isAllowed(permission, user_id)) {
-            throw new UnauthorizedError();
+            throw new NotAllowedError();
         }
     }
 
     public find(entity?: string): void {
         if (!this.isAuthenticated()) {
-            throw new NotAllowedError();
+            throw new UnauthorizedError();
         }
 
         const permission: string = this.permission('find', entity);
 
         if (!this.isAllowed(permission)) {
-            throw new UnauthorizedError();
+            throw new NotAllowedError();
         }
     }
 }

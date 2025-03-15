@@ -82,8 +82,8 @@ export class OutputWrapper {
     }
 
     raw(filter: boolean = true): OutputWrapperInterface {
-        // If statusCode is 200, force success to true
-        if ([200].includes(this.res.statusCode)) {
+        // Force success to true
+        if ([200, 201, 202, 204].includes(this.res.statusCode)) {
             this.success(true)
         }
 

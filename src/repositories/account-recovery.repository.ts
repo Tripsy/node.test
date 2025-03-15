@@ -21,11 +21,11 @@ export const AccountRecoveryRepository = dataSource.getRepository(AccountRecover
         return new AccountRecoveryQuery(this);
     },
 
-    removeRecoveryById(id: number): void {
-        void this.createQuery()
-            .filterById(id)
-            .delete(false);
-    }
+    // removeRecoveryById(id: number): void {
+    //     void this.createQuery()
+    //         .filterById(id)
+    //         .delete(false);
+    // }
 });
 
 export default AccountRecoveryRepository;

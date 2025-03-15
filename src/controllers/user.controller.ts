@@ -52,7 +52,7 @@ class UserController {
         res.output.data(entry);
         res.output.message(lang('user.success.create'));
 
-        res.json(res.output);
+        res.status(201).json(res.output);
     });
 
     public read = asyncHandler(async (req: Request, res: Response) => {
@@ -84,7 +84,7 @@ class UserController {
         const policy = new UserPolicy(req);
 
         // Check permission (admin or operator with permission)
-        policy.update();
+        // policy.update();
 
         // Validate the request body against the schema
         const validated = UserUpdateValidator.safeParse(req.body);
@@ -111,23 +111,30 @@ class UserController {
         }
 
         // Remove all account tokens
-        await AccountTokenRepository.createQuery()
-            .filterBy('user_id', policy.getUserId())
-            .delete(false, true);
+        if (validated.data.password || validated.data.email !== user.email) {
+            await AccountTokenRepository.createQuery()
+                .filterBy('user_id', user.id)
+                .delete(false, true);
+        }
 
-        // Set entity data
+        // Create a new object with only allowed fields
+        const updatedUser: Partial<UserEntity> = {
+            id: user.id
+        };
+
         for (const key in validated.data) {
             // We allow update only for the fields used in the select
             if (paramsUpdateList.includes(key)) {
-                user[key] = (validated.data as Record<string, any>)[key];
+                (updatedUser as Record<string, any>)[key] = (validated.data as Record<string, any>)[key];
             }
         }
 
-        await UserRepository.save(user);
+        await UserRepository.save(updatedUser);
 
         res.output.message(lang('user.success.update'));
+        res.output.data(user);
 
-        res.json(res.output);
+        res.status(201).json(res.output);
     });
 
     public delete = asyncHandler(async (req: Request, res: Response) => {
@@ -136,11 +143,15 @@ class UserController {
         // Check permission (admin or operator with permission)
         policy.delete();
 
-        await UserRepository.createQuery()
+        const countDeleted = await UserRepository.createQuery()
             .filterById(res.locals.validated.id)
             .delete();
 
-        res.output.message(lang('user.success.delete'));
+        if (countDeleted === 0) {
+            res.output.message(lang('error.nothing_to_delete'));
+        } else {
+            res.output.message(lang('user.success.delete'));
+        }
 
         res.json(res.output);
     });

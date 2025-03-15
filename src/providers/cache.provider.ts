@@ -1,6 +1,6 @@
 import {settings} from '../config/settings.config';
 import {systemLogger} from './logger.provider';
-import {redisClient} from '../config/init-redis.config';
+import {getRedisClient} from '../config/init-redis.config';
 import Redis from 'ioredis';
 
 class CacheProvider {
@@ -19,7 +19,7 @@ class CacheProvider {
     }
 
     private get cache(): Redis {
-        return redisClient;
+        return getRedisClient();
     }
 
     buildKey(...args: string[]) {

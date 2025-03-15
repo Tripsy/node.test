@@ -64,7 +64,7 @@ class PermissionController {
             res.output.message(lang('permission.success.create'));
         }
 
-        res.json(res.output);
+        res.status(201).json(res.output);
     });
 
     public read = asyncHandler(async (req: Request, res: Response) => {
@@ -130,7 +130,7 @@ class PermissionController {
 
         res.output.message(lang('permission.success.update'));
 
-        res.json(res.output);
+        res.status(201).json(res.output);
     });
 
     public delete = asyncHandler(async (req: Request, res: Response) => {

@@ -174,7 +174,7 @@ class AbstractQuery {
         const results = await this.query.getMany();
 
         if (results.length === 0) {
-            throw new NotFoundError(lang('error.db_nothing_to_delete'));
+           return 0;
         }
 
         if (!multiple && results.length > 1) {

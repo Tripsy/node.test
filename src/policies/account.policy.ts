@@ -5,7 +5,7 @@ import NotAllowedError from '../exceptions/not-allowed.error';
 import {lang} from '../config/i18n-setup.config';
 import {settings} from '../config/settings.config';
 import CustomError from '../exceptions/custom.error';
-import {redisClient} from '../config/init-redis.config';
+import {getRedisClient} from '../config/init-redis.config';
 import logger from '../providers/logger.provider';
 
 class AccountPolicy extends AbstractPolicy {
@@ -58,6 +58,8 @@ class AccountPolicy extends AbstractPolicy {
     }
 
     public async checkRateLimitOnLogin(ipKey: string, emailKey: string): Promise<void> {
+        const redisClient = getRedisClient();
+
         const [ipAttempts, emailAttempts] = await Promise.all([
             redisClient.get(ipKey),
             redisClient.get(emailKey),
@@ -73,6 +75,8 @@ class AccountPolicy extends AbstractPolicy {
 
     public async updateFailedAttemptsOnLogin(ipKey: string, emailKey: string): Promise<void> {
         try {
+            const redisClient = getRedisClient();
+
             // Increment the failed attempt count
             await redisClient.incr(ipKey);
             await redisClient.incr(emailKey);

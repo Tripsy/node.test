@@ -130,8 +130,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 1. Write tests
     - controllers
-      - account.controller - wip
-      - user.controller
+      - user.controller - WIP
       - permission.controller
     - middleware
       - auth.middleware
@@ -141,18 +140,19 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 REVIEW AT THIS POINT
 
-1. user-permission routes
-2. after permissions load > cache req.user ?!
-3. template.routes.ts && template.controller.ts
-4. once policy is set up for admin on read and find allow to included entries marked as deleted
-5. build pino-transport-mysql - log.entity is created in /entities but add .ts
-6. test pino-transport-email
-7. create cron checks: 
+1. build pino-transport-mysql - log.entity is created in /entities but add .ts
+2. test pino-transport-email
+3. Re-run migrations
+4. user-permission routes
+5. after permissions load > cache req.user ?!
+6. template.routes.ts && template.controller.ts
+7. once policy is set up for admin on read and find allow to included entries marked as deleted
+8. create cron checks: 
     - daily - count errors in last 24 hours (group by label, count)
     - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
-8. Tests 
+9. Tests 
     - all validators
     - 
     - 

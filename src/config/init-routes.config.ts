@@ -43,7 +43,7 @@ export function baseLink(): string {
     return settings.app.url;
 }
 
-export function routeLink(route: string, params?: Record<string, string>, isAbsolute = false): string {
+export function routeLink(route: string, params?: Record<string, string | number>, isAbsolute = false): string {
     let resolvedRoute = getObjectValue(routesConfig, route);
 
     if (!resolvedRoute) {

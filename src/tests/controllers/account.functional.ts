@@ -1,4 +1,4 @@
-import app, {appReady, closeHandler, server} from '../../app';
+import app from '../../app';
 import request from 'supertest';
 import UserEntity from '../../entities/user.entity';
 import {UserStatusEnum} from '../../enums/user-status.enum';
@@ -16,39 +16,15 @@ import AccountRecoveryEntity from '../../entities/account-recovery.entity';
 import {createFutureDate} from '../../helpers/utils.helper';
 import * as metaDataHelper from '../../helpers/meta-data.helper';
 import jwt from 'jsonwebtoken';
+import NotAllowedError from '../../exceptions/not-allowed.error';
+import '../jest-functional.setup';
 
-beforeAll(async () => {
-    await appReady;
-});
-
-afterAll(async () => {
-    if (server) {
-        await new Promise<void>((resolve, reject) => {
-            server.close(async (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    try {
-                        await closeHandler();
-
-                        resolve();
-                    } catch (error) {
-                        reject(error);
-                    }
-                }
-            });
-        });
-    } else {
-        await closeHandler();
-    }
-});
+jest.mock('jsonwebtoken');
 
 beforeEach(() => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
 });
-
-jest.mock('jsonwebtoken');
 
 describe('AccountController - register', () => {
     const accountRegisterLink = routeLink('account.register', {}, false);
@@ -61,14 +37,18 @@ describe('AccountController - register', () => {
         language: 'en',
     };
 
-    it('simulate existing user', async () => {
-        // Create mock data
-        const mockUser: Partial<UserEntity> = {
-            id: 1,
-            email: 'john.doe@example.com',
-            status: UserStatusEnum.PENDING
-        };
+    const mockUser: UserEntity = {
+        id: 1,
+        name: 'John Doe',
+        password: 'hashed-password',
+        email: 'john.doe@example.com',
+        status: UserStatusEnum.PENDING,
+        language: 'en',
+        role: UserRoleEnum.MEMBER,
+        created_at: new Date(),
+    };
 
+    it('simulate existing user', async () => {
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             filterByEmail: jest.fn().mockReturnThis(),
             first: jest.fn().mockResolvedValue(mockUser),
@@ -84,18 +64,6 @@ describe('AccountController - register', () => {
     });
 
     it('should register a new user', async () => {
-        // Create mock data
-        const mockUser: UserEntity = {
-            id: 1,
-            name: 'John Doe',
-            password: 'hashed-password',
-            email: 'john.doe@example.com',
-            status: UserStatusEnum.PENDING,
-            language: 'en',
-            role: UserRoleEnum.MEMBER,
-            created_at: new Date(),
-        };
-
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             filterByEmail: jest.fn().mockReturnThis(),
             first: jest.fn().mockResolvedValue(null),
@@ -138,6 +106,19 @@ describe('AccountController - login', () => {
             used_at: new Date
         },
     ];
+
+    it('should fail if authenticated', async () => {
+        jest.spyOn(AccountPolicy.prototype, 'login').mockImplementation(() => {
+            throw new NotAllowedError('account.error.already_logged_in');
+        });
+
+        const response = await request(app)
+            .post(accountLoginLink)
+            .send(testData);
+
+        // Assertions
+        expect(response.status).toBe(403);
+    });
 
     it('when user is not found', async () => {
         jest.spyOn(AccountPolicy.prototype, 'checkRateLimitOnLogin').mockImplementation();
@@ -316,7 +297,6 @@ describe('AccountController - passwordRecover', () => {
         email: 'sample@email.com',
     };
 
-    // Create mock data
     const mockUser: Partial<UserEntity> = {
         id: 1,
         name: 'John Doe',
@@ -416,7 +396,6 @@ describe('AccountController - passwordRecoverChange', () => {
         password_confirm: 'StrongP@ssw0rd',
     };
 
-    // Create mock data
     const mockAccountRecovery: Partial<AccountRecoveryEntity> = {
         id: 1,
         ident: 'random-ident',

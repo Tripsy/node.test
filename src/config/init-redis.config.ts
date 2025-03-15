@@ -43,5 +43,5 @@ class RedisClient {
     }
 }
 
-export const redisClient = RedisClient.getInstance();
+export const getRedisClient = (): Redis => RedisClient.getInstance();
 export const redisClose = RedisClient.close;
