@@ -84,7 +84,7 @@ class UserController {
         const policy = new UserPolicy(req);
 
         // Check permission (admin or operator with permission)
-        // policy.update();
+        policy.update();
 
         // Validate the request body against the schema
         const validated = UserUpdateValidator.safeParse(req.body);

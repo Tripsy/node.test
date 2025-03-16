@@ -55,7 +55,7 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
 
     // Validate metadata (e.g., user-agent check)
     if (!compareMetaDataValue(activeToken.metadata, tokenMetaData(req), 'user-agent')) {
-       return next();
+        return next();
     }
 
     const user = await UserRepository.createQuery()

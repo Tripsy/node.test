@@ -128,16 +128,6 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. Write tests
-    - controllers
-      - user.controller - WIP
-      - permission.controller
-    - middleware
-      - auth.middleware
-      - output-handler.middleware
-      - validate-params.middleware
-    - providers
-
 REVIEW AT THIS POINT
 
 1. build pino-transport-mysql - log.entity is created in /entities but add .ts
@@ -153,9 +143,13 @@ REVIEW AT THIS POINT
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
 9. Tests 
-    - all validators
-    - 
-    - 
+    - validators
+   - controllers
+       - permission.controller
+   - middleware
+       - output-handler.middleware
+       - validate-params.middleware
+   - providers
 
 IDEAS
 

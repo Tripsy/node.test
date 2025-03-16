@@ -245,8 +245,6 @@ describe.skip('UserController - update', () => {
             .put(userUpdateLink)
             .send(testData);
 
-        console.log(response.body);
-
         // Assertions
         expect(response.status).toBe(201);
         expect(response.body.message).toBe('user.success.update');
@@ -255,13 +253,33 @@ describe.skip('UserController - update', () => {
 });
 
 describe('UserController - delete', () => {
-    // TODO
-});
+    const userDeleteLink = routeLink('user.delete', {
+        id: 1,
+    }, false);
 
-describe('UserController - find', () => {
-    // TODO
-});
+    it('should fail if not authenticated', async () => {
+        jest.spyOn(UserPolicy.prototype, 'isAuthenticated').mockReturnValue(false);
 
-describe('UserController - statusUpdate', () => {
-    // TODO
+        const response = await request(app)
+            .get(userDeleteLink)
+            .send();
+
+        // Assertions
+        expect(response.status).toBe(401);
+    });
+
+    it('should return success', async () => {
+        jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+            filterById: jest.fn().mockReturnThis(),
+            delete: jest.fn().mockResolvedValue(1),
+        } as any);
+
+        const response = await request(app)
+            .delete(userDeleteLink)
+            .send();
+
+        // Assertions
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('user.success.delete');
+    });
 });
