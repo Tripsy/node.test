@@ -68,16 +68,6 @@ $ pnpm run dev
 - /providers - Reusable utilities, external integrations; Encapsulates infrastructure (e.g., Redis, DB connections)
 - /subscriber - Business logic, high-level functionality; Manages operations, workflows
 
-### Pino
-
-Levels:
-    trace (10),
-    debug (20),
-    info (30),
-    warn (40),
-    error (50),
-    fatal (60)
-
 ### TypeORM
 
 > **Warning**
@@ -130,19 +120,18 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 REVIEW AT THIS POINT
 
-1. build pino-transport-mysql - log.entity is created in /entities but add .ts
+1. build pino-transport-mysql
 2. test pino-transport-email
-3. Re-run migrations
-4. user-permission routes
-5. after permissions load > cache req.user ?!
-6. template.routes.ts && template.controller.ts
-7. once policy is set up for admin on read and find allow to included entries marked as deleted
-8. create cron checks: 
+3. user-permission routes
+4. after permissions load > cache req.user ?!
+5. template.routes.ts && template.controller.ts
+6. once policy is set up for admin on read and find allow to included entries marked as deleted
+7. create cron checks: 
     - daily - count errors in last 24 hours (group by label, count)
     - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
-9. Tests 
+8. Tests 
     - validators
    - controllers
        - permission.controller
@@ -150,12 +139,17 @@ REVIEW AT THIS POINT
        - output-handler.middleware
        - validate-params.middleware
    - providers
+9. CI/CD
 
-IDEAS
+# BUGS
+
+1. when tests run together pnpm run test --testTimeout=60000 they exceed timeout; the problem is not around the time but the app is not loading in functional tests
+
+# IDEAS
 
 1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
 2. https://expressjs.com/en/advanced/best-practice-performance.html
 3. router.param - Adds callback triggers to route parameters, where name is the name of the parameter and callback is the callback function
 
-TEMP
+# EMP
 

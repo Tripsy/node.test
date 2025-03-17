@@ -52,11 +52,11 @@ describe('AbstractPolicy', () => {
         });
 
         test('not allowed', () => {
-            expect(() => policy.create()).toThrow(NotAllowedError);
-            expect(() => policy.read()).toThrow(NotAllowedError);
-            expect(() => policy.update()).toThrow(NotAllowedError);
-            expect(() => policy.delete()).toThrow(NotAllowedError);
-            expect(() => policy.find()).toThrow(NotAllowedError);
+            expect(() => policy.create()).toThrow(UnauthorizedError);
+            expect(() => policy.read()).toThrow(UnauthorizedError);
+            expect(() => policy.update()).toThrow(UnauthorizedError);
+            expect(() => policy.delete()).toThrow(UnauthorizedError);
+            expect(() => policy.find()).toThrow(UnauthorizedError);
         });
     });
 
@@ -76,12 +76,12 @@ describe('AbstractPolicy', () => {
         });
 
         test('if authorized', () => {
-            expect(() => policy.create()).toThrow(UnauthorizedError);
-            expect(() => policy.read()).toThrow(UnauthorizedError);
+            expect(() => policy.create()).toThrow(NotAllowedError);
+            expect(() => policy.read()).toThrow(NotAllowedError);
             expect(() => policy.read('entity', 1)).not.toThrow();
-            expect(() => policy.update()).toThrow(UnauthorizedError);
-            expect(() => policy.delete()).toThrow(UnauthorizedError);
-            expect(() => policy.find()).toThrow(UnauthorizedError);
+            expect(() => policy.update()).toThrow(NotAllowedError);
+            expect(() => policy.delete()).toThrow(NotAllowedError);
+            expect(() => policy.find()).toThrow(NotAllowedError);
         });
     });
 
@@ -104,9 +104,9 @@ describe('AbstractPolicy', () => {
         test('if authorized', () => {
             expect(() => policy.create()).not.toThrow();
             expect(() => policy.read()).not.toThrow();
-            expect(() => policy.update()).toThrow(UnauthorizedError);
-            expect(() => policy.delete()).toThrow(UnauthorizedError);
-            expect(() => policy.find()).toThrow(UnauthorizedError);
+            expect(() => policy.update()).toThrow(NotAllowedError);
+            expect(() => policy.delete()).toThrow(NotAllowedError);
+            expect(() => policy.find()).toThrow(NotAllowedError);
         });
     });
 });
