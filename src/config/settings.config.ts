@@ -32,13 +32,22 @@ export const settings= {
     cache: {
         ttl: Number(process.env.EMAIL_JWT_EXPIRES_IN) || 60
     },
+    /**
+     * Log levels are defined in log-level.enum.ts
+     * For `app.env` === test OR `app.debug` === true logs will always be printed to console
+     * Below log level 30 can only be logged to a file
+     */
     pino: {
         logLevel: process.env.PINO_LOG_LEVEL || 'trace',
+        levelFile: ['debug', 'info', 'error', 'warn', 'fatal'],
+        levelDatabase: ['info', 'error', 'warn', 'fatal'],
+        levelEmail: ['error', 'fatal'],
         logEmail: process.env.PINO_LOG_EMAIL || '',
     },
     mail: {
         host: process.env.MAIL_HOST || '127.0.0.1',
         port: parseInt(process.env.MAIL_PORT || '2525', 10),
+        encryption: process.env.encryption || 'tls',
         username: process.env.MAIL_USERNAME || '',
         password: process.env.MAIL_PASSWORD || '',
         fromAddress: process.env.MAIL_FROM_ADDRESS || 'hello@example.com',

@@ -1,5 +1,5 @@
 import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, Index} from 'typeorm';
-import {PinoLevelEnum} from '../enums/pino-level.enum';
+import {LogLevelEnum} from '../enums/log-level.enum';
 
 @Entity('log_data')
 @Index('idx_log_data', ['created_at_date', 'level', 'category'])
@@ -7,15 +7,19 @@ export default class LogDataEntity {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})
     id!: number;
 
+    @Column('char', {length: 36, nullable: false})
+    @Index('IDX_log_data_pid')
+    pid!: string;
+
     @Column('varchar', {nullable: false})
     category!: string;
 
     @Column({
         type: 'enum',
-        enum: PinoLevelEnum,
+        enum: LogLevelEnum,
         nullable: false
     })
-    level!: PinoLevelEnum;
+    level!: LogLevelEnum;
 
     @Column('text')
     message?: string;

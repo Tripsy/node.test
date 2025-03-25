@@ -18,6 +18,7 @@ export function getEmailTransporter(): Transporter {
         emailTransporter = nodemailer.createTransport({
             host: settings.mail.host,
             port: settings.mail.port,
+            secure: settings.mail.encryption === 'ssl',
             auth: {
                 user: settings.mail.username,
                 pass: settings.mail.password

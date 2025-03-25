@@ -1,8 +1,38 @@
 import pino, {Logger} from 'pino';
 import {settings} from '../config/settings.config';
-import {buildSrcPath} from '../helpers/system.helper';
 import {v4 as uuid} from 'uuid';
 import {CallStackInterface} from '../interfaces/call-stack.interface';
+import {LogLevelEnum} from '../enums/log-level.enum';
+import {Writable} from 'stream';
+import {WriteStream} from 'fs';
+import {buildRootPath} from '../helpers/system.helper';
+import {EOL} from 'os';
+import pinoPretty from 'pino-pretty';
+import moment from 'moment';
+import LogDataRepository from '../repositories/log-data.repository';
+import LogDataEntity from '../entities/log-data.entity';
+import nodemailer from 'nodemailer';
+import {lang} from '../config/i18n-setup.config';
+import FileStreamRotator from 'file-stream-rotator';
+
+export function getLogLevel(level: number): LogLevelEnum {
+    switch (level) {
+        case 10:
+            return LogLevelEnum.TRACE;
+        case 20:
+            return LogLevelEnum.DEBUG;
+        case 30:
+            return LogLevelEnum.INFO;
+        case 40:
+            return LogLevelEnum.WARN;
+        case 50:
+            return LogLevelEnum.ERROR;
+        case 60:
+            return LogLevelEnum.FATAL;
+        default:
+            throw new Error(`Unknown log level: ${level}`);
+    }
+}
 
 function formatCallStack(stack: string, filtersForCallStack: string[] = []): CallStackInterface {
     const result: CallStackInterface = {
@@ -17,10 +47,9 @@ function formatCallStack(stack: string, filtersForCallStack: string[] = []): Cal
     let [, ...stackArray]: string[] = stack.split('\n').map(line => line.trim()); // The first line from the call stack is removed
 
     stackArray = stackArray.filter((item) => {
-            // Check if the item contains any of the words in combinedFilters
-            return !combinedFilters.some((word) => item.includes(word));
-        }
-    );
+        // Check if the item contains any of the words in combinedFilters
+        return !combinedFilters.some((word) => item.includes(word));
+    });
 
     if (stackArray.length > 0) {
         const match = stackArray[0].match(/at (?:([^ ]+) )?\(?(.+):(\d+):(\d+)\)?/);
@@ -40,29 +69,184 @@ function formatCallStack(stack: string, filtersForCallStack: string[] = []): Cal
     return result;
 }
 
-function targets() {
-    const targets = [];
+export class LogStream extends Writable {
+    // private fileStreams: Record<string, WriteStream> = {};
+    private fileStreams: Record<string, any> = {};
+    private fileStreamTimeouts: Record<string, NodeJS.Timeout> = {};
 
-    if (settings.app.debug) {
-        targets.push({
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
+    private getFileStream(level: LogLevelEnum): WriteStream {
+        if (!this.fileStreams[level]) {
+            this.fileStreams[level] = FileStreamRotator.getStream({
+                filename: buildRootPath('logs', `%DATE%-${level}.log`),
+                frequency: 'daily', // Rotate logs daily
+                // max_logs: '14d', // Keep logs for 14 days
+                date_format: 'YYYY-MM-DD',
+            });
+
+            // this.fileStreams[level] = fs.createWriteStream(buildRootPath('logs', level), {flags: 'a'});
+        }
+
+        // Reset timeout to keep the stream alive
+        if (this.fileStreamTimeouts[level]) {
+            clearTimeout(this.fileStreamTimeouts[level]);
+        }
+
+        // Close after 5 minutes of inactivity
+        this.fileStreamTimeouts[level] = setTimeout(() => {
+            this.fileStreams[level].end();
+            delete this.fileStreams[level];
+            delete this.fileStreamTimeouts[level];
+        }, 5 * 60 * 1000);
+
+        return this.fileStreams[level];
+    }
+
+    public async closeFileStreams() {
+        await Promise.all(
+            Object.values(this.fileStreams).map((stream) => {
+                return new Promise((resolve) => stream.end(resolve));
+            })
+        );
+
+        this.fileStreams = {};
+    }
+
+    private writeToFile(logLevel: LogLevelEnum, log: any) {
+        if (log.destinations.includes('file')) {
+            return;
+        }
+
+        const clonedLog = JSON.parse(JSON.stringify(log));
+
+        clonedLog.time = moment(log.time).format('HH:mm:ss Z');
+
+        delete clonedLog?.destinations; // Destinations were added to track log channels
+        delete clonedLog.level;
+
+        if (clonedLog.context?.debugStack?.trace) {
+            delete clonedLog.context.debugStack.trace;
+        }
+
+        // Reorder properties
+        const {time, msg, ...orderedLog} = clonedLog;
+
+        log.destinations.push('email');
+
+        // Mark log as sent
+        log.destinations.push('file');
+
+        this.getFileStream(logLevel).write(JSON.stringify({time, msg, ...orderedLog}) + EOL);
+    }
+
+    private writeToDatabase(logLevel: LogLevelEnum, log: any) {
+        if (log.destinations.includes('database')) {
+            return;
+        }
+
+        const clonedLog = JSON.parse(JSON.stringify(log));
+
+        const logData = new LogDataEntity();
+        logData.pid = clonedLog.pid;
+        logData.category = clonedLog.category ?? 'n/a';
+        logData.level = logLevel;
+        logData.message = clonedLog.msg;
+
+        if (clonedLog.context && clonedLog.context.debugStack) {
+            logData.debugStack = clonedLog.context.debugStack;
+            delete clonedLog.context.debugStack;
+        }
+
+        if (clonedLog.context) {
+            logData.context = clonedLog.context
+        }
+
+        // Mark log as sent
+        log.destinations.push('database');
+
+        LogDataRepository.save(logData).catch((error) => {
+            log.notes = 'Database write failed:' + error.message;
+
+            this.sendToEmail(logLevel, log);
+        });
+    }
+
+    private sendToEmail(logLevel: LogLevelEnum, log: any) {
+        if (log.destinations.includes('email')) {
+            return;
+        }
+
+        const emailTransporter = nodemailer.createTransport({
+            host: settings.mail.host,
+            port: settings.mail.port,
+            secure: settings.mail.encryption === 'ssl',
+            auth: {
+                user: settings.mail.username,
+                pass: settings.mail.password,
             },
-            level: settings.pino.logLevel,
-            sync: false,
+        });
+
+        const clonedLog = JSON.parse(JSON.stringify(log));
+
+        clonedLog.time = moment(log.time).format('HH:mm:ss Z');
+
+        delete clonedLog?.destinations; // Destinations were added to track log channels
+
+        // Mark log as sent
+        log.destinations.push('database');
+
+        emailTransporter.sendMail({
+            from: settings.mail.fromAddress,
+            to: settings.pino.logEmail,
+            subject: lang('debug.email_log_subject', {
+                app: settings.app.name,
+                level: logLevel,
+            }),
+            text: JSON.stringify(clonedLog)
+        }).catch((error) => {
+            log.notes = 'Email failed:' + error.message;
+
+            this.writeToFile(logLevel, log);
         });
     }
 
-    if (settings.app.env !== 'test') {
-        targets.push({
-            target: buildSrcPath('providers', 'pino-transports', 'log.transport.ts'),
-            level: 'info',
-        });
-    }
+    private pretty = pinoPretty({
+        colorize: true,  // Enables color output
+        translateTime: 'HH:MM:ss Z', // Optional: Formats timestamps
+        ignore: 'pid,hostname' // Optional: Hides unnecessary fields
+    });
 
-    return targets;
+    _write(chunk: any, _encoding: string, callback: () => void) {
+        try {
+            const chunkString = chunk.toString();
+            let log = JSON.parse(chunkString);
+            log.destinations = [];
+
+            if (settings.app.env === 'test' || settings.app.debug) {
+                this.pretty.write(chunkString);
+            }
+
+            const logLevel: LogLevelEnum = getLogLevel(log.level);
+
+            if (settings.pino.levelFile.includes(logLevel)) {
+                this.writeToFile(logLevel, log);
+            }
+
+            if (settings.pino.levelDatabase.includes(logLevel)) {
+                this.writeToDatabase(logLevel, log);
+            }
+
+            if (settings.pino.levelEmail.includes(logLevel)) {
+                this.sendToEmail(logLevel, log);
+            }
+        } catch (error) {
+            console.error('LogStream error:', error);
+        }
+
+        callback(); // Signals that writing is complete
+    }
 }
+
+const logStream = new LogStream();
 
 const logger = pino({
     // The minimum level to log: Pino will not log messages with a lower level.
@@ -74,6 +258,7 @@ const logger = pino({
     // Define default properties included in every log line.
     base: {
         pid: uuid(),
+        // pid: process.pid,
     },
     // Note: Attempting to format time in-process will significantly impact logging performance.
     // timestamp: pino.stdTimeFunctions.isoTime, // Format the timestamp as ISO 8601; default timestamp is the number of milliseconds elapsed since January 1, 1970 00:00:00 UTC
@@ -103,8 +288,6 @@ const logger = pino({
             ...context,
             debugStack: formatCallStack(new Error().stack || '', ['logger.provider.ts'])
         };
-
-        // if (['error', 'warn', 'fatal'].includes(logger.levels.labels[level]))
     },
     // Remove sensitive information from logs
     redact: {
@@ -122,10 +305,7 @@ const logger = pino({
             };
         },
     },
-}, pino.transport({
-    targets: targets(),
-    dedupe: false, //  When true - logs only to the stream with the higher level
-}))
+}, logStream);
 
 export function childLogger(logger: Logger, category: string) {
     return logger.child({
@@ -137,7 +317,8 @@ export const systemLogger: Logger = childLogger(logger, 'system');
 
 if (settings.app.env === 'test') {
     // systemLogger.debug = console.log;
-    systemLogger.debug = () => {};
+    systemLogger.debug = () => {
+    };
     systemLogger.error = console.error;
 }
 

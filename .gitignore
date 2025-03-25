@@ -37,6 +37,7 @@ Thumbs.db
 
 # Logs
 /logs/
+audit.json
 
 # Development files
 /temp.ts

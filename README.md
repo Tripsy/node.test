@@ -25,6 +25,12 @@
     - user.controller (create, read, update, delete, find, statusUpdate)
     - account.controller (register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate)
     - permission.controller (create, read, update, delete, find)
+    
+    TODO
+    - log-data.controller (read, delete, find)
+    - user-permission.controller (create, delete, find)
+    - template.controller (create, read, update, delete, find)
+      
 - [x] Tests (powered by Jest & Supertest)
 
 # Setup
@@ -121,17 +127,16 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 REVIEW AT THIS POINT
 
 1. build pino-transport-mysql
-2. test pino-transport-email
-3. user-permission routes
-4. after permissions load > cache req.user ?!
-5. template.routes.ts && template.controller.ts
-6. once policy is set up for admin on read and find allow to included entries marked as deleted
-7. create cron checks: 
+2. create cron checks:
     - daily - count errors in last 24 hours (group by label, count)
     - daily - checkOverlapping cron jobs based on expressionInterval
     - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
     - monthly - report unused cron jobs based on last_run_at
-8. Tests 
+3. once policy is set up for admin on read and find allow to included entries marked as deleted
+4. user-permission routes
+5. after permissions load > cache req.user ?!
+6. template.routes.ts && template.controller.ts
+7. Tests 
     - validators
    - controllers
        - permission.controller
@@ -139,7 +144,8 @@ REVIEW AT THIS POINT
        - output-handler.middleware
        - validate-params.middleware
    - providers
-9. CI/CD
+8. CI/CD
+9. test pino-transport-email
 
 # BUGS
 
@@ -150,6 +156,6 @@ REVIEW AT THIS POINT
 1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
 2. https://expressjs.com/en/advanced/best-practice-performance.html
 3. router.param - Adds callback triggers to route parameters, where name is the name of the parameter and callback is the callback function
+4. settings saved in DB
 
-# EMP
-
+# TEMP

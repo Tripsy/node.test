@@ -1,4 +1,4 @@
-import { Worker } from 'bullmq';
+import {Worker} from 'bullmq';
 import {settings} from '../config/settings.config';
 import {EmailQueueData, sendEmail, systemFrom} from '../providers/email.provider';
 import MailQueueRepository from '../repositories/mail-queue.repository';
@@ -7,7 +7,7 @@ import {MailQueueStatusEnum} from '../enums/mail-queue-status.enum';
 const emailWorker = new Worker(
     'emailQueue',
     async (job) => {
-        const { mailQueueId, emailContent, to, from } = job.data as EmailQueueData;
+        const {mailQueueId, emailContent, to, from} = job.data as EmailQueueData;
 
         try {
             await sendEmail(emailContent, to, from ?? systemFrom);

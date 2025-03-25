@@ -1,4 +1,4 @@
-export enum PinoLevelEnum {
+export enum LogLevelEnum {
     TRACE = 'trace', // 10
     DEBUG = 'debug', // 20
     INFO = 'info', // 30

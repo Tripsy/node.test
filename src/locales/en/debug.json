@@ -1,4 +1,5 @@
 {
 	"email_error": "Failed to send email with subject `{{subject}}` to `{{to}}` (eg: {{error}})",
-	"email_sent": "Email with subject `{{subject}}` sent successfully to `{{to}}`"
+	"email_sent": "Email with subject `{{subject}}` sent successfully to `{{to}}`",
+	"email_log_subject": "{{app}} - Log {{level}}"
 }
