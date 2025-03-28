@@ -1,4 +1,5 @@
 import net from 'net';
+import moment from 'moment';
 
 /**
  * Check if a string is a valid IP address
@@ -53,15 +54,20 @@ export function stringToDate(dateString: string): Date {
  * Convert a Date object to an ISO string
  *
  * @param {Date} date - The Date object to convert
+ * @param format
  * @returns {string} - The ISO string
  * @throws {Error} - If the Date object is invalid
  */
-export function dateToString(date: Date): string {
+export function dateToString(date: Date, format?: string): string {
     if (!isValidDateInstance(date)) {
         throw new Error(`Invalid date`);
     }
 
-    return date.toISOString()
+    if (format) {
+        return moment(date).format(format);
+    }
+
+    return date.toISOString();
 }
 
 /**
@@ -119,14 +125,14 @@ export function dateDiffInSeconds(date1: Date, date2: Date): number {
 }
 
 /**
- * Replace template variables in a string
+ * Replace variables in a string
  * Ex variables: {{key}}, {{Key}}, {{sub_key}}, {{key1}}
  *
  * @param {string} content - The string to replace template variables in
  * @param {Record<string, string>} vars - The template variables to replace
  * @returns {string} - The string with template variables replaced
  */
-export function replaceTemplateVars(content: string, vars: Record<string, string> = {}): string {
+export function replaceVars(content: string, vars: Record<string, string> = {}): string {
     return content.replace(/{{(\w+)}}/g, (_, key) => (key in vars ? vars[key] : `{{${key}}}`));
 }
 

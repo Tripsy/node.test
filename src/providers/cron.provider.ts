@@ -1,14 +1,17 @@
 import cron from 'node-cron';
-import {cleanAccountTokenCron} from '../cron-jobs/clean-account-token.cron';
+import {cleanAccountToken} from '../cron-jobs/clean-account-token.cron';
 import CronHistoryEntity from '../entities/cron-history.entity';
 import {CronHistoryStatusEnum} from '../enums/cron-history-status.enum';
 import CronHistoryRepository from '../repositories/cron-history.repository';
 import {dateDiffInSeconds} from '../helpers/utils.helper';
 import NotFoundError from '../exceptions/not-found.error';
 import logger, {childLogger} from './logger.provider';
-import {cleanAccountRecoveryCron} from '../cron-jobs/clean-account-recovery.cron';
+import {cleanAccountRecovery} from '../cron-jobs/clean-account-recovery.cron';
 import {workerMaintenance} from '../cron-jobs/worker-maintenance.cron';
 import {Logger} from 'pino';
+import {cronErrorCount} from '../cron-jobs/cron-error-count.cron';
+import {cronTimeCheck} from '../cron-jobs/cron-time-check.cron';
+import {cronWarningCount} from '../cron-jobs/cron-warning-count.cron';
 
 const cronLogger: Logger = childLogger(logger, 'cron');
 
@@ -61,18 +64,33 @@ async function executeCron(action: () => Promise<{}>, expectedRunTime: number) {
 
 const startCronJobs = () => {
     // Remove expired account tokens - every 3 hours at minute 2
-    cron.schedule('2 */3 * * *', async () => {
-        await executeCron(cleanAccountTokenCron, 1);
+    cron.schedule('02 */3 * * *', async () => {
+        await executeCron(cleanAccountToken, 1);
     });
 
     // Handle workers maintenance - every 6 hours at minute 4
-    cron.schedule('4 */6 * * *', async () => {
+    cron.schedule('04 */6 * * *', async () => {
         await executeCron(workerMaintenance, 1);
     });
 
-    // Remove expired recovery tokens - every 7 days at 03:00
-    cron.schedule('0 3 */7 * *', async () => {
-        await executeCron(cleanAccountRecoveryCron, 1);
+    // Report cron errors in last 24 hours - every day at 02:01
+    cron.schedule('01 02 * * *', async () => {
+        await executeCron(cronErrorCount, 1);
+    });
+
+    // Report cron warnings in last 7 days - every 7 days at 02:02
+    cron.schedule('02 02 * * *', async () => {
+        await executeCron(cronWarningCount, 1);
+    });
+
+    // Check if there are cron jobs starting at the same time - every day at 02:03
+    cron.schedule('03 02 * * *', async () => {
+        await executeCron(cronTimeCheck, 1);
+    });
+
+    // Remove expired recovery tokens - every 7 days at 02:04
+    cron.schedule('02 04 */7 * *', async () => {
+        await executeCron(cleanAccountRecovery, 1);
     });
 }
 

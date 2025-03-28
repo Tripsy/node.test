@@ -1,7 +1,6 @@
 import Mail from 'nodemailer/lib/mailer';
 import {settings} from '../config/settings.config';
-import {replaceTemplateVars} from '../helpers/utils.helper';
-import logger from './logger.provider';
+import logger, {systemLogger} from './logger.provider';
 import {lang} from '../config/i18n-setup.config';
 import nodemailer, {Transporter} from 'nodemailer';
 import TemplateRepository from '../repositories/template.repository';
@@ -10,6 +9,8 @@ import {EmailContent, EmailTemplate} from '../types/template.type';
 import MailQueueEntity from '../entities/mail-queue.entity';
 import MailQueueRepository from '../repositories/mail-queue.repository';
 import {baseLink} from '../config/init-routes.config';
+import templates from '../config/nunjucks.config';
+import {TemplateVars} from '../types/template-vars.type';
 
 let emailTransporter: Transporter | null = null;
 
@@ -68,20 +69,26 @@ export async function loadEmailTemplate(label: string, language: string): Promis
     };
 }
 
-export function prepareEmailContent(emailContent: EmailContent, vars: Record<string, string> = {}): EmailContent {
+export function prepareEmailContent(emailContent: EmailContent, vars: TemplateVars = {}): EmailContent {
     vars.currentYear = new Date().getFullYear().toString();
     vars.siteLink = baseLink();
 
-    return {
-        subject: replaceTemplateVars(emailContent.subject, vars),
-        text: emailContent.text ? replaceTemplateVars(emailContent.text, vars) : undefined,
-        html: replaceTemplateVars(emailContent.html, vars)
-    };
+    try {
+        return {
+            subject: templates.renderString(emailContent.subject, vars),
+            text: emailContent.text ? templates.renderString(emailContent.text, vars) : undefined,
+            html: templates.renderString(emailContent.html, vars)
+        };
+    } catch (error: Error | any) {
+        systemLogger.fatal(error, error.message);
+
+        throw new Error('Template render error');
+    }
 }
 
 export async function queueEmail(
     template: EmailTemplate,
-    vars: Record<string, string> = {},
+    vars: TemplateVars = {},
     to: Mail.Address,
     from?: Mail.Address
 ): Promise<void> {
@@ -106,13 +113,13 @@ export async function sendEmail(emailContent: EmailContent, to: Mail.Address, fr
             html: emailContent.html
         })
         .then(() => {
-            logger.debug(lang('debug.email_sent', {
+            systemLogger.debug(lang('debug.email_sent', {
                 subject: emailContent.subject,
                 to: to.address
             }));
         })
         .catch((error) => {
-            logger.error(error, lang('debug.email_error', {
+            systemLogger.error(error, lang('debug.email_error', {
                 subject: emailContent.subject,
                 to: to.address,
                 error: error.message

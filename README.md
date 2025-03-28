@@ -112,8 +112,9 @@ $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 - [BullMQ](https://docs.bullmq.io/)
 - [jest](https://jestjs.io/)
 - [supertest](https://www.npmjs.com/package/supertest)
+- [nunjucks](https://github.com/mozilla/nunjucks)
 
-# TETS
+# TESTS
 
 ```
 $ pnpm run test --testTimeout=60000
@@ -126,17 +127,12 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 REVIEW AT THIS POINT
 
-1. build pino-transport-mysql
-2. create cron checks:
-    - daily - count errors in last 24 hours (group by label, count)
-    - daily - checkOverlapping cron jobs based on expressionInterval
-    - weekly - count warnings in last 7 days (group by label, count, expectedRunTime, average run time)
-    - monthly - report unused cron jobs based on last_run_at
-3. once policy is set up for admin on read and find allow to included entries marked as deleted
-4. user-permission routes
-5. after permissions load > cache req.user ?!
-6. template.routes.ts && template.controller.ts
-7. Tests 
+1. update test for stringToDate
+2. once policy is set up for admin on read and find allow to included entries marked as deleted
+3. user-permission routes
+4. after permissions load > cache req.user ?!
+5. template.routes.ts && template.controller.ts
+6. Tests 
     - validators
    - controllers
        - permission.controller
@@ -144,8 +140,8 @@ REVIEW AT THIS POINT
        - output-handler.middleware
        - validate-params.middleware
    - providers
-8. CI/CD
-9. test pino-transport-email
+7. CI/CD
+8. test pino-transport-email
 
 # BUGS
 
@@ -157,5 +153,11 @@ REVIEW AT THIS POINT
 2. https://expressjs.com/en/advanced/best-practice-performance.html
 3. router.param - Adds callback triggers to route parameters, where name is the name of the parameter and callback is the callback function
 4. settings saved in DB
+5. cron hanging / delaying / semaphore ?!
 
 # TEMP
+
+
+const results = await cronHistoryRepository.query(`
+;
+`, [startDate, endDate, startDate, endDate]);

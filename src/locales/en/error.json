@@ -8,6 +8,8 @@
 	"params_at_least_one": "At least one parameter is required (eg: {{params}})",
 	"db_delete_one": "Failed to delete just one entry; Based on filters multiple entries were found",
 	"db_delete_missing_filter": "Failed to delete entries; No filter were provided",
+	"db_select_count_while_using_raw": "Cannot use count while using raw query",
+	"db_select_count_while_using_groups": "Cannot use count while using groups",
 	"nothing_to_delete": "Failed to delete entries; No entries were found",
-	"filter_date_format": "Invalid date format (eg: {{format}})"
+	"filter_date_format": "Invalid date format (eg: {{format}})",
 }

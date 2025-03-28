@@ -12,6 +12,7 @@ class AbstractQuery {
     protected entityAlias: string;
     protected query: SelectQueryBuilder<any>;
     protected hasFilter: boolean = false; // Flag used to signal if query builder filters have been applied in preparation for delete operations
+    protected hasGroup: boolean = false; // Flag used to signal if query builder groups have been applied
     protected contextData: EntityContextData | undefined;
 
     constructor(repository: Repository<any>, entityAlias: string) {
@@ -20,7 +21,15 @@ class AbstractQuery {
         this.query = repository.createQueryBuilder(this.entityAlias);
     }
 
-    consoleDebug(): this {
+    debugSql(): string {
+        return this.query.getSql();
+    }
+
+    debugParameters(): any {
+        return this.query.getParameters();
+    }
+
+    debugWriteToConsole(): this {
         console.log('SQL:', this.query.getSql());
         console.log('Parameters:', this.query.getParameters());
 
@@ -43,16 +52,18 @@ class AbstractQuery {
      * ex: ['user.id', 'user.name', 'user.email', 'user.status', 'user.created_at', 'user.updated_at']
      * ex: ['id', 'name', 'email', 'status', 'created_at', 'updated_at']
      */
-    select(fields: string[]): this {
-        // Define possible primary key variations
-        const primaryKeys = [`${this.entityAlias}.id`, 'id'];
+    select(fields: string[], autoAppendId: boolean = true): this {
+        if (autoAppendId) {
+            // Define possible primary key variations
+            const primaryKeys = [`${this.entityAlias}.id`, 'id'];
 
-        // Check if either 'id' or 'user.id' is already included
-        const hasPrimaryKey = fields.some(field => primaryKeys.includes(field));
+            // Check if either 'id' or 'user.id' is already included
+            const hasPrimaryKey = fields.some(field => primaryKeys.includes(field));
 
-        // If not present, add the fully qualified primary key
-        if (!hasPrimaryKey) {
-            fields.unshift(`${this.entityAlias}.id`);
+            // If not present, add the fully qualified primary key
+            if (!hasPrimaryKey) {
+                fields.unshift(`${this.entityAlias}.id`);
+            }
         }
 
         this.query.select(this.prefixFields(fields));
@@ -138,6 +149,16 @@ class AbstractQuery {
         return this;
     }
 
+    groupBy(column: string): this {
+        if (column) {
+            this.hasGroup = true;
+
+            this.query.addGroupBy(`${this.prepareColumn(column)}`);
+        }
+
+        return this;
+    }
+
     pagination(page: number = 1, limit: number = 10): this {
         this.query
             .skip((page - 1) * limit)
@@ -146,9 +167,21 @@ class AbstractQuery {
         return this;
     }
 
-    all(withCount: boolean = false) {
+    all(withCount: boolean = false, isRaw: boolean = false) {
         if (withCount) {
+            if (isRaw) {
+                throw new CustomError(500, lang('error.db_select_count_while_using_raw'));
+            }
+
+            if (this.hasGroup) {
+                throw new CustomError(500, lang('error.db_select_count_while_using_groups'));
+            }
+
             return this.query.getManyAndCount();
+        }
+
+        if (isRaw) {
+            return this.query.getRawMany();
         }
 
         return this.query.getMany();

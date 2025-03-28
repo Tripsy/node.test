@@ -52,6 +52,73 @@ const templateData = [
             text: 'Hello {{name}}. Your password has been changed. Mail sent in {{currentYear}}',
             html: '<p>Hello {{name}}. Your password has been changed. Mail sent in {{currentYear}}</p>'
         }
+    },
+    {
+        label: 'cron-error-count',
+        language: 'en',
+        type: TemplateTypeEnum.EMAIL,
+        content: {
+            subject: 'Cron error count',
+            text: 'In the last 24 hours there have been {{errorCount}} cron errors',
+            html: `
+                <p>In the last 24 hours there have been {{errorCount}} cron errors</p>
+                <p>Sql Query: {{querySql}}</p>
+                <p>Sql Params: {{queryParameters}}</p>
+            `
+        }
+    },
+    {
+        label: 'cron-warning-count',
+        language: 'en',
+        type: TemplateTypeEnum.EMAIL,
+        content: {
+            subject: 'Cron warning count',
+            text: 'In the last 7 days there have been {{warningCount}} cron warnings',
+            html: `
+                <p>In the last 7 days there have been {{warningCount}} cron warnings</p>
+                <p>Sql Query: {{querySql}}</p>
+                <p>Sql Params: {{queryParameters}}</p>
+                <p><table>
+                    <tr>
+                        <td>Label</td>
+                        <td>Occurences</td>
+                        <td>Average Run Time</td>
+                    </tr>
+                    {% for warning in warnings %}
+                        <tr>
+                            <td>{{warning.label}}</td>
+                            <td>{{warning.countOccurrences}}</td>
+                            <td>{{warning.avgRunTime}}</td>
+                        </tr>
+                    {% endfor %}
+                </table></p>
+            `
+        }
+    },
+    {
+        label: 'cron-time-check',
+        language: 'en',
+        type: TemplateTypeEnum.EMAIL,
+        content: {
+            subject: 'Cron time check',
+            text: 'Some cron run time overlapped in the last 24 hours',
+            html: `
+                <p>Some cron run time overlapped in the last 24 hours</p>
+                <p>Sql Query: {{ querySql }}</p>
+                <p>Sql Params: {{ queryParameters }}</p>
+                {% for key, row in results %}
+                    <p><strong>{{ row.date }}</strong></p>
+                    <table>
+                        {% for entry in row.entries %}
+                            <tr>
+                                <td>{{ entry.id }}</td>
+                                <td>{{ entry.label }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endfor %}
+            `
+        }
     }
 ];
 

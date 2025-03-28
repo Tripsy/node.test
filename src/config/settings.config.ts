@@ -3,6 +3,7 @@ import 'dotenv/config';
 export const settings= {
     app: {
         name: process.env.APP_NAME || 'sample-node-api',
+        email: process.env.APP_EMAIL || 'hello@example.com',
         env: process.env.APP_ENV || 'local',
         debug: process.env.APP_DEBUG === 'true',
         timezone: process.env.APP_TIMEZONE || 'UTC',

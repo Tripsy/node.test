@@ -9,11 +9,11 @@ import {buildRootPath} from '../helpers/system.helper';
 import {EOL} from 'os';
 import pinoPretty from 'pino-pretty';
 import moment from 'moment';
-import LogDataRepository from '../repositories/log-data.repository';
 import LogDataEntity from '../entities/log-data.entity';
 import nodemailer from 'nodemailer';
 import {lang} from '../config/i18n-setup.config';
 import FileStreamRotator from 'file-stream-rotator';
+import dataSource from '../config/data-source.config';
 
 export function getLogLevel(level: number): LogLevelEnum {
     switch (level) {
@@ -163,8 +163,8 @@ export class LogStream extends Writable {
         // Mark log as sent
         log.destinations.push('database');
 
-        LogDataRepository.save(logData).catch((error) => {
-            log.notes = 'Database write failed:' + error.message;
+        dataSource.manager.insert(LogDataEntity, logData).catch((error) => {
+            log.notes = 'Database write failed: ' + error.message;
 
             this.sendToEmail(logLevel, log);
         });
@@ -227,15 +227,15 @@ export class LogStream extends Writable {
 
             const logLevel: LogLevelEnum = getLogLevel(log.level);
 
-            if (settings.pino.levelFile.includes(logLevel)) {
+            if ((settings.pino.levelFile as LogLevelEnum[]).includes(logLevel)) {
                 this.writeToFile(logLevel, log);
             }
 
-            if (settings.pino.levelDatabase.includes(logLevel)) {
+            if ((settings.pino.levelDatabase as LogLevelEnum[]).includes(logLevel)) {
                 this.writeToDatabase(logLevel, log);
             }
 
-            if (settings.pino.levelEmail.includes(logLevel)) {
+            if ((settings.pino.levelEmail as LogLevelEnum[]).includes(logLevel)) {
                 this.sendToEmail(logLevel, log);
             }
         } catch (error) {

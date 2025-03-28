@@ -4,7 +4,7 @@ import {Server} from 'http';
 import helmet from 'helmet';
 import {corsHandler} from './middleware/cors-handler.middleware';
 import cookieParser from 'cookie-parser';
-import logger from './providers/logger.provider';
+import logger, {LogStream} from './providers/logger.provider';
 import {handle as i18nextMiddleware} from 'i18next-http-middleware';
 import i18next from './config/i18n-setup.config';
 import {outputHandler} from './middleware/output-handler.middleware';
@@ -99,6 +99,8 @@ export async function closeHandler(): Promise<void> {
 
         await destroyDatabase();
 
+        await new LogStream().closeFileStreams();
+
         logger.debug('All resources closed.');
     } catch (error) {
         logger.error('Error occurred while closing resources', error);
@@ -146,6 +148,7 @@ const shutdown = (server: Server, signal: string): void => {
 
 initializeApp().catch((error) => {
     logger.fatal(error, error.message);
+
     shutdown(server, 'INIT_FAIL');
 });
 
@@ -154,10 +157,12 @@ process.on('SIGINT', () => shutdown(server, 'SIGINT'));
 process.on('SIGTERM', () => shutdown(server, 'SIGTERM'));
 process.on('uncaughtException', (error) => {
     logger.fatal(error, 'Uncaught exception detected');
+
     shutdown(server, 'Uncaught Exception');
 });
 process.on('unhandledRejection', (reason, promise) => {
     logger.error({reason, promise}, 'Unhandled rejection detected');
+
     shutdown(server, 'Unhandled Rejection');
 });
 

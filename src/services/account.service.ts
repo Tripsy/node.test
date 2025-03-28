@@ -140,7 +140,7 @@ export async function sendEmailConfirmCreate(user: Partial<UserEntity> & {
 
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-create', user.language);
 
-    void queueEmail(
+    await queueEmail(
         emailTemplate,
         {
             'name': user.name,
@@ -164,7 +164,7 @@ export async function sendEmailConfirmUpdate(user: Partial<UserEntity> & {
 
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-update', user.language);
 
-    void queueEmail(
+    await queueEmail(
         emailTemplate,
         {
             'name': user.name,
@@ -185,7 +185,7 @@ export async function sendWelcomeEmail(user: Partial<UserEntity> & {
 }): Promise<void> {
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-welcome', user.language);
 
-    void queueEmail(
+    await queueEmail(
         emailTemplate,
         {
             'name': user.name

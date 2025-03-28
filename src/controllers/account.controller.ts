@@ -218,7 +218,7 @@ class AccountController {
 
         const emailTemplate: EmailTemplate = await loadEmailTemplate('password-recover', user.language || req.lang);
 
-        void queueEmail(
+        await queueEmail(
             emailTemplate,
             {
                 'name': user.name,
@@ -298,7 +298,7 @@ class AccountController {
 
         const emailTemplate: EmailTemplate = await loadEmailTemplate('password-change', user.language || req.lang);
 
-        void queueEmail(
+        await queueEmail(
             emailTemplate,
             {
                 'name': user.name

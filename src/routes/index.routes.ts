@@ -1,8 +1,6 @@
 import {Router, Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
 import {lang} from '../config/i18n-setup.config';
-import {replaceTemplateVars} from '../helpers/utils.helper';
-
 const routes: Router = Router();
 
 routes.get('/', asyncHandler(async (req: Request, res: Response) => {
@@ -11,8 +9,6 @@ routes.get('/', asyncHandler(async (req: Request, res: Response) => {
     // res.status(200); // The responseStatus code is by default 200
 
     // res.status(true); // The default value for success key is false; When responseStatus code is 200 force status to true (via raw())
-
-    const test = replaceTemplateVars("Hello {{name}}", {"name":"Gabriel David"});
 
     res.output.data({
         'lang': lang('user.validation.password_confirm_mismatch'),
