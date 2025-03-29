@@ -232,6 +232,35 @@ class AbstractQuery {
         return results.length;
     }
 
+    async restore(multiple: boolean = false, force: boolean = false): Promise<number> {
+        if (!force && !this.hasFilter) {
+            throw new CustomError(500, lang('error.db_restore_missing_filter'));
+        }
+
+        const results = await this.query.withDeleted().getMany();
+
+        if (results.length === 0) {
+            return 0;
+        }
+
+        if (!multiple && results.length > 1) {
+            throw new CustomError(500, lang('error.db_restore_one'));
+        }
+
+        const contextData: EntityContextData | undefined = this.getContextData();
+
+        // Set contextData for each entity
+        if (contextData !== undefined) {
+            results.forEach(entity => {
+                (entity as any).contextData = contextData;
+            });
+        }
+
+        results.map(entity => this.repository.restore(entity));
+
+        return results.length;
+    }
+
     filterBy(column: string, value?: string | number | null, operator: string = '='): this {
         if (value) {
             column = this.prepareColumn(column);

@@ -46,6 +46,16 @@ routes.delete(
     UserController.delete
 );
 
+// User - Restore
+routes.patch(
+    routesConfig.user.restore,
+    [
+        metaDocumentation('user', 'restore'),
+        validateParamsWhenId('id')
+    ],
+    UserController.restore
+);
+
 // User - Find
 routes.get(
     routesConfig.user.find,

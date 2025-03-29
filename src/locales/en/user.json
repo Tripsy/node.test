@@ -21,6 +21,7 @@
 		"create": "User created successfully",
 		"update": "User updated successfully",
 		"delete": "User deleted successfully",
+		"restore": "User restored successfully",
 		"status_update": "User status updated successfully"
 	},
 	"history": {
@@ -28,6 +29,7 @@
 		"updated": "User #{{id}} updated",
 		"deleted": "User #{{id}} has been marked as deleted",
 		"removed": "User #{{id}} has been removed",
+		"restored": "User #{{id}} has been restored",
 		"status": "User #{{id}} updated from {{oldStatus}} to {{newStatus}}",
 		"password_change": "Password changed for user #{{id}}"
 	}

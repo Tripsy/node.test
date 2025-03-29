@@ -261,7 +261,7 @@ describe('UserController - delete', () => {
         jest.spyOn(UserPolicy.prototype, 'isAuthenticated').mockReturnValue(false);
 
         const response = await request(app)
-            .get(userDeleteLink)
+            .delete(userDeleteLink)
             .send();
 
         // Assertions
@@ -281,5 +281,37 @@ describe('UserController - delete', () => {
         // Assertions
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('user.success.delete');
+    });
+});
+
+describe('UserController - restore', () => {
+    const userRestoreLink = routeLink('user.restore', {
+        id: 1,
+    }, false);
+
+    it('should fail if not authenticated', async () => {
+        jest.spyOn(UserPolicy.prototype, 'isAuthenticated').mockReturnValue(false);
+
+        const response = await request(app)
+            .patch(userRestoreLink)
+            .send();
+
+        // Assertions
+        expect(response.status).toBe(401);
+    });
+
+    it('should return success', async () => {
+        jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+            filterById: jest.fn().mockReturnThis(),
+            restore: jest.fn().mockResolvedValue(1),
+        } as any);
+
+        const response = await request(app)
+            .patch(userRestoreLink)
+            .send();
+
+        // Assertions
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('user.success.restore');
     });
 });

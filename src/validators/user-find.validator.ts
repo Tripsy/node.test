@@ -68,6 +68,9 @@ const UserFindValidator = z
                     message: lang('error.filter_date_format', {format: settings.filter.dateFormatLiteral}),
                 })
                 .optional(),
+            is_deleted: z
+                .boolean({message: lang('error.filter_boolean')})
+                .default(false),
         })
     });
 

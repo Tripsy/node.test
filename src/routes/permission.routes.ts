@@ -45,6 +45,16 @@ routes.delete(
     PermissionController.delete
 );
 
+// Permission - Restore
+routes.patch(
+    routesConfig.permission.restore,
+    [
+        metaDocumentation('permission', 'restore'),
+        validateParamsWhenId('id')
+    ],
+    PermissionController.restore
+);
+
 // Permission - Find
 routes.get(
     routesConfig.permission.find,

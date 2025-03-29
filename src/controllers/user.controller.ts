@@ -31,6 +31,7 @@ class UserController {
 
         const existingUser = await UserRepository.createQuery()
             .filterByEmail(validated.data.email)
+            .withDeleted(policy.allowDeleted())
             .first();
 
         if (existingUser) {
@@ -143,15 +144,26 @@ class UserController {
         // Check permission (admin or operator with permission)
         policy.delete();
 
-        const countDeleted = await UserRepository.createQuery()
+        await UserRepository.createQuery()
             .filterById(res.locals.validated.id)
             .delete();
 
-        if (countDeleted === 0) {
-            res.output.message(lang('error.nothing_to_delete'));
-        } else {
-            res.output.message(lang('user.success.delete'));
-        }
+        res.output.message(lang('user.success.delete'));
+
+        res.json(res.output);
+    });
+
+    public restore = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new UserPolicy(req);
+
+        // Check permission (admin or operator with permission)
+        policy.restore();
+
+        await UserRepository.createQuery()
+            .filterById(res.locals.validated.id)
+            .restore();
+
+        res.output.message(lang('user.success.restore'));
 
         res.json(res.output);
     });
@@ -180,6 +192,7 @@ class UserController {
             .filterBy('email', validated.data.filter.email, 'LIKE')
             .filterByStatus(validated.data.filter.status)
             .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
+            .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
             // .consoleDebug()

@@ -21,18 +21,27 @@ export function logHistory(entity: string, action: string, replacements: Record<
  * `removeOperation` can be used instead and triggered on delete operations
  */
 
-type RemoveOperationData = {
+type OperationData = {
     entity: string,
     id: number,
     userId?: number
 }
 
-export function removeOperation(data: RemoveOperationData, isSoftDelete: boolean = false) {
+export function removeOperation(data: OperationData, isSoftDelete: boolean = false) {
     const action: string = isSoftDelete ? 'deleted' : 'removed';
 
     cacheClean(data.entity, data.id);
 
     logHistory(data.entity, action, {
+        id: data.id.toString(),
+        userId: data.userId?.toString() || '0'
+    });
+}
+
+export function restoreOperation(data: OperationData) {
+    cacheClean(data.entity, data.id);
+
+    logHistory(data.entity, 'restored', {
         id: data.id.toString(),
         userId: data.userId?.toString() || '0'
     });

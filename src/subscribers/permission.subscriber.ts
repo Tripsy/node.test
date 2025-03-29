@@ -4,11 +4,18 @@ import {
     InsertEvent,
     UpdateEvent,
     RemoveEvent,
-    SoftRemoveEvent
+    SoftRemoveEvent,
+    RecoverEvent
 } from 'typeorm';
 import PermissionEntity from '../entities/permission.entity';
 import {PermissionQuery} from '../repositories/permission.repository';
-import {cacheClean, getUserIdFromContext, logHistory, removeOperation} from '../helpers/subscriber.helper';
+import {
+    cacheClean,
+    getUserIdFromContext,
+    logHistory,
+    removeOperation,
+    restoreOperation
+} from '../helpers/subscriber.helper';
 
 @EventSubscriber()
 export class PermissionSubscriber implements EntitySubscriberInterface<PermissionEntity> {
@@ -45,6 +52,17 @@ export class PermissionSubscriber implements EntitySubscriberInterface<Permissio
             id: event.entity.id,
             userId: getUserIdFromContext(event.entity?.contextData)
         }, true);
+    }
+
+    /**
+     * This method is triggered after an entity is restored.
+     */
+    afterRecover(event: RecoverEvent<any>): void {
+        restoreOperation({
+            entity: PermissionQuery.entityAlias,
+            id: event.entity.id,
+            userId: getUserIdFromContext(event.entity?.contextData)
+        });
     }
 
     async afterInsert(event: InsertEvent<PermissionEntity>) {

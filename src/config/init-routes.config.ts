@@ -10,6 +10,7 @@ export const routesConfig = {
         read: '/users/:id',
         update: '/users/:id',
         delete: '/users/:id',
+        restore: '/users/:id/restore',
         find: '/users',
         updateStatus: '/users/:id/status/:status',
     },
@@ -29,12 +30,14 @@ export const routesConfig = {
         read: '/permissions/:id',
         update: '/permissions/:id',
         delete: '/permissions/:id',
+        restore: '/permissions/:id/restore',
         find: '/permissions',
     },
     userPermission : {
         create: '/users/:userId/permissions',
         update: '/users/:userId/permissions/:id',
         delete: '/users/:userId/permissions/:id',
+        restore: '/permissions/:id/restore',
         find: '/users/:userId/permissions'
     }
 };

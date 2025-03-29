@@ -51,7 +51,7 @@ const PermissionFindValidator = z
                     }),
                 })
                 .optional(),
-            isDeleted: z
+            is_deleted: z
                 .boolean({message: lang('error.filter_boolean')})
                 .default(false),
         })

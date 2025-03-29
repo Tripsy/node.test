@@ -62,6 +62,14 @@ class AbstractPolicy {
     }
 
     /**
+     * Returns `true` if the user is admin or has the `delete` permission on selected entity
+     * This method is used to allow view of soft deleted resources
+     */
+    public allowDeleted(): boolean {
+        return this.isAdmin() || this.hasPermission(this.permission('delete', this.entity));
+    }
+
+    /**
      * Check if user is allowed to perform the operation
      * Returns `true` if the user is admin or the user is the owner of the resource or owns the permission
      */
@@ -115,6 +123,16 @@ class AbstractPolicy {
         if (!this.isAllowed(permission, user_id)) {
             throw new NotAllowedError();
         }
+    }
+
+    /**
+     * Restore action is the same as delete
+     *
+     * @param entity
+     * @param user_id
+     */
+    public restore(entity?: string, user_id?: number): void {
+        this.delete(entity, user_id);
     }
 
     public find(entity?: string): void {

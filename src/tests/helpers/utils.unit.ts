@@ -2,7 +2,7 @@ import {
     createFutureDate, createPastDate, dateDiffInSeconds,
     dateToString,
     isValidDate,
-    isValidDateInstance, isValidIp, replaceTemplateVars,
+    isValidDateInstance, isValidIp, replaceVars,
     stringToDate
 } from '../../helpers/utils.helper';
 
@@ -91,16 +91,22 @@ describe('helpers/utils.helper.ts - Unit Tests', () => {
     });
 
     describe('dateToString', () => {
+        it('should throw an error if for invalid date', () => {
+            const invalidDate = new Date('invalid-date');
+
+            expect(() => dateToString(invalidDate)).toThrow(`Invalid date`);
+        });
+
         it('should convert a Date object to an ISO string', () => {
             const date = new Date('2023-10-01T12:00:00.000Z');
 
             expect(dateToString(date)).toBe('2023-10-01T12:00:00.000Z');
         });
 
-        it('should throw an error if for invalid date', () => {
-            const invalidDate = new Date('invalid-date');
+        it('should convert a Date object to a specific format', () => {
+            const date = new Date('2023-10-01T12:00:00.000Z');
 
-            expect(() => dateToString(invalidDate)).toThrow(`Invalid date`);
+            expect(dateToString(date, 'YYYY-MM-DD')).toBe('2023-10-01');
         });
     });
 
@@ -140,25 +146,25 @@ describe('helpers/utils.helper.ts - Unit Tests', () => {
         });
     });
 
-    describe('replaceTemplateVars', () => {
+    describe('replaceVars', () => {
         it('should replace template variables with provided values', () => {
             const content = 'Hello, {{name}}! Welcome to {{place}}.';
             const vars = {name: 'John', place: 'Earth'};
 
-            expect(replaceTemplateVars(content, vars)).toBe('Hello, John! Welcome to Earth.');
+            expect(replaceVars(content, vars)).toBe('Hello, John! Welcome to Earth.');
         });
 
         it('should leave unmatched template variables unchanged', () => {
             const content = 'Hello, {{name}}! Welcome to {{place}}.';
             const vars = {name: 'John'}; // 'place' is missing
 
-            expect(replaceTemplateVars(content, vars)).toBe('Hello, John! Welcome to {{place}}.');
+            expect(replaceVars(content, vars)).toBe('Hello, John! Welcome to {{place}}.');
         });
 
         it('should leave all template variables unchanged if no variables are provided', () => {
             const content = 'Hello, {{name}}! Welcome to {{place}}.';
 
-            expect(replaceTemplateVars(content)).toBe('Hello, {{name}}! Welcome to {{place}}.');
+            expect(replaceVars(content)).toBe('Hello, {{name}}! Welcome to {{place}}.');
         });
     });
 

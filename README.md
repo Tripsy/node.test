@@ -127,8 +127,8 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 REVIEW AT THIS POINT
 
-1. update test for stringToDate
-2. once policy is set up for admin on read and find allow to included entries marked as deleted
+1. for user-controller we need context data - user id to be applied in history - see pemission.subscriber for example
+2. test restore and see if subscriber is triggered
 3. user-permission routes
 4. after permissions load > cache req.user ?!
 5. template.routes.ts && template.controller.ts

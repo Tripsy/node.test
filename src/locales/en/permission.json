@@ -15,8 +15,9 @@
 	},
 	"history": {
 		"created": "Permission #{{id}} created by user #{{userId}}",
-		"updated": "User #{{id}} updated by user #{{userId}}",
-		"deleted": "User #{{id}} has been marked as deleted by user #{{userId}}",
-		"removed": "User #{{id}} has been removed by user #{{userId}}"
+		"updated": "Permission #{{id}} updated by user #{{userId}}",
+		"deleted": "Permission #{{id}} has been marked as deleted by user #{{userId}}",
+		"removed": "Permission #{{id}} has been removed by user #{{userId}}",
+		"restored": "Permission #{{id}} has been restored by user #{{userId}}"
 	}
 }

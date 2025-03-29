@@ -78,7 +78,7 @@ class PermissionController {
             return PermissionRepository
                 .createQuery()
                 .filterById(res.locals.validated.id)
-                .withDeleted()
+                .withDeleted(policy.allowDeleted())
                 .firstOrFail();
         });
 
@@ -151,6 +151,24 @@ class PermissionController {
         res.json(res.output);
     });
 
+    public restore = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new PermissionPolicy(req);
+
+        // Check permission (admin or operator with permission)
+        policy.restore();
+
+        await PermissionRepository.createQuery()
+            .filterById(res.locals.validated.id)
+            .setContextData({
+                user_id: policy.getUserId()
+            })
+            .restore();
+
+        res.output.message(lang('permission.success.restore'));
+
+        res.json(res.output);
+    });
+
     public find = asyncHandler(async (req: Request, res: Response) => {
         const policy = new PermissionPolicy(req);
 
@@ -170,7 +188,7 @@ class PermissionController {
             .filterById(validated.data.filter.id)
             .filterBy('entity', validated.data.filter.entity, 'LIKE')
             .filterBy('operation', validated.data.filter.operation, 'LIKE')
-            .withDeleted(validated.data.filter.isDeleted)
+            .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
             .all(true);
