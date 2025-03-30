@@ -9,8 +9,12 @@ const templateData = [
         type: TemplateTypeEnum.EMAIL,
         content: {
             subject: 'Confirm your email',
-            text: 'Please confirm your email by clicking on the following link: {{link}}',
-            html: '<p>Please confirm your email by clicking on the following link: {{link}}</p>'
+            html: `
+                <p>
+                    Please confirm your email by clicking on the following  <a href="{{ link }}">link</a>.
+                </p>
+            `,
+            layout: 'layout-default'
         }
     },
     {
@@ -19,8 +23,12 @@ const templateData = [
         type: TemplateTypeEnum.EMAIL,
         content: {
             subject: 'Confirm your email',
-            text: 'Please confirm your email by clicking on the following link: {{link}}',
-            html: '<p>Please confirm your email by clicking on the following link: {{link}}</p>'
+            html: `
+                <p>
+                    Please confirm your email by clicking on the following  <a href="{{ link }}">link</a>.
+                </p>
+            `,
+            layout: 'layout-default'
         }
     },
     {
@@ -29,8 +37,10 @@ const templateData = [
         type: TemplateTypeEnum.EMAIL,
         content: {
             subject: 'Welcome',
-            text: 'Hello {{name}}',
-            html: '<p>Hello {{name}}</p>'
+            html: `
+                <p>Hello {{ name }}</p>
+            `,
+            layout: 'layout-default'
         }
     },
     {
@@ -39,8 +49,10 @@ const templateData = [
         type: TemplateTypeEnum.EMAIL,
         content: {
             subject: 'Recover password',
-            text: 'Hello {{name}}. Your recover ident is {{ident}} which will expire at {{expire_at}}. Mail sent in {{currentYear}}',
-            html: '<p>Hello {{name}}. Your recover ident is {{ident}} which will expire at {{expire_at}}. Mail sent in {{currentYear}}</p>'
+            html: `
+                <p>Hello {{ name }}. Your recover ident is {{ ident }} which will expire at {{ expire_at }}.</p>
+            `,
+            layout: 'layout-default'
         }
     },
     {
@@ -49,8 +61,10 @@ const templateData = [
         type: TemplateTypeEnum.EMAIL,
         content: {
             subject: 'Password changed',
-            text: 'Hello {{name}}. Your password has been changed. Mail sent in {{currentYear}}',
-            html: '<p>Hello {{name}}. Your password has been changed. Mail sent in {{currentYear}}</p>'
+            html: `
+                <p>Hello {{ name }}. Your password has been changed.</p>
+            `,
+            layout: 'layout-default'
         }
     },
     {
@@ -59,12 +73,12 @@ const templateData = [
         type: TemplateTypeEnum.EMAIL,
         content: {
             subject: 'Cron error count',
-            text: 'In the last 24 hours there have been {{errorCount}} cron errors',
             html: `
-                <p>In the last 24 hours there have been {{errorCount}} cron errors</p>
-                <p>Sql Query: {{querySql}}</p>
-                <p>Sql Params: {{queryParameters}}</p>
-            `
+                <p>In the last 24 hours there have been {{ errorCount }} cron errors</p>
+                <p>Sql Query: {{ querySql }}</p>
+                <p>Sql Params: {{ queryParameters }}</p>
+            `,
+            layout: 'layout-default'
         }
     },
     {
@@ -73,26 +87,28 @@ const templateData = [
         type: TemplateTypeEnum.EMAIL,
         content: {
             subject: 'Cron warning count',
-            text: 'In the last 7 days there have been {{warningCount}} cron warnings',
             html: `
-                <p>In the last 7 days there have been {{warningCount}} cron warnings</p>
-                <p>Sql Query: {{querySql}}</p>
-                <p>Sql Params: {{queryParameters}}</p>
-                <p><table>
-                    <tr>
-                        <td>Label</td>
-                        <td>Occurences</td>
-                        <td>Average Run Time</td>
-                    </tr>
-                    {% for warning in warnings %}
+                <p>In the last 7 days there have been {{ warningCount }} cron warnings</p>
+                <p>Sql Query: {{ querySql }}</p>
+                <p>Sql Params: {{ queryParameters }}</p>
+                <p>
+                    <table width="100%" border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; margin-top: 20px;">
                         <tr>
-                            <td>{{warning.label}}</td>
-                            <td>{{warning.countOccurrences}}</td>
-                            <td>{{warning.avgRunTime}}</td>
-                        </tr>
-                    {% endfor %}
-                </table></p>
-            `
+                            <th style="background-color: #2E8B57; color: #ffffff;">Label</th>
+                            <th style="background-color: #2E8B57; color: #ffffff;">Occurrences</th>
+                            <th style="background-color: #2E8B57; color: #ffffff;">Average Run Time</th>
+                        </tr>                        
+                        {% for warning in warnings %}
+                            <tr>
+                                <td>{{ warning.label }}</td>
+                                <td>{{ warning.countOccurrences }}</td>
+                                <td>{{ warning.avgRunTime }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </p>
+            `,
+            layout: 'layout-default'
         }
     },
     {
@@ -101,14 +117,13 @@ const templateData = [
         type: TemplateTypeEnum.EMAIL,
         content: {
             subject: 'Cron time check',
-            text: 'Some cron run time overlapped in the last 24 hours',
             html: `
                 <p>Some cron run time overlapped in the last 24 hours</p>
                 <p>Sql Query: {{ querySql }}</p>
                 <p>Sql Params: {{ queryParameters }}</p>
                 {% for key, row in results %}
                     <p><strong>{{ row.date }}</strong></p>
-                    <table>
+                    <table width="100%" border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; margin-top: 20px;">
                         {% for entry in row.entries %}
                             <tr>
                                 <td>{{ entry.id }}</td>
@@ -117,7 +132,8 @@ const templateData = [
                         {% endfor %}
                     </table>
                 {% endfor %}
-            `
+            `,
+            layout: 'layout-default'
         }
     }
 ];

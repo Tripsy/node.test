@@ -1,6 +1,6 @@
 import Mail from 'nodemailer/lib/mailer';
 import {settings} from '../config/settings.config';
-import logger, {systemLogger} from './logger.provider';
+import  {systemLogger} from './logger.provider';
 import {lang} from '../config/i18n-setup.config';
 import nodemailer, {Transporter} from 'nodemailer';
 import TemplateRepository from '../repositories/template.repository';
@@ -8,7 +8,6 @@ import {TemplateTypeEnum} from '../enums/template-type.enum';
 import {EmailContent, EmailTemplate} from '../types/template.type';
 import MailQueueEntity from '../entities/mail-queue.entity';
 import MailQueueRepository from '../repositories/mail-queue.repository';
-import {baseLink} from '../config/init-routes.config';
 import templates from '../config/nunjucks.config';
 import {TemplateVars} from '../types/template-vars.type';
 
@@ -63,21 +62,26 @@ export async function loadEmailTemplate(label: string, language: string): Promis
         language: template.language,
         emailContent: {
             subject: template.content.subject,
-            text: template.content.text,
-            html: template.content.html
-        }
+            text: template.content.text || undefined,
+            html: template.content.html,
+            layout: template.content.layout || undefined,
+        },
     };
 }
 
-export function prepareEmailContent(emailContent: EmailContent, vars: TemplateVars = {}): EmailContent {
-    vars.currentYear = new Date().getFullYear().toString();
-    vars.siteLink = baseLink();
-
+export function prepareEmailContent(language: string, content: EmailContent, vars: TemplateVars = {}): EmailContent {
     try {
+        const emailSubject = templates.renderString(content.subject, vars);
+        const emailContent = templates.renderString(content.html, vars);
+
         return {
-            subject: templates.renderString(emailContent.subject, vars),
-            text: emailContent.text ? templates.renderString(emailContent.text, vars) : undefined,
-            html: templates.renderString(emailContent.html, vars)
+            subject: emailSubject,
+            // text: emailContent.text ? templates.renderString(emailContent.text, vars) : undefined,
+            html: content.layout ? templates.render('emails/' + content.layout + '.html', {
+                language: language,
+                emailSubject: emailSubject,
+                emailContent: emailContent
+            }) : emailContent
         };
     } catch (error: Error | any) {
         systemLogger.fatal(error, error.message);

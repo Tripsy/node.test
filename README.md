@@ -125,13 +125,11 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. for user-controller we need context data - user id to be applied in history - see pemission.subscriber for example
-2. test restore and see if subscriber is triggered
-3. user-permission routes - user-permission.controller (create, delete, find)
-4. after permissions load > cache req.user ?!
-5. log-data.controller (read, delete, find)
-6. template.controller (create, read, update, delete, find)
-7. Tests 
+1. user-permission routes - user-permission.controller (create, delete, find)
+2. after permissions load > cache req.user ?!
+3. log-data.controller (read, delete, find)
+4. template.controller (create, read, update, delete, find)
+5. Tests 
     - validators
    - controllers
        - permission.controller
@@ -140,7 +138,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
        - validate-params.middleware
    - providers
 
-REVIEW AT THIS POINT > run tests and review Postman     
+REVIEW AT THIS POINT
 
 # BUGS
 
@@ -156,3 +154,17 @@ REVIEW AT THIS POINT > run tests and review Postman
 6. CI/CD
 
 # TEMP
+
+{% extends "base.html" %}
+
+{% block header %}
+  <h1>{{ title }}</h1>
+  {% endblock %}
+
+{% block content %}
+  <ul>
+    {% for name, item in items %}
+    <li>{{ name }}: {{ item }}</li>
+    {% endfor %}
+  </ul>
+  {% endblock %}      

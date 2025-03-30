@@ -20,7 +20,7 @@ export class MailQueueSubscriber implements EntitySubscriberInterface<MailQueueE
     async afterInsert(event: InsertEvent<MailQueueEntity>) {
         const emailQueueData: EmailQueueData = {
             mailQueueId: event.entity.id,
-            emailContent: prepareEmailContent(event.entity.content, event.entity.vars),
+            emailContent: prepareEmailContent(event.entity.language, event.entity.content, event.entity.vars),
             to: event.entity.to as Mail.Address,
             from: event.entity.from as Mail.Address | null
         };
