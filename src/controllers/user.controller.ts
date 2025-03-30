@@ -48,6 +48,11 @@ class UserController {
             user.language = validated.data.language;
         }
 
+        // Set `contextData` for usage in subscriber
+        user.contextData = {
+            auth_id: policy.getUserId()
+        };
+
         const entry: UserEntity = await UserRepository.save(user);
 
         res.output.data(entry);
@@ -130,6 +135,11 @@ class UserController {
             }
         }
 
+        // Set `contextData` for usage in subscriber
+        updatedUser.contextData = {
+            auth_id: policy.getUserId()
+        };
+
         await UserRepository.save(updatedUser);
 
         res.output.message(lang('user.success.update'));
@@ -146,6 +156,9 @@ class UserController {
 
         await UserRepository.createQuery()
             .filterById(res.locals.validated.id)
+            .setContextData({
+                auth_id: policy.getUserId()
+            })
             .delete();
 
         res.output.message(lang('user.success.delete'));
@@ -161,6 +174,9 @@ class UserController {
 
         await UserRepository.createQuery()
             .filterById(res.locals.validated.id)
+            .setContextData({
+                auth_id: policy.getUserId()
+            })
             .restore();
 
         res.output.message(lang('user.success.restore'));
@@ -230,6 +246,11 @@ class UserController {
         }
 
         user.status = res.locals.validated.status;
+
+        // Set `contextData` for usage in subscriber
+        user.contextData = {
+            auth_id: policy.getUserId()
+        };
 
         await UserRepository.save(user);
 

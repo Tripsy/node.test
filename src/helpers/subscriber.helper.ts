@@ -24,7 +24,7 @@ export function logHistory(entity: string, action: string, replacements: Record<
 type OperationData = {
     entity: string,
     id: number,
-    userId?: number
+    auth_id?: number
 }
 
 export function removeOperation(data: OperationData, isSoftDelete: boolean = false) {
@@ -34,7 +34,7 @@ export function removeOperation(data: OperationData, isSoftDelete: boolean = fal
 
     logHistory(data.entity, action, {
         id: data.id.toString(),
-        userId: data.userId?.toString() || '0'
+        auth_id: data.auth_id?.toString() || '0'
     });
 }
 
@@ -43,10 +43,10 @@ export function restoreOperation(data: OperationData) {
 
     logHistory(data.entity, 'restored', {
         id: data.id.toString(),
-        userId: data.userId?.toString() || '0'
+        auth_id: data.auth_id?.toString() || '0'
     });
 }
 
-export function getUserIdFromContext(contextData?: EntityContextData): number {
-    return Number(contextData?.user_id) || 0;
+export function getAuthIdFromContext(contextData?: EntityContextData): number {
+    return Number(contextData?.auth_id) || 0;
 }

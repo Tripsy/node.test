@@ -38,7 +38,7 @@ class PermissionController {
             if (existingPermission.deleted_at) {
                 // Set `contextData` for usage in subscriber
                 existingPermission.contextData = {
-                    user_id: policy.getUserId()
+                    auth_id: policy.getUserId()
                 };
 
                 await PermissionRepository.restore(existingPermission.id);
@@ -55,7 +55,7 @@ class PermissionController {
 
             // Set `contextData` for usage in subscriber
             permission.contextData = {
-                user_id: policy.getUserId()
+                auth_id: policy.getUserId()
             };
 
             const entry: PermissionEntity = await PermissionRepository.save(permission);
@@ -123,7 +123,7 @@ class PermissionController {
 
         // Set `contextData` for usage in subscriber
         permission.contextData = {
-            user_id: policy.getUserId()
+            auth_id: policy.getUserId()
         };
 
         await PermissionRepository.save(permission);
@@ -142,7 +142,7 @@ class PermissionController {
         await PermissionRepository.createQuery()
             .filterById(res.locals.validated.id)
             .setContextData({
-                user_id: policy.getUserId()
+                auth_id: policy.getUserId()
             })
             .delete();
 
@@ -160,7 +160,7 @@ class PermissionController {
         await PermissionRepository.createQuery()
             .filterById(res.locals.validated.id)
             .setContextData({
-                user_id: policy.getUserId()
+                auth_id: policy.getUserId()
             })
             .restore();
 

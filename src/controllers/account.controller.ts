@@ -395,6 +395,7 @@ class AccountController {
         if (payload.user_email_new) {
             // Confirm procedure for email update
             user.email = payload.user_email_new;
+
             await UserRepository.save(user);
 
             res.output.message(lang('account.success.email_updated'));
@@ -409,6 +410,7 @@ class AccountController {
 
             // Update user status
             user.status = UserStatusEnum.ACTIVE;
+
             await UserRepository.save(user);
 
             res.output.message(lang('account.success.email_confirmed'));

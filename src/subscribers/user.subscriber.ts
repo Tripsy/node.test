@@ -4,15 +4,21 @@ import {
     InsertEvent,
     UpdateEvent,
     RemoveEvent,
-    SoftRemoveEvent
+    SoftRemoveEvent,
+    RecoverEvent
 } from 'typeorm';
 import UserEntity from '../entities/user.entity';
 import {encryptPassword, sendEmailConfirmCreate, sendWelcomeEmail} from '../services/account.service';
 import {UserQuery} from '../repositories/user.repository';
-import {cacheClean, getUserIdFromContext, logHistory, removeOperation} from '../helpers/subscriber.helper';
+import {
+    cacheClean,
+    getAuthIdFromContext,
+    logHistory,
+    removeOperation,
+    restoreOperation
+} from '../helpers/subscriber.helper';
 import {settings} from '../config/settings.config';
 import {UserStatusEnum} from '../enums/user-status.enum';
-import {PermissionQuery} from '../repositories/permission.repository';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
@@ -50,9 +56,9 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
      */
     beforeRemove(event: RemoveEvent<any>) {
         removeOperation({
-            entity: PermissionQuery.entityAlias,
+            entity: UserQuery.entityAlias,
             id: event.entity.id,
-            userId: getUserIdFromContext(event.entity?.contextData)
+            auth_id: getAuthIdFromContext(event.entity?.contextData)
         }, false);
     }
 
@@ -64,17 +70,29 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
      */
     afterSoftRemove(event: SoftRemoveEvent<any>) {
         removeOperation({
-            entity: PermissionQuery.entityAlias,
+            entity: UserQuery.entityAlias,
             id: event.entity.id,
-            userId: getUserIdFromContext(event.entity?.contextData)
+            auth_id: getAuthIdFromContext(event.entity?.contextData)
         }, true);
+    }
+
+    /**
+     * This method is triggered after an entity is restored.
+     */
+    afterRecover(event: RecoverEvent<any>): void {
+        restoreOperation({
+            entity: UserQuery.entityAlias,
+            id: event.entity.id,
+            auth_id: getAuthIdFromContext(event.entity?.contextData)
+        });
     }
 
     async afterInsert(event: InsertEvent<UserEntity>) {
         const id = event.entity.id;
 
         logHistory(UserQuery.entityAlias, 'created', {
-            id: id.toString()
+            id: id.toString(),
+            auth_id: getAuthIdFromContext(event.entity?.contextData).toString()
         });
 
         switch (event.entity.status) {
@@ -87,13 +105,15 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         }
     }
 
-    afterUpdate(event: UpdateEvent<UserEntity>) {
+    async afterUpdate(event: UpdateEvent<UserEntity>) {
         const id: number = event.entity?.id || event.databaseEntity.id;
+        const auth_id: string = getAuthIdFromContext(event.entity?.contextData).toString();
 
         cacheClean(UserQuery.entityAlias, id);
 
         logHistory(UserQuery.entityAlias, 'updated', {
-            id: id.toString()
+            id: id.toString(),
+            auth_id: auth_id,
         });
 
         // Check if status was updated
@@ -101,18 +121,24 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
             logHistory(UserQuery.entityAlias, 'status', {
                 id: id.toString(),
                 oldStatus: event.databaseEntity.status,
-                newStatus: event.entity.status
+                newStatus: event.entity.status,
+                auth_id: auth_id,
             });
 
             if (event.entity.status === UserStatusEnum.ACTIVE) {
-                void sendWelcomeEmail(event.entity as UserEntity);
+                await sendWelcomeEmail({
+                    name: event.databaseEntity.name,
+                    email: event.databaseEntity.email,
+                    language: event.databaseEntity.language
+                });
             }
         }
 
         // Check if password was updated
         if (event.entity?.password && event.databaseEntity?.password && event.entity.password !== event.databaseEntity.password) {
             logHistory(UserQuery.entityAlias, 'password_change', {
-                id: id.toString()
+                id: id.toString(),
+                auth_id: auth_id,
             });
         }
     }

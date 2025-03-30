@@ -31,7 +31,7 @@ export const cronTimeCheck = async (): Promise<{}> => {
     `;
 
     const endDate = new Date().toISOString();
-    const startDate = createPastDate(86400 * 2).toISOString();
+    const startDate = createPastDate(86400).toISOString();
 
     const queryParameters = [
         startDate,

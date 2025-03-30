@@ -11,7 +11,7 @@ import PermissionEntity from '../entities/permission.entity';
 import {PermissionQuery} from '../repositories/permission.repository';
 import {
     cacheClean,
-    getUserIdFromContext,
+    getAuthIdFromContext,
     logHistory,
     removeOperation,
     restoreOperation
@@ -36,7 +36,7 @@ export class PermissionSubscriber implements EntitySubscriberInterface<Permissio
         removeOperation({
             entity: PermissionQuery.entityAlias,
             id: event.entity.id,
-            userId: getUserIdFromContext(event.entity?.contextData)
+            auth_id: getAuthIdFromContext(event.entity?.contextData)
         }, false);
     }
 
@@ -50,7 +50,7 @@ export class PermissionSubscriber implements EntitySubscriberInterface<Permissio
         removeOperation({
             entity: PermissionQuery.entityAlias,
             id: event.entity.id,
-            userId: getUserIdFromContext(event.entity?.contextData)
+            auth_id: getAuthIdFromContext(event.entity?.contextData)
         }, true);
     }
 
@@ -61,29 +61,27 @@ export class PermissionSubscriber implements EntitySubscriberInterface<Permissio
         restoreOperation({
             entity: PermissionQuery.entityAlias,
             id: event.entity.id,
-            userId: getUserIdFromContext(event.entity?.contextData)
+            auth_id: getAuthIdFromContext(event.entity?.contextData)
         });
     }
 
     async afterInsert(event: InsertEvent<PermissionEntity>) {
         const id = event.entity?.id;
-        const userId: number = getUserIdFromContext(event.entity?.contextData);
 
         logHistory(PermissionQuery.entityAlias, 'created', {
             id: id.toString(),
-            userId: userId.toString()
+            auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
         });
     }
 
     afterUpdate(event: UpdateEvent<PermissionEntity>) {
         const id: number = event.entity?.id || event.databaseEntity.id;
-        const userId: number = getUserIdFromContext(event.entity?.contextData);
 
         cacheClean(PermissionQuery.entityAlias, id);
 
         logHistory(PermissionQuery.entityAlias, 'updated', {
             id: id.toString(),
-            userId: userId.toString()
+            auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
         });
     }
 }
