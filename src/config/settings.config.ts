@@ -62,8 +62,8 @@ export const settings= {
     },
     user: {
         authSecret: process.env.AUTH_JWT_SECRET as string || 'secret',
-        authExpiresIn: (Number(process.env.EMAIL_JWT_EXPIRES_IN) || 60) * 60, // converted to seconds
-        authRefreshExpiresIn: (Number(process.env.EMAIL_JWT_EXPIRES_IN) || 60) * 60, // converted to seconds; used to refresh token if token expires before this value
+        authExpiresIn: (Number(process.env.AUTH_JWT_EXPIRES_IN) || 60) * 60, // converted to seconds
+        authRefreshExpiresIn: (Number(process.env.AUTH_JWT_REFRESH_EXPIRES_IN) || 60) * 60, // converted to seconds; used to refresh token if token expires before this value
         emailConfirmationSecret: process.env.EMAIL_JWT_SECRET as string || 'secret',
         emailConfirmationExpiresIn: Number(process.env.EMAIL_JWT_EXPIRES_IN) || 30, // days
         maxActiveSessions: 2, // maximum number of active sessions per user; on valid login and max number will have to chose to remove old session(s)

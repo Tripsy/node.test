@@ -54,11 +54,11 @@ async function initializeApp() {
     // Language middleware
     app.use(i18nextMiddleware(i18next));
 
-    // Authentication middleware
-    app.use(authMiddleware);
-
     // Standardized response handler
     app.use(outputHandler);
+
+    // Authentication middleware
+    app.use(authMiddleware);
 
     // Initialize routes
     const router = await initRoutes();

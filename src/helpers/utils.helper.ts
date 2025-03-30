@@ -29,8 +29,8 @@ export function isValidDate(date: string): boolean {
  * @param {Date} date - The Date object to check
  * @returns {boolean} - True if the Date object is valid, false otherwise
  */
-export function isValidDateInstance(date: Date): boolean {
-    return !isNaN(date.getTime());
+export function isValidDateInstance(date: any): boolean {
+    return date instanceof Date && !isNaN(date.getTime());
 }
 
 /**
