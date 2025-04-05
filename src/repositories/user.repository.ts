@@ -14,6 +14,7 @@ export class UserQuery extends AbstractQuery {
             this.hasFilter = true;
             this.filterBy('email', email);
         }
+
         return this;
     }
 }

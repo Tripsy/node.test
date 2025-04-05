@@ -69,7 +69,7 @@ class UserController {
 
         const cacheProvider = getCacheProvider();
 
-        const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, res.locals.validated.id);
+        const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, res.locals.validated.id, 'read');
         const user = await cacheProvider.get(cacheKey, async () => {
             return UserRepository
                 .createQuery()

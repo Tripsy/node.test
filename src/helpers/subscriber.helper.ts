@@ -8,7 +8,7 @@ import {UpdateEvent} from 'typeorm';
 export function cacheClean(entity: string, id: number) {
     const cacheProvider = getCacheProvider();
 
-    void cacheProvider.delete(cacheProvider.buildKey(entity, id.toString()));
+    void cacheProvider.deleteByPattern(cacheProvider.buildKey(entity, id.toString()) + '*');
 }
 
 const historyLogger: Logger = childLogger(logger, 'history');

@@ -31,7 +31,7 @@ export const settings= {
         password: process.env.REDIS_PASSWORD || null,
     },
     cache: {
-        ttl: Number(process.env.EMAIL_JWT_EXPIRES_IN) || 60
+        ttl: Number(process.env.CACHE_TTL) || 60
     },
     /**
      * Log levels are defined in log-level.enum.ts

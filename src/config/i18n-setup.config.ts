@@ -40,16 +40,12 @@ async function returnNamespaces(): Promise<string[]> {
     return await cacheProvider.get(cacheKey, async () => {
         const langDir = buildSrcPath('locales', 'en');
 
-        try {
-            // Read the directory and filter JSON files
-            const files = await fs.readdir(langDir);
-            const langFiles = files.filter((file) => file.endsWith('.json'));
+        // Read the directory and filter JSON files
+        const files = await fs.readdir(langDir);
+        const langFiles = files.filter((file) => file.endsWith('.json'));
 
-            // Extract namespace names from file names
-            return langFiles.map((file) => file.split('.')[0]);
-        } catch (error) {
-            return [];
-        }
+        // Extract namespace names from file names
+        return langFiles.map((file) => file.split('.')[0]);
     });
 
     // return [

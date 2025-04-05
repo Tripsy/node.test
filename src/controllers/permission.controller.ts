@@ -75,7 +75,7 @@ class PermissionController {
 
         const cacheProvider = getCacheProvider();
 
-        const cacheKey = cacheProvider.buildKey(PermissionQuery.entityAlias, res.locals.validated.id);
+        const cacheKey = cacheProvider.buildKey(PermissionQuery.entityAlias, res.locals.validated.id, 'read');
         const permission = await cacheProvider.get(cacheKey, async () => {
             return PermissionRepository
                 .createQuery()

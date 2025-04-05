@@ -125,14 +125,13 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. user-permission.controller tests
-2. after permissions load > cache req.user ?!
-3. log-data.controller (read, delete, find)
-4. template.controller (create, read, update, delete, find)
-5. Tests 
+1. log-data.controller (read, delete, find)
+2. template.controller (create, read, update, delete, find)
+3. Tests 
     - validators
    - controllers
        - permission.controller
+       - user-permission.controller
    - middleware
        - output-handler.middleware
        - validate-params.middleware
@@ -140,7 +139,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 REVIEW AT THIS POINT
 
-# BUGS
+# BUGS & ISSUES
 
 1. types/express.d.ts - is in .gitignore
 2. pnpm run test is failing - probably closeHandler not doing the proper job

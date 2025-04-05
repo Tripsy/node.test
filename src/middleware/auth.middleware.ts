@@ -8,6 +8,8 @@ import {compareMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
 import UserRepository from '../repositories/user.repository';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {createFutureDate, dateDiffInSeconds} from '../helpers/utils.helper';
+import {getPolicyPermissions} from '../services/user.service';
+import {UserRoleEnum} from '../enums/user-role.enum';
 
 async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
     try {
@@ -91,7 +93,7 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
             name: user.name,
             email: user.email,
             language: user.language,
-            permissions: [],
+            permissions: user.role === UserRoleEnum.OPERATOR ? await getPolicyPermissions(user.id) : [],
             role: user.role,
         };
 
