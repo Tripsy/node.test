@@ -3,6 +3,9 @@ import {EntityContextData} from '../types/entity-context-data.type';
 import {Logger} from 'pino';
 import logger, {childLogger} from '../providers/logger.provider';
 import {lang} from '../config/i18n-setup.config';
+import {UpdateEvent} from 'typeorm';
+import UserEntity from '../entities/user.entity';
+import {BaseEntityAbstract} from '../entities/base-entity.abstract';
 
 export function cacheClean(entity: string, id: number) {
     void cacheProvider.delete(cacheProvider.buildKey(entity, id.toString()));
@@ -25,6 +28,10 @@ type OperationData = {
     entity: string,
     id: number,
     auth_id?: number
+}
+
+export function isRestore(event: UpdateEvent<any>): boolean {
+    return event.entity !== undefined && event.entity.deleted_at === null && event.databaseEntity?.deleted_at !== null;
 }
 
 export function removeOperation(data: OperationData, isSoftDelete: boolean = false) {

@@ -125,7 +125,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. user-permission routes - user-permission.controller (create, delete, find)
+1. user-permission.controller tests
 2. after permissions load > cache req.user ?!
 3. log-data.controller (read, delete, find)
 4. template.controller (create, read, update, delete, find)
@@ -142,7 +142,7 @@ REVIEW AT THIS POINT
 
 # BUGS
 
-1. when tests run together pnpm run test --testTimeout=60000 they exceed timeout; the problem is not around the time but the app is not loading in functional tests
+1. types/express.d.ts - is in .gitignore
 
 # IDEAS
 

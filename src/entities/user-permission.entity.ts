@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import UserEntity from './user.entity';
 import PermissionEntity from './permission.entity';
+import {EntityContextData} from '../types/entity-context-data.type';
 
 @Entity('user_permission', {
     comment: 'Stores user permissions'
@@ -46,4 +47,7 @@ export default class UserPermissionEntity {
         foreignKeyConstraintName: 'FK_user_permission_permission_id', // Custom foreign key name
     })
     permission?: PermissionEntity;
+
+    // Virtual column
+    contextData?: EntityContextData;
 }

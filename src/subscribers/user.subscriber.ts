@@ -12,7 +12,7 @@ import {encryptPassword, sendEmailConfirmCreate, sendWelcomeEmail} from '../serv
 import {UserQuery} from '../repositories/user.repository';
 import {
     cacheClean,
-    getAuthIdFromContext,
+    getAuthIdFromContext, isRestore,
     logHistory,
     removeOperation,
     restoreOperation
@@ -76,17 +76,6 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         }, true);
     }
 
-    /**
-     * This method is triggered after an entity is restored.
-     */
-    afterRecover(event: RecoverEvent<any>): void {
-        restoreOperation({
-            entity: UserQuery.entityAlias,
-            id: event.entity.id,
-            auth_id: getAuthIdFromContext(event.entity?.contextData)
-        });
-    }
-
     async afterInsert(event: InsertEvent<UserEntity>) {
         const id = event.entity.id;
 
@@ -107,13 +96,25 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 
     async afterUpdate(event: UpdateEvent<UserEntity>) {
         const id: number = event.entity?.id || event.databaseEntity.id;
-        const auth_id: string = getAuthIdFromContext(event.entity?.contextData).toString();
+        const auth_id: number = getAuthIdFromContext(event.entity?.contextData);
 
+        // When entry is restored
+        if (isRestore(event)) {
+            restoreOperation({
+                entity: UserQuery.entityAlias,
+                id: id,
+                auth_id: auth_id
+            });
+
+            return;
+        }
+
+        // When entry is updated
         cacheClean(UserQuery.entityAlias, id);
 
         logHistory(UserQuery.entityAlias, 'updated', {
             id: id.toString(),
-            auth_id: auth_id,
+            auth_id: auth_id.toString(),
         });
 
         // Check if status was updated
@@ -122,14 +123,14 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
                 id: id.toString(),
                 oldStatus: event.databaseEntity.status,
                 newStatus: event.entity.status,
-                auth_id: auth_id,
+                auth_id: auth_id.toString(),
             });
 
             if (event.entity.status === UserStatusEnum.ACTIVE) {
                 await sendWelcomeEmail({
-                    name: event.databaseEntity.name,
-                    email: event.databaseEntity.email,
-                    language: event.databaseEntity.language
+                    name: event.entity.name || event.databaseEntity.name,
+                    email: event.entity.email || event.databaseEntity.email,
+                    language: event.entity.language || event.databaseEntity.language,
                 });
             }
         }
@@ -138,7 +139,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         if (event.entity?.password && event.databaseEntity?.password && event.entity.password !== event.databaseEntity.password) {
             logHistory(UserQuery.entityAlias, 'password_change', {
                 id: id.toString(),
-                auth_id: auth_id,
+                auth_id: auth_id.toString(),
             });
         }
     }

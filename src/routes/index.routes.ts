@@ -1,6 +1,7 @@
 import {Router, Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
 import {lang} from '../config/i18n-setup.config';
+import {settings} from '../config/settings.config';
 const routes: Router = Router();
 
 routes.get('/', asyncHandler(async (req: Request, res: Response) => {
@@ -14,7 +15,6 @@ routes.get('/', asyncHandler(async (req: Request, res: Response) => {
         'lang': lang('user.validation.password_confirm_mismatch'),
         'sample': 'text',
         'and': 'more',
-        'test': test,
     });
 
     // res.json(res.output.raw());

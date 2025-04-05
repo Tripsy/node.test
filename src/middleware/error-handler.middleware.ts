@@ -8,19 +8,35 @@ export const errorHandler = (err: Error, req: Request, res: Response, _next: Nex
 
     // Logging is disabled for certain response codes (ex: 400 - Bad Request, 404 - Not Found, 409 - Conflict) when APP debug is false
     if (settings.app.env !== 'test' && (settings.app.debug || ![400, 404, 409].includes(status))) {
-        systemLogger.error(
-            {
-                err: err,
-                request: {
-                    method: req.method,
-                    url: req.originalUrl,
-                    body: req.body,
-                    params: req.params,
-                    query: req.query,
+        if ([401, 403].includes(status)) {
+            systemLogger.warn(
+                {
+                    err: err,
+                    request: {
+                        method: req.method,
+                        url: req.originalUrl,
+                        body: req.body,
+                        params: req.params,
+                        query: req.query,
+                    },
                 },
-            },
-            `${err.name}: ${err.message}`
-        );
+                `${err.name}: ${err.message}`
+            );
+        } else {
+            systemLogger.error(
+                {
+                    err: err,
+                    request: {
+                        method: req.method,
+                        url: req.originalUrl,
+                        body: req.body,
+                        params: req.params,
+                        query: req.query,
+                    },
+                },
+                `${err.name}: ${err.message}`
+            );
+        }
     }
 
     // if (err instanceof NotFoundError || err instanceof NotAllowedError) {

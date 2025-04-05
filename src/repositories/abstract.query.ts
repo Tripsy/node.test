@@ -47,6 +47,31 @@ class AbstractQuery {
     }
 
     /**
+     * entityOrProperty:
+     *       Entity name = user_permission.permission
+     *       Property name = permission (condition is required)
+     *       Entity class = UserPermission
+     *       Callback function that returns a query builder for subqueries (condition is required)
+     *
+     * @param entityOrProperty
+     * @param alias
+     * @param type
+     * @param condition
+     */
+    join(entityOrProperty: string, alias: string, type: 'INNER' | 'LEFT' = 'INNER', condition?: string): this {
+        switch (type) {
+            case 'INNER':
+                this.query.innerJoin(entityOrProperty, alias, condition);
+                break;
+            case 'LEFT':
+                this.query.leftJoin(entityOrProperty, alias, condition);
+                break;
+        }
+
+        return this;
+    }
+
+    /**
      * Note: Without primaryKey TypeORM won’t map the entity correctly.
      *
      * ex: ['user.id', 'user.name', 'user.email', 'user.status', 'user.created_at', 'user.updated_at']
@@ -232,6 +257,35 @@ class AbstractQuery {
         return results.length;
     }
 
+    // async restore(multiple: boolean = false, force: boolean = false): Promise<number> {
+    //     if (!force && !this.hasFilter) {
+    //         throw new CustomError(500, lang('error.db_restore_missing_filter'));
+    //     }
+    //
+    //     const results = await this.query.withDeleted().getMany();
+    //
+    //     if (results.length === 0) {
+    //         return 0;
+    //     }
+    //
+    //     if (!multiple && results.length > 1) {
+    //         throw new CustomError(500, lang('error.db_restore_one'));
+    //     }
+    //
+    //     const contextData: EntityContextData | undefined = this.getContextData();
+    //
+    //     // Set contextData for each entity
+    //     if (contextData !== undefined) {
+    //         results.forEach(entity => {
+    //             (entity as any).contextData = contextData;
+    //         });
+    //     }
+    //
+    //     results.map(entity => this.repository.restore(entity));
+    //
+    //     return results.length;
+    // }
+
     async restore(multiple: boolean = false, force: boolean = false): Promise<number> {
         if (!force && !this.hasFilter) {
             throw new CustomError(500, lang('error.db_restore_missing_filter'));
@@ -249,14 +303,16 @@ class AbstractQuery {
 
         const contextData: EntityContextData | undefined = this.getContextData();
 
-        // Set contextData for each entity
-        if (contextData !== undefined) {
-            results.forEach(entity => {
+        // Set contextData and restore using save() flow
+        for (const entity of results) {
+            if (contextData) {
                 (entity as any).contextData = contextData;
-            });
-        }
+            }
 
-        results.map(entity => this.repository.restore(entity));
+            (entity as any).deleted_at = null;
+
+            await this.repository.save(entity);
+        }
 
         return results.length;
     }

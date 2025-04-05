@@ -40,7 +40,16 @@ async function initializeI18next() {
             lng: 'en', // Default language
             fallbackLng: 'en', // Fallback language
             supportedLngs: settings.app.supportedLanguages, // List of supported languages
-            ns: ['account', 'account_recovery', 'debug', 'error', 'permission', 'template', 'user'], // Defined namespaces
+            ns: [
+                'account',
+                'account_recovery',
+                'debug',
+                'error',
+                'user_permission',
+                'permission',
+                'template',
+                'user'
+            ], // Defined namespaces
             // ns: namespaces, // Dynamically determined namespaces
             backend: {
                 loadPath: buildSrcPath('locales/{{lng}}/{{ns}}.json'), // Path to translation files

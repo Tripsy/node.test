@@ -2,11 +2,11 @@ import dataSource from '../config/data-source.config';
 import PermissionEntity from '../entities/permission.entity';
 
 /**
- * The `delete` permission is also considered for restore actions
+ * The `delete` action is also considered for `restore` action
  */
 const permissionArray = {
     'user': ['create', 'read', 'update', 'delete', 'find'],
-    'permission': ['create', 'read', 'update', 'delete', 'find'],
+    'permission': ['create', 'read', 'update', 'delete', 'find'], // Also used in user-permission.controller
     'template': ['create', 'read', 'update', 'delete', 'find'],
 };
 

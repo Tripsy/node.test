@@ -11,11 +11,12 @@ import PermissionEntity from '../entities/permission.entity';
 import {PermissionQuery} from '../repositories/permission.repository';
 import {
     cacheClean,
-    getAuthIdFromContext,
+    getAuthIdFromContext, isRestore,
     logHistory,
     removeOperation,
     restoreOperation
 } from '../helpers/subscriber.helper';
+import {UserQuery} from '../repositories/user.repository';
 
 @EventSubscriber()
 export class PermissionSubscriber implements EntitySubscriberInterface<PermissionEntity> {
@@ -54,17 +55,6 @@ export class PermissionSubscriber implements EntitySubscriberInterface<Permissio
         }, true);
     }
 
-    /**
-     * This method is triggered after an entity is restored.
-     */
-    afterRecover(event: RecoverEvent<any>): void {
-        restoreOperation({
-            entity: PermissionQuery.entityAlias,
-            id: event.entity.id,
-            auth_id: getAuthIdFromContext(event.entity?.contextData)
-        });
-    }
-
     async afterInsert(event: InsertEvent<PermissionEntity>) {
         const id = event.entity?.id;
 
@@ -76,12 +66,25 @@ export class PermissionSubscriber implements EntitySubscriberInterface<Permissio
 
     afterUpdate(event: UpdateEvent<PermissionEntity>) {
         const id: number = event.entity?.id || event.databaseEntity.id;
+        const auth_id: number = getAuthIdFromContext(event.entity?.contextData);
 
+        // When entry is restored
+        if (isRestore(event)) {
+            restoreOperation({
+                entity: PermissionQuery.entityAlias,
+                id: id,
+                auth_id: auth_id
+            });
+
+            return;
+        }
+
+        // When entry is updated
         cacheClean(PermissionQuery.entityAlias, id);
 
         logHistory(PermissionQuery.entityAlias, 'updated', {
             id: id.toString(),
-            auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
+            auth_id: auth_id.toString(),
         });
     }
 }

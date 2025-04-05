@@ -1,0 +1,22 @@
+{
+	"error": {
+		"not_found": "User permission not found",
+		"already_exists": "User permission already exists"
+	},
+	"success": {
+		"update": "User permission updated",
+		"restore": "User permission restored",
+		"delete": "User permission deleted"
+	},
+	"validation": {
+		"permission_ids_invalid": "Invalid permission ids",
+		"entity_invalid": "Invalid entity",
+		"operation_invalid": "Invalid operation"
+	},
+	"history": {
+		"created": "User permission #{{id}} created by user #{{auth_id}}",
+		"deleted": "User permission #{{id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "User permission #{{id}} has been removed by user #{{auth_id}}",
+		"restored": "User permission #{{id}} has been restored by user #{{auth_id}}"
+	}
+}

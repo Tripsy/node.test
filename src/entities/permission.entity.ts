@@ -21,5 +21,5 @@ export default class PermissionEntity {
     user_permissions?: UserPermissionEntity[];
 
     // Virtual column
-    contextData?: EntityContextData
+    contextData?: EntityContextData;
 }

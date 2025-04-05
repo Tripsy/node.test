@@ -1,0 +1,19 @@
+import dataSource from '../config/data-source.config';
+import UserPermissionEntity from '../entities/user-permission.entity';
+import AbstractQuery from './abstract.query';
+
+export class UserPermissionQuery extends AbstractQuery {
+    static entityAlias: string = 'user_permission';
+    
+    constructor(repository: ReturnType<typeof dataSource.getRepository<UserPermissionEntity>>) {
+        super(repository, UserPermissionQuery.entityAlias);
+    }
+}
+
+export const UserPermissionRepository = dataSource.getRepository(UserPermissionEntity).extend({
+    createQuery() {
+        return new UserPermissionQuery(this);
+    },
+});
+
+export default UserPermissionRepository;

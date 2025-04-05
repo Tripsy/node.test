@@ -34,11 +34,10 @@ export const routesConfig = {
         find: '/permissions',
     },
     userPermission : {
-        create: '/users/:userId/permissions',
-        update: '/users/:userId/permissions/:id',
-        delete: '/users/:userId/permissions/:id',
-        restore: '/permissions/:id/restore',
-        find: '/users/:userId/permissions'
+        create: '/users/:user_id/permissions',
+        delete: '/users/:user_id/permissions/:id',
+        restore: '/users/:user_id/permissions/:id/restore',
+        find: '/users/:user_id/permissions'
     }
 };
 
