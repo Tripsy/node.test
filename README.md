@@ -118,7 +118,7 @@ $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 
 ```
 $ pnpm run test --testTimeout=60000
-$ pnpm run test account.functional.ts -testTimeout=60000 --detectOpenHandles
+$ pnpm run test account.functional.ts --testTimeout=60000 --detectOpenHandles
 $ pnpm run test account-register.unit.ts --detect-open-handles
 
 ```
@@ -143,6 +143,7 @@ REVIEW AT THIS POINT
 # BUGS
 
 1. types/express.d.ts - is in .gitignore
+2. pnpm run test is failing - probably closeHandler not doing the proper job
 
 # IDEAS
 

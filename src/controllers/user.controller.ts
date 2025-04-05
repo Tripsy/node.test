@@ -7,7 +7,7 @@ import UserUpdateValidator, {paramsUpdateList} from '../validators/user-update.v
 import {lang} from '../config/i18n-setup.config';
 import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
-import {cacheProvider} from '../providers/cache.provider';
+import {getCacheProvider} from '../providers/cache.provider';
 import UserFindValidator from '../validators/user-find.validator';
 import {stringToDate} from '../helpers/utils.helper';
 import UserPolicy from '../policies/user.policy';
@@ -66,6 +66,8 @@ class UserController {
 
         // Check permission (admin, operator with permission or owner)
         policy.read('user', req.user?.id);
+
+        const cacheProvider = getCacheProvider();
 
         const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, res.locals.validated.id);
         const user = await cacheProvider.get(cacheKey, async () => {

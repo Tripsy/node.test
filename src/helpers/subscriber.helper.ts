@@ -1,13 +1,13 @@
-import {cacheProvider} from '../providers/cache.provider';
+import {getCacheProvider} from '../providers/cache.provider';
 import {EntityContextData} from '../types/entity-context-data.type';
 import {Logger} from 'pino';
 import logger, {childLogger} from '../providers/logger.provider';
 import {lang} from '../config/i18n-setup.config';
 import {UpdateEvent} from 'typeorm';
-import UserEntity from '../entities/user.entity';
-import {BaseEntityAbstract} from '../entities/base-entity.abstract';
 
 export function cacheClean(entity: string, id: number) {
+    const cacheProvider = getCacheProvider();
+
     void cacheProvider.delete(cacheProvider.buildKey(entity, id.toString()));
 }
 

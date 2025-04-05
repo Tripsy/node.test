@@ -1,7 +1,6 @@
 import {Router, Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
 import {lang} from '../config/i18n-setup.config';
-import {settings} from '../config/settings.config';
 const routes: Router = Router();
 
 routes.get('/', asyncHandler(async (req: Request, res: Response) => {

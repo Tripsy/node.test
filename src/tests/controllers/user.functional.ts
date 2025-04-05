@@ -6,9 +6,9 @@ import UserRepository from '../../repositories/user.repository';
 import UserEntity from '../../entities/user.entity';
 import UserPolicy from '../../policies/user.policy';
 import {UserRoleEnum} from '../../enums/user-role.enum';
-import {cacheProvider} from '../../providers/cache.provider';
 import NotFoundError from '../../exceptions/not-found.error';
 import AccountTokenRepository from '../../repositories/account-token.repository';
+import * as cacheProvider from '../../providers/cache.provider';
 import '../jest-functional.setup';
 
 jest.mock('../../policies/account.policy');
@@ -22,7 +22,7 @@ beforeEach(() => {
     jest.spyOn(UserPolicy.prototype, 'hasPermission').mockReturnValue(false);
 });
 
-describe.skip('UserController - create', () => {
+describe('UserController - create', () => {
     const userCreateLink = routeLink('user.create', {}, false);
 
     const testData = {
@@ -72,6 +72,7 @@ describe.skip('UserController - create', () => {
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             filterByEmail: jest.fn().mockReturnThis(),
+            withDeleted: jest.fn().mockReturnThis(),
             first: jest.fn().mockResolvedValue(mockUser),
         } as any);
 
@@ -87,6 +88,7 @@ describe.skip('UserController - create', () => {
     it('should return success', async () => {
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             filterByEmail: jest.fn().mockReturnThis(),
+            withDeleted: jest.fn().mockReturnThis(),
             first: jest.fn().mockResolvedValue(null),
         } as any);
 
@@ -103,7 +105,7 @@ describe.skip('UserController - create', () => {
     });
 });
 
-describe.skip('UserController - read', () => {
+describe('UserController - read', () => {
     const userReadLink = routeLink('user.read', {
         id: 1,
     }, false);
@@ -142,10 +144,12 @@ describe.skip('UserController - read', () => {
     });
 
     it('should return success', async () => {
-        jest.spyOn(cacheProvider, 'buildKey').mockReturnValue('user-cache-key');
-        jest.spyOn(cacheProvider, 'get').mockImplementation(async (key, fallbackFunction) => {
-            return await fallbackFunction(); // Simulating cache miss
-        });
+        jest.spyOn(cacheProvider, 'getCacheProvider').mockReturnValue({
+            buildKey: jest.fn().mockReturnValue('user-cache-key'),
+            get: jest.fn().mockImplementation(async (key, fallbackFunction) => {
+                return await fallbackFunction(); // Simulating cache miss
+            }),
+        } as any);
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             filterById: jest.fn().mockReturnThis(),
@@ -164,7 +168,7 @@ describe.skip('UserController - read', () => {
     });
 });
 
-describe.skip('UserController - update', () => {
+describe('UserController - update', () => {
     const userUpdateLink = routeLink('user.update', {
         id: 1
     }, false);
@@ -271,6 +275,7 @@ describe('UserController - delete', () => {
     it('should return success', async () => {
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             filterById: jest.fn().mockReturnThis(),
+            setContextData: jest.fn().mockReturnThis(),
             delete: jest.fn().mockResolvedValue(1),
         } as any);
 
@@ -303,6 +308,7 @@ describe('UserController - restore', () => {
     it('should return success', async () => {
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             filterById: jest.fn().mockReturnThis(),
+            setContextData: jest.fn().mockReturnThis(),
             restore: jest.fn().mockResolvedValue(1),
         } as any);
 

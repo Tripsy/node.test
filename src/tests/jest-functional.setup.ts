@@ -7,18 +7,14 @@ beforeAll(async () => {
 afterAll(async () => {
     if (server) {
         await new Promise<void>((resolve, reject) => {
-            server.close(async (err) => {
+            server.close((err) => {
                 if (err) {
-                    reject(err);
-                } else {
-                    try {
-                        await closeHandler();
-
-                        resolve();
-                    } catch (error) {
-                        reject(error);
-                    }
+                    return reject(err);
                 }
+
+                closeHandler()
+                    .then(resolve)
+                    .catch(reject);
             });
         });
     } else {

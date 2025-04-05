@@ -4,8 +4,7 @@ import {
     InsertEvent,
     UpdateEvent,
     RemoveEvent,
-    SoftRemoveEvent,
-    RecoverEvent
+    SoftRemoveEvent
 } from 'typeorm';
 import UserEntity from '../entities/user.entity';
 import {encryptPassword, sendEmailConfirmCreate, sendWelcomeEmail} from '../services/account.service';

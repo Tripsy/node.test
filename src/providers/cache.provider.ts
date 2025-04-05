@@ -131,4 +131,4 @@ class CacheProvider {
     }
 }
 
-export const cacheProvider = CacheProvider.getInstance();
+export const getCacheProvider = (): CacheProvider => CacheProvider.getInstance();

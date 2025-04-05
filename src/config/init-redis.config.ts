@@ -5,9 +5,6 @@ import {systemLogger} from '../providers/logger.provider';
 class RedisClient {
     private static instance: Redis;
 
-    private constructor() {
-    }
-
     public static getInstance(): Redis {
         if (!RedisClient.instance) {
             RedisClient.instance = new Redis({

@@ -7,7 +7,7 @@ import PermissionUpdateValidator from '../validators/permission-update.validator
 import {lang} from '../config/i18n-setup.config';
 import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
-import {cacheProvider} from '../providers/cache.provider';
+import {getCacheProvider} from '../providers/cache.provider';
 import PermissionPolicy from '../policies/permission.policy';
 import PermissionFindValidator from '../validators/permission-find.validator';
 
@@ -72,6 +72,8 @@ class PermissionController {
 
         // Check permission (admin, operator with permission)
         policy.read();
+
+        const cacheProvider = getCacheProvider();
 
         const cacheKey = cacheProvider.buildKey(PermissionQuery.entityAlias, res.locals.validated.id);
         const permission = await cacheProvider.get(cacheKey, async () => {

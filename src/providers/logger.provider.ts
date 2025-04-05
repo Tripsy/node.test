@@ -70,7 +70,6 @@ function formatCallStack(stack: string, filtersForCallStack: string[] = []): Cal
 }
 
 export class LogStream extends Writable {
-    // private fileStreams: Record<string, WriteStream> = {};
     private fileStreams: Record<string, any> = {};
     private fileStreamTimeouts: Record<string, NodeJS.Timeout> = {};
 
@@ -82,8 +81,6 @@ export class LogStream extends Writable {
                 // max_logs: '14d', // Keep logs for 14 days
                 date_format: 'YYYY-MM-DD',
             });
-
-            // this.fileStreams[level] = fs.createWriteStream(buildRootPath('logs', level), {flags: 'a'});
         }
 
         // Reset timeout to keep the stream alive

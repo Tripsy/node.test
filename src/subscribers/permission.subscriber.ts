@@ -4,8 +4,7 @@ import {
     InsertEvent,
     UpdateEvent,
     RemoveEvent,
-    SoftRemoveEvent,
-    RecoverEvent
+    SoftRemoveEvent
 } from 'typeorm';
 import PermissionEntity from '../entities/permission.entity';
 import {PermissionQuery} from '../repositories/permission.repository';
@@ -16,7 +15,6 @@ import {
     removeOperation,
     restoreOperation
 } from '../helpers/subscriber.helper';
-import {UserQuery} from '../repositories/user.repository';
 
 @EventSubscriber()
 export class PermissionSubscriber implements EntitySubscriberInterface<PermissionEntity> {

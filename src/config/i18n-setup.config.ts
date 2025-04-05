@@ -3,35 +3,69 @@ import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import {LanguageDetector} from 'i18next-http-middleware';
 import {buildSrcPath} from '../helpers/system.helper';
-// import fs from 'fs/promises';
+import fs from 'fs/promises';
+import {getCacheProvider} from '../providers/cache.provider';
 import logger from '../providers/logger.provider';
-// import {cacheProvider} from '../providers/cache.provider';  // TODO: When using this, tests will start failing because Redis connection is not closed
 
-// /**
-//  * Determine the list of namespaces by reading the translation files in the `locales/en` directory.
-//  * The result is cached to improve performance.
-//  */
-// async function determineNamespaces(): Promise<string[]> {
-//     const cacheKey = cacheProvider.buildKey('i18next', 'ns');
-//
-//     return await cacheProvider.get(cacheKey, async () => {
-//         const langDir = buildSrcPath('locales', 'en');
-//
-//         try {
-//             // Read the directory and filter JSON files
-//             const files = await fs.readdir(langDir);
-//             const langFiles = files.filter((file) => file.endsWith('.json'));
-//
-//             // Extract namespace names from file names
-//             return langFiles.map((file) => file.split('.')[0]);
-//         } catch (error) {
-//             return [];
-//         }
-//     });
-// }
+async function getNamespaces() {
+    try {
+        const langDir = buildSrcPath('locales', 'en');
+
+        // Read the directory and filter JSON files
+        const files = await fs.readdir(langDir);
+        const langFiles = files.filter((file) => file.endsWith('.json'));
+
+        // Extract namespace names from file names
+        return langFiles.map((file) => file.split('.')[0]);
+    } catch (error) {
+        return [];
+    }
+}
+/**
+ * Return the list of namespaces based on the translation files from `locales/en` directory.
+ * The result is cached to improve performance.
+ */
+async function returnNamespaces(): Promise<string[]> {
+    // While running tests will start failing because Redis connection is not closed
+    // So we don't use cache
+    // May be a bug, may be an issue, I didn't find a resolution
+    if (settings.app.env === 'test') {
+        return getNamespaces();
+    }
+    
+    const cacheProvider = getCacheProvider();
+
+    const cacheKey = cacheProvider.buildKey('i18next', 'ns');
+
+    return await cacheProvider.get(cacheKey, async () => {
+        const langDir = buildSrcPath('locales', 'en');
+
+        try {
+            // Read the directory and filter JSON files
+            const files = await fs.readdir(langDir);
+            const langFiles = files.filter((file) => file.endsWith('.json'));
+
+            // Extract namespace names from file names
+            return langFiles.map((file) => file.split('.')[0]);
+        } catch (error) {
+            return [];
+        }
+    });
+
+    // return [
+    //     'account',
+    //     'account_recovery',
+    //     'debug',
+    //     'error',
+    //     'user_permission',
+    //     'permission',
+    //     'template',
+    //     'user'
+    // ];
+}
 
 async function initializeI18next() {
-    // const namespaces = await determineNamespaces();
+    const namespaces = await returnNamespaces();
 
     await i18next
         .use(Backend) // Use the file system backend
@@ -40,17 +74,7 @@ async function initializeI18next() {
             lng: 'en', // Default language
             fallbackLng: 'en', // Fallback language
             supportedLngs: settings.app.supportedLanguages, // List of supported languages
-            ns: [
-                'account',
-                'account_recovery',
-                'debug',
-                'error',
-                'user_permission',
-                'permission',
-                'template',
-                'user'
-            ], // Defined namespaces
-            // ns: namespaces, // Dynamically determined namespaces
+            ns: namespaces, // Dynamically determined namespaces
             backend: {
                 loadPath: buildSrcPath('locales/{{lng}}/{{ns}}.json'), // Path to translation files
             },
