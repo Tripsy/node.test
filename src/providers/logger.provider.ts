@@ -14,6 +14,7 @@ import nodemailer from 'nodemailer';
 import {lang} from '../config/i18n-setup.config';
 import FileStreamRotator from 'file-stream-rotator';
 import dataSource from '../config/data-source.config';
+import {LogCategoryEnum} from '../enums/log-category.enum';
 
 export function getLogLevel(level: number): LogLevelEnum {
     switch (level) {
@@ -304,13 +305,13 @@ const logger = pino({
     },
 }, logStream);
 
-export function childLogger(logger: Logger, category: string) {
+export function childLogger(logger: Logger, category: LogCategoryEnum) {
     return logger.child({
         category: category
     });
 }
 
-export const systemLogger: Logger = childLogger(logger, 'system');
+export const systemLogger: Logger = childLogger(logger, LogCategoryEnum.SYSTEM);
 
 if (settings.app.env === 'test') {
     // systemLogger.debug = console.log;

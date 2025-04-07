@@ -2,16 +2,18 @@ import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
 import {settings} from '../config/settings.config';
 import {OrderDirectionEnum} from '../enums/order-direction.enum';
-import {TemplateTypeEnum} from '../enums/template-type.enum';
+import {LogCategoryEnum} from '../enums/log-category.enum';
+import {LogLevelEnum} from '../enums/log-level.enum';
 
 enum UserOrderByEnum {
     ID = 'id',
-    LABEL = 'label',
+    PID = 'pid',
+    CATEGORY = 'category',
+    LEVEL = 'level',
     CREATED_AT = 'created_at',
-    UPDATED_AT = 'updated_at',
 }
 
-const TemplateFindValidator = z
+const LogDataFindValidator = z
     .object({
         order_by: z
             .nativeEnum(UserOrderByEnum)
@@ -35,28 +37,36 @@ const TemplateFindValidator = z
             id: z
                 .number({message: lang('error.filter_number')})
                 .optional(),
-            label: z
+            pid: z
                 .string({message: lang('error.filter_string')})
                 .min(settings.filter.termMinLength, {
                     message: lang('error.filter_min', {
                         min: settings.filter.termMinLength.toString(),
-                        term: 'label',
+                        term: 'pid',
                     }),
                 })
                 .optional(),
-            language: z
-                .string({message: lang('error.filter_string')})
-                .length(2, {message: lang('template.validation.language_invalid')})
+            category: z
+                .nativeEnum(LogCategoryEnum)
                 .optional(),
-            type: z
-                .nativeEnum(TemplateTypeEnum, {message: lang('template.validation.type_invalid')})
+            level: z
+                .nativeEnum(LogLevelEnum)
                 .optional(),
-            content: z
+            message: z
                 .string({message: lang('error.filter_string')})
                 .min(settings.filter.termMinLength, {
                     message: lang('error.filter_min', {
                         min: settings.filter.termMinLength.toString(),
-                        term: 'content',
+                        term: 'message',
+                    }),
+                })
+                .optional(),
+            context: z
+                .string({message: lang('error.filter_string')})
+                .min(settings.filter.termMinLength, {
+                    message: lang('error.filter_min', {
+                        min: settings.filter.termMinLength.toString(),
+                        term: 'context',
                     }),
                 })
                 .optional(),
@@ -72,10 +82,7 @@ const TemplateFindValidator = z
                     message: lang('error.filter_date_format', {format: settings.filter.dateFormatLiteral}),
                 })
                 .optional(),
-            is_deleted: z
-                .boolean({message: lang('error.filter_boolean')})
-                .default(false),
         })
     });
 
-export default TemplateFindValidator;
+export default LogDataFindValidator;

@@ -232,7 +232,7 @@ class AbstractQuery {
         const results = await this.query.getMany();
 
         if (results.length === 0) {
-           return 0;
+            return 0;
         }
 
         if (!multiple && results.length > 1) {
@@ -317,13 +317,18 @@ class AbstractQuery {
         return results.length;
     }
 
-    filterBy(column: string, value?: string | number | null, operator: string = '='): this {
+    filterBy(column: string, value?: string | number | (string | number)[] | null, operator: string = '='): this {
         if (value) {
             column = this.prepareColumn(column);
 
             switch (operator) {
                 case '=':
-                    if (column.endsWith('_id')) {
+                    if (column.endsWith('_id') || column.endsWith('.id')) {
+                        this.hasFilter = true;
+                    }
+                    break;
+                case 'IN':
+                    if (column.endsWith('_id') || column.endsWith('.id')) {
                         this.hasFilter = true;
                     }
                     break;
@@ -340,7 +345,14 @@ class AbstractQuery {
                     break;
             }
 
-            this.query.andWhere(`${column} ${operator} :${column}`, { [column]: value });
+            switch (operator) {
+                case 'IN':
+                    this.query.andWhere(`${column} IN (:...${column})`, {[column]: value as (string | number)[]});
+                    break;
+                default:
+                    this.query.andWhere(`${column} ${operator} :${column}`, {[column]: value});
+                    break;
+            }
         }
 
         return this;

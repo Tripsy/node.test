@@ -6,6 +6,7 @@
 	"filter_boolean": "Filter must have a boolean value (eg: {{term}})",
 	"filter_min": "Filter must be at least {{min}} characters long (eg: {{term}})",
 	"params_at_least_one": "At least one parameter is required (eg: {{params}})",
+	"db_delete_zero": "Failed to delete; No entries were found",
 	"db_delete_one": "Failed to delete just one entry; Based on filters multiple entries were found",
 	"db_restore_one": "Failed to restore just one entry; Based on filters multiple entries were found",
 	"db_delete_missing_filter": "Failed to delete entries; No filter were provided",

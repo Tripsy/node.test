@@ -17,8 +17,8 @@ class AbstractPolicy {
         this.userPermissions = req.user?.permissions || [];
     }
 
-    public getUserId(): number | null{
-        return this.userId || null;
+    public getUserId(): number {
+        return this.userId || 0;
     }
 
     public permission(operation: string, entity?:string): string {

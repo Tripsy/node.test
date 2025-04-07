@@ -12,8 +12,9 @@ import {Logger} from 'pino';
 import {cronErrorCount} from '../cron-jobs/cron-error-count.cron';
 import {cronTimeCheck} from '../cron-jobs/cron-time-check.cron';
 import {cronWarningCount} from '../cron-jobs/cron-warning-count.cron';
+import {LogCategoryEnum} from '../enums/log-category.enum';
 
-const cronLogger: Logger = childLogger(logger, 'cron');
+const cronLogger: Logger = childLogger(logger, LogCategoryEnum.CRON);
 
 /**
  * Execute cron job and save history

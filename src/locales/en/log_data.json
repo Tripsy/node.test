@@ -1,0 +1,14 @@
+{
+	"error": {
+		"not_found": "Log data not found"
+	},
+	"success": {
+		"delete": "Log data(s) deleted"
+	},
+	"validation": {
+		"ids_invalid": "Invalid ids"
+	},
+	"history": {
+		"deleted": "Log data(s) have been removed by user #{{auth_id}}"
+	}
+}

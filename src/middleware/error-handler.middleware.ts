@@ -6,9 +6,9 @@ import {settings} from '../config/settings.config';
 export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction): void => {
     const status = err instanceof CustomError ? err.statusCode : 500;
 
-    // Logging is disabled for certain response codes (ex: 400 - Bad Request, 404 - Not Found, 409 - Conflict) when APP debug is false
-    if (settings.app.env !== 'test' && (settings.app.debug || ![400, 404, 409].includes(status))) {
-        if ([401, 403].includes(status)) {
+    // Logging is disabled for certain response codes when APP debug is false
+    if (settings.app.env !== 'test' && (settings.app.debug || ![400, 401, 403, 404, 409].includes(status))) {
+        if ([401].includes(status)) {
             systemLogger.warn(
                 {
                     err: err,
@@ -46,6 +46,8 @@ export const errorHandler = (err: Error, req: Request, res: Response, _next: Nex
     res.status(status);
     res.output
         .message(err.message)
+
+    console.log(res.output)
 
     res.json(res.output);
 };

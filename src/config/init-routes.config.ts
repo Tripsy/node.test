@@ -33,7 +33,7 @@ export const routesConfig = {
         restore: '/permissions/:id/restore',
         find: '/permissions',
     },
-    userPermission : {
+    userPermission: {
         create: '/users/:user_id/permissions',
         delete: '/users/:user_id/permissions/:id',
         restore: '/users/:user_id/permissions/:id/restore',
@@ -46,6 +46,16 @@ export const routesConfig = {
         delete: '/templates/:id',
         restore: '/templates/:id/restore',
         find: '/templates',
+    },
+    logData: {
+        read: '/log-data/:id',
+        delete: '/log-data',
+        find: '/log-data',
+    },
+    cronHistory: {
+        read: '/cron-history/:id',
+        delete: '/cron-history',
+        find: '/cron-history',
     },
 };
 
@@ -68,7 +78,6 @@ export function routeLink(route: string, params?: Record<string, string | number
 
     return isAbsolute ? `${baseLink()}${resolvedRoute}` : resolvedRoute;
 }
-
 
 const router: Router = Router();
 

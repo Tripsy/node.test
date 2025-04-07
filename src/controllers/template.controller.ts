@@ -81,9 +81,6 @@ class TemplateController {
         res.json(res.output);
     });
 
-    /**
-     * This method lacks some safety measures regarding password & email update => no confirmation required from user side
-     */
     public update = asyncHandler(async (req: Request, res: Response) => {
         const policy = new TemplatePolicy(req);
 
@@ -202,7 +199,6 @@ class TemplateController {
             .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
-            // .consoleDebug()
             .all(true);
 
         res.output.data({

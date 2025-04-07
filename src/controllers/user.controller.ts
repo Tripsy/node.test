@@ -214,7 +214,6 @@ class UserController {
             .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
-            // .consoleDebug()
             .all(true);
 
         res.output.data({

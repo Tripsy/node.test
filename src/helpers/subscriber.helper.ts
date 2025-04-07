@@ -4,6 +4,7 @@ import {Logger} from 'pino';
 import logger, {childLogger} from '../providers/logger.provider';
 import {lang} from '../config/i18n-setup.config';
 import {UpdateEvent} from 'typeorm';
+import {LogCategoryEnum} from '../enums/log-category.enum';
 
 export function cacheClean(entity: string, id: number) {
     const cacheProvider = getCacheProvider();
@@ -11,7 +12,7 @@ export function cacheClean(entity: string, id: number) {
     void cacheProvider.deleteByPattern(cacheProvider.buildKey(entity, id.toString()) + '*');
 }
 
-const historyLogger: Logger = childLogger(logger, 'history');
+const historyLogger: Logger = childLogger(logger, LogCategoryEnum.HISTORY);
 
 export function logHistory(entity: string, action: string, replacements: Record<string, string> = {}) {
     historyLogger.info(lang(`${entity}.history.${action}`, replacements));
@@ -27,7 +28,7 @@ export function logHistory(entity: string, action: string, replacements: Record<
 type OperationData = {
     entity: string,
     id: number,
-    auth_id?: number
+    auth_id: number
 }
 
 export function isRestore(event: UpdateEvent<any>): boolean {
@@ -41,7 +42,7 @@ export function removeOperation(data: OperationData, isSoftDelete: boolean = fal
 
     logHistory(data.entity, action, {
         id: data.id.toString(),
-        auth_id: data.auth_id?.toString() || '0'
+        auth_id: data.auth_id?.toString()
     });
 }
 
@@ -50,7 +51,7 @@ export function restoreOperation(data: OperationData) {
 
     logHistory(data.entity, 'restored', {
         id: data.id.toString(),
-        auth_id: data.auth_id?.toString() || '0'
+        auth_id: data.auth_id.toString()
     });
 }
 
