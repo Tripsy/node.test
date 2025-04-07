@@ -11,7 +11,8 @@ import {encryptPassword, sendEmailConfirmCreate, sendWelcomeEmail} from '../serv
 import {UserQuery} from '../repositories/user.repository';
 import {
     cacheClean,
-    getAuthIdFromContext, isRestore,
+    getAuthIdFromContext,
+    isRestore,
     logHistory,
     removeOperation,
     restoreOperation

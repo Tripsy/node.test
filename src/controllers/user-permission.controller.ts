@@ -80,7 +80,7 @@ class UserPermissionController {
         res.output.data(results);
         res.output.message(lang('user_permission.success.update'));
 
-        res.status(200).json(res.output);
+        res.json(res.output);
     });
 
     public delete = asyncHandler(async (req: Request, res: Response) => {

@@ -1,5 +1,32 @@
 {
+	"validation": {
+		"label_invalid": "Label is invalid",
+		"language_invalid": "Invalid language",
+		"type_invalid": "Invalid type",
+		"email_subject_invalid": "Content / Subject is invalid",
+		"email_text_invalid": "Content / Text is invalid",
+		"email_html_invalid": "Content / HTML is invalid",
+		"email_layout_invalid": "Content / Layout is invalid",
+		"page_title_invalid": "Content / Page Title is invalid",
+		"page_body_invalid": "Content / Body Content is invalid",
+		"page_layout_invalid": "Content / Layout is invalid"
+	},
 	"error": {
-		"not_found": "Template not found (eg: {{label}} - {{language}} - {{type}})"
+		"cannot_load": "Template not found (eg: {{label}} - {{language}} - {{type}})",
+		"not_found": "Template not found",
+		"already_exists": "Template already exists"
+	},
+	"success": {
+		"create": "Template created successfully",
+		"update": "Template updated successfully",
+		"delete": "Template deleted successfully",
+		"restore": "Template restored successfully"
+	},
+	"history": {
+		"created": "Template #{{id}} created by user #{{auth_id}}",
+		"updated": "Template #{{id}} updated by user #{{auth_id}}",
+		"deleted": "Template #{{id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Template #{{id}} has been removed by user #{{auth_id}}",
+		"restored": "Template #{{id}} has been restored by user #{{auth_id}}"
 	}
 }

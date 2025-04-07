@@ -8,6 +8,8 @@ const permissionArray = {
     'user': ['create', 'read', 'update', 'delete', 'find'],
     'permission': ['create', 'read', 'update', 'delete', 'find'], // Also used in user-permission.controller
     'template': ['create', 'read', 'update', 'delete', 'find'],
+    'log-data': ['read', 'delete', 'find'],
+    'cron-history': ['read', 'delete', 'find'],
 };
 
 async function seedPermissions() {

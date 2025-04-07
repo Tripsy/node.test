@@ -132,7 +132,7 @@ class PermissionController {
 
         res.output.message(lang('permission.success.update'));
 
-        res.status(201).json(res.output);
+        res.json(res.output);
     });
 
     public delete = asyncHandler(async (req: Request, res: Response) => {

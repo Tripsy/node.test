@@ -38,7 +38,15 @@ export const routesConfig = {
         delete: '/users/:user_id/permissions/:id',
         restore: '/users/:user_id/permissions/:id/restore',
         find: '/users/:user_id/permissions'
-    }
+    },
+    template: {
+        create: '/templates',
+        read: '/templates/:id',
+        update: '/templates/:id',
+        delete: '/templates/:id',
+        restore: '/templates/:id/restore',
+        find: '/templates',
+    },
 };
 
 export function baseLink(): string {

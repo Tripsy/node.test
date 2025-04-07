@@ -31,6 +31,9 @@
     - user.controller (create, read, update, delete, restore, find, statusUpdate)
     - account.controller (register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate)
     - permission.controller (create, read, update, delete, restore, find      
+    - user-permission.controller (create, delete, restore, find)
+    - template.controller (create, read, update, delete, restore, find)
+    - log-data.controller (read, delete, find)
 - [x] Tests (powered by Jest & Supertest)
 
 # Setup
@@ -126,10 +129,12 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 # TODO
 
 1. log-data.controller (read, delete, find)
-2. template.controller (create, read, update, delete, find)
+2. cron-history.controller (read, delete, find)
 3. Tests 
-    - validators
+   - validators
    - controllers
+       - log-data.controller
+       - template.controller
        - permission.controller
        - user-permission.controller
    - middleware

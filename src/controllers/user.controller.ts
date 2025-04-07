@@ -76,6 +76,7 @@ class UserController {
                 // .select(['id', 'name', 'email', 'status', 'created_at', 'updated_at'])
                 // .addSelect(['password'])
                 .filterById(res.locals.validated.id)
+                .withDeleted(policy.allowDeleted())
                 .firstOrFail();
         });
 
@@ -147,7 +148,7 @@ class UserController {
         res.output.message(lang('user.success.update'));
         res.output.data(user);
 
-        res.status(201).json(res.output);
+        res.json(res.output);
     });
 
     public delete = asyncHandler(async (req: Request, res: Response) => {

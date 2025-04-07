@@ -5,6 +5,12 @@ export type EmailContent = {
     layout?: string;
 }
 
+export type PageContent = {
+    title: string;
+    body: string;
+    layout?: string;
+}
+
 export type EmailTemplate = {
     templateId: number | null;
     language: string,

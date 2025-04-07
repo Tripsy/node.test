@@ -50,7 +50,7 @@ export async function loadEmailTemplate(label: string, language: string): Promis
         .first();
 
     if (!template) {
-        throw new Error(lang('template.error.not_found', {
+        throw new Error(lang('template.error.cannot_load', {
             label,
             language,
             type: TemplateTypeEnum.EMAIL
