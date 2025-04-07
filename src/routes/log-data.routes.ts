@@ -6,7 +6,7 @@ import {routesConfig} from '../config/init-routes.config';
 
 const routes: Router = Router();
 
-// Template - Read
+// LogData - Read
 routes.get(
     routesConfig.logData.read,
     [
@@ -16,7 +16,7 @@ routes.get(
     LogDataController.read
 );
 
-// Template - Delete
+// LogData - Delete
 routes.delete(
     routesConfig.logData.delete,
     [
@@ -25,7 +25,7 @@ routes.delete(
     LogDataController.delete
 );
 
-// Template - Find
+// LogData - Find
 routes.get(
     routesConfig.logData.find,
     [

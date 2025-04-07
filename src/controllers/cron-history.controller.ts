@@ -1,27 +1,27 @@
 import {Request, Response} from 'express';
 import asyncHandler from '../helpers/async.handler';
-import LogDataRepository, {LogDataQuery} from '../repositories/log-data.repository';
+import CronHistoryRepository, {CronHistoryQuery} from '../repositories/cron-history.repository';
 import {lang} from '../config/i18n-setup.config';
 import BadRequestError from '../exceptions/bad-request.error';
 import {getCacheProvider} from '../providers/cache.provider';
-import LogDataPolicy from '../policies/log-data.policy';
-import LogDataFindValidator from '../validators/log-data-find.validator';
-import LogDataDeleteValidator from '../validators/log-data-delete.validator';
+import CronHistoryPolicy from '../policies/cron-history.policy';
+import CronHistoryFindValidator from '../validators/cron-history-find.validator';
+import CronHistoryDeleteValidator from '../validators/cron-history-delete.validator';
 import {logHistory} from '../helpers/subscriber.helper';
 import {stringToDate} from '../helpers/utils.helper';
 
-class LogDataController {
+class CronHistoryController {
     public read = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new LogDataPolicy(req);
+        const policy = new CronHistoryPolicy(req);
 
         // Check permission (admin or operator with permission)
         policy.read();
 
         const cacheProvider = getCacheProvider();
 
-        const cacheKey = cacheProvider.buildKey(LogDataQuery.entityAlias, res.locals.validated.id, 'read');
-        const logData = await cacheProvider.get(cacheKey, async () => {
-            return LogDataRepository
+        const cacheKey = cacheProvider.buildKey(CronHistoryQuery.entityAlias, res.locals.validated.id, 'read');
+        const cronHistory = await cacheProvider.get(cacheKey, async () => {
+            return CronHistoryRepository
                 .createQuery()
                 .filterById(res.locals.validated.id)
                 .withDeleted(policy.allowDeleted())
@@ -29,18 +29,18 @@ class LogDataController {
         });
 
         res.output.meta(cacheProvider.isCached, 'isCached');
-        res.output.data(logData);
+        res.output.data(cronHistory);
 
         res.json(res.output);
     });
 
     public delete = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new LogDataPolicy(req);
+        const policy = new CronHistoryPolicy(req);
 
         // Check permission (admin or operator with permission)
         policy.delete();
 
-        const validated = LogDataDeleteValidator.safeParse(req.body);
+        const validated = CronHistoryDeleteValidator.safeParse(req.body);
 
         if (!validated.success) {
             res.output.errors(validated.error.errors);
@@ -48,31 +48,31 @@ class LogDataController {
             throw new BadRequestError();
         }
 
-        const countDelete: number = await LogDataRepository.createQuery()
+        const countDelete: number = await CronHistoryRepository.createQuery()
             .filterBy('id', validated.data.ids, 'IN')
             .delete(false, true);
 
         if (countDelete === 0) {
             res.status(204).output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
         } else {
-            logHistory(LogDataQuery.entityAlias, 'deleted', {
+            logHistory(CronHistoryQuery.entityAlias, 'deleted', {
                 auth_id: policy.getUserId().toString()
             });
 
-            res.output.message(lang('log_data.success.delete'));
+            res.output.message(lang('cron_history.success.delete'));
         }
 
         res.json(res.output);
     });
 
     public find = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new LogDataPolicy(req);
+        const policy = new CronHistoryPolicy(req);
 
         // Check permission (admin or operator with permission)
         policy.find();
 
         // Validate the request body against the schema
-        const validated = LogDataFindValidator.safeParse(req.body);
+        const validated = CronHistoryFindValidator.safeParse(req.body);
 
         if (!validated.success) {
             res.output.errors(validated.error.errors);
@@ -80,17 +80,15 @@ class LogDataController {
             throw new BadRequestError();
         }
 
-        const validatedCreateDateStart = validated.data.filter.create_date_start ? stringToDate(validated.data.filter.create_date_start) : undefined;
-        const validatedCreateDateEnd = validated.data.filter.create_date_end ? stringToDate(validated.data.filter.create_date_end) : undefined;
+        const validatedStartAtStart = validated.data.filter.start_at_start ? stringToDate(validated.data.filter.start_at_start) : undefined;
+        const validatedStartAtEnd = validated.data.filter.start_at_end ? stringToDate(validated.data.filter.start_at_end) : undefined;
 
-        const [entries, total] = await LogDataRepository.createQuery()
+        const [entries, total] = await CronHistoryRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .filterBy('pid', validated.data.filter.pid)
-            .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
-            .filterBy('category', validated.data.filter.category)
-            .filterBy('level', validated.data.filter.level)
-            .filterBy('message', validated.data.filter.message, 'LIKE')
-            .filterBy('context', validated.data.filter.context, 'LIKE')
+            .filterByRange('created_at', validatedStartAtStart, validatedStartAtEnd)
+            .filterBy('status', validated.data.filter.status)
+            .filterBy('label', validated.data.filter.label, 'LIKE')
+            .filterBy('content', validated.data.filter.content, 'LIKE')
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
             .all(true);
@@ -110,4 +108,4 @@ class LogDataController {
     });
 }
 
-export default new LogDataController();
+export default new CronHistoryController();

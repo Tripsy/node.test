@@ -128,9 +128,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. log-data.controller (read, delete, find)
-2. cron-history.controller (read, delete, find)
-3. Tests 
+1. Tests 
    - validators
    - controllers
        - log-data.controller

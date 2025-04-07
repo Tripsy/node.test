@@ -47,7 +47,5 @@ export const errorHandler = (err: Error, req: Request, res: Response, _next: Nex
     res.output
         .message(err.message)
 
-    console.log(res.output)
-
     res.json(res.output);
 };
