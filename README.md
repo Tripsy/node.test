@@ -129,18 +129,19 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 # TODO
 
 1. Tests 
-   - validators
    - controllers
-       - log-data.controller
+       - user.controller - find, statusUpdate missing tests
+       - log-data.controller - find missing tests
        - template.controller
        - permission.controller
        - user-permission.controller
+   - validators
    - middleware
        - output-handler.middleware
        - validate-params.middleware
    - providers
 
-REVIEW AT THIS POINT
+REVIEW AT THIS POINT > IDEAS > REACT
 
 # BUGS & ISSUES
 

@@ -11,8 +11,6 @@ import AccountTokenRepository from '../../repositories/account-token.repository'
 import * as cacheProvider from '../../providers/cache.provider';
 import '../jest-functional.setup';
 
-jest.mock('../../policies/account.policy');
-
 beforeEach(() => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
@@ -145,18 +143,17 @@ describe('UserController - read', () => {
 
     it('should return success', async () => {
         jest.spyOn(cacheProvider, 'getCacheProvider').mockReturnValue({
-            buildKey: jest.fn().mockReturnValue('user-cache-key'),
-            get: jest.fn().mockImplementation(async (key, fallbackFunction) => {
+            buildKey: jest.fn().mockReturnValue('cache-key'),
+            get: jest.fn().mockImplementation(async (_key, fallbackFunction) => {
                 return await fallbackFunction(); // Simulating cache miss
             }),
         } as any);
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             filterById: jest.fn().mockReturnThis(),
+            withDeleted: jest.fn().mockReturnThis(),
             firstOrFail: jest.fn().mockResolvedValue(mockUser),
         } as any);
-
-        jest.spyOn(UserRepository, 'save').mockResolvedValue(mockUser);
 
         const response = await request(app)
             .get(userReadLink)
@@ -250,7 +247,7 @@ describe('UserController - update', () => {
             .send(testData);
 
         // Assertions
-        expect(response.status).toBe(201);
+        expect(response.status).toBe(200);
         expect(response.body.message).toBe('user.success.update');
         expect(response.body.data).toHaveProperty('name', mockUser.name);
     });
