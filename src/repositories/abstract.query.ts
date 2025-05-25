@@ -319,17 +319,25 @@ class AbstractQuery {
 
     filterBy(column: string, value?: string | number | (string | number)[] | null, operator: string = '='): this {
         if (value) {
-            column = this.prepareColumn(column);
+            const columns = column.split(',').map(col => this.prepareColumn(col.trim()));
+
+            if (columns.length > 1 && operator === 'IN') {
+                throw new CustomError(500, 'The IN operator can only be used with a single column');
+            }
 
             switch (operator) {
                 case '=':
-                    if (column.endsWith('_id') || column.endsWith('.id')) {
-                        this.hasFilter = true;
+                    if (columns.length === 1) {
+                        if (columns[0].endsWith('_id') || columns[0].endsWith('.id')) {
+                            this.hasFilter = true;
+                        }
                     }
                     break;
                 case 'IN':
-                    if (column.endsWith('_id') || column.endsWith('.id')) {
-                        this.hasFilter = true;
+                    if (columns.length === 1) {
+                        if (columns[0].endsWith('_id') || columns[0].endsWith('.id')) {
+                            this.hasFilter = true;
+                        }
                     }
                     break;
                 case 'LIKE':
@@ -350,7 +358,19 @@ class AbstractQuery {
                     this.query.andWhere(`${column} IN (:...${column})`, {[column]: value as (string | number)[]});
                     break;
                 default:
-                    this.query.andWhere(`${column} ${operator} :${column}`, {[column]: value});
+                    if (columns.length > 1) {
+                        const whereString = columns
+                            .map(col => `${col} ${operator} :${col}`)
+                            .join(' OR ');
+
+                        const whereParams = Object.fromEntries(
+                            columns.map(col => [col, value])
+                        );
+
+                        this.query.andWhere(`(${whereString})`, whereParams);
+                    } else {
+                        this.query.andWhere(`${column} ${operator} :${column}`, {[column]: value});
+                    }
                     break;
             }
         }

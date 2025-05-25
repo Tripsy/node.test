@@ -14,8 +14,7 @@ export const settings= {
         rootPath: process.env.ROOT_PATH || '/var/www/html',
         srcPath: process.env.SRC_PATH || '/var/www/html/src',
         allowedOrigins: [
-            'http://node.xx:3000',
-            'http://node.xx:3001'
+            'http://nextjs.test'
         ]
     },
     database: {

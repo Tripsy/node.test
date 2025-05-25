@@ -3,6 +3,8 @@ import {lang} from '../config/i18n-setup.config';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {settings} from '../config/settings.config';
 import {OrderDirectionEnum} from '../enums/order-direction.enum';
+import BadRequestError from '../exceptions/bad-request.error';
+import {UserRoleEnum} from '../enums/user-role.enum';
 
 enum UserOrderByEnum {
     ID = 'id',
@@ -21,57 +23,74 @@ const UserFindValidator = z
             .nativeEnum(OrderDirectionEnum)
             .optional()
             .default(OrderDirectionEnum.ASC),
-        limit: z
-            .number({message: lang('error.filter_number')})
+        limit: z.coerce
+            .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(settings.filter.defaultLimit),
-        page: z
-            .number({message: lang('error.filter_number')})
+        page: z.coerce
+            .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(1),
-        filter: z.object({
-            id: z
-                .number({message: lang('error.filter_number')})
-                .optional(),
-            name: z
-                .string({message: lang('error.filter_string')})
-                .min(settings.filter.termMinLength, {
-                    message: lang('error.filter_min', {
-                        min: settings.filter.termMinLength.toString(),
-                        term: 'name',
-                    }),
+        filter: z.preprocess((val) => {
+                if (typeof val === 'string') {
+                    try {
+                        return JSON.parse(val);
+                    } catch {
+                        throw new BadRequestError(lang('error.invalid_filter'));
+                    }
+                }
+
+                return val;
+            },
+                z.object({
+                    id: z.coerce
+                        .number({message: lang('error.invalid_number')})
+                        .optional(),
+                    term: z
+                        .string({message: lang('error.invalid_string')})
+                        .min(settings.filter.termMinLength, {
+                            message: lang('error.string_min', {
+                                min: settings.filter.termMinLength.toString(),
+                            }),
+                        })
+                        .optional(),
+                    status: z
+                        .nativeEnum(UserStatusEnum)
+                        .optional(),
+                    role: z
+                        .nativeEnum(UserRoleEnum)
+                        .optional(),
+                    create_date_start: z
+                        .string({message: lang('error.invalid_string')})
+                        .regex(settings.filter.dateFormatRegex, {
+                            message: lang('error.invalid_date_format', {format: settings.filter.dateFormatLiteral}),
+                        })
+                        .optional(),
+                    create_date_end: z
+                        .string({message: lang('error.invalid_string')})
+                        .regex(settings.filter.dateFormatRegex, {
+                            message: lang('error.invalid_date_format', {format: settings.filter.dateFormatLiteral}),
+                        })
+                        .optional(),
+                    is_deleted: z.preprocess(
+                        val => val === 'true' || val === true,
+                        z.boolean({message: lang('error.invalid_boolean')})
+                    )
+                        .default(false),
                 })
-                .optional(),
-            email: z
-                .string({message: lang('error.filter_string')})
-                .min(settings.filter.termMinLength, {
-                    message: lang('error.filter_min', {
-                        min: settings.filter.termMinLength.toString(),
-                        term: 'email',
-                    }),
-                })
-                .optional(),
-            status: z
-                .nativeEnum(UserStatusEnum)
-                .optional(),
-            create_date_start: z
-                .string({message: lang('error.filter_string')})
-                .regex(settings.filter.dateFormatRegex, {
-                    message: lang('error.filter_date_format', {format: settings.filter.dateFormatLiteral}),
-                })
-                .optional(),
-            create_date_end: z
-                .string({message: lang('error.filter_string')})
-                .regex(settings.filter.dateFormatRegex, {
-                    message: lang('error.filter_date_format', {format: settings.filter.dateFormatLiteral}),
-                })
-                .optional(),
-            is_deleted: z
-                .boolean({message: lang('error.filter_boolean')})
-                .default(false),
-        })
+            )
+            .optional()
+            .default({
+                id: undefined,
+                term: undefined,
+                status: undefined,
+                role: undefined,
+                create_date_start: undefined,
+                create_date_end: undefined,
+                is_deleted: false,
+            })
     });
 
 export default UserFindValidator;

@@ -24,23 +24,23 @@ const LogDataFindValidator = z
             .optional()
             .default(OrderDirectionEnum.ASC),
         limit: z
-            .number({message: lang('error.filter_number')})
+            .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(settings.filter.defaultLimit),
         page: z
-            .number({message: lang('error.filter_number')})
+            .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(1),
         filter: z.object({
             id: z
-                .number({message: lang('error.filter_number')})
+                .number({message: lang('error.invalid_number')})
                 .optional(),
             pid: z
-                .string({message: lang('error.filter_string')})
+                .string({message: lang('error.invalid_string')})
                 .min(settings.filter.termMinLength, {
-                    message: lang('error.filter_min', {
+                    message: lang('error.string_min', {
                         min: settings.filter.termMinLength.toString(),
                         term: 'pid',
                     }),
@@ -53,33 +53,33 @@ const LogDataFindValidator = z
                 .nativeEnum(LogLevelEnum)
                 .optional(),
             message: z
-                .string({message: lang('error.filter_string')})
+                .string({message: lang('error.invalid_string')})
                 .min(settings.filter.termMinLength, {
-                    message: lang('error.filter_min', {
+                    message: lang('error.string_min', {
                         min: settings.filter.termMinLength.toString(),
                         term: 'message',
                     }),
                 })
                 .optional(),
             context: z
-                .string({message: lang('error.filter_string')})
+                .string({message: lang('error.invalid_string')})
                 .min(settings.filter.termMinLength, {
-                    message: lang('error.filter_min', {
+                    message: lang('error.string_min', {
                         min: settings.filter.termMinLength.toString(),
                         term: 'context',
                     }),
                 })
                 .optional(),
             create_date_start: z
-                .string({message: lang('error.filter_string')})
+                .string({message: lang('error.invalid_string')})
                 .regex(settings.filter.dateFormatRegex, {
-                    message: lang('error.filter_date_format', {format: settings.filter.dateFormatLiteral}),
+                    message: lang('error.invalid_date_format', {format: settings.filter.dateFormatLiteral}),
                 })
                 .optional(),
             create_date_end: z
-                .string({message: lang('error.filter_string')})
+                .string({message: lang('error.invalid_string')})
                 .regex(settings.filter.dateFormatRegex, {
-                    message: lang('error.filter_date_format', {format: settings.filter.dateFormatLiteral}),
+                    message: lang('error.invalid_date_format', {format: settings.filter.dateFormatLiteral}),
                 })
                 .optional(),
         })

@@ -128,6 +128,8 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
+1. Update -find.validator's (follow user-find.validator example): coerce, preprocess, default ..etc
+
 1. Tests 
    - controllers
        - user.controller - find, statusUpdate missing tests
@@ -172,3 +174,18 @@ REVIEW AT THIS POINT > IDEAS > REACT
     {% endfor %}
   </ul>
   {% endblock %}      
+
+
+{
+"limit": 5,
+"page": 1,
+"order_by": "id",
+"direction": "DESC",
+"filter": {
+// "name": "Gabriel",
+"email": "@play-zone.ro"
+// "status": "pending"
+// "create_date_start": "2025-02-03",
+// "create_date_end": "2025-02-15"
+}
+}

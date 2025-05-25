@@ -207,7 +207,6 @@ class TemplateController {
                 page: validated.data.page,
                 limit: validated.data.limit,
                 total: total,
-                totalPages: Math.ceil(total / validated.data.limit)
             },
             query: validated.data
         });

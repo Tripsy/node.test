@@ -20,36 +20,36 @@ const UserPermissionFindValidator = z
             .optional()
             .default(OrderDirectionEnum.ASC),
         limit: z
-            .number({message: lang('error.filter_number')})
+            .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(settings.filter.defaultLimit),
         page: z
-            .number({message: lang('error.filter_number')})
+            .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(1),
         filter: z.object({
             entity: z
-                .string({message: lang('error.filter_string')})
+                .string({message: lang('error.invalid_string')})
                 .min(settings.filter.termMinLength, {
-                    message: lang('error.filter_min', {
+                    message: lang('error.string_min', {
                         min: settings.filter.termMinLength.toString(),
                         term: 'entity',
                     }),
                 })
                 .optional(),
             operation: z
-                .string({message: lang('error.filter_string')})
+                .string({message: lang('error.invalid_string')})
                 .min(settings.filter.termMinLength, {
-                    message: lang('error.filter_min', {
+                    message: lang('error.string_min', {
                         min: settings.filter.termMinLength.toString(),
                         term: 'operation',
                     }),
                 })
                 .optional(),
             is_deleted: z
-                .boolean({message: lang('error.filter_boolean')})
+                .boolean({message: lang('error.invalid_boolean')})
                 .default(false),
         })
     });

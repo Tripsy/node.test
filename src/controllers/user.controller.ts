@@ -191,10 +191,10 @@ class UserController {
         const policy = new UserPolicy(req);
 
         // Check permission (admin or operator with permission)
-        policy.find();
+        // policy.find(); // TODO
 
         // Validate the request body against the schema
-        const validated = UserFindValidator.safeParse(req.body);
+        const validated = UserFindValidator.safeParse(req.query);
 
         if (!validated.success) {
             res.output.errors(validated.error.errors);
@@ -207,9 +207,9 @@ class UserController {
 
         const [entries, total] = await UserRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .filterBy('name', validated.data.filter.name, 'LIKE')
-            .filterBy('email', validated.data.filter.email, 'LIKE')
+            .filterBy('name,email', validated.data.filter.term, 'LIKE')
             .filterByStatus(validated.data.filter.status)
+            .filterBy('role', validated.data.filter.role)
             .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
             .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
@@ -222,7 +222,6 @@ class UserController {
                 page: validated.data.page,
                 limit: validated.data.limit,
                 total: total,
-                totalPages: Math.ceil(total / validated.data.limit)
             },
             query: validated.data
         });
