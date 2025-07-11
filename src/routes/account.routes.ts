@@ -86,4 +86,13 @@ routes.post(
     AccountController.emailUpdate
 );
 
+// Account - Get details
+routes.get(
+    routesConfig.account.details,
+    [
+        metaDocumentation('account', 'details'),
+    ],
+    AccountController.details
+);
+
 export default routes;

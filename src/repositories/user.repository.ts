@@ -17,6 +17,22 @@ export class UserQuery extends AbstractQuery {
 
         return this;
     }
+
+    filterByTerm(term?: string): this {
+        if (term) {
+            this.query.andWhere(`(
+                   ${UserQuery.entityAlias}.id = :id
+                OR ${UserQuery.entityAlias}.name LIKE :name    
+                OR ${UserQuery.entityAlias}.email LIKE :email
+            )`, {
+                id: term,
+                name: `%${term}%`,
+                email: `%${term}%`,
+            });
+        }
+
+        return this;
+    }
 }
 
 export const UserRepository = dataSource.getRepository(UserEntity).extend({

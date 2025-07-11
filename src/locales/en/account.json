@@ -4,7 +4,6 @@
 		"not_found": "Account not found",
 		"not_active": "Account not found",
 		"already_active": "Account already active",
-		"is_inactive": "Account is inactive",
 		"not_authorized": "Invalid email or password",
 		"max_active_sessions": "Too many active sessions",
 		"not_logged_in": "Not logged in",

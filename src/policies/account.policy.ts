@@ -1,7 +1,6 @@
 import {Request} from 'express';
 import AbstractPolicy from './abstract.policy';
 import UnauthorizedError from '../exceptions/unauthorized.error';
-import NotAllowedError from '../exceptions/not-allowed.error';
 import {lang} from '../config/i18n-setup.config';
 import {settings} from '../config/settings.config';
 import CustomError from '../exceptions/custom.error';
@@ -17,13 +16,13 @@ class AccountPolicy extends AbstractPolicy {
 
     public register(): void {
         if (this.isAuthenticated()) {
-            throw new NotAllowedError(lang('account.error.already_logged_in'));
+            throw new CustomError(406, lang('account.error.already_logged_in'));
         }
     }
 
     public login(): void {
         if (this.isAuthenticated()) {
-            throw new NotAllowedError(lang('account.error.already_logged_in'));
+            throw new CustomError(406, lang('account.error.already_logged_in'));
         }
     }
 
@@ -35,13 +34,13 @@ class AccountPolicy extends AbstractPolicy {
 
     public passwordRecover(): void {
         if (this.isAuthenticated()) {
-            throw new NotAllowedError(lang('account.error.already_logged_in'));
+            throw new CustomError(406, lang('account.error.already_logged_in'));
         }
     }
 
     public passwordRecoverChange(): void {
         if (this.isAuthenticated()) {
-            throw new NotAllowedError(lang('account.error.already_logged_in'));
+            throw new CustomError(406, lang('account.error.already_logged_in'));
         }
     }
 
@@ -52,6 +51,12 @@ class AccountPolicy extends AbstractPolicy {
     }
 
     public emailUpdate(): void {
+        if (!this.isAuthenticated()) {
+            throw new UnauthorizedError();
+        }
+    }
+
+    public details(): void {
         if (!this.isAuthenticated()) {
             throw new UnauthorizedError();
         }

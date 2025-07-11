@@ -24,6 +24,7 @@ export const routesConfig = {
         passwordUpdate: '/account/password-update',
         emailConfirm: '/account/email-confirm/:token',
         emailUpdate: '/account/email-update',
+        details: '/account/details',
     },
     permission: {
         create: '/permissions',

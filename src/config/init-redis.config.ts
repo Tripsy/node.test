@@ -10,7 +10,7 @@ class RedisClient {
             RedisClient.instance = new Redis({
                 host: settings.redis.host,
                 port: settings.redis.port,
-                password: settings.redis.password || undefined,
+                password: settings.redis.password,
             });
 
             RedisClient.instance.on('error', (error) => {

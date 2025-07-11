@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-export const settings= {
+export const settings = {
     app: {
         name: process.env.APP_NAME || 'sample-node-api',
         email: process.env.APP_EMAIL || 'hello@example.com',
@@ -27,7 +27,7 @@ export const settings= {
     redis: {
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379', 10),
-        password: process.env.REDIS_PASSWORD || null,
+        password: process.env.REDIS_PASSWORD || undefined,
     },
     cache: {
         ttl: Number(process.env.CACHE_TTL) || 60
@@ -61,8 +61,8 @@ export const settings= {
     },
     user: {
         authSecret: process.env.AUTH_JWT_SECRET as string || 'secret',
-        authExpiresIn: (Number(process.env.AUTH_JWT_EXPIRES_IN) || 60) * 60, // converted to seconds
-        authRefreshExpiresIn: (Number(process.env.AUTH_JWT_REFRESH_EXPIRES_IN) || 60) * 60, // converted to seconds; used to refresh token if token expires before this value
+        authExpiresIn: Number(process.env.AUTH_JWT_EXPIRES_IN) || 86400,
+        authRefreshExpiresIn: Number(process.env.AUTH_JWT_REFRESH_EXPIRES_IN) || 28800, // refresh token if expires before defined interval
         emailConfirmationSecret: process.env.EMAIL_JWT_SECRET as string || 'secret',
         emailConfirmationExpiresIn: Number(process.env.EMAIL_JWT_EXPIRES_IN) || 30, // days
         maxActiveSessions: 2, // maximum number of active sessions per user; on valid login and max number will have to chose to remove old session(s)

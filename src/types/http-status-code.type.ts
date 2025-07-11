@@ -6,6 +6,7 @@ export type HttpStatusCode =
     | 401 // Unauthorized
     | 403 // Forbidden
     | 404 // Not Found
+    | 406 // Not Acceptable
     | 409 // Conflict
     | 422 // Conflict
     | 429 // Too Many Requests

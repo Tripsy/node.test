@@ -128,9 +128,14 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. Update -find.validator's (follow user-find.validator example): coerce, preprocess, default ..etc
+1. Update settings like in front-end app
+2. Use the date.ts from front-end
+3. Update -find.validator's (follow user-find.validator example): coerce, preprocess, default ..etc
+  see https://github.com/Tripsy/node.test/commit/18cc3118080467b20a0a5af3cd48bff34ddb71ae
 
-1. Tests 
+4. Implement front-end link - email templates
+
+5. Tests 
    - controllers
        - user.controller - find, statusUpdate missing tests
        - log-data.controller - find missing tests
