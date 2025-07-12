@@ -11,7 +11,7 @@ import {outputHandler} from './middleware/output-handler.middleware';
 import {notFoundHandler} from './middleware/not-found-handler.middleware';
 import {errorHandler} from './middleware/error-handler.middleware';
 import {destroyDatabase, initDatabase} from './providers/database.provider';
-import {settings} from './config/settings.config';
+import {cfg} from './config/settings.config';
 import {initRoutes} from './config/init-routes.config';
 import authMiddleware from './middleware/auth.middleware';
 import languageMiddleware from './middleware/language.middleware';
@@ -71,13 +71,13 @@ async function initializeApp() {
     app.use(errorHandler); // Error handler
 
     // Start the server
-    const port: number = settings.app.port;
+    const port: number = cfg('app.port');
 
     server = app.listen(port, () => {
         logger.debug(`App listening on port ${port}`);
     });
 
-    if (settings.app.env !== 'test') {
+    if (cfg('app.env') !== 'test') {
         // Start the worker here since it's database dependent
         import('./workers/email.worker').then(() => {
             logger.debug('Email worker started.');
@@ -118,19 +118,19 @@ const shutdown = (server: Server, signal: string): void => {
 
                 logger.debug('Server closed gracefully');
 
-                if (settings.app.env !== 'test') {
+                if (cfg('app.env') !== 'test') {
                     process.exit(0);
                 }
             } catch (error: Error | any) {
                 logger.fatal(error, error.message);
 
-                if (settings.app.env !== 'test') {
+                if (cfg('app.env') !== 'test') {
                     process.exit(1);
                 }
             }
         });
     } else {
-        if (settings.app.env !== 'test') {
+        if (cfg('app.env') !== 'test') {
             process.exit(1);
         }
     }
@@ -139,7 +139,7 @@ const shutdown = (server: Server, signal: string): void => {
     setTimeout(() => {
         logger.fatal('Forcing shutdown...');
 
-        if (settings.app.env !== 'test') {
+        if (cfg('app.env') !== 'test') {
             process.exit(1);
         }
 

@@ -1,12 +1,12 @@
 import {Queue} from 'bullmq';
-// import {settings} from '../config/settings.config';
+// import {cfg} from '../config/settings.config';
 import {getRedisClient} from '../config/init-redis.config';
 
 const emailQueue = new Queue('emailQueue', {
     connection: getRedisClient(),
     // connection: {
-    //     host: settings.redis.host,
-    //     port: settings.redis.port,
+    //     host: cfg('redis.host'),
+    //     port: cfg('redis.port'),
     // },
 });
 

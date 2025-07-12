@@ -1,21 +1,25 @@
 import 'dotenv/config';
+import {getObjectValue} from '../helpers/utils.helper';
+import {LogLevelEnum} from '../enums/log-level.enum';
 
-export const settings = {
+const settings = {
     app: {
-        name: process.env.APP_NAME || 'sample-node-api',
-        email: process.env.APP_EMAIL || 'hello@example.com',
-        env: process.env.APP_ENV || 'local',
+        env: process.env.APP_ENV || 'development',
         debug: process.env.APP_DEBUG === 'true',
-        timezone: process.env.APP_TIMEZONE || 'UTC',
         url: process.env.APP_URL || 'http://node.test',
         port: parseInt(process.env.APP_PORT || '3000', 10),
-        defaultLanguage: process.env.APP_LANG || 'en',
-        supportedLanguages: (process.env.APP_SUPPORTED_LANGUAGES || 'en').trim().split(','),
         rootPath: process.env.ROOT_PATH || '/var/www/html',
         srcPath: process.env.SRC_PATH || '/var/www/html/src',
+        name: process.env.APP_NAME || 'sample-node-api',
+        email: process.env.APP_EMAIL || 'hello@example.com', // TODO
+        timezone: process.env.APP_TIMEZONE || 'UTC',
+        language: process.env.APP_LANG || 'en',
+        supportedLanguages: (process.env.APP_SUPPORTED_LANGUAGES || 'en').trim().split(','),
+    },
+    security: {
         allowedOrigins: [
             'http://nextjs.test'
-        ]
+        ],
     },
     database: {
         host: process.env.DB_HOST || 'localhost',
@@ -38,10 +42,10 @@ export const settings = {
      * Below log level 30 can only be logged to a file
      */
     pino: {
-        logLevel: process.env.PINO_LOG_LEVEL || 'trace',
-        levelFile: ['debug', 'info', 'error', 'warn', 'fatal'],
-        levelDatabase: ['info', 'error', 'warn', 'fatal'],
-        levelEmail: ['error', 'fatal'],
+        logLevel: process.env.PINO_LOG_LEVEL || 'trace' as LogLevelEnum,
+        levelFile: ['debug', 'info', 'error', 'warn', 'fatal'] as LogLevelEnum[],
+        levelDatabase: ['info', 'error', 'warn', 'fatal'] as LogLevelEnum[],
+        levelEmail: ['error', 'fatal'] as LogLevelEnum[],
         logEmail: process.env.PINO_LOG_EMAIL || '',
     },
     mail: {
@@ -54,7 +58,7 @@ export const settings = {
         fromName: process.env.MAIL_FROM_NAME || 'sample-node-api'
     },
     filter: {
-        defaultLimit: 20,
+        limit: 20, // Default limit
         termMinLength: 3,
         dateFormatRegex: /^\d{4}-\d{2}-\d{2}$/,
         dateFormatLiteral: 'YYYY-MM-DD',
@@ -73,6 +77,10 @@ export const settings = {
         passwordMinLength: 8,
         loginMaxFailedAttemptsForIp: 5,
         loginMaxFailedAttemptsForEmail: 3,
-        LoginFailedAttemptsLockTime: 900, // block logins for 15 minutes when too many failed attempts
+        loginFailedAttemptsLockTime: 900, // block logins for 15 minutes when too many failed attempts
     }
 };
+
+export function cfg(key: string): any {
+    return getObjectValue(settings, key);
+}

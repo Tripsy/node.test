@@ -1,13 +1,13 @@
 import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 
 const AccountPasswordRecoverChangeValidator = z
     .object({
         password: z
             .string({message: lang('user.validation.password_invalid')})
-            .min(settings.user.passwordMinLength, {
-                message: lang('user.validation.password_min', {min: settings.user.passwordMinLength.toString()}),
+            .min(cfg('user.passwordMinLength'), {
+                message: lang('user.validation.password_min', {min: cfg('user.passwordMinLength').toString()}),
             })
             .refine((value) => /[A-Z]/.test(value), {
                 message: lang('user.validation.password_condition_capital_letter'),

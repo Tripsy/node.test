@@ -1,5 +1,5 @@
 import nunjucks from 'nunjucks';
-import {settings} from './settings.config';
+import {cfg} from './settings.config';
 import {buildSrcPath} from '../helpers/system.helper';
 import {baseLink} from './init-routes.config';
 
@@ -8,14 +8,14 @@ const templates = new nunjucks.Environment(new nunjucks.FileSystemLoader(buildSr
     autoescape: true,
     throwOnUndefined: true,
     trimBlocks: true,
-    noCache: settings.app.debug,
+    noCache: cfg('app.debug'),
     watch: true,
 });
 
 // Add global variables
-templates.addGlobal('siteName', settings.app.name);
+templates.addGlobal('siteName', cfg('app.name'));
 templates.addGlobal('siteLink', baseLink());
-templates.addGlobal('supportEmail', settings.app.email);
+templates.addGlobal('supportEmail', cfg('app.email'));
 templates.addGlobal('currentYear', new Date().getFullYear().toString());
 
 // // Add custom filter

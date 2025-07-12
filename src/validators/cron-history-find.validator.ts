@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import {CronHistoryStatusEnum} from '../enums/cron-history-status.enum';
 
@@ -25,7 +25,7 @@ const LogDataFindValidator = z
             .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
-            .default(settings.filter.defaultLimit),
+            .default(cfg('filter.limit')),
         page: z
             .number({message: lang('error.invalid_number')})
             .min(1)
@@ -40,32 +40,32 @@ const LogDataFindValidator = z
                 .optional(),
             label: z
                 .string({message: lang('error.invalid_string')})
-                .min(settings.filter.termMinLength, {
+                .min(cfg('filter.termMinLength'), {
                     message: lang('error.string_min', {
-                        min: settings.filter.termMinLength.toString(),
+                        min: cfg('filter.termMinLength').toString(),
                         term: 'label',
                     }),
                 })
                 .optional(),
             content: z
                 .string({message: lang('error.invalid_string')})
-                .min(settings.filter.termMinLength, {
+                .min(cfg('filter.termMinLength'), {
                     message: lang('error.string_min', {
-                        min: settings.filter.termMinLength.toString(),
+                        min: cfg('filter.termMinLength').toString(),
                         term: 'message',
                     }),
                 })
                 .optional(),
             start_at_start: z
                 .string({message: lang('error.invalid_string')})
-                .regex(settings.filter.dateFormatRegex, {
-                    message: lang('error.invalid_date_format', {format: settings.filter.dateFormatLiteral}),
+                .regex(cfg('filter.dateFormatRegex'), {
+                    message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
                 })
                 .optional(),
             start_at_end: z
                 .string({message: lang('error.invalid_string')})
-                .regex(settings.filter.dateFormatRegex, {
-                    message: lang('error.invalid_date_format', {format: settings.filter.dateFormatLiteral}),
+                .regex(cfg('filter.dateFormatRegex'), {
+                    message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
                 })
                 .optional(),
         })

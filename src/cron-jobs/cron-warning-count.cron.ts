@@ -2,7 +2,7 @@ import {createPastDate} from '../helpers/utils.helper';
 import CronHistoryRepository from '../repositories/cron-history.repository';
 import {EmailTemplate} from '../types/template.type';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 
 // Report cron warnings in the last 7 days
 export const cronWarningCount = async (): Promise<{}> => {
@@ -19,7 +19,7 @@ export const cronWarningCount = async (): Promise<{}> => {
     const warnings = await query.all(false, true);
 
     if (warnings) {
-        const emailTemplate: EmailTemplate = await loadEmailTemplate('cron-warning-count', settings.app.defaultLanguage);
+        const emailTemplate: EmailTemplate = await loadEmailTemplate('cron-warning-count', cfg('app.language'));
 
         const warningCount: number = warnings.reduce((sum: number, warning) => sum + Number(warning.countOccurrences), 0);
 
@@ -33,8 +33,8 @@ export const cronWarningCount = async (): Promise<{}> => {
                     'queryParameters': JSON.stringify(query.debugParameters()),
                 },
                 {
-                    name: settings.app.name,
-                    address: settings.app.email
+                    name: cfg('app.name'),
+                    address: cfg('app.email')
                 });
         }
     }

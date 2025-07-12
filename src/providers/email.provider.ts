@@ -1,5 +1,5 @@
 import Mail from 'nodemailer/lib/mailer';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import  {systemLogger} from './logger.provider';
 import {lang} from '../config/i18n-setup.config';
 import nodemailer, {Transporter} from 'nodemailer';
@@ -16,12 +16,12 @@ let emailTransporter: Transporter | null = null;
 export function getEmailTransporter(): Transporter {
     if (!emailTransporter) {
         emailTransporter = nodemailer.createTransport({
-            host: settings.mail.host,
-            port: settings.mail.port,
-            secure: settings.mail.encryption === 'ssl',
+            host: cfg('mail.host'),
+            port: cfg('mail.port'),
+            secure: cfg('mail.encryption') === 'ssl',
             auth: {
-                user: settings.mail.username,
-                pass: settings.mail.password
+                user: cfg('mail.username'),
+                pass: cfg('mail.password')
             }
         });
     }
@@ -30,8 +30,8 @@ export function getEmailTransporter(): Transporter {
 }
 
 export const systemFrom: Mail.Address = {
-    name: settings.mail.fromName,
-    address: settings.mail.fromAddress
+    name: cfg('mail.fromName'),
+    address: cfg('mail.fromAddress')
 };
 
 export type EmailQueueData = {

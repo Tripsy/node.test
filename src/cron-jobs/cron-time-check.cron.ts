@@ -1,7 +1,7 @@
 import {createPastDate, dateToString} from '../helpers/utils.helper';
 import {EmailTemplate} from '../types/template.type';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import dataSource from '../config/data-source.config';
 
 // Check if there are cron jobs starting at the same time in the last 24 hours
@@ -69,7 +69,7 @@ export const cronTimeCheck = async (): Promise<{}> => {
             });
         })
 
-        const emailTemplate: EmailTemplate = await loadEmailTemplate('cron-time-check', settings.app.defaultLanguage);
+        const emailTemplate: EmailTemplate = await loadEmailTemplate('cron-time-check', cfg('app.language'));
 
         await queueEmail(
             emailTemplate,
@@ -79,8 +79,8 @@ export const cronTimeCheck = async (): Promise<{}> => {
                 'queryParameters': JSON.stringify(queryParameters),
             },
             {
-                name: settings.app.name,
-                address: settings.app.email
+                name: cfg('app.name'),
+                address: cfg('app.email')
             });
     }
 

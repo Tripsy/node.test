@@ -1,5 +1,5 @@
 import pino, {Logger} from 'pino';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import {v4 as uuid} from 'uuid';
 import {CallStackInterface} from '../interfaces/call-stack.interface';
 import {LogLevelEnum} from '../enums/log-level.enum';
@@ -174,12 +174,12 @@ export class LogStream extends Writable {
         }
 
         const emailTransporter = nodemailer.createTransport({
-            host: settings.mail.host,
-            port: settings.mail.port,
-            secure: settings.mail.encryption === 'ssl',
+            host: cfg('mail.host'),
+            port: cfg('mail.port'),
+            secure: cfg('mail.encryption') === 'ssl',
             auth: {
-                user: settings.mail.username,
-                pass: settings.mail.password,
+                user: cfg('mail.username'),
+                pass: cfg('mail.password'),
             },
         });
 
@@ -193,10 +193,10 @@ export class LogStream extends Writable {
         log.destinations.push('database');
 
         emailTransporter.sendMail({
-            from: settings.mail.fromAddress,
-            to: settings.pino.logEmail,
+            from: cfg('mail.fromAddress'),
+            to: cfg('pino.logEmail'),
             subject: lang('debug.email_log_subject', {
-                app: settings.app.name,
+                app: cfg('app.name'),
                 level: logLevel,
             }),
             text: JSON.stringify(clonedLog)
@@ -219,21 +219,21 @@ export class LogStream extends Writable {
             let log = JSON.parse(chunkString);
             log.destinations = [];
 
-            if (settings.app.env === 'test' || settings.app.debug) {
+            if (cfg('app.env') === 'test' || cfg('app.debug')) {
                 this.pretty.write(chunkString);
             }
 
             const logLevel: LogLevelEnum = getLogLevel(log.level);
 
-            if ((settings.pino.levelFile as LogLevelEnum[]).includes(logLevel)) {
+            if ((cfg('pino.levelFile')).includes(logLevel)) {
                 this.writeToFile(logLevel, log);
             }
 
-            if ((settings.pino.levelDatabase as LogLevelEnum[]).includes(logLevel)) {
+            if ((cfg('pino.levelDatabase')).includes(logLevel)) {
                 this.writeToDatabase(logLevel, log);
             }
 
-            if ((settings.pino.levelEmail as LogLevelEnum[]).includes(logLevel)) {
+            if ((cfg('pino.levelEmail')).includes(logLevel)) {
                 this.sendToEmail(logLevel, log);
             }
         } catch (error) {
@@ -250,7 +250,7 @@ const logger = pino({
     // The minimum level to log: Pino will not log messages with a lower level.
     // Setting this option reduces the load, as typically, debug and trace logs are only valid for development, and not needed in production.
     // 'fatal', 'error', 'warn', 'info', 'debug', 'trace' or 'silent'
-    level: settings.app.env === 'test' ? 'error' : settings.pino.logLevel,
+    level: cfg('app.env') === 'test' ? 'error' : cfg('pino.logLevel'),
     // Defines how and where to send log data, such as to files, external services, or streams.
     nestedKey: 'context',
     // Define default properties included in every log line.
@@ -313,7 +313,7 @@ export function childLogger(logger: Logger, category: LogCategoryEnum) {
 
 export const systemLogger: Logger = childLogger(logger, LogCategoryEnum.SYSTEM);
 
-if (settings.app.env === 'test') {
+if (cfg('app.env') === 'test') {
     // systemLogger.debug = console.log;
     systemLogger.debug = () => {
     };

@@ -4,7 +4,6 @@ import UserEntity from '../../entities/user.entity';
 import {UserStatusEnum} from '../../enums/user-status.enum';
 import UserRepository from '../../repositories/user.repository';
 import * as accountService from '../../services/account.service';
-import {settings} from '../../config/settings.config';
 import {AuthValidToken, ConfirmationTokenPayload} from '../../types/token.type';
 import {routeLink} from '../../config/init-routes.config';
 import {UserRoleEnum} from '../../enums/user-role.enum';
@@ -18,6 +17,8 @@ import * as metaDataHelper from '../../helpers/meta-data.helper';
 import jwt from 'jsonwebtoken';
 import NotAllowedError from '../../exceptions/not-allowed.error';
 import '../jest-functional.setup';
+
+import * as settingsModule from '../../config/settings.config';
 
 jest.mock('jsonwebtoken');
 
@@ -174,7 +175,14 @@ describe('AccountController - login', () => {
     it('should login successfully with valid credentials', async () => {
         jest.spyOn(AccountPolicy.prototype, 'checkRateLimitOnLogin').mockImplementation();
 
-        jest.replaceProperty(settings.user, 'maxActiveSessions', 3); // Set a higher number than mockAuthValidTokens.length to avoid condition authValidTokens.length >= settings.user.maxActiveSessions
+        // Set a higher number than mockAuthValidTokens.length to avoid condition authValidTokens.length >= settings.user.maxActiveSessions
+        jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
+            if (key === 'user.maxActiveSessions') {
+                return 3;
+            }
+
+            return settingsModule.cfg(key);
+        });
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -200,7 +208,13 @@ describe('AccountController - login', () => {
         jest.spyOn(AccountPolicy.prototype, 'checkRateLimitOnLogin').mockImplementation();
 
         // Set a number lower or equal than mockAuthValidTokens.length to trigger condition authValidTokens.length >= settings.user.maxActiveSessions
-        jest.replaceProperty(settings.user, 'maxActiveSessions', 1);
+        jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
+            if (key === 'user.maxActiveSessions') {
+                return 1;
+            }
+
+            return settingsModule.cfg(key);
+        });
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -330,7 +344,13 @@ describe('AccountController - passwordRecover', () => {
             firstOrFail: jest.fn().mockResolvedValue(mockUser),
         } as any);
 
-        jest.replaceProperty(settings.user, 'recoveryAttemptsInLastSixHours', 3);
+        jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
+            if (key === 'user.recoveryAttemptsInLastSixHours') {
+                return 3;
+            }
+
+            return settingsModule.cfg(key);
+        });
 
         jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -458,7 +478,13 @@ describe('AccountController - passwordRecoverChange', () => {
             firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
         } as any);
 
-        jest.replaceProperty(settings.user, 'recoveryEnableMetadataCheck', true);
+        jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
+            if (key === 'user.recoveryEnableMetadataCheck') {
+                return true;
+            }
+
+            return settingsModule.cfg(key);
+        });
 
         jest.spyOn(metaDataHelper, 'compareMetaDataValue').mockReturnValue(false);
 
@@ -478,7 +504,13 @@ describe('AccountController - passwordRecoverChange', () => {
             firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
         } as any);
 
-        jest.replaceProperty(settings.user, 'recoveryEnableMetadataCheck', false);
+        jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
+            if (key === 'user.recoveryEnableMetadataCheck') {
+                return false;
+            }
+
+            return settingsModule.cfg(key);
+        });
 
         jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
             select: jest.fn().mockReturnThis(),
@@ -502,7 +534,13 @@ describe('AccountController - passwordRecoverChange', () => {
             firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
         } as any);
 
-        jest.replaceProperty(settings.user, 'recoveryEnableMetadataCheck', false);
+        jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
+            if (key === 'user.recoveryEnableMetadataCheck') {
+                return false;
+            }
+
+            return settingsModule.cfg(key);
+        });
 
         jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
 

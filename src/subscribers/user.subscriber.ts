@@ -17,7 +17,7 @@ import {
     removeOperation,
     restoreOperation
 } from '../helpers/subscriber.helper';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import {UserStatusEnum} from '../enums/user-status.enum';
 
 @EventSubscriber()
@@ -37,7 +37,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 
         // Set default language
         if (!event.entity.language) {
-            event.entity.language = settings.app.defaultLanguage;
+            event.entity.language = cfg('app.language');
         }
     }
 

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import UserEntity from '../entities/user.entity';
 import jwt from 'jsonwebtoken';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import {v4 as uuid} from 'uuid';
 import {createFutureDate} from '../helpers/utils.helper';
 import AccountTokenEntity from '../entities/account-token.entity';
@@ -33,14 +33,14 @@ export function createAuthToken(user: Partial<UserEntity> & { id: number }): {
     }
 
     const ident: string = uuid();
-    const expire_at: Date = createFutureDate(settings.user.authExpiresIn);
+    const expire_at: Date = createFutureDate(cfg('user.authExpiresIn'));
 
     const payload: AuthTokenPayload = {
         user_id: user.id,
         ident: ident
     };
 
-    const token = jwt.sign(payload, settings.user.authSecret);
+    const token = jwt.sign(payload, cfg('user.authSecret'));
 
     return {token, ident, expire_at};
 }
@@ -83,7 +83,7 @@ export function readToken(req: Request): string | undefined {
 
 export async function setupRecovery(user: Partial<UserEntity> & { id: number }, req: Request): Promise<[string, Date]> {
     const ident: string = uuid();
-    const expire_at = createFutureDate(settings.user.recoveryIdentExpiresIn);
+    const expire_at = createFutureDate(cfg('user.recoveryIdentExpiresIn'));
 
     const accountRecoveryEntity = new AccountRecoveryEntity();
     accountRecoveryEntity.user_id = user.id;
@@ -121,11 +121,11 @@ export function createConfirmationToken(user: Partial<UserEntity> & {
         user_email_new: user.email_new
     };
 
-    const token = jwt.sign(payload, settings.user.emailConfirmationSecret, {
-        expiresIn: settings.user.emailConfirmationExpiresIn * 86400
+    const token = jwt.sign(payload, cfg('user.emailConfirmationSecret'), {
+        expiresIn: cfg('user.emailConfirmationExpiresIn') * 86400
     });
 
-    const expire_at = createFutureDate(settings.user.emailConfirmationExpiresIn * 86400);
+    const expire_at = createFutureDate(cfg('user.emailConfirmationExpiresIn') * 86400);
 
     return {token, expire_at};
 }

@@ -1,5 +1,5 @@
 import {Worker} from 'bullmq';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import {EmailQueueData, sendEmail, systemFrom} from '../providers/email.provider';
 import MailQueueRepository from '../repositories/mail-queue.repository';
 import {MailQueueStatusEnum} from '../enums/mail-queue-status.enum';
@@ -31,8 +31,8 @@ const emailWorker = new Worker(
     },
     {
         connection: {
-            host: settings.redis.host,
-            port: settings.redis.port,
+            host: cfg('redis.host'),
+            port: cfg('redis.port'),
         }, // Redis connection
         concurrency: 5, // Process up to 5 jobs concurrently
     }

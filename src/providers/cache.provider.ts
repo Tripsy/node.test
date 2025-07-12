@@ -1,4 +1,4 @@
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import {systemLogger} from './logger.provider';
 import {getRedisClient} from '../config/init-redis.config';
 import Redis from 'ioredis';
@@ -27,7 +27,7 @@ class CacheProvider {
     }
 
     determineTtl(ttl?: number): number {
-        return ttl === undefined ? settings.cache.ttl : ttl;
+        return ttl === undefined ? cfg('cache.ttl') : ttl;
     }
 
     formatInputData(data: Exclude<any, null>): any {

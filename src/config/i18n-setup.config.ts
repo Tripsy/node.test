@@ -1,4 +1,4 @@
-import {settings} from './settings.config';
+import {cfg} from './settings.config';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import {LanguageDetector} from 'i18next-http-middleware';
@@ -29,7 +29,7 @@ async function returnNamespaces(): Promise<string[]> {
     // While running tests will start failing because Redis connection is not closed
     // So we don't use cache
     // May be a bug, may be an issue, I didn't find a resolution
-    if (settings.app.env === 'test') {
+    if (cfg('app.env') === 'test') {
         return getNamespaces();
     }
     
@@ -69,7 +69,7 @@ async function initializeI18next() {
         .init({
             lng: 'en', // Default language
             fallbackLng: 'en', // Fallback language
-            supportedLngs: settings.app.supportedLanguages, // List of supported languages
+            supportedLngs: cfg('app.supportedLanguages'), // List of supported languages
             ns: namespaces, // Dynamically determined namespaces
             backend: {
                 loadPath: buildSrcPath('locales/{{lng}}/{{ns}}.json'), // Path to translation files
@@ -93,7 +93,7 @@ initializeI18next().catch(() => {
  * The key should be in the format `namespace.key`.
  */
 export const lang = (key: string, replacements: Record<string, string> = {}): string => {
-    if (settings.app.env === 'test') {
+    if (cfg('app.env') === 'test') {
         return key;
     }
 

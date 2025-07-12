@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 import {readToken} from '../services/account.service';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import {AuthTokenPayload} from '../types/token.type';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import {compareMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
@@ -18,13 +18,17 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
             id: 0,
             email: '',
             name: '',
-            language: settings.app.defaultLanguage,
+            language: cfg('app.language'),
             role: 'visitor',
             permissions: [],
         };
 
         // Read the token from the request
         const token: string | undefined = readToken(req);
+
+        console.log('token', token);
+
+        // return next();
 
         if (!token) {
             return next();
@@ -34,16 +38,20 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
         let payload: AuthTokenPayload;
 
         try {
-            payload = jwt.verify(token, settings.user.authSecret) as AuthTokenPayload;
+            payload = jwt.verify(token, cfg('user.authSecret')) as AuthTokenPayload;
         } catch (err) {
             return next();
         }
+
+        console.log('payload', payload);
 
         const activeToken = await AccountTokenRepository.createQuery()
             .select(['id', 'metadata', 'expire_at'])
             .filterByIdent(payload.ident)
             .filterBy('user_id', payload.user_id)
             .first();
+
+        console.log('activeToken', activeToken);
 
         if (!activeToken) {
             return next();
@@ -57,14 +65,16 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
         }
 
         // Validate metadata (e.g., user-agent check)
-        if (!compareMetaDataValue(activeToken.metadata, tokenMetaData(req), 'user-agent')) {
+        if (cfg('app.env') !== 'development' && !compareMetaDataValue(activeToken.metadata, tokenMetaData(req), 'user-agent')) {
             return next();
         }
 
         const user = await UserRepository.createQuery()
-            .select(['id', 'name', 'email', 'language', 'role', 'status'])
+            .select(['id', 'name', 'email', 'language', 'role', 'status', 'created_at', 'updated_at'])
             .filterById(payload.user_id)
             .first();
+
+        console.log(req.user);
 
         // User not found or inactive
         if (!user || user.status !== UserStatusEnum.ACTIVE) {
@@ -76,10 +86,10 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
         // Refresh the token if it's close to expiration
         const diffInSeconds = dateDiffInSeconds(activeToken.expire_at, new Date());
 
-        if (diffInSeconds < settings.user.authRefreshExpiresIn) {
+        if (diffInSeconds < cfg('user.authRefreshExpiresIn')) {
             await AccountTokenRepository.update(activeToken.id, {
                 used_at: new Date(),
-                expire_at: createFutureDate(settings.user.authExpiresIn),
+                expire_at: createFutureDate(cfg('user.authExpiresIn')),
             });
         } else {
             await AccountTokenRepository.update(activeToken.id, {
@@ -89,13 +99,11 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
 
         // Attach user information to the request object
         req.user = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            language: user.language,
+            ...user,
             permissions: user.role === UserRoleEnum.OPERATOR ? await getPolicyPermissions(user.id) : [],
-            role: user.role,
         };
+
+        console.log(req.user);
 
         next();
     } catch (err) {

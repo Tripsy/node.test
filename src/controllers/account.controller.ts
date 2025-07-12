@@ -14,7 +14,6 @@ import {
     setupToken,
     verifyPassword
 } from '../services/account.service';
-import {settings} from '../config/settings.config';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import AccountRemoveTokenValidator from '../validators/account-remove-token.validator';
 import AccountPasswordRecoverValidator from '../validators/account-password-recover.validator';
@@ -34,6 +33,7 @@ import AccountEmailUpdateValidator from '../validators/account-email-update.vali
 import UserEntity from '../entities/user.entity';
 import AccountRegisterValidator from '../validators/account-register.validator';
 import {getClientIp} from '../helpers/system.helper';
+import {cfg} from '../config/settings.config';
 
 class AccountController {
     public register = asyncHandler(async (req: Request, res: Response) => {
@@ -99,7 +99,10 @@ class AccountController {
             .firstOrFail();
 
         if (user.status !== UserStatusEnum.ACTIVE) {
-            throw new NotFoundError(lang('account.error.not_active'));
+            // Update failed login attempts
+            await policy.updateFailedAttemptsOnLogin(ipKey, emailKey);
+
+            throw new CustomError(400, lang('account.error.not_active'));
         }
 
         const isValidPassword: boolean = await verifyPassword(validated.data.password, user.password);
@@ -113,7 +116,7 @@ class AccountController {
 
         const authValidTokens: AuthValidToken[] = await getAuthValidTokens(user.id);
 
-        if (authValidTokens.length >= settings.user.maxActiveSessions) {
+        if (authValidTokens.length >= cfg('user.maxActiveSessions')) {
             res.status(403); // Forbidden - client's identity is known to the server
             res.output.message(lang('account.error.max_active_sessions'));
             res.output.data({
@@ -210,7 +213,7 @@ class AccountController {
             .filterByRange('created_at', createPastDate(6 * 60 * 60)) // Last 6 hours
             .count();
 
-        if (countRecoveryAttempts >= settings.user.recoveryAttemptsInLastSixHours) {
+        if (countRecoveryAttempts >= cfg('user.recoveryAttemptsInLastSixHours')) {
             throw new BadRequestError(lang('account.error.recovery_attempts_exceeded'));
         }
 
@@ -265,7 +268,7 @@ class AccountController {
             throw new BadRequestError(lang('account.error.recovery_token_expired'));
         }
 
-        if (settings.user.recoveryEnableMetadataCheck) {
+        if (cfg('user.recoveryEnableMetadataCheck')) {
             // Validate metadata (e.g., user-agent check)
             if (!compareMetaDataValue(recovery.metadata, tokenMetaData(req), 'user-agent')) {
                 throw new BadRequestError(lang('account.error.recovery_token_not_authorized'));
@@ -376,7 +379,7 @@ class AccountController {
         let payload: ConfirmationTokenPayload;
 
         try {
-            payload = jwt.verify(token, settings.user.emailConfirmationSecret) as ConfirmationTokenPayload;
+            payload = jwt.verify(token, cfg('user.emailConfirmationSecret')) as ConfirmationTokenPayload;
         } catch (err) {
             throw new BadRequestError(lang('account.error.confirmation_token_invalid'));
         }
@@ -461,6 +464,35 @@ class AccountController {
         await sendEmailConfirmUpdate(user);
 
         res.output.message(lang('account.success.email_update'));
+
+        res.json(res.output);
+    });
+
+    public details = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (needs to be authenticated)
+        policy.details();
+
+        // const cacheProvider = getCacheProvider();
+
+        // const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, policy.getUserId().toString() , 'details');
+        // const user = await cacheProvider.get(cacheKey, async () => {
+        //     const userData = await UserRepository
+        //         .createQuery()
+        //         .select(['id', 'name', 'email', 'language', 'status', 'role', 'created_at', 'updated_at'])
+        //         .filterById(policy.getUserId())
+        //         .firstOrFail();
+        //
+        //     if (userData.role === UserRoleEnum.OPERATOR) {
+        //         userData.permissions = await getPolicyPermissions(userData.id);
+        //     }
+        //
+        //     return userData;
+        // });
+
+        // res.output.meta(cacheProvider.isCached, 'isCached');
+        res.output.data(req.user);
 
         res.json(res.output);
     });

@@ -2,7 +2,7 @@ import {Request} from 'express';
 import AbstractPolicy from './abstract.policy';
 import UnauthorizedError from '../exceptions/unauthorized.error';
 import {lang} from '../config/i18n-setup.config';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import CustomError from '../exceptions/custom.error';
 import {getRedisClient} from '../config/init-redis.config';
 import logger from '../providers/logger.provider';
@@ -73,7 +73,7 @@ class AccountPolicy extends AbstractPolicy {
         const ipAttemptCount = ipAttempts ? parseInt(ipAttempts, 10) : 0;
         const emailAttemptCount = emailAttempts ? parseInt(emailAttempts, 10) : 0;
 
-        if (ipAttemptCount >= settings.user.loginMaxFailedAttemptsForIp || emailAttemptCount >= settings.user.loginMaxFailedAttemptsForEmail) {
+        if (ipAttemptCount >= cfg('user.loginMaxFailedAttemptsForIp') || emailAttemptCount >= cfg('user.loginMaxFailedAttemptsForEmail')) {
             throw new CustomError(429, lang('account.error.too_many_login_attempts'));
         }
     }
@@ -87,8 +87,8 @@ class AccountPolicy extends AbstractPolicy {
             await redisClient.incr(emailKey);
 
             // Set an expiration time on the keys
-            await redisClient.expire(ipKey, settings.user.LoginFailedAttemptsLockTime);
-            await redisClient.expire(emailKey, settings.user.LoginFailedAttemptsLockTime);
+            await redisClient.expire(ipKey, cfg('user.loginFailedAttemptsLockTime'));
+            await redisClient.expire(emailKey, cfg('user.loginFailedAttemptsLockTime'));
         } catch (error) {
             logger.error(`Failed to update failed login attempts`, error);
         }

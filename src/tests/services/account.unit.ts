@@ -7,7 +7,7 @@ import {loadEmailTemplate, queueEmail} from '../../providers/email.provider';
 import {createRequest} from 'node-mocks-http';
 import {createFutureDate} from '../../helpers/utils.helper';
 import {EmailTemplate} from '../../types/template.type';
-import {settings} from '../../config/settings.config';
+import {cfg} from '../../config/settings.config';
 import {redisClose} from '../../config/init-redis.config';
 import {routeLink} from '../../config/init-routes.config';
 
@@ -133,7 +133,7 @@ describe('Account Service', () => {
     describe('sendEmailConfirmCreate', () => {
         it('should send an email confirmation for account creation', async () => {
             const token = 'jwt-token-123';
-            const expire_at = createFutureDate(settings.user.emailConfirmationExpiresIn * 86400);
+            const expire_at = createFutureDate(cfg('user.emailConfirmationExpiresIn') * 86400);
             const emailTemplate: EmailTemplate = {
                 templateId: null,
                 language: mockUser.language,
@@ -167,7 +167,7 @@ describe('Account Service', () => {
     describe('sendEmailConfirmUpdate', () => {
         it('should send an email confirmation for email update', async () => {
             const token = 'jwt-token-123';
-            const expire_at = createFutureDate(settings.user.emailConfirmationExpiresIn * 86400);
+            const expire_at = createFutureDate(cfg('user.emailConfirmationExpiresIn') * 86400);
             const emailTemplate: EmailTemplate = {
                 templateId: null,
                 language: mockUser.language,

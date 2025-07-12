@@ -207,11 +207,12 @@ class UserController {
 
         const [entries, total] = await UserRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .filterBy('name,email', validated.data.filter.term, 'LIKE')
+            .filterByTerm(validated.data.filter.term)
             .filterByStatus(validated.data.filter.status)
             .filterBy('role', validated.data.filter.role)
             .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
-            .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
+            // .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
+            .withDeleted(validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
             .all(true);

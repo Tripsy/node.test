@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import {buildSrcPath} from '../helpers/system.helper';
 import fs from 'fs/promises';
-import {settings} from './settings.config';
+import {cfg} from './settings.config';
 import {getObjectValue} from '../helpers/utils.helper';
 
 export const routesConfig = {
@@ -61,7 +61,7 @@ export const routesConfig = {
 };
 
 export function baseLink(): string {
-    return settings.app.url;
+    return cfg('app.url');
 }
 
 export function routeLink(route: string, params?: Record<string, string | number>, isAbsolute = false): string {

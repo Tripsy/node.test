@@ -2,7 +2,7 @@ import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
 import authMiddleware from '../../middleware/auth.middleware';
 import {readToken} from '../../services/account.service';
-import {settings} from '../../config/settings.config';
+import {cfg} from '../../config/settings.config';
 import AccountTokenRepository from '../../repositories/account-token.repository';
 import UserRepository from '../../repositories/user.repository';
 import {UserStatusEnum} from '../../enums/user-status.enum';
@@ -205,7 +205,7 @@ describe('authMiddleware', () => {
             first: jest.fn().mockResolvedValue(mockUser),
         } as any);
 
-        (dateDiffInSeconds as jest.Mock).mockReturnValue(settings.user.authRefreshExpiresIn - 1);
+        (dateDiffInSeconds as jest.Mock).mockReturnValue(cfg('user.authRefreshExpiresIn') - 1);
 
         (createFutureDate as jest.Mock).mockReturnValue(new Date(Date.now() + 3600000));
 

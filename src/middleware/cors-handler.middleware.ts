@@ -1,10 +1,10 @@
 import cors from 'cors';
-import {settings} from '../config/settings.config';
 import NotAllowedError from '../exceptions/not-allowed.error';
+import {cfg} from '../config/settings.config';
 
 export const corsHandler = cors({
     origin: (origin, callback) => {
-        const allowedOrigins = settings.app.allowedOrigins;
+        const allowedOrigins = cfg('security.allowedOrigins');
 
         if (!allowedOrigins || !origin || allowedOrigins.includes(origin)) {
             callback(null, true);

@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
-import {settings} from '../config/settings.config';
+import {cfg} from '../config/settings.config';
 import {OrderDirectionEnum} from '../enums/order-direction.enum';
 
 enum PermissionOrderByEnum {
@@ -23,7 +23,7 @@ const PermissionFindValidator = z
             .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
-            .default(settings.filter.defaultLimit),
+            .default(cfg('filter.limit')),
         page: z
             .number({message: lang('error.invalid_number')})
             .min(1)
@@ -35,18 +35,18 @@ const PermissionFindValidator = z
                 .optional(),
             entity: z
                 .string({message: lang('error.invalid_string')})
-                .min(settings.filter.termMinLength, {
+                .min(cfg('filter.termMinLength'), {
                     message: lang('error.string_min', {
-                        min: settings.filter.termMinLength.toString(),
+                        min: cfg('filter.termMinLength').toString(),
                         term: 'entity',
                     }),
                 })
                 .optional(),
             operation: z
                 .string({message: lang('error.invalid_string')})
-                .min(settings.filter.termMinLength, {
+                .min(cfg('filter.termMinLength'), {
                     message: lang('error.string_min', {
-                        min: settings.filter.termMinLength.toString(),
+                        min: cfg('filter.termMinLength').toString(),
                         term: 'operation',
                     }),
                 })
