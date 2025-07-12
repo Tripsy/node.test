@@ -191,7 +191,7 @@ class UserController {
         const policy = new UserPolicy(req);
 
         // Check permission (admin or operator with permission)
-        // policy.find(); // TODO
+        policy.find();
 
         // Validate the request body against the schema
         const validated = UserFindValidator.safeParse(req.query);
@@ -211,8 +211,7 @@ class UserController {
             .filterByStatus(validated.data.filter.status)
             .filterBy('role', validated.data.filter.role)
             .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
-            // .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
-            .withDeleted(validated.data.filter.is_deleted)
+            .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
             .all(true);

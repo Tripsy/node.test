@@ -26,10 +26,6 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
         // Read the token from the request
         const token: string | undefined = readToken(req);
 
-        console.log('token', token);
-
-        // return next();
-
         if (!token) {
             return next();
         }
@@ -43,15 +39,11 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
             return next();
         }
 
-        console.log('payload', payload);
-
         const activeToken = await AccountTokenRepository.createQuery()
             .select(['id', 'metadata', 'expire_at'])
             .filterByIdent(payload.ident)
             .filterBy('user_id', payload.user_id)
             .first();
-
-        console.log('activeToken', activeToken);
 
         if (!activeToken) {
             return next();
@@ -73,8 +65,6 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
             .select(['id', 'name', 'email', 'language', 'role', 'status', 'created_at', 'updated_at'])
             .filterById(payload.user_id)
             .first();
-
-        console.log(req.user);
 
         // User not found or inactive
         if (!user || user.status !== UserStatusEnum.ACTIVE) {
@@ -102,8 +92,6 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
             ...user,
             permissions: user.role === UserRoleEnum.OPERATOR ? await getPolicyPermissions(user.id) : [],
         };
-
-        console.log(req.user);
 
         next();
     } catch (err) {

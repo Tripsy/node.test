@@ -11,7 +11,7 @@ const settings = {
         rootPath: process.env.ROOT_PATH || '/var/www/html',
         srcPath: process.env.SRC_PATH || '/var/www/html/src',
         name: process.env.APP_NAME || 'sample-node-api',
-        email: process.env.APP_EMAIL || 'hello@example.com', // TODO
+        email: process.env.APP_EMAIL || 'hello@example.com', // TODO move var
         timezone: process.env.APP_TIMEZONE || 'UTC',
         language: process.env.APP_LANG || 'en',
         supportedLanguages: (process.env.APP_SUPPORTED_LANGUAGES || 'en').trim().split(','),
