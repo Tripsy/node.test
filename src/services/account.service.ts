@@ -3,7 +3,6 @@ import UserEntity from '../entities/user.entity';
 import jwt from 'jsonwebtoken';
 import {cfg} from '../config/settings.config';
 import {v4 as uuid} from 'uuid';
-import {createFutureDate} from '../helpers/utils.helper';
 import AccountTokenEntity from '../entities/account-token.entity';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import {Request} from 'express';
@@ -14,6 +13,7 @@ import AccountRecoveryRepository from '../repositories/account-recovery.reposito
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import {EmailTemplate} from '../types/template.type';
 import {routeLink} from '../config/init-routes.config';
+import {createFutureDate} from '../helpers/date.helper';
 
 export async function encryptPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);

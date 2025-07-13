@@ -3,7 +3,6 @@ import {cleanAccountToken} from '../cron-jobs/clean-account-token.cron';
 import CronHistoryEntity from '../entities/cron-history.entity';
 import {CronHistoryStatusEnum} from '../enums/cron-history-status.enum';
 import CronHistoryRepository from '../repositories/cron-history.repository';
-import {dateDiffInSeconds} from '../helpers/utils.helper';
 import NotFoundError from '../exceptions/not-found.error';
 import logger, {childLogger} from './logger.provider';
 import {cleanAccountRecovery} from '../cron-jobs/clean-account-recovery.cron';
@@ -13,6 +12,7 @@ import {cronErrorCount} from '../cron-jobs/cron-error-count.cron';
 import {cronTimeCheck} from '../cron-jobs/cron-time-check.cron';
 import {cronWarningCount} from '../cron-jobs/cron-warning-count.cron';
 import {LogCategoryEnum} from '../enums/log-category.enum';
+import {dateDiffInSeconds} from '../helpers/date.helper';
 
 const cronLogger: Logger = childLogger(logger, LogCategoryEnum.CRON);
 

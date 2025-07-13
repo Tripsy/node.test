@@ -7,8 +7,8 @@ import AccountTokenRepository from '../../repositories/account-token.repository'
 import UserRepository from '../../repositories/user.repository';
 import {UserStatusEnum} from '../../enums/user-status.enum';
 import {compareMetaDataValue} from '../../helpers/meta-data.helper';
-import {createFutureDate, dateDiffInSeconds} from '../../helpers/utils.helper';
 import {UserRoleEnum} from '../../enums/user-role.enum';
+import {createFutureDate, dateDiffInSeconds} from '../../helpers/date.helper';
 
 jest.mock('../../services/account.service');
 jest.mock('jsonwebtoken');

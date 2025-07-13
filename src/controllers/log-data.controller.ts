@@ -8,7 +8,7 @@ import LogDataPolicy from '../policies/log-data.policy';
 import LogDataFindValidator from '../validators/log-data-find.validator';
 import LogDataDeleteValidator from '../validators/log-data-delete.validator';
 import {logHistory} from '../helpers/subscriber.helper';
-import {stringToDate} from '../helpers/utils.helper';
+import {stringToDate} from '../helpers/date.helper';
 
 class LogDataController {
     public read = asyncHandler(async (req: Request, res: Response) => {

@@ -18,7 +18,6 @@ import AccountTokenRepository from '../repositories/account-token.repository';
 import AccountRemoveTokenValidator from '../validators/account-remove-token.validator';
 import AccountPasswordRecoverValidator from '../validators/account-password-recover.validator';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
-import {createPastDate} from '../helpers/utils.helper';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import AccountPasswordRecoverChangeValidator from '../validators/account-password-recover-change.validator';
 import {compareMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
@@ -34,6 +33,7 @@ import UserEntity from '../entities/user.entity';
 import AccountRegisterValidator from '../validators/account-register.validator';
 import {getClientIp} from '../helpers/system.helper';
 import {cfg} from '../config/settings.config';
+import {createPastDate} from '../helpers/date.helper';
 
 class AccountController {
     public register = asyncHandler(async (req: Request, res: Response) => {

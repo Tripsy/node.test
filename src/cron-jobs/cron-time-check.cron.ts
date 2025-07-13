@@ -1,8 +1,8 @@
-import {createPastDate, dateToString} from '../helpers/utils.helper';
 import {EmailTemplate} from '../types/template.type';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import {cfg} from '../config/settings.config';
 import dataSource from '../config/data-source.config';
+import {createPastDate, formatDate} from '../helpers/date.helper';
 
 // Check if there are cron jobs starting at the same time in the last 24 hours
 export const cronTimeCheck = async (): Promise<{}> => {
@@ -54,11 +54,11 @@ export const cronTimeCheck = async (): Promise<{}> => {
 
     if (entries.length > 0) {
         entries.forEach((entry: { id: number, label: string, start_at: Date }) => {
-            const start_at: string = dateToString(entry.start_at, 'YYYY-MM-DD-HH-mm');
+            const start_at = formatDate(entry.start_at, 'YYYY-MM-DD-HH-mm') as string;
 
             if (!results[start_at]) {
                 results[start_at] = {
-                    date: dateToString(entry.start_at, 'YYYY-MM-DD HH:mm'),
+                    date: formatDate(entry.start_at, 'YYYY-MM-DD HH:mm') as string,
                     entries: []
                 };
             }

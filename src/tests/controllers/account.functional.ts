@@ -12,13 +12,13 @@ import AccountPolicy from '../../policies/account.policy';
 import AccountRecoveryRepository from '../../repositories/account-recovery.repository';
 import * as emailProvider from '../../providers/email.provider';
 import AccountRecoveryEntity from '../../entities/account-recovery.entity';
-import {createFutureDate} from '../../helpers/utils.helper';
 import * as metaDataHelper from '../../helpers/meta-data.helper';
 import jwt from 'jsonwebtoken';
 import NotAllowedError from '../../exceptions/not-allowed.error';
 import '../jest-functional.setup';
 
 import * as settingsModule from '../../config/settings.config';
+import {createFutureDate} from '../../helpers/date.helper';
 
 jest.mock('jsonwebtoken');
 

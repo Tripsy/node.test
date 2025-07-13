@@ -8,7 +8,7 @@ import CronHistoryPolicy from '../policies/cron-history.policy';
 import CronHistoryFindValidator from '../validators/cron-history-find.validator';
 import CronHistoryDeleteValidator from '../validators/cron-history-delete.validator';
 import {logHistory} from '../helpers/subscriber.helper';
-import {stringToDate} from '../helpers/utils.helper';
+import {stringToDate} from '../helpers/date.helper';
 
 class CronHistoryController {
     public read = asyncHandler(async (req: Request, res: Response) => {

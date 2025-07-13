@@ -1,8 +1,8 @@
-import {createPastDate} from '../helpers/utils.helper';
 import CronHistoryRepository from '../repositories/cron-history.repository';
 import {EmailTemplate} from '../types/template.type';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import {cfg} from '../config/settings.config';
+import {createPastDate} from '../helpers/date.helper';
 
 // Report cron warnings in the last 7 days
 export const cronWarningCount = async (): Promise<{}> => {

@@ -7,9 +7,9 @@ import AccountTokenRepository from '../repositories/account-token.repository';
 import {compareMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
 import UserRepository from '../repositories/user.repository';
 import {UserStatusEnum} from '../enums/user-status.enum';
-import {createFutureDate, dateDiffInSeconds} from '../helpers/utils.helper';
 import {getPolicyPermissions} from '../services/user.service';
 import {UserRoleEnum} from '../enums/user-role.enum';
+import {createFutureDate, dateDiffInSeconds} from '../helpers/date.helper';
 
 async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
     try {

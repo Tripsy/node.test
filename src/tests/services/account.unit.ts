@@ -5,11 +5,11 @@ import AccountTokenRepository from '../../repositories/account-token.repository'
 import AccountRecoveryRepository from '../../repositories/account-recovery.repository';
 import {loadEmailTemplate, queueEmail} from '../../providers/email.provider';
 import {createRequest} from 'node-mocks-http';
-import {createFutureDate} from '../../helpers/utils.helper';
 import {EmailTemplate} from '../../types/template.type';
 import {cfg} from '../../config/settings.config';
 import {redisClose} from '../../config/init-redis.config';
 import {routeLink} from '../../config/init-routes.config';
+import {createFutureDate} from '../../helpers/date.helper';
 
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');

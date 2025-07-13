@@ -3,9 +3,9 @@ import {QueryBuilder, SelectQueryBuilder} from 'typeorm';
 import {lang} from '../config/i18n-setup.config';
 import NotFoundError from '../exceptions/not-found.error';
 import CustomError from '../exceptions/custom.error';
-import {dateToString} from '../helpers/utils.helper';
 import {OrderDirectionEnum} from "../enums/order-direction.enum";
 import {EntityContextData} from '../types/entity-context-data.type';
+import {formatDate} from '../helpers/date.helper';
 
 class AbstractQuery {
     private repository: Repository<any>;
@@ -379,8 +379,8 @@ class AbstractQuery {
     }
 
     filterByRange(column: string, min?: Date | number | null, max?: Date | number | null): this {
-        const minValue = min instanceof Date ? dateToString(min) : min;
-        const maxValue = max instanceof Date ? dateToString(max) : max;
+        const minValue = min instanceof Date ? formatDate(min) : min;
+        const maxValue = max instanceof Date ? formatDate(max) : max;
 
         if (min && max) {
             column = this.prepareColumn(column);

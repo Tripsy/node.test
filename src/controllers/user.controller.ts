@@ -9,9 +9,9 @@ import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
 import {getCacheProvider} from '../providers/cache.provider';
 import UserFindValidator from '../validators/user-find.validator';
-import {stringToDate} from '../helpers/utils.helper';
 import UserPolicy from '../policies/user.policy';
 import AccountTokenRepository from '../repositories/account-token.repository';
+import {stringToDate} from '../helpers/date.helper';
 
 class UserController {
     public create = asyncHandler(async (req: Request, res: Response) => {
