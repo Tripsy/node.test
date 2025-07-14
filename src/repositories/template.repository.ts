@@ -8,6 +8,22 @@ export class TemplateQuery extends AbstractQuery {
     constructor(repository: ReturnType<typeof dataSource.getRepository<TemplateEntity>>) {
         super(repository, TemplateQuery.entityAlias);
     }
+
+    filterByTerm(term?: string): this {
+        if (term) {
+            this.query.andWhere(`(
+                   ${TemplateQuery.entityAlias}.id = :id
+                OR ${TemplateQuery.entityAlias}.label LIKE :label    
+                OR ${TemplateQuery.entityAlias}.content LIKE :content
+            )`, {
+                id: term,
+                label: `%${term}%`,
+                content: `%${term}%`,
+            });
+        }
+
+        return this;
+    }
 }
 
 export const TemplateRepository = dataSource.getRepository(TemplateEntity).extend({

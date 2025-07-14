@@ -33,17 +33,19 @@ const UserFindValidator = z
             .min(1)
             .optional()
             .default(1),
-        filter: z.preprocess((val) => {
-                if (typeof val === 'string') {
-                    try {
-                        return JSON.parse(val);
-                    } catch {
-                        throw new BadRequestError(lang('error.invalid_filter'));
+        filter:
+            z.preprocess(
+                (val) => {
+                    if (typeof val === 'string') {
+                        try {
+                            return JSON.parse(val);
+                        } catch {
+                            throw new BadRequestError(lang('error.invalid_filter'));
+                        }
                     }
-                }
 
-                return val;
-            },
+                    return val;
+                },
                 z.object({
                     id: z.coerce
                         .number({message: lang('error.invalid_number')})

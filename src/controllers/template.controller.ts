@@ -192,10 +192,10 @@ class TemplateController {
 
         const [entries, total] = await TemplateRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .filterBy('label', validated.data.filter.label, 'LIKE')
+            .filterBy('term', validated.data.filter.type)
             .filterBy('language', validated.data.filter.language)
             .filterBy('type', validated.data.filter.type)
-            .filterBy('content', validated.data.filter.content, 'LIKE')
+            .filterByTerm(validated.data.filter.term)
             .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)

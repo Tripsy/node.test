@@ -87,8 +87,7 @@ class CronHistoryController {
             .filterById(validated.data.filter.id)
             .filterByRange('created_at', validatedStartAtStart, validatedStartAtEnd)
             .filterBy('status', validated.data.filter.status)
-            .filterBy('label', validated.data.filter.label, 'LIKE')
-            .filterBy('content', validated.data.filter.content, 'LIKE')
+            .filterByTerm(validated.data.filter.term)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
             .all(true);

@@ -128,8 +128,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. Update -find.validator's (follow user-find.validator example): coerce, preprocess, default ..etc
-  see https://github.com/Tripsy/node.test/commit/18cc3118080467b20a0a5af3cd48bff34ddb71ae
+
 2. Implement front-end link - email templates
 
 3. Tests 

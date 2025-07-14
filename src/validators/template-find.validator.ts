@@ -3,6 +3,7 @@ import {lang} from '../config/i18n-setup.config';
 import {cfg} from '../config/settings.config';
 import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
+import BadRequestError from '../exceptions/bad-request.error';
 
 enum UserOrderByEnum {
     ID = 'id',
@@ -21,61 +22,63 @@ const TemplateFindValidator = z
             .nativeEnum(OrderDirectionEnum)
             .optional()
             .default(OrderDirectionEnum.ASC),
-        limit: z
+        limit: z.coerce
             .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(cfg('filter.limit')),
-        page: z
+        page: z.coerce
             .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(1),
-        filter: z.object({
-            id: z
-                .number({message: lang('error.invalid_number')})
-                .optional(),
-            label: z
-                .string({message: lang('error.invalid_string')})
-                .min(cfg('filter.termMinLength'), {
-                    message: lang('error.string_min', {
-                        min: cfg('filter.termMinLength').toString(),
-                        term: 'label',
-                    }),
+        filter:
+            z.preprocess(
+                (val) => {
+                    if (typeof val === 'string') {
+                        try {
+                            return JSON.parse(val);
+                        } catch {
+                            throw new BadRequestError(lang('error.invalid_filter'));
+                        }
+                    }
+
+                    return val;
+                },
+                z.object({
+                    id: z
+                        .number({message: lang('error.invalid_number')})
+                        .optional(),
+                    term: z
+                        .string({message: lang('error.invalid_string')})
+                        .min(cfg('filter.termMinLength'), {
+                            message: lang('error.string_min', {
+                                min: cfg('filter.termMinLength').toString(),
+                            }),
+                        })
+                        .optional(),
+                    language: z
+                        .string({message: lang('error.invalid_string')})
+                        .length(2, {message: lang('template.validation.language_invalid')})
+                        .optional(),
+                    type: z
+                        .nativeEnum(TemplateTypeEnum, {message: lang('template.validation.type_invalid')})
+                        .optional(),
+                    is_deleted: z.preprocess(
+                        val => val === 'true' || val === true,
+                        z.boolean({message: lang('error.invalid_boolean')})
+                    )
+                        .default(false),
                 })
-                .optional(),
-            language: z
-                .string({message: lang('error.invalid_string')})
-                .length(2, {message: lang('template.validation.language_invalid')})
-                .optional(),
-            type: z
-                .nativeEnum(TemplateTypeEnum, {message: lang('template.validation.type_invalid')})
-                .optional(),
-            content: z
-                .string({message: lang('error.invalid_string')})
-                .min(cfg('filter.termMinLength'), {
-                    message: lang('error.string_min', {
-                        min: cfg('filter.termMinLength').toString(),
-                        term: 'content',
-                    }),
-                })
-                .optional(),
-            create_date_start: z
-                .string({message: lang('error.invalid_string')})
-                .regex(cfg('filter.dateFormatRegex'), {
-                    message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
-                })
-                .optional(),
-            create_date_end: z
-                .string({message: lang('error.invalid_string')})
-                .regex(cfg('filter.dateFormatRegex'), {
-                    message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
-                })
-                .optional(),
-            is_deleted: z
-                .boolean({message: lang('error.invalid_boolean')})
-                .default(false),
-        })
+            )
+            .optional()
+            .default({
+                id: undefined,
+                term: undefined,
+                language: undefined,
+                type: undefined,
+                is_deleted: false,
+            })
     });
 
 export default TemplateFindValidator;

@@ -188,8 +188,7 @@ class PermissionController {
 
         const [entries, total] = await PermissionRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .filterBy('entity', validated.data.filter.entity, 'LIKE')
-            .filterBy('operation', validated.data.filter.operation, 'LIKE')
+            .filterByTerm(validated.data.filter.term)
             .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)

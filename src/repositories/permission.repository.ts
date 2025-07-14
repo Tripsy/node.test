@@ -8,6 +8,22 @@ export class PermissionQuery extends AbstractQuery {
     constructor(repository: ReturnType<typeof dataSource.getRepository<PermissionEntity>>) {
         super(repository, PermissionQuery.entityAlias);
     }
+
+    filterByTerm(term?: string): this {
+        if (term) {
+            this.query.andWhere(`(
+                   ${PermissionQuery.entityAlias}.id = :id
+                OR ${PermissionQuery.entityAlias}.entity LIKE :entity    
+                OR ${PermissionQuery.entityAlias}.operation LIKE :operation
+            )`, {
+                id: term,
+                entity: `%${term}%`,
+                operation: `%${term}%`,
+            });
+        }
+
+        return this;
+    }
 }
 
 export const PermissionRepository = dataSource.getRepository(PermissionEntity).extend({

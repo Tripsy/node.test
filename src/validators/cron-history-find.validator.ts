@@ -3,6 +3,7 @@ import {lang} from '../config/i18n-setup.config';
 import {cfg} from '../config/settings.config';
 import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import {CronHistoryStatusEnum} from '../enums/cron-history-status.enum';
+import BadRequestError from '../exceptions/bad-request.error';
 
 enum UserOrderByEnum {
     ID = 'id',
@@ -21,54 +22,66 @@ const LogDataFindValidator = z
             .nativeEnum(OrderDirectionEnum)
             .optional()
             .default(OrderDirectionEnum.ASC),
-        limit: z
+        limit: z.coerce
             .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(cfg('filter.limit')),
-        page: z
+        page: z.coerce
             .number({message: lang('error.invalid_number')})
             .min(1)
             .optional()
             .default(1),
-        filter: z.object({
-            id: z
-                .number({message: lang('error.invalid_number')})
-                .optional(),
-            status: z
-                .nativeEnum(CronHistoryStatusEnum)
-                .optional(),
-            label: z
-                .string({message: lang('error.invalid_string')})
-                .min(cfg('filter.termMinLength'), {
-                    message: lang('error.string_min', {
-                        min: cfg('filter.termMinLength').toString(),
-                        term: 'label',
-                    }),
+        filter:
+            z.preprocess(
+                (val) => {
+                    if (typeof val === 'string') {
+                        try {
+                            return JSON.parse(val);
+                        } catch {
+                            throw new BadRequestError(lang('error.invalid_filter'));
+                        }
+                    }
+
+                    return val;
+                },
+                z.object({
+                    id: z.coerce
+                        .number({message: lang('error.invalid_number')})
+                        .optional(),
+                    term: z
+                        .string({message: lang('error.invalid_string')})
+                        .min(cfg('filter.termMinLength'), {
+                            message: lang('error.string_min', {
+                                min: cfg('filter.termMinLength').toString(),
+                            }),
+                        })
+                        .optional(),
+                    status: z
+                        .nativeEnum(CronHistoryStatusEnum)
+                        .optional(),
+                    start_at_start: z
+                        .string({message: lang('error.invalid_string')})
+                        .regex(cfg('filter.dateFormatRegex'), {
+                            message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
+                        })
+                        .optional(),
+                    start_at_end: z
+                        .string({message: lang('error.invalid_string')})
+                        .regex(cfg('filter.dateFormatRegex'), {
+                            message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
+                        })
+                        .optional(),
                 })
-                .optional(),
-            content: z
-                .string({message: lang('error.invalid_string')})
-                .min(cfg('filter.termMinLength'), {
-                    message: lang('error.string_min', {
-                        min: cfg('filter.termMinLength').toString(),
-                        term: 'message',
-                    }),
-                })
-                .optional(),
-            start_at_start: z
-                .string({message: lang('error.invalid_string')})
-                .regex(cfg('filter.dateFormatRegex'), {
-                    message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
-                })
-                .optional(),
-            start_at_end: z
-                .string({message: lang('error.invalid_string')})
-                .regex(cfg('filter.dateFormatRegex'), {
-                    message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
-                })
-                .optional(),
-        })
+            )
+            .optional()
+            .default({
+                id: undefined,
+                term: undefined,
+                status: undefined,
+                create_date_start: undefined,
+                create_date_end: undefined,
+            })
     });
 
 export default LogDataFindValidator;

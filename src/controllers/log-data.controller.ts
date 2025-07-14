@@ -89,8 +89,7 @@ class LogDataController {
             .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
             .filterBy('category', validated.data.filter.category)
             .filterBy('level', validated.data.filter.level)
-            .filterBy('message', validated.data.filter.message, 'LIKE')
-            .filterBy('context', validated.data.filter.context, 'LIKE')
+            .filterByTerm(validated.data.filter.term)
             .orderBy(validated.data.order_by, validated.data.direction)
             .pagination(validated.data.page, validated.data.limit)
             .all(true);

@@ -8,6 +8,22 @@ export class CronHistoryQuery extends AbstractQuery {
     constructor(repository: ReturnType<typeof dataSource.getRepository<CronHistoryEntity>>) {
         super(repository, CronHistoryQuery.entityAlias);
     }
+
+    filterByTerm(term?: string): this {
+        if (term) {
+            this.query.andWhere(`(
+                   ${CronHistoryQuery.entityAlias}.id = :id
+                OR ${CronHistoryQuery.entityAlias}.label LIKE :label    
+                OR ${CronHistoryQuery.entityAlias}.content LIKE :content
+            )`, {
+                id: term,
+                label: `%${term}%`,
+                content: `%${term}%`,
+            });
+        }
+
+        return this;
+    }
 }
 
 export const CronHistoryRepository = dataSource.getRepository(CronHistoryEntity).extend({
