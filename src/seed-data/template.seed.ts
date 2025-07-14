@@ -11,7 +11,7 @@ const templateData = [
             subject: 'Confirm your email',
             html: `
                 <p>
-                    Please confirm your email by clicking on the following  <a href="{{ link }}">link</a>.
+                    Please confirm your email by clicking on the following  <a href="{{ siteUrl }}/account/email-confirm/{{ token }}">link</a>.
                 </p>
             `,
             layout: 'layout-default'
@@ -25,7 +25,7 @@ const templateData = [
             subject: 'Confirm your email',
             html: `
                 <p>
-                    Please confirm your email by clicking on the following  <a href="{{ link }}">link</a>.
+                    Please confirm your email by clicking on the following  <a href="{{ siteUrl }}/account/email-confirm/{{ token }}">link</a>.
                 </p>
             `,
             layout: 'layout-default'
@@ -50,7 +50,7 @@ const templateData = [
         content: {
             subject: 'Recover password',
             html: `
-                <p>Hello {{ name }}. Your recover ident is {{ ident }} which will expire at {{ expire_at }}.</p>
+                <p>Hello {{ name }}. Click <a href="{{ siteUrl }}//account/password-recover-change/{{ ident }}">here</a> to recover your password. The link will expire at {{ expire_at }}.</p>
             `,
             layout: 'layout-default'
         }

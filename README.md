@@ -128,10 +128,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-
-2. Implement front-end link - email templates
-
-3. Tests 
+1. Tests 
    - controllers
        - user.controller - find, statusUpdate missing tests
        - log-data.controller - find missing tests

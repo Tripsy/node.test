@@ -27,10 +27,10 @@ export const cronWarningCount = async (): Promise<{}> => {
             await queueEmail(
                 emailTemplate,
                 {
-                    'warningCount': warningCount,
-                    'warnings': warnings,
-                    'querySql': query.debugSql(),
-                    'queryParameters': JSON.stringify(query.debugParameters()),
+                    warningCount: warningCount,
+                    warnings: warnings,
+                    querySql: query.debugSql(),
+                    queryParameters: JSON.stringify(query.debugParameters()),
                 },
                 {
                     name: cfg('app.name'),

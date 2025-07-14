@@ -152,9 +152,9 @@ describe('Account Service', () => {
             expect(queueEmail).toHaveBeenCalledWith(
                 emailTemplate,
                 {
-                    'name': mockUser.name,
-                    'link': routeLink('account.emailConfirm', {token: token}, true),
-                    'expire_at': expire_at.toISOString()
+                    name: mockUser.name,
+                    token: token,
+                    expire_at: expire_at.toISOString()
                 },
                 {
                     name: mockUser.name,
@@ -186,9 +186,9 @@ describe('Account Service', () => {
             expect(queueEmail).toHaveBeenCalledWith(
                 emailTemplate,
                 {
-                    'name': mockUser.name,
-                    'link': routeLink('account.emailConfirm', {token: token}, true),
-                    'expire_at': expire_at.toISOString()
+                    name: mockUser.name,
+                    token: token,
+                    expire_at: expire_at.toISOString()
                 },
                 {
                     name: mockUser.name,
@@ -217,7 +217,7 @@ describe('Account Service', () => {
             expect(queueEmail).toHaveBeenCalledWith(
                 emailTemplate,
                 {
-                    'name': mockUser.name
+                    name: mockUser.name
                 },
                 {
                     name: mockUser.name,

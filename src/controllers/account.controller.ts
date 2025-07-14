@@ -224,9 +224,9 @@ class AccountController {
         await queueEmail(
             emailTemplate,
             {
-                'name': user.name,
-                'ident': ident,
-                'expire_at': expire_at.toISOString()
+                name: user.name,
+                ident: ident,
+                expire_at: expire_at.toISOString()
             },
             {
                 name: user.name,
@@ -304,7 +304,7 @@ class AccountController {
         await queueEmail(
             emailTemplate,
             {
-                'name': user.name
+                name: user.name
             },
             {
                 name: user.name,

@@ -1,7 +1,6 @@
 import nunjucks from 'nunjucks';
 import {cfg} from './settings.config';
 import {buildSrcPath} from '../helpers/system.helper';
-import {baseLink} from './init-routes.config';
 
 // Create a new environment
 const templates = new nunjucks.Environment(new nunjucks.FileSystemLoader(buildSrcPath('templates')), {
@@ -13,8 +12,8 @@ const templates = new nunjucks.Environment(new nunjucks.FileSystemLoader(buildSr
 });
 
 // Add global variables
-templates.addGlobal('siteName', cfg('app.name'));
-templates.addGlobal('siteLink', baseLink());
+templates.addGlobal('siteName', cfg('frontend.name'));
+templates.addGlobal('siteUrl', cfg('frontend.url'));
 templates.addGlobal('supportEmail', cfg('app.email'));
 templates.addGlobal('currentYear', new Date().getFullYear().toString());
 

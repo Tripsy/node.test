@@ -143,9 +143,9 @@ export async function sendEmailConfirmCreate(user: Partial<UserEntity> & {
     await queueEmail(
         emailTemplate,
         {
-            'name': user.name,
-            'link': routeLink('account.emailConfirm', {token: token}, true),
-            'expire_at': expire_at.toISOString()
+            name: user.name,
+            token: token,
+            expire_at: expire_at.toISOString()
         },
         {
             name: user.name,
@@ -167,9 +167,9 @@ export async function sendEmailConfirmUpdate(user: Partial<UserEntity> & {
     await queueEmail(
         emailTemplate,
         {
-            'name': user.name,
-            'link': routeLink('account.emailConfirm', {token: token}, true),
-            'expire_at': expire_at.toISOString()
+            name: user.name,
+            token: token,
+            expire_at: expire_at.toISOString()
         },
         {
             name: user.name,
@@ -188,7 +188,7 @@ export async function sendWelcomeEmail(user: Partial<UserEntity> & {
     await queueEmail(
         emailTemplate,
         {
-            'name': user.name
+            name: user.name
         },
         {
             name: user.name,

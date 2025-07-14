@@ -19,9 +19,9 @@ export const cronErrorCount = async (): Promise<{}> => {
         await queueEmail(
             emailTemplate,
             {
-                'errorCount': errorCount,
-                'querySql': query.debugSql(),
-                'queryParameters': JSON.stringify(query.debugParameters()),
+                errorCount: errorCount,
+                querySql: query.debugSql(),
+                queryParameters: JSON.stringify(query.debugParameters()),
             },
             {
                 name: cfg('app.name'),

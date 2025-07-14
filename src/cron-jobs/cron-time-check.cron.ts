@@ -74,9 +74,9 @@ export const cronTimeCheck = async (): Promise<{}> => {
         await queueEmail(
             emailTemplate,
             {
-                'results': results,
-                'querySql': querySql,
-                'queryParameters': JSON.stringify(queryParameters),
+                results: results,
+                querySql: querySql,
+                queryParameters: JSON.stringify(queryParameters),
             },
             {
                 name: cfg('app.name'),

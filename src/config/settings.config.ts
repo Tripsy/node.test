@@ -16,6 +16,10 @@ const settings = {
         language: process.env.APP_LANG || 'en',
         supportedLanguages: (process.env.APP_SUPPORTED_LANGUAGES || 'en').trim().split(','),
     },
+    frontend: {
+        url: process.env.FRONTEND_URL || 'http://nextjs.test',
+        name: process.env.FRONTEND_APP_NAME || 'sample-nextjs-client',
+    },
     security: {
         allowedOrigins: [
             'http://nextjs.test'
