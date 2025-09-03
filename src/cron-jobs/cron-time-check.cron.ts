@@ -71,17 +71,17 @@ export const cronTimeCheck = async (): Promise<{}> => {
 
         const emailTemplate: EmailTemplate = await loadEmailTemplate('cron-time-check', cfg('app.language'));
 
-        await queueEmail(
-            emailTemplate,
-            {
+        await queueEmail({
+            ...emailTemplate,
+            vars: {
                 results: results,
                 querySql: querySql,
                 queryParameters: JSON.stringify(queryParameters),
-            },
-            {
-                name: cfg('app.name'),
-                address: cfg('app.email')
-            });
+            }
+        }, {
+            name: cfg('app.name'),
+            address: cfg('app.email')
+        });
     }
 
     return {

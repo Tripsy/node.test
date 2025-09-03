@@ -16,17 +16,17 @@ export const cronErrorCount = async (): Promise<{}> => {
     if (errorCount > 0) {
         const emailTemplate: EmailTemplate = await loadEmailTemplate('cron-error-count', cfg('app.language'));
 
-        await queueEmail(
-            emailTemplate,
-            {
+        await queueEmail({
+            ...emailTemplate,
+            vars: {
                 errorCount: errorCount,
                 querySql: query.debugSql(),
                 queryParameters: JSON.stringify(query.debugParameters()),
-            },
-            {
-                name: cfg('app.name'),
-                address: cfg('app.email')
-            });
+            }
+        }, {
+            name: cfg('app.name'),
+            address: cfg('app.email')
+        });
     }
 
     return {

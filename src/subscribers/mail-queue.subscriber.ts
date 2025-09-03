@@ -20,13 +20,17 @@ export class MailQueueSubscriber implements EntitySubscriberInterface<MailQueueE
     async afterInsert(event: InsertEvent<MailQueueEntity>) {
         const emailQueueData: EmailQueueData = {
             mailQueueId: event.entity.id,
-            emailContent: prepareEmailContent(event.entity.language, event.entity.content, event.entity.vars),
+            emailContent: prepareEmailContent({
+                language: event.entity.language,
+                content: event.entity.content,
+                vars: event.entity.vars
+            }),
             to: event.entity.to as Mail.Address,
             from: event.entity.from as Mail.Address | null
         };
 
         // Add email to queue
-        await emailQueue.add('sendEmail', emailQueueData, {
+        await emailQueue.add('email:queue', emailQueueData, {
             removeOnComplete: true, // Automatically remove completed jobs
             attempts: 3, // Retry failed emails up to 3 times
             backoff: {

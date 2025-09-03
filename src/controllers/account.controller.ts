@@ -221,17 +221,17 @@ class AccountController {
 
         const emailTemplate: EmailTemplate = await loadEmailTemplate('password-recover', user.language || req.lang);
 
-        await queueEmail(
-            emailTemplate,
-            {
+        await queueEmail({
+            ...emailTemplate,
+            vars: {
                 name: user.name,
                 ident: ident,
                 expire_at: expire_at.toISOString()
-            },
-            {
-                name: user.name,
-                address: user.email
-            });
+            }
+        }, {
+            name: user.name,
+            address: user.email
+        });
 
         res.output.message(lang('account.success.password_recover'));
 
@@ -301,16 +301,15 @@ class AccountController {
 
         const emailTemplate: EmailTemplate = await loadEmailTemplate('password-change', user.language || req.lang);
 
-        await queueEmail(
-            emailTemplate,
-            {
+        await queueEmail({
+            ...emailTemplate,
+            vars: {
                 name: user.name
-            },
-            {
-                name: user.name,
-                address: user.email
             }
-        );
+        }, {
+            name: user.name,
+            address: user.email
+        });
 
         res.output.message(lang('account.success.password_changed'));
 

@@ -8,7 +8,6 @@ import {createRequest} from 'node-mocks-http';
 import {EmailTemplate} from '../../types/template.type';
 import {cfg} from '../../config/settings.config';
 import {redisClose} from '../../config/init-redis.config';
-import {routeLink} from '../../config/init-routes.config';
 import {createFutureDate} from '../../helpers/date.helper';
 
 jest.mock('bcrypt');
@@ -135,9 +134,8 @@ describe('Account Service', () => {
             const token = 'jwt-token-123';
             const expire_at = createFutureDate(cfg('user.emailConfirmationExpiresIn') * 86400);
             const emailTemplate: EmailTemplate = {
-                templateId: null,
                 language: mockUser.language,
-                emailContent: {
+                content: {
                     subject: 'Confirm Email',
                     html: 'Confirm your email',
                 }
@@ -169,9 +167,8 @@ describe('Account Service', () => {
             const token = 'jwt-token-123';
             const expire_at = createFutureDate(cfg('user.emailConfirmationExpiresIn') * 86400);
             const emailTemplate: EmailTemplate = {
-                templateId: null,
                 language: mockUser.language,
-                emailContent: {
+                content: {
                     subject: 'Confirm Email Update',
                     html: 'Confirm your email update',
                 }
@@ -201,9 +198,8 @@ describe('Account Service', () => {
     describe('sendWelcomeEmail', () => {
         it('should send a welcome email', async () => {
             const emailTemplate: EmailTemplate = {
-                templateId: null,
                 language: mockUser.language,
-                emailContent: {
+                content: {
                     subject: 'Welcome',
                     html: 'Welcome to our service',
                 }

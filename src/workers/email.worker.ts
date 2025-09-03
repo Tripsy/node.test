@@ -3,6 +3,7 @@ import {cfg} from '../config/settings.config';
 import {EmailQueueData, sendEmail, systemFrom} from '../providers/email.provider';
 import MailQueueRepository from '../repositories/mail-queue.repository';
 import {MailQueueStatusEnum} from '../enums/mail-queue-status.enum';
+import logger from '../providers/logger.provider';
 
 const emailWorker = new Worker(
     'emailQueue',
@@ -10,45 +11,67 @@ const emailWorker = new Worker(
         const {mailQueueId, emailContent, to, from} = job.data as EmailQueueData;
 
         try {
+            logger.info(`Processing email job ${job.id} for mailQueueId: ${mailQueueId}`);
+
             await sendEmail(emailContent, to, from ?? systemFrom);
 
-            // Update `mail_queue` table
             await MailQueueRepository.update(mailQueueId, {
                 status: MailQueueStatusEnum.SENT,
                 error: null,
                 sent_at: new Date(),
             });
+
+            logger.info(`Successfully processed email job ${job.id}`);
         } catch (error) {
-            // Update `mail_queue` table
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+            logger.error(`Failed to process email job ${job.id}: ${errorMessage}`);
+
             await MailQueueRepository.update(mailQueueId, {
                 status: MailQueueStatusEnum.ERROR,
-                error: error instanceof Error ? error.message : 'Unknown error',
+                error: errorMessage,
                 sent_at: new Date(),
             });
-
-            throw error;
         }
     },
     {
         connection: {
             host: cfg('redis.host'),
             port: cfg('redis.port'),
-        }, // Redis connection
-        concurrency: 5, // Process up to 5 jobs concurrently
+        },
+        concurrency: 5,
     }
 );
 
-// Use it only worker runs on a separate process
-//
-// logger.debug('emailQueue worker started.');
-//
-// const shutdown = async () => {
-//     logger.warn('Shutting down emailQueue worker...');
-//     await emailWorker.close();
-//     process.exit(0);
-// };
-//
-// process.on('SIGTERM', shutdown);
-// process.on('SIGINT', shutdown);
+// Error handler for worker-level errors (Redis connection issues, etc.)
+emailWorker.on('error', (err: Error) => {
+    logger.error('Worker error:', {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+    });
+});
+
+// Graceful shutdown
+const shutdown = async () => {
+    logger.warn('Shutting down emailQueue worker...');
+
+    try {
+        await emailWorker.close();
+
+        logger.info('Worker closed successfully');
+
+        process.exit(0);
+    } catch (err) {
+        logger.error('Error during worker shutdown', err);
+
+        process.exit(1);
+    }
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+logger.info('Email worker started and ready to process jobs');
 
 export default emailWorker;

@@ -24,18 +24,18 @@ export const cronWarningCount = async (): Promise<{}> => {
         const warningCount: number = warnings.reduce((sum: number, warning) => sum + Number(warning.countOccurrences), 0);
 
         if (warningCount > 0) {
-            await queueEmail(
-                emailTemplate,
-                {
+            await queueEmail({
+                ...emailTemplate,
+                vars: {
                     warningCount: warningCount,
                     warnings: warnings,
                     querySql: query.debugSql(),
                     queryParameters: JSON.stringify(query.debugParameters()),
-                },
-                {
-                    name: cfg('app.name'),
-                    address: cfg('app.email')
-                });
+                }
+            }, {
+                name: cfg('app.name'),
+                address: cfg('app.email')
+            });
         }
     }
 

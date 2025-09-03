@@ -386,9 +386,9 @@ describe('AccountController - passwordRecover', () => {
 
         jest.spyOn(accountService, 'setupRecovery').mockResolvedValue(['random-ident', new Date('2025-01-01T00:00:00Z')]);
         jest.spyOn(emailProvider, 'loadEmailTemplate').mockResolvedValue({
-            templateId: 1,
+            id: 1,
             language: 'en',
-            emailContent: {
+            content: {
                 subject: 'Recover password',
                 text: 'Recover password',
                 html: 'Recover password',
@@ -558,9 +558,9 @@ describe('AccountController - passwordRecoverChange', () => {
         } as any);
 
         jest.spyOn(emailProvider, 'loadEmailTemplate').mockResolvedValue({
-            templateId: 1,
+            id: 1,
             language: 'en',
-            emailContent: {
+            content: {
                 subject: 'Password changed',
                 text: 'Password changed',
                 html: 'Password changed',

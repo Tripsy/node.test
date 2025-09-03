@@ -12,7 +12,6 @@ import AccountRecoveryEntity from '../entities/account-recovery.entity';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import {EmailTemplate} from '../types/template.type';
-import {routeLink} from '../config/init-routes.config';
 import {createFutureDate} from '../helpers/date.helper';
 
 export async function encryptPassword(password: string): Promise<string> {
@@ -140,18 +139,17 @@ export async function sendEmailConfirmCreate(user: Partial<UserEntity> & {
 
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-create', user.language);
 
-    await queueEmail(
-        emailTemplate,
-        {
+    await queueEmail({
+        ...emailTemplate,
+        vars: {
             name: user.name,
             token: token,
             expire_at: expire_at.toISOString()
-        },
-        {
-            name: user.name,
-            address: user.email
         }
-    );
+    }, {
+        name: user.name,
+        address: user.email
+    });
 }
 
 export async function sendEmailConfirmUpdate(user: Partial<UserEntity> & {
@@ -164,18 +162,17 @@ export async function sendEmailConfirmUpdate(user: Partial<UserEntity> & {
 
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-update', user.language);
 
-    await queueEmail(
-        emailTemplate,
-        {
+    await queueEmail({
+        ...emailTemplate,
+        vars: {
             name: user.name,
             token: token,
             expire_at: expire_at.toISOString()
-        },
-        {
-            name: user.name,
-            address: user.email
         }
-    );
+    }, {
+        name: user.name,
+        address: user.email
+    });
 }
 
 export async function sendWelcomeEmail(user: Partial<UserEntity> & {
@@ -185,14 +182,13 @@ export async function sendWelcomeEmail(user: Partial<UserEntity> & {
 }): Promise<void> {
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-welcome', user.language);
 
-    await queueEmail(
-        emailTemplate,
-        {
+    await queueEmail({
+        ...emailTemplate,
+        vars: {
             name: user.name
-        },
-        {
-            name: user.name,
-            address: user.email
         }
-    );
+    }, {
+        name: user.name,
+        address: user.email
+    });
 }

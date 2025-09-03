@@ -9,7 +9,6 @@ import {EmailContent, EmailTemplate} from '../types/template.type';
 import MailQueueEntity from '../entities/mail-queue.entity';
 import MailQueueRepository from '../repositories/mail-queue.repository';
 import templates from '../config/nunjucks.config';
-import {TemplateVars} from '../types/template-vars.type';
 
 let emailTransporter: Transporter | null = null;
 
@@ -58,9 +57,9 @@ export async function loadEmailTemplate(label: string, language: string): Promis
     }
 
     return {
-        templateId: template.id,
+        id: template.id,
         language: template.language,
-        emailContent: {
+        content: {
             subject: template.content.subject,
             text: template.content.text || undefined,
             html: template.content.html,
@@ -69,16 +68,16 @@ export async function loadEmailTemplate(label: string, language: string): Promis
     };
 }
 
-export function prepareEmailContent(language: string, content: EmailContent, vars: TemplateVars = {}): EmailContent {
+export function prepareEmailContent(template: EmailTemplate): EmailContent {
     try {
-        const emailSubject = templates.renderString(content.subject, vars);
-        const emailContent = templates.renderString(content.html, vars);
+        const emailSubject = templates.renderString(template.content.subject, template.vars || {});
+        const emailContent = templates.renderString(template.content.html, template.vars || {});
 
         return {
             subject: emailSubject,
             // text: emailContent.text ? templates.renderString(emailContent.text, vars) : undefined,
-            html: content.layout ? templates.render('emails/' + content.layout + '.html', {
-                language: language,
+            html: template.content.layout ? templates.render('emails/' + template.content.layout + '.html', {
+                language: template.language,
                 emailSubject: emailSubject,
                 emailContent: emailContent
             }) : emailContent
@@ -92,39 +91,38 @@ export function prepareEmailContent(language: string, content: EmailContent, var
 
 export async function queueEmail(
     template: EmailTemplate,
-    vars: TemplateVars = {},
     to: Mail.Address,
     from?: Mail.Address
 ): Promise<void> {
     const mailQueueEntity = new MailQueueEntity();
-    mailQueueEntity.template_id = template.templateId;
+    mailQueueEntity.template_id = template.id;
     mailQueueEntity.language = template.language;
-    mailQueueEntity.content = template.emailContent;
-    mailQueueEntity.vars = vars;
+    mailQueueEntity.content = template.content;
+    mailQueueEntity.vars = template.vars;
     mailQueueEntity.to = to;
     mailQueueEntity.from = from;
 
     await MailQueueRepository.save(mailQueueEntity);
 }
 
-export async function sendEmail(emailContent: EmailContent, to: Mail.Address, from: Mail.Address): Promise<void> {
+export async function sendEmail(content: EmailContent, to: Mail.Address, from: Mail.Address): Promise<void> {
     getEmailTransporter()
         .sendMail({
             to: to,
             from: from,
-            subject: emailContent.subject,
-            text: emailContent.text,
-            html: emailContent.html
+            subject: content.subject,
+            text: content.text,
+            html: content.html
         })
         .then(() => {
             systemLogger.debug(lang('debug.email_sent', {
-                subject: emailContent.subject,
+                subject: content.subject,
                 to: to.address
             }));
         })
         .catch((error) => {
             systemLogger.error(error, lang('debug.email_error', {
-                subject: emailContent.subject,
+                subject: content.subject,
                 to: to.address,
                 error: error.message
             }));
