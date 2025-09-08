@@ -3,6 +3,10 @@ import path from 'path';
 import {Request} from 'express';
 import {isValidIp} from './utils.helper';
 
+export function getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
+}
+
 function buildPath(...args: string[]): string {
     return path.join(...args);
 }

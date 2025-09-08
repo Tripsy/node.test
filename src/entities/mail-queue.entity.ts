@@ -25,9 +25,6 @@ export default class MailQueueEntity {
     @Column({ type: 'json', nullable: false, comment: 'Email content: subject, text, html' })
     content!: EmailContent;
 
-    @Column({ type: 'json', nullable: true, comment: 'Email vars' })
-    vars?: Record<string, any>;
-
     @Column({ type: 'json', nullable: false, comment: 'To: name & address' })
     to!: Mail.Address;
 

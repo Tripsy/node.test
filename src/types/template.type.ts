@@ -11,7 +11,7 @@ export type EmailContent = {
     layout?: string;
 }
 
-export type TemplateVars = Record<string, string | number | boolean | string[] | Record<string, any>>;
+export type TemplateVars = Record<string, string | number | boolean | string[] | Record<string, string>>;
 
 export type EmailTemplate = {
     id?: number;

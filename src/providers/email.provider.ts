@@ -9,20 +9,22 @@ import {EmailContent, EmailTemplate} from '../types/template.type';
 import MailQueueEntity from '../entities/mail-queue.entity';
 import MailQueueRepository from '../repositories/mail-queue.repository';
 import templates from '../config/nunjucks.config';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import {getErrorMessage} from '../helpers/system.helper';
 
-let emailTransporter: Transporter | null = null;
+let emailTransporter: Transporter<SMTPTransport.SentMessageInfo> | null = null;
 
-export function getEmailTransporter(): Transporter {
+export function getEmailTransporter(): Transporter<SMTPTransport.SentMessageInfo> {
     if (!emailTransporter) {
         emailTransporter = nodemailer.createTransport({
-            host: cfg('mail.host'),
-            port: cfg('mail.port'),
-            secure: cfg('mail.encryption') === 'ssl',
+            host: cfg("mail.host"),
+            port: parseInt(cfg("mail.port")),
+            secure: cfg("mail.encryption") === 'ssl',
             auth: {
-                user: cfg('mail.username'),
-                pass: cfg('mail.password')
-            }
-        });
+                user: cfg("mail.username"),
+                pass: cfg("mail.password"),
+            },
+        } as SMTPTransport.Options);
     }
 
     return emailTransporter;
@@ -82,8 +84,8 @@ export function prepareEmailContent(template: EmailTemplate): EmailContent {
                 emailContent: emailContent
             }) : emailContent
         };
-    } catch (error: Error | any) {
-        systemLogger.fatal(error, error.message);
+    } catch (error: unknown) {
+        systemLogger.fatal(error, getErrorMessage(error));
 
         throw new Error('Template render error');
     }
@@ -98,7 +100,6 @@ export async function queueEmail(
     mailQueueEntity.template_id = template.id;
     mailQueueEntity.language = template.language;
     mailQueueEntity.content = template.content;
-    mailQueueEntity.vars = template.vars;
     mailQueueEntity.to = to;
     mailQueueEntity.from = from;
 
@@ -106,25 +107,26 @@ export async function queueEmail(
 }
 
 export async function sendEmail(content: EmailContent, to: Mail.Address, from: Mail.Address): Promise<void> {
-    getEmailTransporter()
-        .sendMail({
+    try {
+        await getEmailTransporter().sendMail({
             to: to,
             from: from,
             subject: content.subject,
             text: content.text,
             html: content.html
-        })
-        .then(() => {
-            systemLogger.debug(lang('debug.email_sent', {
-                subject: content.subject,
-                to: to.address
-            }));
-        })
-        .catch((error) => {
-            systemLogger.error(error, lang('debug.email_error', {
-                subject: content.subject,
-                to: to.address,
-                error: error.message
-            }));
         });
+
+        systemLogger.debug(lang('debug.email_sent', {
+            subject: content.subject,
+            to: to.address
+        }));
+    } catch (error: unknown) {
+        systemLogger.error(error, lang('debug.email_error', {
+            subject: content.subject,
+            to: to.address,
+            error: getErrorMessage(error)
+        }));
+
+        throw error;
+    }
 }

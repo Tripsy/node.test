@@ -7,7 +7,7 @@ const templates = new nunjucks.Environment(new nunjucks.FileSystemLoader(buildSr
     autoescape: true,
     throwOnUndefined: true,
     trimBlocks: true,
-    noCache: cfg('app.debug'),
+    noCache: cfg('app.debug') === 'true',
     watch: true,
 });
 

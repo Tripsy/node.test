@@ -11,7 +11,6 @@ export class MailQueue1740538567334 implements MigrationInterface {
                 \`template_id\` BIGINT                            NULL,
                 \`language\`    CHAR(2)                           NOT NULL,
                 \`content\`     JSON                              NOT NULL COMMENT 'Email content: subject, text, html',
-                \`vars\`        JSON                              NULL COMMENT 'Email vars',
                 \`to\`          JSON                              NOT NULL COMMENT 'To: name & address',
                 \`from\`        JSON                              NULL COMMENT 'From: name & address',
                 \`status\`      ENUM ('pending', 'sent', 'error') NOT NULL DEFAULT 'pending',
