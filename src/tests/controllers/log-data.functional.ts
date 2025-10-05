@@ -31,7 +31,6 @@ describe('LogDataController - read', () => {
         message: 'Lorem ipsum',
         context: undefined,
         created_at: new Date(),
-        created_at_date: new Date().toISOString().split('T')[0],
     };
 
     it('should fail if not authenticated', async () => {

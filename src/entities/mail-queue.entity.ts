@@ -43,11 +43,9 @@ export default class MailQueueEntity {
     @Column('text', {nullable: true})
     error?: string | null
 
+    @Index('IDX_mail_queue_sent_at', { unique: false })
     @Column({type: 'timestamp', nullable: true})
     sent_at?: Date;
-
-    @Column({type: 'date', asExpression: 'DATE(sent_at)', generatedType: 'STORED', select: false})
-    sent_at_date!: string;
 
     @CreateDateColumn({type: 'timestamp', nullable: false})
     created_at!: Date;

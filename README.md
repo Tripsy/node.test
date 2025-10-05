@@ -128,9 +128,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. mail-queue controller ?
-
-2. Tests 
+1. Tests 
    - controllers
        - user.controller - find, statusUpdate missing tests
        - log-data.controller - find missing tests
@@ -143,8 +141,6 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
        - output-handler.middleware
        - validate-params.middleware
    - providers
-
-REVIEW AT THIS POINT > IDEAS > REACT
 
 # BUGS & ISSUES
 

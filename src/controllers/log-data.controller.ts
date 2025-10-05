@@ -8,7 +8,6 @@ import LogDataPolicy from '../policies/log-data.policy';
 import LogDataFindValidator from '../validators/log-data-find.validator';
 import LogDataDeleteValidator from '../validators/log-data-delete.validator';
 import {logHistory} from '../helpers/subscriber.helper';
-import {stringToDate} from '../helpers/date.helper';
 
 class LogDataController {
     public read = asyncHandler(async (req: Request, res: Response) => {
@@ -80,8 +79,8 @@ class LogDataController {
             throw new BadRequestError();
         }
 
-        const validatedCreateDateStart = validated.data.filter.create_date_start ? stringToDate(validated.data.filter.create_date_start) : undefined;
-        const validatedCreateDateEnd = validated.data.filter.create_date_end ? stringToDate(validated.data.filter.create_date_end) : undefined;
+        const validatedCreateDateStart = validated.data.filter.create_date_start ? validated.data.filter.create_date_start + ' 00:00:00' : undefined;
+        const validatedCreateDateEnd = validated.data.filter.create_date_end ? validated.data.filter.create_date_end + ' 23:59:59' : undefined;
 
         const [entries, total] = await LogDataRepository.createQuery()
             .filterById(validated.data.filter.id)

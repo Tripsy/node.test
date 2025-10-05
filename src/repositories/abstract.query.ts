@@ -397,16 +397,17 @@ class AbstractQuery {
         return this;
     }
 
-    filterByRange(column: string, min?: Date | number | null, max?: Date | number | null): this {
-        const minValue = min instanceof Date ? formatDate(min) : min;
-        const maxValue = max instanceof Date ? formatDate(max) : max;
+    filterByRange(column: string, min?: Date | string | null, max?: Date | string | null): this {
+        const minValue = min instanceof Date ? formatDate(min, 'iso-full') : min;
+        const maxValue = max instanceof Date ? formatDate(max, 'iso-full') : max;
 
         if (min && max) {
+            const stringColumn = column;
             column = this.prepareColumn(column);
 
-            this.query.andWhere(`${column} BETWEEN :min${column} AND :max${column}`, {
-                [`min${column}`]: minValue,
-                [`max${column}`]: maxValue,
+            this.query.andWhere(`${column} BETWEEN :min${stringColumn} AND :max${stringColumn}`, {
+                [`min${stringColumn}`]: minValue,
+                [`max${stringColumn}`]: maxValue,
             });
         } else if (min) {
             this.filterBy(column, minValue, '>=');

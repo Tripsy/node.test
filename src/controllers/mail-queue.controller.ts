@@ -8,7 +8,6 @@ import MailQueuePolicy from '../policies/mail-queue.policy';
 import MailQueueFindValidator from '../validators/mail-queue-find.validator';
 import MailQueueDeleteValidator from '../validators/mail-queue-delete.validator';
 import {logHistory} from '../helpers/subscriber.helper';
-import {stringToDate} from '../helpers/date.helper';
 
 class MailQueueController {
     public read = asyncHandler(async (req: Request, res: Response) => {
@@ -79,8 +78,8 @@ class MailQueueController {
             throw new BadRequestError();
         }
 
-        const validatedSentDateStart = validated.data.filter.sent_date_start ? stringToDate(validated.data.filter.sent_date_start) : undefined;
-        const validatedSentDateEnd = validated.data.filter.sent_date_end ? stringToDate(validated.data.filter.sent_date_end) : undefined;
+        const validatedSentDateStart = validated.data.filter.sent_date_start ? validated.data.filter.sent_date_start + ' 00:00:00' : undefined;
+        const validatedSentDateEnd = validated.data.filter.sent_date_end ? validated.data.filter.sent_date_end + ' 23:59:59' : undefined;
 
         const [entries, total] = await MailQueueRepository.createQuery()
             .filterById(validated.data.filter.id)

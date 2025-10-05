@@ -8,7 +8,6 @@ import CronHistoryPolicy from '../policies/cron-history.policy';
 import CronHistoryFindValidator from '../validators/cron-history-find.validator';
 import CronHistoryDeleteValidator from '../validators/cron-history-delete.validator';
 import {logHistory} from '../helpers/subscriber.helper';
-import {stringToDate} from '../helpers/date.helper';
 
 class CronHistoryController {
     public read = asyncHandler(async (req: Request, res: Response) => {
@@ -80,8 +79,8 @@ class CronHistoryController {
             throw new BadRequestError();
         }
 
-        const validatedStartAtStart = validated.data.filter.start_at_start ? stringToDate(validated.data.filter.start_at_start) : undefined;
-        const validatedStartAtEnd = validated.data.filter.start_at_end ? stringToDate(validated.data.filter.start_at_end) : undefined;
+        const validatedStartAtStart = validated.data.filter.start_at_start ? validated.data.filter.start_at_start + ' 00:00:00' : undefined;
+        const validatedStartAtEnd = validated.data.filter.start_at_end ? validated.data.filter.start_at_end + ' 23:59:59' : undefined;
 
         const [entries, total] = await CronHistoryRepository.createQuery()
             .filterById(validated.data.filter.id)

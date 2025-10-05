@@ -2,7 +2,7 @@ import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, Index} from 't
 import {LogLevelEnum} from '../enums/log-level.enum';
 
 @Entity('log_data')
-@Index('idx_log_data', ['created_at_date', 'level', 'category'])
+@Index('idx_log_data', ['created_at', 'level', 'category'])
 export default class LogDataEntity {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})
     id!: number;
@@ -32,7 +32,4 @@ export default class LogDataEntity {
 
     @CreateDateColumn({type: 'timestamp', nullable: false})
     created_at!: Date;
-
-    @Column({type: 'date', asExpression: 'DATE(created_at)', generatedType: 'STORED', select: false})
-    created_at_date!: string;
 }

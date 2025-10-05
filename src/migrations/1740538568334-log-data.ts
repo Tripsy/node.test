@@ -14,11 +14,10 @@ export class LogData1740538568334 implements MigrationInterface {
                 \`message\`         TEXT                                                      NOT NULL,
                 \`context\`         TEXT                                                      NULL,
                 \`debugStack\`      TEXT                                                      NULL,
-                \`created_at\`      TIMESTAMP(6)                                              NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-                \`created_at_date\` DATE AS (DATE(created_at)) STORED,
+                \`created_at\`      TIMESTAMP(6)                                              NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                 PRIMARY KEY (\`id\`),
                 INDEX \`IDX_log_data_pid\` (\`pid\`),
-                INDEX \`IDX__log_data\` (\`created_at_date\`, \`level\`, \`category\`)
+                INDEX \`IDX__log_data\` (\`created_at\`, \`level\`, \`category\`)
             ) ENGINE = InnoDB;
         `);
     }

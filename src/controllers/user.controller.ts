@@ -11,7 +11,6 @@ import {getCacheProvider} from '../providers/cache.provider';
 import UserFindValidator from '../validators/user-find.validator';
 import UserPolicy from '../policies/user.policy';
 import AccountTokenRepository from '../repositories/account-token.repository';
-import {stringToDate} from '../helpers/date.helper';
 
 class UserController {
     public create = asyncHandler(async (req: Request, res: Response) => {
@@ -202,8 +201,8 @@ class UserController {
             throw new BadRequestError();
         }
 
-        const validatedCreateDateStart = validated.data.filter.create_date_start ? stringToDate(validated.data.filter.create_date_start) : undefined;
-        const validatedCreateDateEnd = validated.data.filter.create_date_end ? stringToDate(validated.data.filter.create_date_end) : undefined;
+        const validatedCreateDateStart = validated.data.filter.create_date_start ? validated.data.filter.create_date_start + ' 00:00:00' : undefined;
+        const validatedCreateDateEnd = validated.data.filter.create_date_end ? validated.data.filter.create_date_end + ' 23:59:59' : undefined;
 
         const [entries, total] = await UserRepository.createQuery()
             .filterById(validated.data.filter.id)
