@@ -6,7 +6,7 @@ import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import BadRequestError from '../exceptions/bad-request.error';
 import {UserRoleEnum} from '../enums/user-role.enum';
 
-enum UserOrderByEnum {
+enum OrderByEnum {
     ID = 'id',
     NAME = 'name',
     CREATED_AT = 'created_at',
@@ -16,9 +16,9 @@ enum UserOrderByEnum {
 const UserFindValidator = z
     .object({
         order_by: z
-            .nativeEnum(UserOrderByEnum)
+            .nativeEnum(OrderByEnum)
             .optional()
-            .default(UserOrderByEnum.ID),
+            .default(OrderByEnum.ID),
         direction: z
             .nativeEnum(OrderDirectionEnum)
             .optional()

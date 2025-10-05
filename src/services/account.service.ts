@@ -14,7 +14,6 @@ import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import {EmailTemplate} from '../types/template.type';
 import {createFutureDate} from '../helpers/date.helper';
 import {getErrorMessage} from '../helpers/system.helper';
-import NotFoundError from '../exceptions/not-found.error';
 
 export async function encryptPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -33,7 +32,7 @@ export async function getActiveAuthToken(req: Request): Promise<AccountTokenEnti
     const token: string | undefined = readToken(req);
 
     if (!token) {
-        throw new NotFoundError('Token not found');
+        throw new Error('Token not found');
     }
 
     // Verify JWT and extract payload
@@ -52,7 +51,7 @@ export async function getActiveAuthToken(req: Request): Promise<AccountTokenEnti
         .first();
 
     if (!activeToken) {
-        throw new NotFoundError('No active token found');
+        throw new Error('No active token found');
     }
 
     return activeToken;
@@ -170,14 +169,13 @@ export async function sendEmailConfirmCreate(user: Partial<UserEntity> & {
 
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-create', user.language);
 
-    await queueEmail({
-        ...emailTemplate,
-        vars: {
-            name: user.name,
-            token: token,
-            expire_at: expire_at.toISOString()
-        }
-    }, {
+    emailTemplate.content.vars = {
+        name: user.name,
+        token: token,
+        expire_at: expire_at.toISOString()
+    };
+
+    await queueEmail(emailTemplate, {
         name: user.name,
         address: user.email
     });
@@ -193,14 +191,13 @@ export async function sendEmailConfirmUpdate(user: Partial<UserEntity> & {
 
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-confirm-update', user.language);
 
-    await queueEmail({
-        ...emailTemplate,
-        vars: {
-            name: user.name,
-            token: token,
-            expire_at: expire_at.toISOString()
-        }
-    }, {
+    emailTemplate.content.vars = {
+        name: user.name,
+        token: token,
+        expire_at: expire_at.toISOString()
+    };
+
+    await queueEmail(emailTemplate, {
         name: user.name,
         address: user.email
     });
@@ -213,12 +210,11 @@ export async function sendWelcomeEmail(user: Partial<UserEntity> & {
 }): Promise<void> {
     const emailTemplate: EmailTemplate = await loadEmailTemplate('email-welcome', user.language);
 
-    await queueEmail({
-        ...emailTemplate,
-        vars: {
-            name: user.name
-        }
-    }, {
+    emailTemplate.content.vars = {
+        name: user.name
+    };
+
+    await queueEmail(emailTemplate, {
         name: user.name,
         address: user.email
     });

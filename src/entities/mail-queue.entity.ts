@@ -22,7 +22,7 @@ export default class MailQueueEntity {
     @Column('char', {length: 2, nullable: false})
     language!: string;
 
-    @Column({ type: 'json', nullable: false, comment: 'Email content: subject, text, html' })
+    @Column({ type: 'json', nullable: false, comment: 'Email content: subject, text, html, vars, layout' })
     content!: EmailContent;
 
     @Column({ type: 'json', nullable: false, comment: 'To: name & address' })
@@ -45,6 +45,9 @@ export default class MailQueueEntity {
 
     @Column({type: 'timestamp', nullable: true})
     sent_at?: Date;
+
+    @Column({type: 'date', asExpression: 'DATE(sent_at)', generatedType: 'STORED', select: false})
+    sent_at_date!: string;
 
     @CreateDateColumn({type: 'timestamp', nullable: false})
     created_at!: Date;

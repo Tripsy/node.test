@@ -8,6 +8,7 @@ import {UserStatusEnum} from '../enums/user-status.enum';
 import {getPolicyPermissions} from '../services/user.service';
 import {UserRoleEnum} from '../enums/user-role.enum';
 import {createFutureDate, dateDiffInSeconds} from '../helpers/date.helper';
+import AccountTokenEntity from '../entities/account-token.entity';
 
 async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
     try {
@@ -21,7 +22,13 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
             permissions: [],
         };
 
-        const activeToken = await getActiveAuthToken(req);
+        let activeToken: AccountTokenEntity;
+
+        try {
+            activeToken = await getActiveAuthToken(req);
+        } catch {
+            return next();
+        }
 
         // Check if token is expired
         if (activeToken.expire_at < new Date()) {

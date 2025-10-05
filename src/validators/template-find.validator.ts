@@ -5,7 +5,7 @@ import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
 import BadRequestError from '../exceptions/bad-request.error';
 
-enum UserOrderByEnum {
+enum OrderByEnum {
     ID = 'id',
     LABEL = 'label',
     CREATED_AT = 'created_at',
@@ -15,9 +15,9 @@ enum UserOrderByEnum {
 const TemplateFindValidator = z
     .object({
         order_by: z
-            .nativeEnum(UserOrderByEnum)
+            .nativeEnum(OrderByEnum)
             .optional()
-            .default(UserOrderByEnum.ID),
+            .default(OrderByEnum.ID),
         direction: z
             .nativeEnum(OrderDirectionEnum)
             .optional()

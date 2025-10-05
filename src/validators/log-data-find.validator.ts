@@ -6,7 +6,7 @@ import {LogCategoryEnum} from '../enums/log-category.enum';
 import {LogLevelEnum} from '../enums/log-level.enum';
 import BadRequestError from '../exceptions/bad-request.error';
 
-enum UserOrderByEnum {
+enum OrderByEnum {
     ID = 'id',
     PID = 'pid',
     CATEGORY = 'category',
@@ -17,9 +17,9 @@ enum UserOrderByEnum {
 const LogDataFindValidator = z
     .object({
         order_by: z
-            .nativeEnum(UserOrderByEnum)
+            .nativeEnum(OrderByEnum)
             .optional()
-            .default(UserOrderByEnum.ID),
+            .default(OrderByEnum.ID),
         direction: z
             .nativeEnum(OrderDirectionEnum)
             .optional()
@@ -71,7 +71,7 @@ const LogDataFindValidator = z
                         .min(cfg('filter.termMinLength'), {
                             message: lang('error.string_min', {
                                 min: cfg('filter.termMinLength').toString(),
-                                term: 'message',
+                                field: 'term',
                             }),
                         })
                         .optional(),

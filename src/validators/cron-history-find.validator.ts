@@ -5,7 +5,7 @@ import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import {CronHistoryStatusEnum} from '../enums/cron-history-status.enum';
 import BadRequestError from '../exceptions/bad-request.error';
 
-enum UserOrderByEnum {
+enum OrderByEnum {
     ID = 'id',
     LABEL = 'label',
     STATUS = 'status',
@@ -15,9 +15,9 @@ enum UserOrderByEnum {
 const LogDataFindValidator = z
     .object({
         order_by: z
-            .nativeEnum(UserOrderByEnum)
+            .nativeEnum(OrderByEnum)
             .optional()
-            .default(UserOrderByEnum.ID),
+            .default(OrderByEnum.ID),
         direction: z
             .nativeEnum(OrderDirectionEnum)
             .optional()

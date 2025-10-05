@@ -1,0 +1,15 @@
+{
+	"error": {
+		"not_found": "Mail queue entry not found"
+	},
+	"success": {
+		"delete": "Mail queue entry / entries deleted"
+	},
+	"validation": {
+		"language_invalid": "Invalid language",
+		"ids_invalid": "Invalid ids"
+	},
+	"history": {
+		"deleted": "Mail queue entry / entries have been removed by user #{{auth_id}}"
+	}
+}

@@ -1,10 +1,10 @@
 import 'dotenv/config';
-import {getObjectValue} from '../helpers/utils.helper';
+import {getObjectValue, ObjectValue} from '../helpers/utils.helper';
 import {LogLevelEnum} from '../enums/log-level.enum';
 
-const settings = {
+const settings: ObjectValue = {
     app: {
-        env: process.env.APP_ENV || 'development',
+        env: process.env.APP_ENV || 'developmƒent',
         debug: process.env.APP_DEBUG === 'true',
         url: process.env.APP_URL || 'http://node.test',
         port: parseInt(process.env.APP_PORT || '3000', 10),

@@ -52,7 +52,7 @@ const UserPermissionFindValidator = z
                         .min(cfg('filter.termMinLength'), {
                             message: lang('error.string_min', {
                                 min: cfg('filter.termMinLength').toString(),
-                                term: 'entity',
+                                field: 'entity',
                             }),
                         })
                         .optional(),
@@ -61,7 +61,7 @@ const UserPermissionFindValidator = z
                         .min(cfg('filter.termMinLength'), {
                             message: lang('error.string_min', {
                                 min: cfg('filter.termMinLength').toString(),
-                                term: 'operation',
+                                field: 'operation',
                             }),
                         })
                         .optional(),

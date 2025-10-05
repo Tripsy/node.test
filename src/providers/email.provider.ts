@@ -72,8 +72,8 @@ export async function loadEmailTemplate(label: string, language: string): Promis
 
 export function prepareEmailContent(template: EmailTemplate): EmailContent {
     try {
-        const emailSubject = templates.renderString(template.content.subject, template.vars || {});
-        const emailContent = templates.renderString(template.content.html, template.vars || {});
+        const emailSubject = templates.renderString(template.content.subject, template.content.vars || {});
+        const emailContent = templates.renderString(template.content.html, template.content.vars || {});
 
         return {
             subject: emailSubject,
