@@ -13,6 +13,8 @@ import AccountRecoveryRepository from '../repositories/account-recovery.reposito
 import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
 import {EmailTemplate} from '../types/template.type';
 import {createFutureDate} from '../helpers/date.helper';
+import {getErrorMessage} from '../helpers/system.helper';
+import NotFoundError from '../exceptions/not-found.error';
 
 export async function encryptPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -20,6 +22,40 @@ export async function encryptPassword(password: string): Promise<string> {
 
 export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
+}
+
+export function readToken(req: Request): string | undefined {
+    return req.headers.authorization?.split(' ')[1];
+}
+
+export async function getActiveAuthToken(req: Request): Promise<AccountTokenEntity> {
+    // Read the token from the request
+    const token: string | undefined = readToken(req);
+
+    if (!token) {
+        throw new NotFoundError('Token not found');
+    }
+
+    // Verify JWT and extract payload
+    let payload: AuthTokenPayload;
+
+    try {
+        payload = jwt.verify(token, cfg('user.authSecret')) as AuthTokenPayload;
+    } catch (err) {
+        throw new Error('Unable to verify token: ' + getErrorMessage(err));
+    }
+
+    const activeToken = await AccountTokenRepository.createQuery()
+        .select(['id', 'metadata', 'expire_at'])
+        .filterByIdent(payload.ident)
+        .filterBy('user_id', payload.user_id)
+        .first();
+
+    if (!activeToken) {
+        throw new NotFoundError('No active token found');
+    }
+
+    return activeToken;
 }
 
 export function createAuthToken(user: Partial<UserEntity> & { id: number }): {
@@ -43,7 +79,6 @@ export function createAuthToken(user: Partial<UserEntity> & { id: number }): {
 
     return {token, ident, expire_at};
 }
-
 
 export async function setupToken(user: Partial<UserEntity> & { id: number }, req: Request): Promise<string> {
     const {token, ident, expire_at} = createAuthToken(user);
@@ -74,10 +109,6 @@ export async function getAuthValidTokens(user_id: number): Promise<AuthValidToke
             used_at: token.used_at
         };
     });
-}
-
-export function readToken(req: Request): string | undefined {
-    return req.headers.authorization?.split(' ')[1];
 }
 
 export async function setupRecovery(user: Partial<UserEntity> & { id: number }, req: Request): Promise<[string, Date]> {

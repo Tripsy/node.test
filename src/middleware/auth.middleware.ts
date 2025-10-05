@@ -1,8 +1,6 @@
 import {NextFunction, Request, Response} from 'express';
-import jwt from 'jsonwebtoken';
-import {readToken} from '../services/account.service';
+import {getActiveAuthToken} from '../services/account.service';
 import {cfg} from '../config/settings.config';
-import {AuthTokenPayload} from '../types/token.type';
 import AccountTokenRepository from '../repositories/account-token.repository';
 import {compareMetaDataValue, tokenMetaData} from '../helpers/meta-data.helper';
 import UserRepository from '../repositories/user.repository';
@@ -23,31 +21,7 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
             permissions: [],
         };
 
-        // Read the token from the request
-        const token: string | undefined = readToken(req);
-
-        if (!token) {
-            return next();
-        }
-
-        // Verify JWT and extract payload
-        let payload: AuthTokenPayload;
-
-        try {
-            payload = jwt.verify(token, cfg('user.authSecret')) as AuthTokenPayload;
-        } catch (err) {
-            return next();
-        }
-
-        const activeToken = await AccountTokenRepository.createQuery()
-            .select(['id', 'metadata', 'expire_at'])
-            .filterByIdent(payload.ident)
-            .filterBy('user_id', payload.user_id)
-            .first();
-
-        if (!activeToken) {
-            return next();
-        }
+        const activeToken = await getActiveAuthToken(req);
 
         // Check if token is expired
         if (activeToken.expire_at < new Date()) {
@@ -57,13 +31,15 @@ async function authMiddleware(req: Request, _res: Response, next: NextFunction) 
         }
 
         // Validate metadata (e.g., user-agent check)
-        if (cfg('app.env') !== 'development' && !compareMetaDataValue(activeToken.metadata, tokenMetaData(req), 'user-agent')) {
+        if (cfg('app.env') !== 'development' && (
+            !activeToken.metadata || !compareMetaDataValue(activeToken.metadata, tokenMetaData(req), 'user-agent')
+        )) {
             return next();
         }
 
         const user = await UserRepository.createQuery()
             .select(['id', 'name', 'email', 'language', 'role', 'status', 'created_at', 'updated_at'])
-            .filterById(payload.user_id)
+            .filterById(activeToken.user_id)
             .first();
 
         // User not found or inactive

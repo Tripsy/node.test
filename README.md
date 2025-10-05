@@ -137,6 +137,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
        - template.controller
        - permission.controller
        - user-permission.controller
+       - mail-queue controller
    - validators
    - middleware
        - output-handler.middleware

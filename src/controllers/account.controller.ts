@@ -8,6 +8,7 @@ import {UserStatusEnum} from '../enums/user-status.enum';
 import NotFoundError from '../exceptions/not-found.error';
 import UnauthorizedError from '../exceptions/unauthorized.error';
 import {
+    getActiveAuthToken,
     getAuthValidTokens,
     sendEmailConfirmUpdate,
     setupRecovery,
@@ -169,9 +170,18 @@ class AccountController {
         policy.logout();
 
         try {
-            await AccountTokenRepository.createQuery()
-                .filterBy('user_id', policy.getUserId())
-                .delete(false, true);
+            const activeToken = await getActiveAuthToken(req);
+
+            if (activeToken) {
+                // // This will actually remove all sessions and we don't want that - keep it for further implementation
+                // await AccountTokenRepository.createQuery()
+                //     .filterBy('user_id', policy.getUserId())
+                //     .delete(false, true);
+
+                await AccountTokenRepository.createQuery()
+                    .filterBy('ident', activeToken.ident)
+                    .delete(false);
+            }
         } catch (error) {
             if (!(error instanceof NotFoundError)) {
                 throw error;
