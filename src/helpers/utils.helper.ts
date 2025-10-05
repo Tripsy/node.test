@@ -22,7 +22,7 @@ export function replaceVars(content: string, vars: Record<string, string> = {}):
     return content.replace(/{{(\w+)}}/g, (_, key) => (key in vars ? vars[key] : `{{${key}}}`));
 }
 
-export type ObjectValue = string | number | boolean | null | undefined | ObjectValue[] | { [key: string]: ObjectValue };
+export type ObjectValue = string | number | RegExp | boolean | null | undefined | ObjectValue[] | { [key: string]: ObjectValue };
 
 /**
  * Get the value of a key in an object
@@ -33,10 +33,10 @@ export type ObjectValue = string | number | boolean | null | undefined | ObjectV
  * @returns {any} - The value of the key
  */
 export function getObjectValue(
-    obj: { [key: string]: ObjectValue },
+    obj: ObjectValue,
     key: string
-): ObjectValue | undefined {
-    return key.split('.').reduce<ObjectValue | undefined>((acc, part) => {
+): ObjectValue {
+    return key.split('.').reduce<ObjectValue>((acc, part) => {
         if (acc && typeof acc === "object" && !Array.isArray(acc) && part in acc) {
             return (acc as { [key: string]: ObjectValue })[part];
         }

@@ -58,6 +58,11 @@ export const routesConfig = {
         delete: '/cron-history',
         find: '/cron-history',
     },
+    mailQueue: {
+        read: '/mail-queue/:id',
+        delete: '/mail-queue',
+        find: '/mail-queue',
+    },
 };
 
 export function baseLink(): string {
@@ -65,19 +70,19 @@ export function baseLink(): string {
 }
 
 export function routeLink(route: string, params?: Record<string, string | number>, isAbsolute = false): string {
-    let resolvedRoute = getObjectValue(routesConfig, route);
+    let routeLink = getObjectValue(routesConfig, route) as string | undefined;
 
-    if (!resolvedRoute) {
+    if (!routeLink) {
         throw new Error(`Route ${route} not found`);
     }
 
     if (params) {
         Object.keys(params).forEach((key) => {
-            resolvedRoute = resolvedRoute.replace(`:${key}`, params[key]);
+            routeLink = (routeLink as string).replace(`:${key}`, String(params[key]));
         });
     }
 
-    return isAbsolute ? `${baseLink()}${resolvedRoute}` : resolvedRoute;
+    return isAbsolute ? `${baseLink()}${routeLink}` : routeLink;
 }
 
 const router: Router = Router();
@@ -111,6 +116,7 @@ const loadRoutes = async (router: Router): Promise<void> => {
 export const initRoutes = async (): Promise<Router> => {
     try {
         await loadRoutes(router);
+
         return router;
     } catch (error) {
         throw error;

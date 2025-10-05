@@ -120,14 +120,33 @@ class AbstractQuery {
         return columnPattern.test(column);
     }
 
+    // private prepareColumn(column: string): string {
+    //     // Validate or sanitize the column name
+    //     if (!this.isValidColumn(column)) {
+    //         throw new Error(`Invalid column name: ${column}`);
+    //     }
+    //
+    //     return column.includes('.') ? column : `${this.entityAlias}.${column}`
+    // }
+
     private prepareColumn(column: string): string {
+        column = column.trim();
+
         // Validate or sanitize the column name
         if (!this.isValidColumn(column)) {
             throw new Error(`Invalid column name: ${column}`);
         }
 
-        return column.includes('.') ? column : `${this.entityAlias}.${column}`
+        // If the column includes a dot (table.column), split and escape both parts
+        if (column.includes('.')) {
+            const [table, col] = column.split('.');
+            return `\`${table}\`.\`${col}\``;
+        }
+
+        // Escape reserved words or special characters
+        return `\`${this.entityAlias}\`.\`${column}\``;
     }
+
 
     /**
      * Return query builder object so further TypeOrm methods can be chained
@@ -319,7 +338,7 @@ class AbstractQuery {
 
     filterBy(column: string, value?: string | number | (string | number)[] | null, operator: string = '='): this {
         if (value) {
-            const columns = column.split(',').map(col => this.prepareColumn(col.trim()));
+            const columns = column.split(',').map(col => this.prepareColumn(col));
 
             if (columns.length > 1 && operator === 'IN') {
                 throw new CustomError(500, 'The IN operator can only be used with a single column');
@@ -369,7 +388,7 @@ class AbstractQuery {
 
                         this.query.andWhere(`(${whereString})`, whereParams);
                     } else {
-                        this.query.andWhere(`${column} ${operator} :${column}`, {[column]: value});
+                        this.query.andWhere(`${this.prepareColumn(column)} ${operator} :${column}`, {[column]: value});
                     }
                     break;
             }

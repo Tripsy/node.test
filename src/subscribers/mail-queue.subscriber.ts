@@ -22,8 +22,7 @@ export class MailQueueSubscriber implements EntitySubscriberInterface<MailQueueE
             mailQueueId: event.entity.id,
             emailContent: prepareEmailContent({
                 language: event.entity.language,
-                content: event.entity.content,
-                vars: event.entity.vars
+                content: event.entity.content
             }),
             to: event.entity.to as Mail.Address,
             from: event.entity.from as Mail.Address | null

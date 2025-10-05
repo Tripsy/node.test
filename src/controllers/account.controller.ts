@@ -173,7 +173,7 @@ class AccountController {
             const activeToken = await getActiveAuthToken(req);
 
             if (activeToken) {
-                // // This will actually remove all sessions and we don't want that - keep it for further implementation
+                // // This will actually remove all sessions - keep it for further implementation
                 // await AccountTokenRepository.createQuery()
                 //     .filterBy('user_id', policy.getUserId())
                 //     .delete(false, true);
@@ -231,14 +231,13 @@ class AccountController {
 
         const emailTemplate: EmailTemplate = await loadEmailTemplate('password-recover', user.language || req.lang);
 
-        await queueEmail({
-            ...emailTemplate,
-            vars: {
-                name: user.name,
-                ident: ident,
-                expire_at: expire_at.toISOString()
-            }
-        }, {
+        emailTemplate.content.vars = {
+            name: user.name,
+            ident: ident,
+            expire_at: expire_at.toISOString()
+        };
+
+        await queueEmail(emailTemplate, {
             name: user.name,
             address: user.email
         });
@@ -311,12 +310,11 @@ class AccountController {
 
         const emailTemplate: EmailTemplate = await loadEmailTemplate('password-change', user.language || req.lang);
 
-        await queueEmail({
-            ...emailTemplate,
-            vars: {
-                name: user.name
-            }
-        }, {
+        emailTemplate.content.vars = {
+            name: user.name
+        };
+
+        await queueEmail(emailTemplate, {
             name: user.name,
             address: user.email
         });
