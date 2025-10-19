@@ -315,8 +315,7 @@ export const systemLogger: Logger = childLogger(logger, LogCategoryEnum.SYSTEM);
 
 if (cfg('app.env') === 'test') {
     // systemLogger.debug = console.log;
-    systemLogger.debug = () => {
-    };
+    systemLogger.debug = () => {};
     systemLogger.error = console.error;
 }
 

@@ -16,24 +16,30 @@ const UserUpdateValidator = z
             .string({message: lang('user.validation.email_invalid')})
             .email({message: lang('user.validation.email_invalid')})
             .optional(),
-        password: z
-            .string({message: lang('user.validation.password_invalid')})
-            .min(cfg('user.passwordMinLength'), {
-                message: lang('user.validation.password_min', {min: cfg('user.passwordMinLength').toString()}),
-            })
-            .refine((value) => /[A-Z]/.test(value), {
-                message: lang('user.validation.password_condition_capital_letter'),
-            })
-            .refine((value) => /[0-9]/.test(value), {
-                message: lang('user.validation.password_condition_number'),
-            })
-            .refine((value) => /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(value), {
-                message: lang('user.validation.password_condition_special_character'),
-            })
-            .optional(),
-        password_confirm: z
-            .string({message: lang('user.validation.password_confirm_required')})
-            .optional(),
+        password: z.preprocess(
+            (val) => (val === '' ? undefined : val),
+            z
+                .string({message: lang('user.validation.password_invalid')})
+                .min(cfg('user.passwordMinLength'), {
+                    message: lang('user.validation.password_min', {min: cfg('user.passwordMinLength').toString()}),
+                })
+                .refine((value) => /[A-Z]/.test(value), {
+                    message: lang('user.validation.password_condition_capital_letter'),
+                })
+                .refine((value) => /[0-9]/.test(value), {
+                    message: lang('user.validation.password_condition_number'),
+                })
+                .refine((value) => /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(value), {
+                    message: lang('user.validation.password_condition_special_character'),
+                })
+                .optional()
+        ),
+        password_confirm: z.preprocess(
+            (val) => (val === '' ? undefined : val),
+            z
+                .string({message: lang('user.validation.password_confirm_required')})
+                .optional(),
+        ),
         language: z
             .string({message: lang('user.validation.language_invalid')})
             .length(2, {message: lang('user.validation.language_invalid')})
@@ -44,7 +50,7 @@ const UserUpdateValidator = z
         path: ['_global'], // Attach error at the root level
     })
     .superRefine(({password, password_confirm}, ctx) => {
-        if (password && password !== password_confirm) {
+        if (password !== password_confirm) {
             ctx.addIssue({
                 path: ['password_confirm'],
                 message: lang('user.validation.password_confirm_mismatch'),

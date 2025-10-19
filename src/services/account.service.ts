@@ -45,7 +45,7 @@ export async function getActiveAuthToken(req: Request): Promise<AccountTokenEnti
     }
 
     const activeToken = await AccountTokenRepository.createQuery()
-        .select(['id', 'metadata', 'expire_at'])
+        // .select(['id', 'ident', 'metadata', 'expire_at'])
         .filterByIdent(payload.ident)
         .filterBy('user_id', payload.user_id)
         .first();

@@ -26,7 +26,10 @@ export const validateParamsWhenId = (...args: string[]) => {
         }
 
         // Attach the validated IDs to the response object for later use
-        res.locals.validated = validated;
+        res.locals.validated = {
+            ...(res.locals.validated || {}),
+            ...validated,
+        };
 
         next(); // Proceed to the next middleware or route handler
     };
@@ -59,7 +62,10 @@ export const validateParamsWhenStatus = (data: Record<string, any[]>) => {
         }
 
         // Attach the validated IDs to the response object for later use
-        res.locals.validated = validated;
+        res.locals.validated = {
+            ...(res.locals.validated || {}),
+            ...validated,
+        };
 
         next(); // Proceed to the next middleware or route handler
     };

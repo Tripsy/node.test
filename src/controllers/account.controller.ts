@@ -180,7 +180,7 @@ class AccountController {
 
                 await AccountTokenRepository.createQuery()
                     .filterBy('ident', activeToken.ident)
-                    .delete(false);
+                    .delete(false, false, true);
             }
         } catch (error) {
             if (!(error instanceof NotFoundError)) {
