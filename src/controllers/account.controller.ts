@@ -43,7 +43,7 @@ class AccountController {
         // Check permission (should not be authenticated)
         policy.register();
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = AccountRegisterValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -80,7 +80,7 @@ class AccountController {
         // Check permission (should not be authenticated)
         policy.login();
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = AccountLoginValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -145,7 +145,7 @@ class AccountController {
      *      - From his account page user could see all active tokens and allow removal
      */
     public removeToken = asyncHandler(async (req: Request, res: Response) => {
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = AccountRemoveTokenValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -199,7 +199,7 @@ class AccountController {
         // Check permission (should not be authenticated)
         policy.passwordRecover();
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = AccountPasswordRecoverValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -255,7 +255,7 @@ class AccountController {
 
         const ident = req.params.ident;
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = AccountPasswordRecoverChangeValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -330,7 +330,7 @@ class AccountController {
         // Check permission (needs to be authenticated)
         policy.passwordUpdate();
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = AccountPasswordUpdateValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -435,7 +435,7 @@ class AccountController {
         // Check permission (needs to be authenticated)
         policy.emailUpdate();
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = AccountEmailUpdateValidator.safeParse(req.body);
 
         if (!validated.success) {

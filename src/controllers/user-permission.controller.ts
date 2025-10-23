@@ -15,7 +15,7 @@ class UserPermissionController {
         // Check permission (admin or operator with permission)
         policy.create();
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = UserPermissionCreateValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -127,8 +127,8 @@ class UserPermissionController {
         // Check permission (admin or operator with permission)
         policy.find();
 
-        // Validate the request body against the schema
-        const validated = UserPermissionFindValidator.safeParse(req.body);
+        // Validate against the schema
+        const validated = UserPermissionFindValidator.safeParse(req.query);
 
         if (!validated.success) {
             res.output.errors(validated.error.errors);

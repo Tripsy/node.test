@@ -19,7 +19,7 @@ class TemplateController {
         // Check permission (admin or operator with permission)
         policy.create();
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = TemplateCreateValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -87,7 +87,7 @@ class TemplateController {
         // Check permission (admin or operator with permission)
         policy.update();
 
-        // Validate the request body against the schema
+        // Validate against the schema
         const validated = TemplateUpdateValidator.safeParse(req.body);
 
         if (!validated.success) {
@@ -181,8 +181,8 @@ class TemplateController {
         // Check permission (admin or operator with permission)
         policy.find();
 
-        // Validate the request body against the schema
-        const validated = TemplateFindValidator.safeParse(req.body);
+        // Validate against the schema
+        const validated = TemplateFindValidator.safeParse(req.query);
 
         if (!validated.success) {
             res.output.errors(validated.error.errors);

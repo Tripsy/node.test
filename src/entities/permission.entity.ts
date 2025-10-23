@@ -14,7 +14,7 @@ export default class PermissionEntity {
     @Column('varchar', {nullable: false})
     operation!: string
 
-    @DeleteDateColumn({type: 'timestamp', nullable: true, select: false})
+    @DeleteDateColumn({type: 'timestamp', nullable: true, select: true})
     deleted_at?: Date;
 
     @OneToMany(() => UserPermissionEntity, (userPermission) => userPermission.permission_id)

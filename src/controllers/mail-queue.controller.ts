@@ -69,8 +69,8 @@ class MailQueueController {
         // Check permission (admin or operator with permission)
         policy.find();
 
-        // Validate the request body against the schema
-        const validated = MailQueueFindValidator.safeParse(req.body);
+        // Validate against the schema
+        const validated = MailQueueFindValidator.safeParse(req.query);
 
         if (!validated.success) {
             res.output.errors(validated.error.errors);
