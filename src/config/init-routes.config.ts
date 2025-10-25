@@ -36,7 +36,7 @@ export const routesConfig = {
     },
     userPermission: {
         create: '/users/:user_id/permissions',
-        delete: '/users/:user_id/permissions/:id',
+        delete: '/users/:user_id/permissions/:permission_id',
         restore: '/users/:user_id/permissions/:id/restore',
         find: '/users/:user_id/permissions'
     },

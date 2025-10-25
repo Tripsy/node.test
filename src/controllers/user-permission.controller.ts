@@ -24,7 +24,7 @@ class UserPermissionController {
             throw new BadRequestError();
         }
 
-        const results: {
+        const results:  {
             permission_id: number;
             message: string;
         }[] = [];
@@ -90,12 +90,12 @@ class UserPermissionController {
         policy.delete();
 
         await UserPermissionRepository.createQuery()
-            .filterById(res.locals.validated.id)
             .filterBy('user_id', res.locals.validated.user_id)
+            .filterBy('permission_id', res.locals.validated.permission_id)
             .setContextData({
                 auth_id: policy.getUserId()
             })
-            .delete();
+            .delete(true, false, true);
 
         res.output.message(lang('user_permission.success.delete'));
 

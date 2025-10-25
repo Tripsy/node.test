@@ -42,6 +42,7 @@ class UserController {
         user.email = validated.data.email;
         user.password = validated.data.password;
         user.status = validated.data.status;
+        user.role = validated.data.role;
 
         if (validated.data.language) {
             user.language = validated.data.language;

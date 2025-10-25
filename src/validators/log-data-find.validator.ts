@@ -5,6 +5,7 @@ import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import {LogCategoryEnum} from '../enums/log-category.enum';
 import {LogLevelEnum} from '../enums/log-level.enum';
 import BadRequestError from '../exceptions/bad-request.error';
+import {parseJsonFilter} from "../helpers/utils.helper";
 
 enum OrderByEnum {
     ID = 'id',
@@ -36,17 +37,9 @@ const LogDataFindValidator = z
             .default(1),
         filter:
             z.preprocess(
-                (val) => {
-                    if (typeof val === 'string') {
-                        try {
-                            return JSON.parse(val);
-                        } catch {
-                            throw new BadRequestError(lang('error.invalid_filter'));
-                        }
-                    }
-
-                    return val;
-                },
+                (val) => parseJsonFilter(val, () => {
+                    throw new BadRequestError(lang('error.invalid_filter'))
+                }),
                 z.object({
                     id: z.coerce
                         .number({message: lang('error.invalid_number')})

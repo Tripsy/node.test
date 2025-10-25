@@ -21,7 +21,7 @@ routes.delete(
     routesConfig.userPermission.delete,
     [
         metaDocumentation('user-permission', 'delete'),
-        validateParamsWhenId('user_id', 'id')
+        validateParamsWhenId('user_id', 'permission_id')
     ],
     UserPermissionController.delete
 );

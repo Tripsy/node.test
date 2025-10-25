@@ -29,7 +29,7 @@ class AbstractQuery {
         return this.query.getParameters();
     }
 
-    debugWriteToConsole(): this {
+    debug(): this {
         console.log('SQL:', this.query.getSql());
         console.log('Parameters:', this.query.getParameters());
 
@@ -120,33 +120,33 @@ class AbstractQuery {
         return columnPattern.test(column);
     }
 
-    // private prepareColumn(column: string): string {
-    //     // Validate or sanitize the column name
-    //     if (!this.isValidColumn(column)) {
-    //         throw new Error(`Invalid column name: ${column}`);
-    //     }
-    //
-    //     return column.includes('.') ? column : `${this.entityAlias}.${column}`
-    // }
-
     private prepareColumn(column: string): string {
-        column = column.trim();
-
         // Validate or sanitize the column name
         if (!this.isValidColumn(column)) {
             throw new Error(`Invalid column name: ${column}`);
         }
 
-        // If the column includes a dot (table.column), split and escape both parts
-        if (column.includes('.')) {
-            const [table, col] = column.split('.');
-            return `\`${table}\`.\`${col}\``;
-        }
-
-        // Escape reserved words or special characters
-        return `\`${this.entityAlias}\`.\`${column}\``;
+        return column.includes('.') ? column : `${this.entityAlias}.${column}`
     }
 
+    // This version had issues while ordering - see user-permission.controller.ts - with order defined as `permission.id`
+    // private prepareColumn(column: string): string {
+    //     column = column.trim();
+    //
+    //     // Validate or sanitize the column name
+    //     if (!this.isValidColumn(column)) {
+    //         throw new Error(`Invalid column name: ${column}`);
+    //     }
+    //
+    //     // If the column includes a dot (table.column), split and escape both parts
+    //     if (column.includes('.')) {
+    //         const [table, col] = column.split('.');
+    //         return `\`${table}\`.\`${col}\``;
+    //     }
+    //
+    //     // Escape reserved words or special characters
+    //     return `\`${this.entityAlias}\`.\`${column}\``;
+    // }
 
     /**
      * Return query builder object so further TypeOrm methods can be chained

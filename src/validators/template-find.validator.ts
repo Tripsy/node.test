@@ -4,6 +4,7 @@ import {cfg} from '../config/settings.config';
 import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
 import BadRequestError from '../exceptions/bad-request.error';
+import {parseJsonFilter} from "../helpers/utils.helper";
 
 enum OrderByEnum {
     ID = 'id',
@@ -34,17 +35,9 @@ const TemplateFindValidator = z
             .default(1),
         filter:
             z.preprocess(
-                (val) => {
-                    if (typeof val === 'string') {
-                        try {
-                            return JSON.parse(val);
-                        } catch {
-                            throw new BadRequestError(lang('error.invalid_filter'));
-                        }
-                    }
-
-                    return val;
-                },
+                (val) => parseJsonFilter(val, () => {
+                    throw new BadRequestError(lang('error.invalid_filter'))
+                }),
                 z.object({
                     id: z
                         .number({message: lang('error.invalid_number')})

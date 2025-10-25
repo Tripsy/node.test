@@ -1,8 +1,9 @@
 import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
 import {cfg} from '../config/settings.config';
+import {UserRoleEnum} from "../enums/user-role.enum";
 
-export const paramsUpdateList: string[] = ['name', 'email', 'password', 'language'];
+export const paramsUpdateList: string[] = ['name', 'email', 'password', 'language', 'role'];
 
 const UserUpdateValidator = z
     .object({
@@ -10,12 +11,10 @@ const UserUpdateValidator = z
             .string({message: lang('user.validation.name_invalid')})
             .min(cfg('user.nameMinLength'), {
                 message: lang('user.validation.name_min', {min: cfg('user.nameMinLength').toString()}),
-            })
-            .optional(),
+            }),
         email: z
             .string({message: lang('user.validation.email_invalid')})
-            .email({message: lang('user.validation.email_invalid')})
-            .optional(),
+            .email({message: lang('user.validation.email_invalid')}),
         password: z.preprocess(
             (val) => (val === '' ? undefined : val),
             z
@@ -42,8 +41,9 @@ const UserUpdateValidator = z
         ),
         language: z
             .string({message: lang('user.validation.language_invalid')})
-            .length(2, {message: lang('user.validation.language_invalid')})
-            .optional(),
+            .length(2, {message: lang('user.validation.language_invalid')}),
+        role: z
+            .nativeEnum(UserRoleEnum)
     })
     .refine((data) => Object.values(data).some((value) => value !== undefined), {
         message: lang('error.params_at_least_one', {params: paramsUpdateList.join(', ')}),

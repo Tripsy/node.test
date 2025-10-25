@@ -43,3 +43,19 @@ export function getObjectValue(
         return undefined;
     }, obj);
 }
+
+export function parseJsonFilter(val: unknown, onError: (val: string) => unknown) {
+    if (typeof val === 'string') {
+        if (val.trim() === '') {
+            return {};
+        }
+
+        try {
+            return JSON.parse(val);
+        } catch {
+            return onError(val);
+        }
+    }
+
+    return val;
+}

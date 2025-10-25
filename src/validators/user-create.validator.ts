@@ -2,6 +2,7 @@ import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
 import {UserStatusEnum} from '../enums/user-status.enum';
 import {cfg} from '../config/settings.config';
+import {UserRoleEnum} from "../enums/user-role.enum";
 
 const UserCreateValidator = z
     .object({
@@ -37,6 +38,10 @@ const UserCreateValidator = z
             .nativeEnum(UserStatusEnum)
             .optional()
             .default(UserStatusEnum.PENDING),
+        role: z
+            .nativeEnum(UserRoleEnum)
+            .optional()
+            .default(UserRoleEnum.MEMBER),
     })
     .superRefine(({password, password_confirm}, ctx) => {
         if (password !== password_confirm) {
