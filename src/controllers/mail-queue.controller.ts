@@ -78,13 +78,10 @@ class MailQueueController {
             throw new BadRequestError();
         }
 
-        const validatedSentDateStart = validated.data.filter.sent_date_start ? validated.data.filter.sent_date_start + ' 00:00:00' : undefined;
-        const validatedSentDateEnd = validated.data.filter.sent_date_end ? validated.data.filter.sent_date_end + ' 23:59:59' : undefined;
-
         const [entries, total] = await MailQueueRepository.createQuery()
             .filterById(validated.data.filter.id)
             .filterBy('template_id', validated.data.filter.template_id)
-            .filterByRange('sent_at', validatedSentDateStart, validatedSentDateEnd)
+            .filterByRange('sent_at', validated.data.filter.sent_date_start, validated.data.filter.sent_date_end)
             .filterBy('status', validated.data.filter.status)
             .filterBy('content', validated.data.filter.content, 'LIKE')
             .filterBy('to', validated.data.filter.to, 'LIKE')

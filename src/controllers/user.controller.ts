@@ -202,14 +202,11 @@ class UserController {
             throw new BadRequestError();
         }
 
-        const validatedCreateDateStart = validated.data.filter.create_date_start ? validated.data.filter.create_date_start + ' 00:00:00' : undefined;
-        const validatedCreateDateEnd = validated.data.filter.create_date_end ? validated.data.filter.create_date_end + ' 23:59:59' : undefined;
-
         const [entries, total] = await UserRepository.createQuery()
             .filterById(validated.data.filter.id)
             .filterByStatus(validated.data.filter.status)
             .filterBy('role', validated.data.filter.role)
-            .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
+            .filterByRange('created_at', validated.data.filter.create_date_start, validated.data.filter.create_date_end)
             .filterByTerm(validated.data.filter.term)
             .withDeleted(policy.allowDeleted() && validated.data.filter.is_deleted)
             .orderBy(validated.data.order_by, validated.data.direction)

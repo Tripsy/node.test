@@ -78,14 +78,10 @@ class LogDataController {
 
             throw new BadRequestError();
         }
-
-        const validatedCreateDateStart = validated.data.filter.create_date_start ? validated.data.filter.create_date_start + ' 00:00:00' : undefined;
-        const validatedCreateDateEnd = validated.data.filter.create_date_end ? validated.data.filter.create_date_end + ' 23:59:59' : undefined;
-
         const [entries, total] = await LogDataRepository.createQuery()
             .filterById(validated.data.filter.id)
             .filterBy('pid', validated.data.filter.pid)
-            .filterByRange('created_at', validatedCreateDateStart, validatedCreateDateEnd)
+            .filterByRange('created_at', validated.data.filter.create_date_start, validated.data.filter.create_date_end)
             .filterBy('category', validated.data.filter.category)
             .filterBy('level', validated.data.filter.level)
             .filterByTerm(validated.data.filter.term)

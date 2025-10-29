@@ -79,12 +79,9 @@ class CronHistoryController {
             throw new BadRequestError();
         }
 
-        const validatedStartAtStart = validated.data.filter.start_at_start ? validated.data.filter.start_at_start + ' 00:00:00' : undefined;
-        const validatedStartAtEnd = validated.data.filter.start_at_end ? validated.data.filter.start_at_end + ' 23:59:59' : undefined;
-
         const [entries, total] = await CronHistoryRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .filterByRange('created_at', validatedStartAtStart, validatedStartAtEnd)
+            .filterByRange('created_at', validated.data.filter.start_date_start, validated.data.filter.start_date_end)
             .filterBy('status', validated.data.filter.status)
             .filterByTerm(validated.data.filter.term)
             .orderBy(validated.data.order_by, validated.data.direction)

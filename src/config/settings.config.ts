@@ -64,8 +64,6 @@ const settings: ObjectValue = {
     filter: {
         limit: 20, // Default limit
         termMinLength: 3,
-        dateFormatRegex: /^\d{4}-\d{2}-\d{2}$/,
-        dateFormatLiteral: 'YYYY-MM-DD',
     },
     user: {
         authSecret: process.env.AUTH_JWT_SECRET as string || 'secret',

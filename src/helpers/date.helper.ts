@@ -133,22 +133,20 @@ export function getValidDate(date: unknown): Date | undefined {
     return isValidDateInstance(date) ? date : undefined;
 }
 
-/**
- * Universal date formatter with Moment.js
- *
- * @param value - Date input (string, Date, null, undefined)
- * @param format - Output format (or preset: 'iso', 'local', etc.)
- * @param options - { strict: boolean }
- * @returns Formatted string or null
- */
 export function formatDate(
     value: string | Date | null | undefined,
-    format: string | 'iso' | 'local' = 'iso',
-    options: { strict?: boolean } = {}
+    format: string = 'default',
+    options?: {
+        strict?: boolean;
+    },
 ): string | null {
     // Handle empty values
-    if (value === null || value === undefined) {
-        if (options.strict) {
+    if (
+        value === null ||
+        value === undefined ||
+        (typeof value === 'string' && value.trim() === '')
+    ) {
+        if (options?.strict) {
             throw new Error('Invalid date: null/undefined');
         }
 
@@ -160,7 +158,7 @@ export function formatDate(
 
     // Validate date
     if (!date.isValid()) {
-        if (options.strict) {
+        if (options?.strict) {
             throw new Error(`Invalid date: ${value}`);
         }
 
@@ -169,14 +167,14 @@ export function formatDate(
 
     // Apply formatting
     switch (format) {
-        case 'iso':
+        case 'default':
             return date.format('YYYY-MM-DD');
-        case 'iso-full':
-            return date.toISOString();
-        case 'local':
-            return date.format('MM/DD/YYYY');
-        case 'local-full':
+        case 'default-full':
             return date.format('MM/DD/YYYY, hh:mm:ss A');
+        case 'iso':
+            return date.toISOString();
+        case 'date-time':
+            return date.format('DD-MM-YYYY, hh:mm A');
         default:
             return date.format(format);
     }
