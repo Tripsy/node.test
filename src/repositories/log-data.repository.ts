@@ -13,10 +13,12 @@ export class LogDataQuery extends AbstractQuery {
         if (term) {
             this.query.andWhere(`(
                    ${LogDataQuery.entityAlias}.id = :id
+                OR ${LogDataQuery.entityAlias}.pid = :pid
                 OR ${LogDataQuery.entityAlias}.message LIKE :message    
                 OR ${LogDataQuery.entityAlias}.context LIKE :context
             )`, {
                 id: term,
+                pid: term,
                 message: `%${term}%`,
                 context: `%${term}%`,
             });
