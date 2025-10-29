@@ -5,6 +5,7 @@ import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import BadRequestError from '../exceptions/bad-request.error';
 import {MailQueueStatusEnum} from '../enums/mail-queue-status.enum';
 import {parseJsonFilter} from "../helpers/utils.helper";
+import {formatDate, isValidDate} from "../helpers/date.helper";
 
 enum OrderByEnum {
     ID = 'id',
@@ -70,17 +71,37 @@ const MailQueueFindValidator = z
                         })
                         .optional(),
                     sent_date_start: z
-                        .string({message: lang('error.invalid_string')})
-                        .regex(cfg('filter.dateFormatRegex'), {
-                            message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
-                        })
-                        .optional(),
+                        .string({ message: lang('error.invalid_string') })
+                        .optional()
+                        .refine(
+                            (val) => {
+                                if (!val) {
+                                    return true;
+                                } // allow undefined or empty string
+
+                                return isValidDate(val); // `false` is string is not a valid date
+                            },
+                            {
+                                message: lang('error.invalid_date'),
+                            },
+                        )
+                        .transform((val) => (val ? formatDate(val) : undefined)),
                     sent_date_end: z
-                        .string({message: lang('error.invalid_string')})
-                        .regex(cfg('filter.dateFormatRegex'), {
-                            message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
-                        })
-                        .optional(),
+                        .string({ message: lang('error.invalid_string') })
+                        .optional()
+                        .refine(
+                            (val) => {
+                                if (!val) {
+                                    return true;
+                                } // allow undefined or empty string
+
+                                return isValidDate(val); // `false` is string is not a valid date
+                            },
+                            {
+                                message: lang('error.invalid_date'),
+                            },
+                        )
+                        .transform((val) => (val ? formatDate(val) : undefined)),
                 })
             )
             .optional()

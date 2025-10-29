@@ -5,7 +5,8 @@ import {OrderDirectionEnum} from '../enums/order-direction.enum';
 import {LogCategoryEnum} from '../enums/log-category.enum';
 import {LogLevelEnum} from '../enums/log-level.enum';
 import BadRequestError from '../exceptions/bad-request.error';
-import {parseJsonFilter} from "../helpers/utils.helper";
+import {parseJsonFilter} from '../helpers/utils.helper';
+import {formatDate, isValidDate} from '../helpers/date.helper';
 
 enum OrderByEnum {
     ID = 'id',
@@ -69,17 +70,37 @@ const LogDataFindValidator = z
                         })
                         .optional(),
                     create_date_start: z
-                        .string({message: lang('error.invalid_string')})
-                        .regex(cfg('filter.dateFormatRegex'), {
-                            message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
-                        })
-                        .optional(),
+                        .string({ message: lang('error.invalid_string') })
+                        .optional()
+                        .refine(
+                            (val) => {
+                                if (!val) {
+                                    return true;
+                                } // allow undefined or empty string
+                                
+                                return isValidDate(val); // `false` is string is not a valid date
+                            },
+                            {
+                                message: lang('error.invalid_date'),
+                            },
+                        )
+                        .transform((val) => (val ? formatDate(val) : undefined)),
                     create_date_end: z
-                        .string({message: lang('error.invalid_string')})
-                        .regex(cfg('filter.dateFormatRegex'), {
-                            message: lang('error.invalid_date_format', {format: cfg('filter.dateFormatLiteral')}),
-                        })
-                        .optional(),
+                        .string({ message: lang('error.invalid_string') })
+                        .optional()
+                        .refine(
+                            (val) => {
+                                if (!val) {
+                                    return true;
+                                } // allow undefined or empty string
+
+                                return isValidDate(val); // `false` is string is not a valid date
+                            },
+                            {
+                                message: lang('error.invalid_date'),
+                            },
+                        )
+                        .transform((val) => (val ? formatDate(val) : undefined)),
                 })
             )
             .optional()
