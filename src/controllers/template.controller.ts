@@ -192,7 +192,6 @@ class TemplateController {
 
         const [entries, total] = await TemplateRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .filterBy('term', validated.data.filter.type)
             .filterBy('language', validated.data.filter.language)
             .filterBy('type', validated.data.filter.type)
             .filterByTerm(validated.data.filter.term)

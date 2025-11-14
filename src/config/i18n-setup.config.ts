@@ -37,27 +37,7 @@ async function returnNamespaces(): Promise<string[]> {
 
     const cacheKey = cacheProvider.buildKey('i18next', 'ns');
 
-    return await cacheProvider.get(cacheKey, async () => {
-        const langDir = buildSrcPath('locales', 'en');
-
-        // Read the directory and filter JSON files
-        const files = await fs.readdir(langDir);
-        const langFiles = files.filter((file) => file.endsWith('.json'));
-
-        // Extract namespace names from file names
-        return langFiles.map((file) => file.split('.')[0]);
-    });
-
-    // return [
-    //     'account',
-    //     'account_recovery',
-    //     'debug',
-    //     'error',
-    //     'user_permission',
-    //     'permission',
-    //     'template',
-    //     'user'
-    // ];
+    return await cacheProvider.get(cacheKey, async () => await getNamespaces()) as string[];
 }
 
 async function initializeI18next() {

@@ -3,6 +3,8 @@ import {systemLogger} from './logger.provider';
 import {getRedisClient} from '../config/init-redis.config';
 import Redis from 'ioredis';
 
+type CacheData = string | string[] | number | boolean | null;
+
 class CacheProvider {
     private static instance: CacheProvider;
 
@@ -30,22 +32,42 @@ class CacheProvider {
         return ttl === undefined ? cfg('cache.ttl') : ttl;
     }
 
-    formatInputData(data: Exclude<any, null>): any {
-        if (typeof data === 'number' || typeof data === 'string' || typeof data === 'boolean') {
+    formatInputData(data: CacheData): string | number {
+        if (typeof data === 'number') {
             return data;
         }
 
-        return JSON.stringify(data);
+        if (typeof data === 'boolean') {
+            return data ? 'true' : 'false';
+        }
+
+        if (typeof data === 'string') {
+            return data;
+        }
+
+        try {
+            return JSON.stringify(data);
+        } catch {
+            return String(data);
+        }
     }
 
-    formatOutputData(data: any): any {
+    formatOutputData(data: CacheData): CacheData {
         if (data === null || typeof data !== 'string') {
             return data;
         }
 
         try {
-            return JSON.parse(data);
-        } catch (error) {
+            // Only parse if it looks like JSON (starts with {, [, ", or digit)
+            const trimmed = data.trim();
+
+            if (trimmed.startsWith('{') || trimmed.startsWith('[') || trimmed.startsWith('"')) {
+                return JSON.parse(data);
+            }
+
+            return data;
+        } catch {
+            // Return as-is if not valid JSON
             return data;
         }
     }
@@ -60,7 +82,7 @@ class CacheProvider {
         }
     }
 
-    async get<T>(key: string, fetchFunction: () => Promise<T>, ttl?: number): Promise<T> {
+    async get(key: string, fetchFunction: () => Promise<CacheData>, ttl?: number): Promise<CacheData> {
         try {
             ttl = this.determineTtl(ttl);
 
@@ -72,7 +94,8 @@ class CacheProvider {
 
             if (cachedData) {
                 this.isCached = true;
-                return this.formatOutputData(cachedData) as T;
+
+                return this.formatOutputData(cachedData);
             }
 
             const freshData = await fetchFunction();
@@ -86,7 +109,7 @@ class CacheProvider {
         }
     }
 
-    async set(key: string, data: any, ttl?: number) {
+    async set(key: string, data: CacheData, ttl?: number) {
         try {
             if (data !== null) {
                 await this.cache.set(key, this.formatInputData(data), 'EX', this.determineTtl(ttl));

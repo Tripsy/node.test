@@ -81,7 +81,7 @@ class CronHistoryController {
 
         const [entries, total] = await CronHistoryRepository.createQuery()
             .filterById(validated.data.filter.id)
-            .filterByRange('created_at', validated.data.filter.start_date_start, validated.data.filter.start_date_end)
+            .filterByRange('start_at', validated.data.filter.start_date_start, validated.data.filter.start_date_end)
             .filterBy('status', validated.data.filter.status)
             .filterByTerm(validated.data.filter.term)
             .orderBy(validated.data.order_by, validated.data.direction)

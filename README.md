@@ -157,32 +157,3 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 6. CI/CD
 
 # TEMP
-
-{% extends "base.html" %}
-
-{% block header %}
-  <h1>{{ title }}</h1>
-  {% endblock %}
-
-{% block content %}
-  <ul>
-    {% for name, item in items %}
-    <li>{{ name }}: {{ item }}</li>
-    {% endfor %}
-  </ul>
-  {% endblock %}      
-
-
-{
-"limit": 5,
-"page": 1,
-"order_by": "id",
-"direction": "DESC",
-"filter": {
-// "name": "Gabriel",
-"email": "@play-zone.ro"
-// "status": "pending"
-// "create_date_start": "2025-02-03",
-// "create_date_end": "2025-02-15"
-}
-}

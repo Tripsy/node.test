@@ -10,7 +10,6 @@ import {formatDate, isValidDate} from "../helpers/date.helper";
 enum OrderByEnum {
     ID = 'id',
     LABEL = 'label',
-    STATUS = 'status',
     START_AT = 'start_at',
 }
 
@@ -93,8 +92,8 @@ const LogDataFindValidator = z
                 id: undefined,
                 term: undefined,
                 status: undefined,
-                create_date_start: undefined,
-                create_date_end: undefined,
+                start_date_start: undefined,
+                start_date_end: undefined,
             })
     });
 
