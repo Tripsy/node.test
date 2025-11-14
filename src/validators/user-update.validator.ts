@@ -2,6 +2,7 @@ import {z} from 'zod';
 import {lang} from '../config/i18n-setup.config';
 import {cfg} from '../config/settings.config';
 import {UserRoleEnum} from "../enums/user-role.enum";
+import {hasAtLeastOneValue} from "../helpers/utils.helper";
 
 export const paramsUpdateList: string[] = ['name', 'email', 'password', 'language', 'role'];
 
@@ -45,9 +46,11 @@ const UserUpdateValidator = z
         role: z
             .nativeEnum(UserRoleEnum)
     })
-    .refine((data) => Object.values(data).some((value) => value !== undefined), {
-        message: lang('error.params_at_least_one', {params: paramsUpdateList.join(', ')}),
-        path: ['_global'], // Attach error at the root level
+    .refine((data) => hasAtLeastOneValue(data), {
+        message: lang("error.params_at_least_one", {
+            params: paramsUpdateList.join(", "),
+        }),
+        path: ["_global"],
     })
     .superRefine(({password, password_confirm}, ctx) => {
         if (password !== password_confirm) {

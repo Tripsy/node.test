@@ -1,4 +1,5 @@
 import net from 'net';
+import sanitizeHtml from "sanitize-html";
 
 /**
  * Check if a string is a valid IP address
@@ -58,4 +59,41 @@ export function parseJsonFilter(val: unknown, onError: (val: string) => unknown)
     }
 
     return val;
+}
+
+export function hasAtLeastOneValue(obj: unknown): boolean {
+    if (obj === null || obj === undefined) return false;
+
+    if (typeof obj !== "object") {
+        return true;
+    }
+
+    // For arrays: treat values like a normal object
+    const values = Object.values(obj);
+
+    // No keys → empty
+    if (values.length === 0) {
+        return false;
+    }
+
+    // Check children
+    return values.some((v) => hasAtLeastOneValue(v));
+}
+
+export function safeHtml(dirtyHtml: string): string {
+    return sanitizeHtml(dirtyHtml, {
+        allowedTags: [
+            'p', 'br', 'strong', 'em', 'i', 'b', 'u', 'span', 'div',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li',
+            'blockquote', 'code', 'pre', 'a', 'img', 'table', 'thead',
+            'tbody', 'tr', 'th', 'td'
+        ],
+        allowedAttributes: {
+            'a': ['href', 'title', 'target'],
+            'img': ['src', 'alt', 'width', 'height']
+        },
+        disallowedTagsMode: 'discard',
+        allowedSchemes: ['http', 'https', 'mailto'],
+        allowProtocolRelative: false
+    });
 }

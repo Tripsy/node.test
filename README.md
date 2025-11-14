@@ -138,7 +138,8 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. Tests 
+1. Setup Biome
+2. Tests 
    - controllers
        - user.controller - find, statusUpdate missing tests
        - log-data.controller - find missing tests
@@ -156,6 +157,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 1. types/express.d.ts - is in .gitignore
 2. pnpm run test is failing - probably closeHandler not doing the proper job
+3. consider replaceing moment library
 
 # IDEAS
 

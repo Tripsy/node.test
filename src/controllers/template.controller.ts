@@ -7,10 +7,9 @@ import BadRequestError from '../exceptions/bad-request.error';
 import CustomError from '../exceptions/custom.error';
 import {getCacheProvider} from '../providers/cache.provider';
 import TemplatePolicy from '../policies/template.policy';
-import TemplateCreateValidator from '../validators/template-create.validator';
-import TemplateUpdateValidator from '../validators/template-update.validator';
-import {paramsUpdateList} from '../validators/template-update.validator';
+import {paramsUpdateList, TemplateUpdateValidator} from '../validators/template-update.validator';
 import TemplateFindValidator from '../validators/template-find.validator';
+import TemplateCreateValidator from "../validators/template-create.validator";
 
 class TemplateController {
     public create = asyncHandler(async (req: Request, res: Response) => {
