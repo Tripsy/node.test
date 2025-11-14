@@ -7,7 +7,11 @@ import {UserRoleEnum} from '../enums/user-role.enum';
 import UserPermissionEntity from './user-permission.entity';
 import {EntityContextData} from '../types/entity-context-data.type';
 
-@Entity('user')
+@Entity({
+    name: 'user',
+    schema: 'public',
+    comment: 'Stores email & page templates'
+})
 export default class UserEntity extends BaseEntityAbstract {
     @Column('varchar', {nullable: false})
     name!: string

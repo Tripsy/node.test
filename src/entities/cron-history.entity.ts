@@ -1,8 +1,10 @@
 import {Entity, Column, PrimaryGeneratedColumn, Index} from 'typeorm';
 import {CronHistoryStatusEnum} from '../enums/cron-history-status.enum';
 
-@Entity('cron_history', {
-    comment: 'Stores cron usage',
+@Entity({
+    name: 'cron_history',
+    schema: 'logs',
+    comment: 'Stores cron usage'
 })
 export default class CronHistoryEntity {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})

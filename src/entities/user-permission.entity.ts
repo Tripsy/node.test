@@ -12,7 +12,9 @@ import UserEntity from './user.entity';
 import PermissionEntity from './permission.entity';
 import {EntityContextData} from '../types/entity-context-data.type';
 
-@Entity('user_permission', {
+@Entity({
+    name: 'user_permission',
+    schema: 'public',
     comment: 'Stores user permissions'
 })
 @Index('IDX_user_permission_permission', ['user_id', 'permission_id'], { unique: true })

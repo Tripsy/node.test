@@ -79,10 +79,20 @@ $ pnpm run dev
 
 ### TypeORM
 
+For `postgres` manually create required schemas:
+
+```
+CREATE SCHEMA IF NOT EXISTS system
+CREATE SCHEMA IF NOT EXISTS logs
+```
+
 > **Warning**
 > Always check the migrations before run it, sometimes columns are dropped
 
 ```
+// Generate migration file for schemas
+$ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/migrations/CreateSchemas
+
 // Generate migration file
 $ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/migrations/init
 

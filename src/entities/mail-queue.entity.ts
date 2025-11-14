@@ -10,7 +10,10 @@ import {EmailContent} from '../types/template.type';
 import Mail from 'nodemailer/lib/mailer';
 import {MailQueueStatusEnum} from '../enums/mail-queue-status.enum';
 
-@Entity('mail_queue')
+@Entity({
+    name: 'mail_queue',
+    schema: 'system',
+})
 export default class MailQueueEntity {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})
     id!: number;

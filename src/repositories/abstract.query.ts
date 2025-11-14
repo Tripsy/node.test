@@ -398,8 +398,8 @@ class AbstractQuery {
     }
 
     filterByRange(column: string, min?: Date | string | null, max?: Date | string | null): this {
-        const minValue = min instanceof Date ? formatDate(min, 'iso-full') : min;
-        const maxValue = max instanceof Date ? formatDate(max, 'iso-full') : max;
+        const minValue = min instanceof Date ? formatDate(min) : min;
+        const maxValue = max instanceof Date ? formatDate(max) : max;
 
         if (min && max) {
             const stringColumn = column;

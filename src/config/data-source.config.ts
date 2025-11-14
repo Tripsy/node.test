@@ -3,7 +3,7 @@ import {cfg} from './settings.config';
 import {buildSrcPath} from '../helpers/system.helper';
 
 const dataSource = new DataSource({
-    type: 'mariadb',
+    type: cfg('database.connection'),
     host: cfg('database.host'),
     port: cfg('database.port'),
     username: cfg('database.username'),
@@ -11,6 +11,7 @@ const dataSource = new DataSource({
     database: cfg('database.name'),
     synchronize: false,
     logging: false,
+    migrationsTableName: cfg('database.connection') === 'postgres' ? 'system.migrations' : 'migrations',
     entities: [buildSrcPath('entities', '*.entity.ts')],
     migrations: [buildSrcPath('migrations', '*.ts')],
     subscribers: [buildSrcPath('subscribers', '*.subscriber.ts')],

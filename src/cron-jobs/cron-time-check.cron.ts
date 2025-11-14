@@ -54,11 +54,11 @@ export const cronTimeCheck = async (): Promise<{}> => {
 
     if (entries.length > 0) {
         entries.forEach((entry: { id: number, label: string, start_at: Date }) => {
-            const start_at = formatDate(entry.start_at, 'YYYY-MM-DD-HH-mm') as string;
+            const start_at = formatDate(entry.start_at) as string;
 
             if (!results[start_at]) {
                 results[start_at] = {
-                    date: formatDate(entry.start_at, 'YYYY-MM-DD HH:mm') as string,
+                    date: formatDate(entry.start_at) as string,
                     entries: []
                 };
             }

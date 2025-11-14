@@ -1,7 +1,10 @@
 import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, Index} from 'typeorm';
 import {LogLevelEnum} from '../enums/log-level.enum';
 
-@Entity('log_data')
+@Entity({
+    name: 'log_data',
+    schema: 'logs',
+})
 @Index('idx_log_data', ['created_at', 'level', 'category'])
 export default class LogDataEntity {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})

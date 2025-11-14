@@ -26,6 +26,7 @@ const settings: ObjectValue = {
         ],
     },
     database: {
+        connection: process.env.DB_CONNECTION || 'postgres', // mariadb
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT || '3306', 10),
         username: process.env.DB_USER || 'root',

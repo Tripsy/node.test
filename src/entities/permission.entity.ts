@@ -2,7 +2,11 @@ import {Entity, Column, Index, PrimaryGeneratedColumn, DeleteDateColumn, OneToMa
 import UserPermissionEntity from './user-permission.entity';
 import {EntityContextData} from '../types/entity-context-data.type';
 
-@Entity('permission')
+@Entity({
+    name: 'permission',
+    schema: 'system',
+    comment: 'Stores permissions'
+})
 @Index('IDX_permission', ['entity', 'operation'], { unique: true })
 export default class PermissionEntity {
     @PrimaryGeneratedColumn({type: 'bigint', unsigned: false})

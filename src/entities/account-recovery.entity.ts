@@ -1,7 +1,9 @@
 import {Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, CreateDateColumn} from 'typeorm';
 import UserEntity from './user.entity';
 
-@Entity('account_recovery', {
+@Entity({
+    name: 'account_recovery',
+    schema: 'system',
     comment: 'Stores `ident` for account password recovery requests'
 })
 export default class AccountRecoveryEntity {

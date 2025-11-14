@@ -3,7 +3,11 @@ import {BaseEntityAbstract} from './base-entity.abstract';
 import {TemplateTypeEnum} from '../enums/template-type.enum';
 import {EntityContextData} from '../types/entity-context-data.type';
 
-@Entity('template')
+@Entity({
+    name: 'template',
+    schema: 'system',
+    comment: 'Stores email & page templates'
+})
 @Index('IDX_label_language_type', ['label', 'language', 'type'], { unique: true })
 export default class TemplateEntity extends BaseEntityAbstract {
     @Column('varchar', {nullable: false})

@@ -135,9 +135,10 @@ export function getValidDate(date: unknown): Date | undefined {
 
 export function formatDate(
     value: string | Date | null | undefined,
-    format: string = 'default',
+    format?: 'default' | 'date-time',
     options?: {
         strict?: boolean;
+        format?: string;
     },
 ): string | null {
     // Handle empty values
@@ -169,13 +170,13 @@ export function formatDate(
     switch (format) {
         case 'default':
             return date.format('YYYY-MM-DD');
-        case 'default-full':
-            return date.format('MM/DD/YYYY, hh:mm:ss A');
-        case 'iso':
-            return date.toISOString();
         case 'date-time':
             return date.format('DD-MM-YYYY, hh:mm A');
         default:
-            return date.format(format);
+            if (options?.format) {
+                return date.format(options.format);
+            }
+
+            return date.toISOString();
     }
 }

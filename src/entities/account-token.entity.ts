@@ -1,7 +1,9 @@
 import {Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, CreateDateColumn} from 'typeorm';
 import UserEntity from './user.entity';
 
-@Entity('account_token', {
+@Entity({
+    name: 'account_token',
+    schema: 'system',
     comment: 'Stores `ident` for account tokens to manage token revocation'
 })
 export default class AccountTokenEntity {
