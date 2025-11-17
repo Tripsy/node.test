@@ -1,97 +1,107 @@
-import {cfg} from './settings.config';
+import fs from 'node:fs/promises';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
-import {LanguageDetector} from 'i18next-http-middleware';
-import {buildSrcPath} from '../helpers/system.helper';
-import fs from 'fs/promises';
-import {getCacheProvider} from '../providers/cache.provider';
+import { LanguageDetector } from 'i18next-http-middleware';
+import { buildSrcPath } from '../helpers/system.helper';
+import { getCacheProvider } from '../providers/cache.provider';
 import logger from '../providers/logger.provider';
+import { cfg } from './settings.config';
 
 async function getNamespaces() {
-    try {
-        const langDir = buildSrcPath('locales', 'en');
+	try {
+		const langDir = buildSrcPath('locales', 'en');
 
-        // Read the directory and filter JSON files
-        const files = await fs.readdir(langDir);
-        const langFiles = files.filter((file) => file.endsWith('.json'));
+		// Read the directory and filter JSON files
+		const files = await fs.readdir(langDir);
+		const langFiles = files.filter((file) => file.endsWith('.json'));
 
-        // Extract namespace names from file names
-        return langFiles.map((file) => file.split('.')[0]);
-    } catch (error) {
-        return [];
-    }
+		// Extract namespace names from file names
+		return langFiles.map((file) => file.split('.')[0]);
+	} catch {
+		return [];
+	}
 }
 /**
  * Return the list of namespaces based on the translation files from `locales/en` directory.
  * The result is cached to improve performance.
  */
 async function returnNamespaces(): Promise<string[]> {
-    // While running tests will start failing because Redis connection is not closed
-    // So we don't use cache
-    // May be a bug, may be an issue, I didn't find a resolution
-    if (cfg('app.env') === 'test') {
-        return getNamespaces();
-    }
-    
-    const cacheProvider = getCacheProvider();
+	// While running tests will start failing because Redis connection is not closed
+	// So we don't use cache
+	// May be a bug, may be an issue, I didn't find a resolution
+	if (cfg('app.env') === 'test') {
+		return getNamespaces();
+	}
 
-    const cacheKey = cacheProvider.buildKey('i18next', 'ns');
+	const cacheProvider = getCacheProvider();
 
-    return await cacheProvider.get(cacheKey, async () => await getNamespaces()) as string[];
+	const cacheKey = cacheProvider.buildKey('i18next', 'ns');
+
+	return (await cacheProvider.get(
+		cacheKey,
+		async () => await getNamespaces(),
+	)) as string[];
 }
 
 async function initializeI18next() {
-    const namespaces = await returnNamespaces();
+	const namespaces = await returnNamespaces();
 
-    await i18next
-        .use(Backend) // Use the file system backend
-        .use(LanguageDetector) // Use the language detector middleware
-        .init({
-            lng: 'en', // Default language
-            fallbackLng: 'en', // Fallback language
-            supportedLngs: cfg('app.supportedLanguages'), // List of supported languages
-            ns: namespaces, // Dynamically determined namespaces
-            backend: {
-                loadPath: buildSrcPath('locales/{{lng}}/{{ns}}.json'), // Path to translation files
-            },
-            interpolation: {
-                escapeValue: false, // Disable escaping for HTML (if needed)
-            },
-            saveMissing: false, // Disable saving missing translations
-            detection: {
-                order: ['header', 'cookie', 'querystring'], // Detect language from headers, cookies, or query parameters
-            },
-        });
+	await i18next
+		.use(Backend) // Use the file system backend
+		.use(LanguageDetector) // Use the language detector middleware
+		.init({
+			lng: 'en', // Default language
+			fallbackLng: 'en', // Fallback language
+			supportedLngs: cfg('app.supportedLanguages') as string[], // List of supported languages
+			ns: namespaces, // Dynamically determined namespaces
+			backend: {
+				loadPath: buildSrcPath('locales/{{lng}}/{{ns}}.json'), // Path to translation files
+			},
+			interpolation: {
+				escapeValue: false, // Disable escaping for HTML (if needed)
+			},
+			saveMissing: false, // Disable saving missing translations
+			detection: {
+				order: ['header', 'cookie', 'querystring'], // Detect language from headers, cookies, or query parameters
+			},
+		});
 }
 
 initializeI18next().catch(() => {
-    logger.debug('Failed to initialize i18next');
+	logger.debug('Failed to initialize i18next');
 });
 
 /**
  * Translate a key with optional replacements.
  * The key should be in the format `namespace.key`.
  */
-export const lang = (key: string, replacements: Record<string, string> = {}): string => {
-    if (cfg('app.env') === 'test') {
-        return key;
-    }
+export const lang = (
+	key: string,
+	replacements: Record<string, string> = {},
+): string => {
+	if (cfg('app.env') === 'test') {
+		return key;
+	}
 
-    if (!key.includes('.')) {
-        throw Error(`Invalid translation key format: "${key}". Expected format: "namespace.key".`);
-    }
+	if (!key.includes('.')) {
+		throw Error(
+			`Invalid translation key format: "${key}". Expected format: "namespace.key".`,
+		);
+	}
 
-    const [ns, ...rest] = key.split('.'); // Extract namespace
-    const newKey = rest.join('.'); // Reconstruct key without namespace
+	const [ns, ...rest] = key.split('.'); // Extract namespace
+	const newKey = rest.join('.'); // Reconstruct key without namespace
 
-    const availableNamespaces = i18next.options.ns as string[];
+	const availableNamespaces = i18next.options.ns as string[];
 
-    // Ensure the namespace exists
-    if (!availableNamespaces.includes(ns)) {
-        throw Error(`Namespace "${ns}" not found. Available namespaces: ${availableNamespaces.join(', ')}.`);
-    }
+	// Ensure the namespace exists
+	if (!availableNamespaces.includes(ns)) {
+		throw Error(
+			`Namespace "${ns}" not found. Available namespaces: ${availableNamespaces.join(', ')}.`,
+		);
+	}
 
-    return i18next.t(newKey, {ns, ...replacements});
+	return i18next.t(newKey, { ns, ...replacements });
 };
 
 export default i18next;

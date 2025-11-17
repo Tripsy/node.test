@@ -7,9 +7,9 @@ import moment from 'moment';
  * @returns {boolean} - True if the date is valid, false otherwise
  */
 export function isValidDate(date: string): boolean {
-    const parsedDate = new Date(date);
+	const parsedDate = new Date(date);
 
-    return !isNaN(parsedDate.getTime());
+	return !Number.isNaN(parsedDate.getTime());
 }
 
 /**
@@ -18,11 +18,11 @@ export function isValidDate(date: string): boolean {
  * @returns `true` if the value is a valid Date object, `false` otherwise
  */
 export function isValidDateInstance(date: unknown): date is Date {
-    return (
-        date instanceof Date &&
-        !isNaN(date.getTime()) &&
-        date.toString() !== 'Invalid Date'
-    );
+	return (
+		date instanceof Date &&
+		!Number.isNaN(date.getTime()) &&
+		date.toString() !== 'Invalid Date'
+	);
 }
 
 /**
@@ -33,41 +33,41 @@ export function isValidDateInstance(date: unknown): date is Date {
  * @throws {Error} If the input is not a valid date string or cannot be parsed
  */
 export function stringToDate(dateString: string | null): Date | null {
-    if (!dateString) {
-        return null;
-    }
+	if (!dateString) {
+		return null;
+	}
 
-    const trimmedString = dateString.trim();
+	const trimmedString = dateString.trim();
 
-    if (!trimmedString) {
-        return null;
-    }
+	if (!trimmedString) {
+		return null;
+	}
 
-    // Special handling for ISO 8601 date-only format (YYYY-MM-DD)
-    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedString)) {
-        const [year, month, day] = trimmedString.split('-').map(Number);
-        const date = new Date(Date.UTC(year, month - 1, day));
+	// Special handling for ISO 8601 date-only format (YYYY-MM-DD)
+	if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedString)) {
+		const [year, month, day] = trimmedString.split('-').map(Number);
+		const date = new Date(Date.UTC(year, month - 1, day));
 
-        if (!isValidDateInstance(date)) {
-            throw new Error(`Invalid ISO date: ${trimmedString}`);
-        }
+		if (!isValidDateInstance(date)) {
+			throw new Error(`Invalid ISO date: ${trimmedString}`);
+		}
 
-        return date;
-    }
+		return date;
+	}
 
-    // General date parsing
-    const parsedDate = new Date(trimmedString);
+	// General date parsing
+	const parsedDate = new Date(trimmedString);
 
-    if (!isValidDateInstance(parsedDate)) {
-        throw new Error(`Invalid date format: ${trimmedString}`);
-    }
+	if (!isValidDateInstance(parsedDate)) {
+		throw new Error(`Invalid date format: ${trimmedString}`);
+	}
 
-    // Additional validation for non-ISO formats
-    if (parsedDate.toString() === 'Invalid Date') {
-        throw new Error(`Unparsable date: ${trimmedString}`);
-    }
+	// Additional validation for non-ISO formats
+	if (parsedDate.toString() === 'Invalid Date') {
+		throw new Error(`Unparsable date: ${trimmedString}`);
+	}
 
-    return parsedDate;
+	return parsedDate;
 }
 
 /**
@@ -78,13 +78,13 @@ export function stringToDate(dateString: string | null): Date | null {
  * @throws {Error} - If seconds is a negative number
  */
 export function createFutureDate(seconds: number): Date {
-    if (seconds <= 0) {
-        throw new Error('Seconds should a positive number greater than 0');
-    }
+	if (seconds <= 0) {
+		throw new Error('Seconds should a positive number greater than 0');
+	}
 
-    const currentDate = new Date();
+	const currentDate = new Date();
 
-    return new Date(currentDate.getTime() + seconds * 1000);
+	return new Date(currentDate.getTime() + seconds * 1000);
 }
 
 /**
@@ -95,13 +95,13 @@ export function createFutureDate(seconds: number): Date {
  * @throws {Error} - If seconds is a negative number
  */
 export function createPastDate(seconds: number): Date {
-    if (seconds <= 0) {
-        throw new Error('Seconds should a positive number greater than 0');
-    }
+	if (seconds <= 0) {
+		throw new Error('Seconds should a positive number greater than 0');
+	}
 
-    const currentDate = new Date();
+	const currentDate = new Date();
 
-    return new Date(currentDate.getTime() - seconds * 1000);
+	return new Date(currentDate.getTime() - seconds * 1000);
 }
 
 /**
@@ -113,15 +113,15 @@ export function createPastDate(seconds: number): Date {
  * @throws {Error} - If either date is invalid
  */
 export function dateDiffInSeconds(date1: Date, date2: Date): number {
-    if (!isValidDateInstance(date1)) {
-        throw new Error('Invalid date (eg: date1)');
-    }
+	if (!isValidDateInstance(date1)) {
+		throw new Error('Invalid date (eg: date1)');
+	}
 
-    if (!isValidDateInstance(date2)) {
-        throw new Error('Invalid date (eg: date2)');
-    }
+	if (!isValidDateInstance(date2)) {
+		throw new Error('Invalid date (eg: date2)');
+	}
 
-    return Math.ceil((date1.getTime() - date2.getTime()) / 1000);
+	return Math.ceil((date1.getTime() - date2.getTime()) / 1000);
 }
 
 /**
@@ -130,53 +130,60 @@ export function dateDiffInSeconds(date1: Date, date2: Date): number {
  * @param date
  */
 export function getValidDate(date: unknown): Date | undefined {
-    return isValidDateInstance(date) ? date : undefined;
+	return isValidDateInstance(date) ? date : undefined;
 }
 
+/**
+ * Universal date formatter with Moment.js
+ *
+ * @param value - Date input (string, Date, null, undefined)
+ * @param format - Output format (or preset)
+ * @param options - { strict: boolean }
+ * @returns Formatted string or null
+ */
 export function formatDate(
-    value: string | Date | null | undefined,
-    format?: 'default' | 'date-time',
-    options?: {
-        strict?: boolean;
-        format?: string;
-    },
+	value: string | Date | null | undefined,
+	format?: 'default' | 'date-time' | string,
+	options?: {
+		strict?: boolean;
+	},
 ): string | null {
-    // Handle empty values
-    if (
-        value === null ||
-        value === undefined ||
-        (typeof value === 'string' && value.trim() === '')
-    ) {
-        if (options?.strict) {
-            throw new Error('Invalid date: null/undefined');
-        }
+	// Handle empty values
+	if (
+		value === null ||
+		value === undefined ||
+		(typeof value === 'string' && value.trim() === '')
+	) {
+		if (options?.strict) {
+			throw new Error('Invalid date: null/undefined');
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    // Create moment object
-    const date = moment(value);
+	// Create moment object
+	const date = moment(value);
 
-    // Validate date
-    if (!date.isValid()) {
-        if (options?.strict) {
-            throw new Error(`Invalid date: ${value}`);
-        }
+	// Validate date
+	if (!date.isValid()) {
+		if (options?.strict) {
+			throw new Error(`Invalid date: ${value}`);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    // Apply formatting
-    switch (format) {
-        case 'default':
-            return date.format('YYYY-MM-DD');
-        case 'date-time':
-            return date.format('DD-MM-YYYY, hh:mm A');
-        default:
-            if (options?.format) {
-                return date.format(options.format);
-            }
+	// Apply formatting
+	switch (format) {
+		case 'default':
+			return date.format('YYYY-MM-DD');
+		case 'date-time':
+			return date.format('DD-MM-YYYY, hh:mm A');
+		default:
+			if (format) {
+				return date.format(format);
+			}
 
-            return date.toISOString();
-    }
+			return date.toISOString();
+	}
 }

@@ -1,93 +1,93 @@
 import dataSource from '../config/data-source.config';
+import { TemplateTypeEnum } from '../enums/template-type.enum';
 import TemplateRepository from '../repositories/template.repository';
-import {TemplateTypeEnum} from '../enums/template-type.enum';
 
 const templateData = [
-    {
-        label: 'email-confirm-create',
-        language: 'en',
-        type: TemplateTypeEnum.EMAIL,
-        content: {
-            subject: 'Confirm your email',
-            html: `
+	{
+		label: 'email-confirm-create',
+		language: 'en',
+		type: TemplateTypeEnum.EMAIL,
+		content: {
+			subject: 'Confirm your email',
+			html: `
                 <p>
                     Please confirm your email by clicking on the following  <a href="{{ siteUrl }}/account/email-confirm/{{ token }}">link</a>.
                 </p>
             `,
-            layout: 'layout-default'
-        }
-    },
-    {
-        label: 'email-confirm-update',
-        language: 'en',
-        type: TemplateTypeEnum.EMAIL,
-        content: {
-            subject: 'Confirm your email',
-            html: `
+			layout: 'layout-default',
+		},
+	},
+	{
+		label: 'email-confirm-update',
+		language: 'en',
+		type: TemplateTypeEnum.EMAIL,
+		content: {
+			subject: 'Confirm your email',
+			html: `
                 <p>
                     Please confirm your email by clicking on the following  <a href="{{ siteUrl }}/account/email-confirm/{{ token }}">link</a>.
                 </p>
             `,
-            layout: 'layout-default'
-        }
-    },
-    {
-        label: 'email-welcome',
-        language: 'en',
-        type: TemplateTypeEnum.EMAIL,
-        content: {
-            subject: 'Welcome',
-            html: `
+			layout: 'layout-default',
+		},
+	},
+	{
+		label: 'email-welcome',
+		language: 'en',
+		type: TemplateTypeEnum.EMAIL,
+		content: {
+			subject: 'Welcome',
+			html: `
                 <p>Hello {{ name }}</p>
             `,
-            layout: 'layout-default'
-        }
-    },
-    {
-        label: 'password-recover',
-        language: 'en',
-        type: TemplateTypeEnum.EMAIL,
-        content: {
-            subject: 'Recover password',
-            html: `
+			layout: 'layout-default',
+		},
+	},
+	{
+		label: 'password-recover',
+		language: 'en',
+		type: TemplateTypeEnum.EMAIL,
+		content: {
+			subject: 'Recover password',
+			html: `
                 <p>Hello {{ name }}. Click <a href="{{ siteUrl }}//account/password-recover-change/{{ ident }}">here</a> to recover your password. The link will expire at {{ expire_at }}.</p>
             `,
-            layout: 'layout-default'
-        }
-    },
-    {
-        label: 'password-change',
-        language: 'en',
-        type: TemplateTypeEnum.EMAIL,
-        content: {
-            subject: 'Password changed',
-            html: `
+			layout: 'layout-default',
+		},
+	},
+	{
+		label: 'password-change',
+		language: 'en',
+		type: TemplateTypeEnum.EMAIL,
+		content: {
+			subject: 'Password changed',
+			html: `
                 <p>Hello {{ name }}. Your password has been changed.</p>
             `,
-            layout: 'layout-default'
-        }
-    },
-    {
-        label: 'cron-error-count',
-        language: 'en',
-        type: TemplateTypeEnum.EMAIL,
-        content: {
-            subject: 'Cron error count',
-            html: `
+			layout: 'layout-default',
+		},
+	},
+	{
+		label: 'cron-error-count',
+		language: 'en',
+		type: TemplateTypeEnum.EMAIL,
+		content: {
+			subject: 'Cron error count',
+			html: `
                 <p>In the last 24 hours there have been {{ errorCount }} cron errors</p>
                 <p>Sql Query: {{ querySql }}</p>
                 <p>Sql Params: {{ queryParameters }}</p>
             `,
-            layout: 'layout-default'
-        }
-    },
-    {
-        label: 'cron-warning-count',
-        language: 'en',
-        type: TemplateTypeEnum.EMAIL,
-        content: {
-            subject: 'Cron warning count',
-            html: `
+			layout: 'layout-default',
+		},
+	},
+	{
+		label: 'cron-warning-count',
+		language: 'en',
+		type: TemplateTypeEnum.EMAIL,
+		content: {
+			subject: 'Cron warning count',
+			html: `
                 <p>In the last 7 days there have been {{ warningCount }} cron warnings</p>
                 <p>Sql Query: {{ querySql }}</p>
                 <p>Sql Params: {{ queryParameters }}</p>
@@ -108,16 +108,16 @@ const templateData = [
                     </table>
                 </p>
             `,
-            layout: 'layout-default'
-        }
-    },
-    {
-        label: 'cron-time-check',
-        language: 'en',
-        type: TemplateTypeEnum.EMAIL,
-        content: {
-            subject: 'Cron time check',
-            html: `
+			layout: 'layout-default',
+		},
+	},
+	{
+		label: 'cron-time-check',
+		language: 'en',
+		type: TemplateTypeEnum.EMAIL,
+		content: {
+			subject: 'Cron time check',
+			html: `
                 <p>Some cron run time overlapped in the last 24 hours</p>
                 <p>Sql Query: {{ querySql }}</p>
                 <p>Sql Params: {{ queryParameters }}</p>
@@ -133,28 +133,28 @@ const templateData = [
                     </table>
                 {% endfor %}
             `,
-            layout: 'layout-default'
-        }
-    }
+			layout: 'layout-default',
+		},
+	},
 ];
 
 async function seedTemplates() {
-    try {
-        console.log('Initializing database connection...');
-        await dataSource.initialize();
+	try {
+		console.log('Initializing database connection...');
+		await dataSource.initialize();
 
-        console.log('Seeding templates...');
-        await TemplateRepository.save(templateData);
+		console.log('Seeding templates...');
+		await TemplateRepository.save(templateData);
 
-        console.log('Templates seeded successfully ✅');
-    } catch (error) {
-        console.error('Error seeding templates:', error);
-    } finally {
-        await dataSource.destroy();
-        console.log('Database connection closed.');
-    }
+		console.log('Templates seeded successfully ✅');
+	} catch (error) {
+		console.error('Error seeding templates:', error);
+	} finally {
+		await dataSource.destroy();
+		console.log('Database connection closed.');
+	}
 }
 
 (async () => {
-    await seedTemplates();
+	await seedTemplates();
 })();

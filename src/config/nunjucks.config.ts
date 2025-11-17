@@ -1,15 +1,18 @@
 import nunjucks from 'nunjucks';
-import {cfg} from './settings.config';
-import {buildSrcPath} from '../helpers/system.helper';
+import { buildSrcPath } from '../helpers/system.helper';
+import { cfg } from './settings.config';
 
 // Create a new environment
-const templates = new nunjucks.Environment(new nunjucks.FileSystemLoader(buildSrcPath('templates')), {
-    autoescape: true,
-    throwOnUndefined: true,
-    trimBlocks: true,
-    noCache: cfg('app.debug') === 'true',
-    watch: true,
-});
+const templates = new nunjucks.Environment(
+	new nunjucks.FileSystemLoader(buildSrcPath('templates')),
+	{
+		autoescape: true,
+		throwOnUndefined: true,
+		trimBlocks: true,
+		noCache: cfg('app.debug') === 'true',
+		watch: true,
+	},
+);
 
 // Add global variables
 templates.addGlobal('siteName', cfg('frontend.name'));

@@ -1,12 +1,12 @@
-import {EmailTemplate} from '../types/template.type';
-import {loadEmailTemplate, queueEmail} from '../providers/email.provider';
-import {cfg} from '../config/settings.config';
 import dataSource from '../config/data-source.config';
-import {createPastDate, formatDate} from '../helpers/date.helper';
+import { cfg } from '../config/settings.config';
+import { createPastDate, formatDate } from '../helpers/date.helper';
+import { loadEmailTemplate, queueEmail } from '../providers/email.provider';
+import type { EmailTemplate } from '../types/template.type';
 
 // Check if there are cron jobs starting at the same time in the last 24 hours
-export const cronTimeCheck = async (): Promise<{}> => {
-    const querySql = `
+export const cronTimeCheck = async () => {
+	const querySql = `
         SELECT
             ch.id, ch.label, ch.start_at
         FROM cron_history ch
@@ -30,60 +30,60 @@ export const cronTimeCheck = async (): Promise<{}> => {
             ch.start_at
     `;
 
-    const endDate = new Date().toISOString();
-    const startDate = createPastDate(86400).toISOString();
+	const endDate = new Date().toISOString();
+	const startDate = createPastDate(86400).toISOString();
 
-    const queryParameters = [
-        startDate,
-        endDate,
-        startDate,
-        endDate,
-    ];
+	const queryParameters = [startDate, endDate, startDate, endDate];
 
-    const results: {
-        [key: string]: {
-            date: string;
-            entries: Array<{
-                id: number;
-                label: string;
-            }>;
-        }
-    } = {};
+	const results: {
+		[key: string]: {
+			date: string;
+			entries: Array<{
+				id: number;
+				label: string;
+			}>;
+		};
+	} = {};
 
-    const entries = await dataSource.query(querySql, queryParameters);
+	const entries = await dataSource.query(querySql, queryParameters);
 
-    if (entries.length > 0) {
-        entries.forEach((entry: { id: number, label: string, start_at: Date }) => {
-            const start_at = formatDate(entry.start_at) as string;
+	if (entries.length > 0) {
+		entries.forEach(
+			(entry: { id: number; label: string; start_at: Date }) => {
+				const start_at = formatDate(entry.start_at) as string;
 
-            if (!results[start_at]) {
-                results[start_at] = {
-                    date: formatDate(entry.start_at) as string,
-                    entries: []
-                };
-            }
+				if (!results[start_at]) {
+					results[start_at] = {
+						date: formatDate(entry.start_at) as string,
+						entries: [],
+					};
+				}
 
-            results[start_at].entries.push({
-                id: entry.id,
-                label: entry.label
-            });
-        })
+				results[start_at].entries.push({
+					id: entry.id,
+					label: entry.label,
+				});
+			},
+		);
 
-        const emailTemplate: EmailTemplate = await loadEmailTemplate('cron-time-check', cfg('app.language'));
+		const emailTemplate: EmailTemplate = await loadEmailTemplate(
+			'cron-time-check',
+			cfg('app.language') as string,
+		);
 
-        emailTemplate.content.vars = {
-            results: results,
-            querySql: querySql,
-            queryParameters: JSON.stringify(queryParameters),
-        };
+		emailTemplate.content.vars = {
+			results: results,
+			querySql: querySql,
+			queryParameters: JSON.stringify(queryParameters),
+		};
 
-        await queueEmail(emailTemplate, {
-            name: cfg('app.name'),
-            address: cfg('app.email')
-        });
-    }
+		await queueEmail(emailTemplate, {
+			name: cfg('app.name') as string,
+			address: cfg('app.email') as string,
+		});
+	}
 
-    return {
-        overlapping: results.length
-    };
+	return {
+		overlapping: results.length,
+	};
 };

@@ -1,13 +1,13 @@
-import {Request} from 'express';
+import type { Request } from 'express';
+import { PermissionQuery } from '../repositories/permission.repository';
 import AbstractPolicy from './abstract.policy';
-import {PermissionQuery} from '../repositories/permission.repository';
 
 class PermissionPolicy extends AbstractPolicy {
-    constructor(req: Request) {
-        const entity = PermissionQuery.entityAlias;
+	constructor(req: Request) {
+		const entity = PermissionQuery.entityAlias;
 
-        super(req, entity);
-    }
+		super(req, entity);
+	}
 }
 
 export default PermissionPolicy;

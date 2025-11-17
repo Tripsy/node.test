@@ -1,72 +1,71 @@
 import AccountRegisterValidator from '../../validators/account-register.validator';
 
 const testData = {
-    name: 'John Doe',
-    email: 'johndoe@example.com',
-    password: 'StrongP@ssw0rd',
-    password_confirm: 'StrongP@ssw0rd',
-    language: 'en',
+	name: 'John Doe',
+	email: 'johndoe@example.com',
+	password: 'StrongP@ssw0rd',
+	password_confirm: 'StrongP@ssw0rd',
+	language: 'en',
 };
 
 describe('AccountRegisterValidator', () => {
-    it('should validate a correct input', () => {
-        expect(() => AccountRegisterValidator.parse(testData)).not.toThrow();
-    });
+	it('should validate a correct input', () => {
+		expect(() => AccountRegisterValidator.parse(testData)).not.toThrow();
+	});
 
-    it('should fail if name is too short', () => {
-        jest.replaceProperty(testData, 'name', 'J');
+	it('should fail if name is too short', () => {
+		jest.replaceProperty(testData, 'name', 'J');
 
-        expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-            new RegExp('user.validation.name_min')
-        );
-    });
+		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+			/user.validation.name_min/,
+		);
+	});
 
+	it('should fail if email is invalid', () => {
+		jest.replaceProperty(testData, 'email', 'invalid-email');
 
-    it('should fail if email is invalid', () => {
-        jest.replaceProperty(testData, 'email', 'invalid-email');
+		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+			/user.validation.email_invalid/,
+		);
+	});
 
-        expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-            new RegExp('user.validation.email_invalid')
-        );
-    });
+	it('should fail if password is too short', () => {
+		jest.replaceProperty(testData, 'password', 'Ab!');
 
-    it('should fail if password is too short', () => {
-        jest.replaceProperty(testData, 'password', 'Ab!');
+		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+			/user.validation.password_min/,
+		);
+	});
 
-        expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-            new RegExp('user.validation.password_min')
-        );
-    });
+	it('should fail if password lacks a capital letter', () => {
+		jest.replaceProperty(testData, 'password', 'weakpassword1!');
 
-    it('should fail if password lacks a capital letter', () => {
-        jest.replaceProperty(testData, 'password', 'weakpassword1!');
+		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+			/user.validation.password_condition_capital_letter/,
+		);
+	});
 
-        expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-            new RegExp('user.validation.password_condition_capital_letter')
-        );
-    });
+	it('should fail if password lacks a number', () => {
+		jest.replaceProperty(testData, 'password', 'StrongPassword!');
 
-    it('should fail if password lacks a number', () => {
-        jest.replaceProperty(testData, 'password', 'StrongPassword!');
+		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+			/user.validation.password_condition_number/,
+		);
+	});
 
-        expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-            new RegExp('user.validation.password_condition_number')
-        );
-    });
+	it('should fail if password lacks a special character', () => {
+		jest.replaceProperty(testData, 'password', 'StrongPassword1');
 
-    it('should fail if password lacks a special character', () => {
-        jest.replaceProperty(testData, 'password', 'StrongPassword1');
+		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+			/user.validation.password_condition_special_character/,
+		);
+	});
 
-        expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-            new RegExp('user.validation.password_condition_special_character')
-        );
-    });
+	it('should fail if password confirmation does not match', () => {
+		jest.replaceProperty(testData, 'password_confirm', 'WrongP@ssw0rd');
 
-    it('should fail if password confirmation does not match', () => {
-        jest.replaceProperty(testData, 'password_confirm', 'WrongP@ssw0rd');
-
-        expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-            new RegExp('user.validation.password_confirm_mismatch')
-        );
-    });
+		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+			/user.validation.password_confirm_mismatch/,
+		);
+	});
 });

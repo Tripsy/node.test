@@ -1,98 +1,124 @@
-import {Request} from 'express';
-import AbstractPolicy from './abstract.policy';
-import UnauthorizedError from '../exceptions/unauthorized.error';
-import {lang} from '../config/i18n-setup.config';
-import {cfg} from '../config/settings.config';
+import type { Request } from 'express';
+import { lang } from '../config/i18n-setup.config';
+import { getRedisClient } from '../config/init-redis.config';
+import { cfg } from '../config/settings.config';
 import CustomError from '../exceptions/custom.error';
-import {getRedisClient} from '../config/init-redis.config';
+import UnauthorizedError from '../exceptions/unauthorized.error';
 import logger from '../providers/logger.provider';
+import AbstractPolicy from './abstract.policy';
 
 class AccountPolicy extends AbstractPolicy {
-    constructor(req: Request) {
-        const entity = 'account';
+	constructor(req: Request) {
+		const entity = 'account';
 
-        super(req, entity);
-    }
+		super(req, entity);
+	}
 
-    public register(): void {
-        if (this.isAuthenticated()) {
-            throw new CustomError(406, lang('account.error.already_logged_in'));
-        }
-    }
+	public register(): void {
+		if (this.isAuthenticated()) {
+			throw new CustomError(406, lang('account.error.already_logged_in'));
+		}
+	}
 
-    public login(): void {
-        if (this.isAuthenticated()) {
-            throw new CustomError(406, lang('account.error.already_logged_in'));
-        }
-    }
+	public login(): void {
+		if (this.isAuthenticated()) {
+			throw new CustomError(406, lang('account.error.already_logged_in'));
+		}
+	}
 
-    public logout(): void {
-        if (!this.isAuthenticated()) {
-            throw new UnauthorizedError(lang('account.error.not_logged_in'));
-        }
-    }
+	public logout(): void {
+		if (!this.isAuthenticated()) {
+			throw new UnauthorizedError(lang('account.error.not_logged_in'));
+		}
+	}
 
-    public passwordRecover(): void {
-        if (this.isAuthenticated()) {
-            throw new CustomError(406, lang('account.error.already_logged_in'));
-        }
-    }
+	public passwordRecover(): void {
+		if (this.isAuthenticated()) {
+			throw new CustomError(406, lang('account.error.already_logged_in'));
+		}
+	}
 
-    public passwordRecoverChange(): void {
-        if (this.isAuthenticated()) {
-            throw new CustomError(406, lang('account.error.already_logged_in'));
-        }
-    }
+	public passwordRecoverChange(): void {
+		if (this.isAuthenticated()) {
+			throw new CustomError(406, lang('account.error.already_logged_in'));
+		}
+	}
 
-    public passwordUpdate(): void {
-        if (!this.isAuthenticated()) {
-            throw new UnauthorizedError();
-        }
-    }
+	public passwordUpdate(): void {
+		if (!this.isAuthenticated()) {
+			throw new UnauthorizedError();
+		}
+	}
 
-    public emailUpdate(): void {
-        if (!this.isAuthenticated()) {
-            throw new UnauthorizedError();
-        }
-    }
+	public emailUpdate(): void {
+		if (!this.isAuthenticated()) {
+			throw new UnauthorizedError();
+		}
+	}
 
-    public details(): void {
-        if (!this.isAuthenticated()) {
-            throw new UnauthorizedError();
-        }
-    }
+	public details(): void {
+		if (!this.isAuthenticated()) {
+			throw new UnauthorizedError();
+		}
+	}
 
-    public async checkRateLimitOnLogin(ipKey: string, emailKey: string): Promise<void> {
-        const redisClient = getRedisClient();
+	public async checkRateLimitOnLogin(
+		ipKey: string,
+		emailKey: string,
+	): Promise<void> {
+		const redisClient = getRedisClient();
 
-        const [ipAttempts, emailAttempts] = await Promise.all([
-            redisClient.get(ipKey),
-            redisClient.get(emailKey),
-        ]);
+		const [ipAttempts, emailAttempts] = await Promise.all([
+			redisClient.get(ipKey),
+			redisClient.get(emailKey),
+		]);
 
-        const ipAttemptCount = ipAttempts ? parseInt(ipAttempts, 10) : 0;
-        const emailAttemptCount = emailAttempts ? parseInt(emailAttempts, 10) : 0;
+		const ipAttemptCount = ipAttempts ? parseInt(ipAttempts, 10) : 0;
+		const emailAttemptCount = emailAttempts
+			? parseInt(emailAttempts, 10)
+			: 0;
 
-        if (ipAttemptCount >= cfg('user.loginMaxFailedAttemptsForIp') || emailAttemptCount >= cfg('user.loginMaxFailedAttemptsForEmail')) {
-            throw new CustomError(429, lang('account.error.too_many_login_attempts'));
-        }
-    }
+		if (
+			ipAttemptCount >=
+				(cfg('user.loginMaxFailedAttemptsForIp') as number) ||
+			emailAttemptCount >=
+				(cfg('user.loginMaxFailedAttemptsForEmail') as number)
+		) {
+			throw new CustomError(
+				429,
+				lang('account.error.too_many_login_attempts'),
+			);
+		}
+	}
 
-    public async updateFailedAttemptsOnLogin(ipKey: string, emailKey: string): Promise<void> {
-        try {
-            const redisClient = getRedisClient();
+	public async updateFailedAttemptsOnLogin(
+		ipKey: string,
+		emailKey: string,
+	): Promise<void> {
+		try {
+			const redisClient = getRedisClient();
 
-            // Increment the failed attempt count
-            await redisClient.incr(ipKey);
-            await redisClient.incr(emailKey);
+			// Increment the failed attempt count
+			await redisClient.incr(ipKey);
+			await redisClient.incr(emailKey);
 
-            // Set an expiration time on the keys
-            await redisClient.expire(ipKey, cfg('user.loginFailedAttemptsLockTime'));
-            await redisClient.expire(emailKey, cfg('user.loginFailedAttemptsLockTime'));
-        } catch (error) {
-            logger.error(`Failed to update failed login attempts`, error);
-        }
-    }
+			// Set an expiration time on the keys
+			await redisClient.expire(
+				ipKey,
+				cfg('user.loginFailedAttemptsLockTime') as number,
+			);
+
+			await redisClient.expire(
+				emailKey,
+				cfg('user.loginFailedAttemptsLockTime') as number,
+			);
+		} catch (error) {
+			logger.error(
+				{ err: error },
+				'Failed to update failed login attempts',
+			);
+		}
+	}
 }
 
 export default AccountPolicy;

@@ -1,106 +1,115 @@
-import {Request, Response} from 'express';
-import asyncHandler from '../helpers/async.handler';
-import MailQueueRepository, {MailQueueQuery} from '../repositories/mail-queue.repository';
-import {lang} from '../config/i18n-setup.config';
+import type { Request, Response } from 'express';
+import { lang } from '../config/i18n-setup.config';
 import BadRequestError from '../exceptions/bad-request.error';
-import {getCacheProvider} from '../providers/cache.provider';
+import asyncHandler from '../helpers/async.handler';
+import { logHistory } from '../helpers/subscriber.helper';
 import MailQueuePolicy from '../policies/mail-queue.policy';
-import MailQueueFindValidator from '../validators/mail-queue-find.validator';
+import { getCacheProvider } from '../providers/cache.provider';
+import MailQueueRepository, {
+	MailQueueQuery,
+} from '../repositories/mail-queue.repository';
 import MailQueueDeleteValidator from '../validators/mail-queue-delete.validator';
-import {logHistory} from '../helpers/subscriber.helper';
+import MailQueueFindValidator from '../validators/mail-queue-find.validator';
 
 class MailQueueController {
-    public read = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new MailQueuePolicy(req);
+	public read = asyncHandler(async (req: Request, res: Response) => {
+		const policy = new MailQueuePolicy(req);
 
-        // Check permission (admin or operator with permission)
-        policy.read();
+		// Check permission (admin or operator with permission)
+		policy.read();
 
-        const cacheProvider = getCacheProvider();
+		const cacheProvider = getCacheProvider();
 
-        const cacheKey = cacheProvider.buildKey(MailQueueQuery.entityAlias, res.locals.validated.id, 'read');
-        const mailQueue = await cacheProvider.get(cacheKey, async () => {
-            return MailQueueRepository
-                .createQuery()
-                .filterById(res.locals.validated.id)
-                .firstOrFail();
-        });
+		const cacheKey = cacheProvider.buildKey(
+			MailQueueQuery.entityAlias,
+			res.locals.validated.id,
+			'read',
+		);
+		const mailQueue = await cacheProvider.get(cacheKey, async () => {
+			return MailQueueRepository.createQuery()
+				.filterById(res.locals.validated.id)
+				.firstOrFail();
+		});
 
-        res.output.meta(cacheProvider.isCached, 'isCached');
-        res.output.data(mailQueue);
+		res.output.meta(cacheProvider.isCached, 'isCached');
+		res.output.data(mailQueue);
 
-        res.json(res.output);
-    });
+		res.json(res.output);
+	});
 
-    public delete = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new MailQueuePolicy(req);
+	public delete = asyncHandler(async (req: Request, res: Response) => {
+		const policy = new MailQueuePolicy(req);
 
-        // Check permission (admin or operator with permission)
-        policy.delete();
+		// Check permission (admin or operator with permission)
+		policy.delete();
 
-        const validated = MailQueueDeleteValidator.safeParse(req.body);
+		const validated = MailQueueDeleteValidator.safeParse(req.body);
 
-        if (!validated.success) {
-            res.output.errors(validated.error.errors);
+		if (!validated.success) {
+			res.output.errors(validated.error.errors);
 
-            throw new BadRequestError();
-        }
+			throw new BadRequestError();
+		}
 
-        const countDelete: number = await MailQueueRepository.createQuery()
-            .filterBy('id', validated.data.ids, 'IN')
-            .delete(false, true);
+		const countDelete: number = await MailQueueRepository.createQuery()
+			.filterBy('id', validated.data.ids, 'IN')
+			.delete(false, true);
 
-        if (countDelete === 0) {
-            res.status(204).output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
-        } else {
-            logHistory(MailQueueQuery.entityAlias, 'deleted', {
-                auth_id: policy.getUserId().toString()
-            });
+		if (countDelete === 0) {
+			res.status(204).output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
+		} else {
+			logHistory(MailQueueQuery.entityAlias, 'deleted', {
+				auth_id: policy.getUserId()?.toString() || '0',
+			});
 
-            res.output.message(lang('mail_queue.success.delete'));
-        }
+			res.output.message(lang('mail_queue.success.delete'));
+		}
 
-        res.json(res.output);
-    });
+		res.json(res.output);
+	});
 
-    public find = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new MailQueuePolicy(req);
+	public find = asyncHandler(async (req: Request, res: Response) => {
+		const policy = new MailQueuePolicy(req);
 
-        // Check permission (admin or operator with permission)
-        policy.find();
+		// Check permission (admin or operator with permission)
+		policy.find();
 
-        // Validate against the schema
-        const validated = MailQueueFindValidator.safeParse(req.query);
+		// Validate against the schema
+		const validated = MailQueueFindValidator.safeParse(req.query);
 
-        if (!validated.success) {
-            res.output.errors(validated.error.errors);
+		if (!validated.success) {
+			res.output.errors(validated.error.errors);
 
-            throw new BadRequestError();
-        }
+			throw new BadRequestError();
+		}
 
-        const [entries, total] = await MailQueueRepository.createQuery()
-            .filterById(validated.data.filter.id)
-            .filterBy('template_id', validated.data.filter.template_id)
-            .filterByRange('sent_at', validated.data.filter.sent_date_start, validated.data.filter.sent_date_end)
-            .filterBy('status', validated.data.filter.status)
-            .filterBy('content', validated.data.filter.content, 'LIKE')
-            .filterBy('to', validated.data.filter.to, 'LIKE')
-            .orderBy(validated.data.order_by, validated.data.direction)
-            .pagination(validated.data.page, validated.data.limit)
-            .all(true);
+		const [entries, total] = await MailQueueRepository.createQuery()
+			.filterById(validated.data.filter.id)
+			.filterBy('template_id', validated.data.filter.template_id)
+			.filterByRange(
+				'sent_at',
+				validated.data.filter.sent_date_start,
+				validated.data.filter.sent_date_end,
+			)
+			.filterBy('status', validated.data.filter.status)
+			.filterBy('content', validated.data.filter.content, 'LIKE')
+			.filterBy('to', validated.data.filter.to, 'LIKE')
+			.orderBy(validated.data.order_by, validated.data.direction)
+			.pagination(validated.data.page, validated.data.limit)
+			.all(true);
 
-        res.output.data({
-            entries: entries,
-            pagination: {
-                page: validated.data.page,
-                limit: validated.data.limit,
-                total: total,
-            },
-            query: validated.data
-        });
+		res.output.data({
+			entries: entries,
+			pagination: {
+				page: validated.data.page,
+				limit: validated.data.limit,
+				total: total,
+			},
+			query: validated.data,
+		});
 
-        res.json(res.output);
-    });
+		res.json(res.output);
+	});
 }
 
 export default new MailQueueController();

@@ -1,45 +1,43 @@
-// TODO sync with nextjs.test
 import Redis from 'ioredis';
-import {cfg} from './settings.config';
-import {systemLogger} from '../providers/logger.provider';
+import { systemLogger } from '../providers/logger.provider';
+import { cfg } from './settings.config';
 
-class RedisClient {
-    private static instance: Redis;
+let redisInstance: Redis | null = null;
 
-    public static getInstance(): Redis {
-        if (!RedisClient.instance) {
-            RedisClient.instance = new Redis({
-                host: cfg('redis.host'),
-                port: cfg('redis.port'),
-                password: cfg('redis.password'),
-            });
+export const getRedisClient = (): Redis => {
+	if (!redisInstance) {
+		redisInstance = new Redis({
+			host: cfg('redis.host') as string,
+			port: cfg('redis.port') as number,
+			password: cfg('redis.password') as string,
+		});
 
-            RedisClient.instance.on('error', (error) => {
-                systemLogger.error('Redis connection error', error);
-            });
+		redisInstance.on('error', (error) => {
+			systemLogger.error({ err: error }, 'Redis connection error');
+		});
 
-            RedisClient.instance.on('connect', () => {
-                systemLogger.debug('Connected to Redis');
-            });
-        }
+		redisInstance.on('connect', () => {
+			systemLogger.debug('Connected to Redis');
+		});
+	}
 
-        return RedisClient.instance;
-    }
+	return redisInstance;
+};
 
-    public static async close(): Promise<void> {
-        if (RedisClient.instance) {
-            try {
-                await RedisClient.instance.quit();
+export const redisClose = async (): Promise<void> => {
+	if (redisInstance) {
+		try {
+			await redisInstance.quit();
+			systemLogger.debug('Redis connection closed gracefully');
+		} catch (error) {
+			systemLogger.error(
+				{ err: error },
+				'Error closing Redis connection',
+			);
 
-                systemLogger.debug('Redis connection closed gracefully');
-            } catch (error) {
-                systemLogger.error('Error closing Redis connection', error);
-
-                throw error;
-            }
-        }
-    }
-}
-
-export const getRedisClient = (): Redis => RedisClient.getInstance();
-export const redisClose = RedisClient.close;
+			throw error;
+		} finally {
+			redisInstance = null;
+		}
+	}
+};

@@ -1,32 +1,34 @@
-import {Entity, Column, Index} from 'typeorm';
-import {BaseEntityAbstract} from './base-entity.abstract';
-import {TemplateTypeEnum} from '../enums/template-type.enum';
-import {EntityContextData} from '../types/entity-context-data.type';
+import { Column, Entity, Index } from 'typeorm';
+import { TemplateTypeEnum } from '../enums/template-type.enum';
+import type { EntityContextData } from '../types/entity-context-data.type';
+import { BaseEntityAbstract } from './base-entity.abstract';
 
 @Entity({
-    name: 'template',
-    schema: 'system',
-    comment: 'Stores email & page templates'
+	name: 'template',
+	schema: 'system',
+	comment: 'Stores email & page templates',
 })
-@Index('IDX_label_language_type', ['label', 'language', 'type'], { unique: true })
+@Index('IDX_label_language_type', ['label', 'language', 'type'], {
+	unique: true,
+})
 export default class TemplateEntity extends BaseEntityAbstract {
-    @Column('varchar', {nullable: false})
-    label!: string
+	@Column('varchar', { nullable: false })
+	label!: string;
 
-    @Column('char', {length: 2, nullable: false})
-    language!: string;
+	@Column('char', { length: 2, nullable: false })
+	language!: string;
 
-    @Column({
-        type: 'enum',
-        enum: TemplateTypeEnum,
-        default: TemplateTypeEnum.PAGE,
-        nullable: false
-    })
-    type!: TemplateTypeEnum;
+	@Column({
+		type: 'enum',
+		enum: TemplateTypeEnum,
+		default: TemplateTypeEnum.PAGE,
+		nullable: false,
+	})
+	type!: TemplateTypeEnum;
 
-    @Column({ type: 'json', nullable: false, comment: 'Template data' })
-    content!: Record<string, any>;
+	@Column({ type: 'json', nullable: false, comment: 'Template data' })
+	content!: Record<string, unknown>;
 
-    // Virtual column
-    contextData?: EntityContextData;
+	// Virtual column
+	contextData?: EntityContextData;
 }

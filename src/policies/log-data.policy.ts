@@ -1,13 +1,13 @@
-import {Request} from 'express';
+import type { Request } from 'express';
+import { LogDataQuery } from '../repositories/log-data.repository';
 import AbstractPolicy from './abstract.policy';
-import {LogDataQuery} from '../repositories/log-data.repository';
 
 class LogDataPolicy extends AbstractPolicy {
-    constructor(req: Request) {
-        const entity = LogDataQuery.entityAlias;
+	constructor(req: Request) {
+		const entity = LogDataQuery.entityAlias;
 
-        super(req, entity);
-    }
+		super(req, entity);
+	}
 }
 
 export default LogDataPolicy;

@@ -1,4 +1,4 @@
 export enum OrderDirectionEnum {
-    ASC = 'ASC',
-    DESC = 'DESC',
+	ASC = 'ASC',
+	DESC = 'DESC',
 }

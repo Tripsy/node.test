@@ -1,22 +1,22 @@
 import 'reflect-metadata';
-import express from 'express';
-import {Server} from 'http';
-import helmet from 'helmet';
-import {corsHandler} from './middleware/cors-handler.middleware';
+import type { Server } from 'node:http';
 import cookieParser from 'cookie-parser';
-import logger, {LogStream} from './providers/logger.provider';
-import {handle as i18nextMiddleware} from 'i18next-http-middleware';
+import express from 'express';
+import helmet from 'helmet';
+import { handle as i18nextMiddleware } from 'i18next-http-middleware';
 import i18next from './config/i18n-setup.config';
-import {outputHandler} from './middleware/output-handler.middleware';
-import {notFoundHandler} from './middleware/not-found-handler.middleware';
-import {errorHandler} from './middleware/error-handler.middleware';
-import {destroyDatabase, initDatabase} from './providers/database.provider';
-import {cfg} from './config/settings.config';
-import {initRoutes} from './config/init-routes.config';
+import { redisClose } from './config/init-redis.config';
+import { initRoutes } from './config/init-routes.config';
+import { cfg } from './config/settings.config';
 import authMiddleware from './middleware/auth.middleware';
+import { corsHandler } from './middleware/cors-handler.middleware';
+import { errorHandler } from './middleware/error-handler.middleware';
 import languageMiddleware from './middleware/language.middleware';
+import { notFoundHandler } from './middleware/not-found-handler.middleware';
+import { outputHandler } from './middleware/output-handler.middleware';
 import startCronJobs from './providers/cron.provider';
-import {redisClose} from './config/init-redis.config';
+import { destroyDatabase, initDatabase } from './providers/database.provider';
+import logger, { LogStream } from './providers/logger.provider';
 import emailQueue from './queues/email.queue';
 
 const app: express.Application = express();
@@ -41,129 +41,130 @@ app.use(languageMiddleware);
 let appReadyResolve: () => void;
 
 export const appReady = new Promise<void>((resolve) => {
-    appReadyResolve = resolve;
+	appReadyResolve = resolve;
 });
 
 async function initializeApp() {
-    // Initialize the database
-    await initDatabase();
+	// Initialize the database
+	await initDatabase();
 
-    // Initialize i18next
-    await i18next.init();
+	// Initialize i18next
+	await i18next.init();
 
-    // Language middleware
-    app.use(i18nextMiddleware(i18next));
+	// Language middleware
+	app.use(i18nextMiddleware(i18next));
 
-    // Standardized response handler
-    app.use(outputHandler);
+	// Standardized response handler
+	app.use(outputHandler);
 
-    // Authentication middleware
-    app.use(authMiddleware);
+	// Authentication middleware
+	app.use(authMiddleware);
 
-    // Initialize routes
-    const router = await initRoutes();
+	// Initialize routes
+	const router = await initRoutes();
 
-    // Add route handling middleware
-    app.use('/', router);
+	// Add route handling middleware
+	app.use('/', router);
 
-    // Set up error handlers
-    app.use(notFoundHandler); // 404 handler
-    app.use(errorHandler); // Error handler
+	// Set up error handlers
+	app.use(notFoundHandler); // 404 handler
+	app.use(errorHandler); // Error handler
 
-    // Start the server
-    const port: number = cfg('app.port');
+	// Start the server
+	const port: number = cfg('app.port') as number;
 
-    server = app.listen(port, () => {
-        logger.debug(`App listening on port ${port}`);
-    });
+	server = app.listen(port, () => {
+		logger.debug(`App listening on port ${port}`);
+	});
 
-    if (cfg('app.env') !== 'test') {
-        // Start the worker here since it's database dependent
-        import('./workers/email.worker').then(() => {
-            logger.debug('Email worker started.');
-        });
+	if (cfg('app.env') !== 'test') {
+		// Start the worker here since it's database dependent
+		import('./workers/email.worker').then(() => {
+			logger.debug('Email worker started.');
+		});
 
-        // Start cron jobs
-        startCronJobs();
-    }
+		// Start cron jobs
+		startCronJobs();
+	}
 
-    // Mark app as ready
-    appReadyResolve();
+	// Mark app as ready
+	appReadyResolve();
 }
 
 export async function closeHandler(): Promise<void> {
-    try {
-        await redisClose();
-        await emailQueue.close();
-        await emailQueue.disconnect();
+	try {
+		await redisClose();
+		await emailQueue.close();
+		await emailQueue.disconnect();
 
-        await destroyDatabase();
+		await destroyDatabase();
 
-        await new LogStream().closeFileStreams();
+		await new LogStream().closeFileStreams();
 
-        logger.debug('All resources closed.');
-    } catch (error) {
-        logger.error('Error occurred while closing resources', error);
-    }
+		logger.debug('All resources closed.');
+	} catch (error) {
+		logger.error({ err: error }, 'Error occurred while closing resources');
+	}
 }
 
 // Gracefully shut down the server on error or signal
 const shutdown = (server: Server, signal: string): void => {
-    logger.debug(`${signal} received. Closing server...`);
+	logger.debug(`${signal} received. Closing server...`);
 
-    if (server) {
-        server.close(async () => {
-            try {
-                await closeHandler();
+	if (server) {
+		server.close(async () => {
+			try {
+				await closeHandler();
 
-                logger.debug('Server closed gracefully');
+				logger.debug('Server closed gracefully');
 
-                if (cfg('app.env') !== 'test') {
-                    process.exit(0);
-                }
-            } catch (error: Error | any) {
-                logger.fatal(error, error.message);
+				if (cfg('app.env') !== 'test') {
+					process.exit(0);
+				}
+			} catch (error) {
+				if (error instanceof Error) {
+					logger.fatal(error, error.message);
+				}
 
-                if (cfg('app.env') !== 'test') {
-                    process.exit(1);
-                }
-            }
-        });
-    } else {
-        if (cfg('app.env') !== 'test') {
-            process.exit(1);
-        }
-    }
+				if (cfg('app.env') !== 'test') {
+					process.exit(1);
+				}
+			}
+		});
+	} else {
+		if (cfg('app.env') !== 'test') {
+			process.exit(1);
+		}
+	}
 
-    // Force shutdown if cleanup takes too long
-    setTimeout(() => {
-        logger.fatal('Forcing shutdown...');
+	// Force shutdown if cleanup takes too long
+	setTimeout(() => {
+		logger.fatal('Forcing shutdown...');
 
-        if (cfg('app.env') !== 'test') {
-            process.exit(1);
-        }
-
-    }, 10000).unref();
+		if (cfg('app.env') !== 'test') {
+			process.exit(1);
+		}
+	}, 10000).unref();
 };
 
 initializeApp().catch((error) => {
-    logger.fatal(error, error.message);
+	logger.fatal(error, error.message);
 
-    shutdown(server, 'INIT_FAIL');
+	shutdown(server, 'INIT_FAIL');
 });
 
 // Handle process signals
 process.on('SIGINT', () => shutdown(server, 'SIGINT'));
 process.on('SIGTERM', () => shutdown(server, 'SIGTERM'));
 process.on('uncaughtException', (error) => {
-    logger.fatal(error, 'Uncaught exception detected');
+	logger.fatal(error, 'Uncaught exception detected');
 
-    shutdown(server, 'Uncaught Exception');
+	shutdown(server, 'Uncaught Exception');
 });
 process.on('unhandledRejection', (reason, promise) => {
-    logger.error({reason, promise}, 'Unhandled rejection detected');
+	logger.error({ reason, promise }, 'Unhandled rejection detected');
 
-    shutdown(server, 'Unhandled Rejection');
+	shutdown(server, 'Unhandled Rejection');
 });
 
 export default app;

@@ -1,13 +1,13 @@
-import {Request} from 'express';
+import type { Request } from 'express';
+import { UserQuery } from '../repositories/user.repository';
 import AbstractPolicy from './abstract.policy';
-import {UserQuery} from '../repositories/user.repository';
 
 class UserPolicy extends AbstractPolicy {
-    constructor(req: Request) {
-        const entity = UserQuery.entityAlias;
+	constructor(req: Request) {
+		const entity = UserQuery.entityAlias;
 
-        super(req, entity);
-    }
+		super(req, entity);
+	}
 }
 
 export default UserPolicy;

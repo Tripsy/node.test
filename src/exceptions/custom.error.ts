@@ -1,14 +1,14 @@
-import {HttpStatusCode} from '../types/http-status-code.type';
+import type { HttpStatusCode } from '../types/http-status-code.type';
 
 class CustomError extends Error {
-    public statusCode: HttpStatusCode;
+	public statusCode: HttpStatusCode;
 
-    constructor(statusCode: HttpStatusCode, message?: string) {
-        super();
+	constructor(statusCode: HttpStatusCode, message?: string) {
+		super();
 
-        this.message = message ?? 'Error';
-        this.statusCode = statusCode;
-    }
+		this.message = message ?? 'Error';
+		this.statusCode = statusCode;
+	}
 }
 
 export default CustomError;

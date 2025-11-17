@@ -1,21 +1,24 @@
-import {DataSource} from 'typeorm';
-import {cfg} from './settings.config';
-import {buildSrcPath} from '../helpers/system.helper';
+import { DataSource } from 'typeorm';
+import { buildSrcPath } from '../helpers/system.helper';
+import { cfg } from './settings.config';
 
 const dataSource = new DataSource({
-    type: cfg('database.connection'),
-    host: cfg('database.host'),
-    port: cfg('database.port'),
-    username: cfg('database.username'),
-    password: cfg('database.password'),
-    database: cfg('database.name'),
-    synchronize: false,
-    logging: false,
-    migrationsTableName: cfg('database.connection') === 'postgres' ? 'system.migrations' : 'migrations',
-    entities: [buildSrcPath('entities', '*.entity.ts')],
-    migrations: [buildSrcPath('migrations', '*.ts')],
-    subscribers: [buildSrcPath('subscribers', '*.subscriber.ts')],
-    poolSize: 10,
+	type: cfg('database.connection') as 'postgres' | 'mariadb',
+	host: cfg('database.host') as string,
+	port: cfg('database.port') as number,
+	username: cfg('database.username') as string,
+	password: cfg('database.password') as string,
+	database: cfg('database.name') as string,
+	synchronize: false,
+	logging: false,
+	migrationsTableName:
+		cfg('database.connection') === 'postgres'
+			? 'system.migrations'
+			: 'migrations',
+	entities: [buildSrcPath('entities', '*.entity.ts')],
+	migrations: [buildSrcPath('migrations', '*.ts')],
+	subscribers: [buildSrcPath('subscribers', '*.subscriber.ts')],
+	poolSize: 10,
 });
 
 export default dataSource;

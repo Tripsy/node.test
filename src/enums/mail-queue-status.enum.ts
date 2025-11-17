@@ -1,5 +1,5 @@
 export enum MailQueueStatusEnum {
-    PENDING = 'pending',
-    SENT = 'sent',
-    ERROR = 'error',
+	PENDING = 'pending',
+	SENT = 'sent',
+	ERROR = 'error',
 }

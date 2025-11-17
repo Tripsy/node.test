@@ -1,13 +1,13 @@
-import {Request} from 'express';
+import type { Request } from 'express';
+import { CronHistoryQuery } from '../repositories/cron-history.repository';
 import AbstractPolicy from './abstract.policy';
-import {CronHistoryQuery} from '../repositories/cron-history.repository';
 
 class CronHistoryPolicy extends AbstractPolicy {
-    constructor(req: Request) {
-        const entity = CronHistoryQuery.entityAlias;
+	constructor(req: Request) {
+		const entity = CronHistoryQuery.entityAlias;
 
-        super(req, entity);
-    }
+		super(req, entity);
+	}
 }
 
 export default CronHistoryPolicy;

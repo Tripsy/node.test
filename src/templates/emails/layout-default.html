@@ -1,44 +1,78 @@
 <!DOCTYPE html>
 <html lang="{{ language }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ siteName }} - {{ emailSubject }}</title>
-</head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; max-width: 600px; margin: 20px auto; border-collapse: collapse;">
-    <!-- Header -->
-    <tr>
-        <td style="padding: 15px; text-align: left; font-size: 24px; font-weight: bold; color: #2E8B57;">
-            {{ siteName }}
-        </td>
-        <td style="padding: 15px; text-align: right;">
-            <a href="{{ siteUrl }}" style="margin-left: 10px; color: #2E8B57; text-decoration: none;">Home</a>
-            <a href="#" style="margin-left: 10px; color: #2E8B57; text-decoration: none;">About</a>
-            <a href="#" style="margin-left: 10px; color: #2E8B57; text-decoration: none;">Contact</a>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" style="border-bottom: 2px solid #2E8B57;"></td>
-    </tr>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>{{ siteName }}- {{ emailSubject }}</title>
+	</head>
+	<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+		<table
+			width="100%"
+			cellpadding="0"
+			cellspacing="0"
+			border="0"
+			style="background-color: #ffffff; max-width: 600px; margin: 20px auto; border-collapse: collapse;"
+		>
+			<!-- Header -->
+			<tr>
+				<td
+					style="padding: 15px; text-align: left; font-size: 24px; font-weight: bold; color: #2E8B57;"
+				>
+					{{ siteName }}
+				</td>
+				<td style="padding: 15px; text-align: right;">
+					<a
+						href="{{ siteUrl }}"
+						style="margin-left: 10px; color: #2E8B57; text-decoration: none;"
+						>Home</a
+					>
+					<a
+						href="#"
+						style="margin-left: 10px; color: #2E8B57; text-decoration: none;"
+						>About</a
+					>
+					<a
+						href="#"
+						style="margin-left: 10px; color: #2E8B57; text-decoration: none;"
+						>Contact</a
+					>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" style="border-bottom: 2px solid #2E8B57;"></td>
+			</tr>
 
-    <!-- Content -->
-    <tr>
-        <td colspan="2" style="padding: 20px;">
-            <h2 style="margin-bottom: 20px;">{{ emailSubject }}</h2>
+			<!-- Content -->
+			<tr>
+				<td colspan="2" style="padding: 20px;">
+					<h2 style="margin-bottom: 20px;">{{ emailSubject }}</h2>
 
-            {{ emailContent | safe }}
-        </td>
-    </tr>
+					{{ emailContent | safe }}
+				</td>
+			</tr>
 
-    <!-- Footer -->
-    <tr>
-        <td colspan="2" style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 12px;">
-            <a href="#" style="color: #2E8B57; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
-            <a href="#" style="color: #2E8B57; text-decoration: none; margin: 0 10px;">Terms of Service</a>
-            <p style="margin-top: 10px;">&copy; {{ currentYear }} {{ siteName }}. All Rights Reserved.</p>
-        </td>
-    </tr>
-</table>
-</body>
+			<!-- Footer -->
+			<tr>
+				<td
+					colspan="2"
+					style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 12px;"
+				>
+					<a
+						href="#"
+						style="color: #2E8B57; text-decoration: none; margin: 0 10px;"
+						>Privacy Policy</a
+					>
+					<a
+						href="#"
+						style="color: #2E8B57; text-decoration: none; margin: 0 10px;"
+						>Terms of Service</a
+					>
+					<p style="margin-top: 10px;">
+						&copy; {{ currentYear }}
+						{{ siteName }}. All Rights Reserved.
+					</p>
+				</td>
+			</tr>
+		</table>
+	</body>
 </html>
