@@ -9,9 +9,9 @@ import { v4 as uuid } from 'uuid';
 import dataSource from '../config/data-source.config';
 import { lang } from '../config/i18n-setup.config';
 import { cfg } from '../config/settings.config';
-import LogDataEntity from '../entities/log-data.entity';
-import { LogCategoryEnum } from '../enums/log-category.enum';
-import { LogLevelEnum } from '../enums/log-level.enum';
+import LogDataEntity from '../features/log-data/log-data.entity';
+import { LogDataCategoryEnum } from '../features/log-data/log-data-category.enum';
+import { LogDataLevelEnum } from '../features/log-data/log-data-level.enum';
 import { buildRootPath } from '../helpers/system.helper';
 
 interface CallStackInterface {
@@ -33,20 +33,20 @@ interface PinoLog {
 	[key: string]: unknown;
 }
 
-export function getLogLevel(level: number): LogLevelEnum {
+export function getLogLevel(level: number): LogDataLevelEnum {
 	switch (level) {
 		case 10:
-			return LogLevelEnum.TRACE;
+			return LogDataLevelEnum.TRACE;
 		case 20:
-			return LogLevelEnum.DEBUG;
+			return LogDataLevelEnum.DEBUG;
 		case 30:
-			return LogLevelEnum.INFO;
+			return LogDataLevelEnum.INFO;
 		case 40:
-			return LogLevelEnum.WARN;
+			return LogDataLevelEnum.WARN;
 		case 50:
-			return LogLevelEnum.ERROR;
+			return LogDataLevelEnum.ERROR;
 		case 60:
-			return LogLevelEnum.FATAL;
+			return LogDataLevelEnum.FATAL;
 		default:
 			throw new Error(`Unknown log level: ${level}`);
 	}
@@ -104,7 +104,7 @@ export class LogStream extends Writable {
 	private fileStreams: Record<string, FileStreamRotatorStream> = {};
 	private fileStreamTimeouts: Record<string, NodeJS.Timeout> = {};
 
-	private getFileStream(level: LogLevelEnum): FileStreamRotatorStream {
+	private getFileStream(level: LogDataLevelEnum): FileStreamRotatorStream {
 		if (!this.fileStreams[level]) {
 			this.fileStreams[level] = FileStreamRotator.getStream({
 				filename: buildRootPath('logs', `%DATE%-${level}.log`),
@@ -145,7 +145,7 @@ export class LogStream extends Writable {
 		this.fileStreams = {};
 	}
 
-	private writeToFile(logLevel: LogLevelEnum, log: PinoLog) {
+	private writeToFile(logLevel: LogDataLevelEnum, log: PinoLog) {
 		if (log.destinations.includes('file')) {
 			return;
 		}
@@ -174,7 +174,7 @@ export class LogStream extends Writable {
 		);
 	}
 
-	private async writeToDatabase(logLevel: LogLevelEnum, log: PinoLog) {
+	private async writeToDatabase(logLevel: LogDataLevelEnum, log: PinoLog) {
 		if (log.destinations.includes('database')) {
 			return;
 		}
@@ -211,7 +211,7 @@ export class LogStream extends Writable {
 		}
 	}
 
-	private async sendToEmail(logLevel: LogLevelEnum, log: PinoLog) {
+	private async sendToEmail(logLevel: LogDataLevelEnum, log: PinoLog) {
 		if (log.destinations.includes('email')) {
 			return;
 		}
@@ -267,21 +267,29 @@ export class LogStream extends Writable {
 				this.pretty.write(chunk);
 			}
 
-			const logLevel: LogLevelEnum = getLogLevel(log.level);
+			const logLevel: LogDataLevelEnum = getLogLevel(log.level);
 
-			if ((cfg('pino.levelFile') as LogLevelEnum[]).includes(logLevel)) {
+			if (
+				(cfg('pino.levelFile') as LogDataLevelEnum[]).includes(logLevel)
+			) {
 				this.writeToFile(logLevel, log);
 			}
 
 			if (
-				(cfg('pino.levelDatabase') as LogLevelEnum[]).includes(logLevel)
+				(cfg('pino.levelDatabase') as LogDataLevelEnum[]).includes(
+					logLevel,
+				)
 			) {
 				this.writeToDatabase(logLevel, log).catch((error) => {
 					console.error('Database logging failed:', error);
 				});
 			}
 
-			if ((cfg('pino.levelEmail') as LogLevelEnum[]).includes(logLevel)) {
+			if (
+				(cfg('pino.levelEmail') as LogDataLevelEnum[]).includes(
+					logLevel,
+				)
+			) {
 				this.sendToEmail(logLevel, log).catch((error) => {
 					console.error('Email logging failed:', error);
 				});
@@ -304,7 +312,7 @@ const logger = pino(
 		level:
 			cfg('app.env') === 'test'
 				? 'error'
-				: (cfg('pino.logLevel') as LogLevelEnum),
+				: (cfg('pino.logLevel') as LogDataLevelEnum),
 		// Defines how and where to send log data, such as to files, external services, or streams.
 		nestedKey: 'context',
 		// Define default properties included in every log line.
@@ -363,13 +371,16 @@ const logger = pino(
 	logStream,
 );
 
-export function childLogger(logger: Logger, category: LogCategoryEnum) {
+export function childLogger(logger: Logger, category: LogDataCategoryEnum) {
 	return logger.child({
 		category: category,
 	});
 }
 
-export const systemLogger: Logger = childLogger(logger, LogCategoryEnum.SYSTEM);
+export const systemLogger: Logger = childLogger(
+	logger,
+	LogDataCategoryEnum.SYSTEM,
+);
 
 if (cfg('app.env') === 'test') {
 	// systemLogger.debug = console.log;

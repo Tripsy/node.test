@@ -1,12 +1,12 @@
 import request from 'supertest';
 import app from '../../app';
 import { routeLink } from '../../config/init-routes.config';
-import type LogDataEntity from '../../entities/log-data.entity';
-import { LogLevelEnum } from '../../enums/log-level.enum';
+import type LogDataEntity from '../../features/log-data/log-data.entity';
+import LogDataPolicy from '../../features/log-data/log-data.policy';
+import LogDataRepository from '../../features/log-data/log-data.repository';
+import { LogDataLevelEnum } from '../../features/log-data/log-data-level.enum';
 import * as subscriberHelper from '../../helpers/subscriber.helper';
-import LogDataPolicy from '../../policies/log-data.policy';
 import * as cacheProvider from '../../providers/cache.provider';
-import LogDataRepository from '../../repositories/log-data.repository';
 import '../jest-functional.setup';
 
 beforeEach(() => {
@@ -27,7 +27,7 @@ describe('LogDataController - read', () => {
 		id: 1,
 		pid: 'xxx',
 		category: 'system',
-		level: LogLevelEnum.ERROR,
+		level: LogDataLevelEnum.ERROR,
 		message: 'Lorem ipsum',
 		context: undefined,
 		created_at: new Date(),

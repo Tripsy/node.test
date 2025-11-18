@@ -1,14 +1,14 @@
 import request from 'supertest';
 import app from '../../app';
 import { routeLink } from '../../config/init-routes.config';
-import type UserEntity from '../../entities/user.entity';
-import { UserRoleEnum } from '../../enums/user-role.enum';
-import { UserStatusEnum } from '../../enums/user-status.enum';
 import NotFoundError from '../../exceptions/not-found.error';
-import UserPolicy from '../../policies/user.policy';
+import AccountTokenRepository from '../../features/account/account-token.repository';
+import type UserEntity from '../../features/user/user.entity';
+import UserPolicy from '../../features/user/user.policy';
+import UserRepository from '../../features/user/user.repository';
+import { UserRoleEnum } from '../../features/user/user-role.enum';
+import { UserStatusEnum } from '../../features/user/user-status.enum';
 import * as cacheProvider from '../../providers/cache.provider';
-import AccountTokenRepository from '../../repositories/account-token.repository';
-import UserRepository from '../../repositories/user.repository';
 import '../jest-functional.setup';
 
 beforeEach(() => {

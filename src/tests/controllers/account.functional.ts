@@ -2,18 +2,18 @@ import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import app from '../../app';
 import { routeLink } from '../../config/init-routes.config';
-import type AccountRecoveryEntity from '../../entities/account-recovery.entity';
-import type UserEntity from '../../entities/user.entity';
-import { UserRoleEnum } from '../../enums/user-role.enum';
-import { UserStatusEnum } from '../../enums/user-status.enum';
 import NotAllowedError from '../../exceptions/not-allowed.error';
+import AccountPolicy from '../../features/account/account.policy';
+import * as accountService from '../../features/account/account.service';
+import type AccountRecoveryEntity from '../../features/account/account-recovery.entity';
+import AccountRecoveryRepository from '../../features/account/account-recovery.repository';
+import AccountTokenRepository from '../../features/account/account-token.repository';
+import type UserEntity from '../../features/user/user.entity';
+import UserRepository from '../../features/user/user.repository';
+import { UserRoleEnum } from '../../features/user/user-role.enum';
+import { UserStatusEnum } from '../../features/user/user-status.enum';
 import * as metaDataHelper from '../../helpers/meta-data.helper';
-import AccountPolicy from '../../policies/account.policy';
 import * as emailProvider from '../../providers/email.provider';
-import AccountRecoveryRepository from '../../repositories/account-recovery.repository';
-import AccountTokenRepository from '../../repositories/account-token.repository';
-import UserRepository from '../../repositories/user.repository';
-import * as accountService from '../../services/account.service';
 import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,

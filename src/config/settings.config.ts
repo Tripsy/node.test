@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import type { LogLevelEnum } from '../enums/log-level.enum';
+import type { LogDataLevelEnum } from '../features/log-data/log-data-level.enum';
 import {
 	getObjectValue,
 	type ObjectValue,
@@ -46,21 +46,21 @@ const settingsConfig: { [key: string]: ObjectValue } = {
 		ttl: Number(process.env.CACHE_TTL) || 60,
 	},
 	/**
-	 * Log levels are defined in log-level.enum.ts
+	 * Log levels are defined in log-data-level.enum.ts
 	 * For `app.env` === test OR `app.debug` === true logs will always be printed to console
 	 * Below log level 30 can only be logged to a file
 	 */
 	pino: {
-		logLevel: process.env.PINO_LOG_LEVEL || ('trace' as LogLevelEnum),
+		logLevel: process.env.PINO_LOG_LEVEL || ('trace' as LogDataLevelEnum),
 		levelFile: [
 			'debug',
 			'info',
 			'error',
 			'warn',
 			'fatal',
-		] as LogLevelEnum[],
-		levelDatabase: ['info', 'error', 'warn', 'fatal'] as LogLevelEnum[],
-		levelEmail: ['error', 'fatal'] as LogLevelEnum[],
+		] as LogDataLevelEnum[],
+		levelDatabase: ['info', 'error', 'warn', 'fatal'] as LogDataLevelEnum[],
+		levelEmail: ['error', 'fatal'] as LogDataLevelEnum[],
 		logEmail: process.env.PINO_LOG_EMAIL || '',
 	},
 	mail: {

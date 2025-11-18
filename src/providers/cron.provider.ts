@@ -6,15 +6,15 @@ import { cronErrorCount } from '../cron-jobs/cron-error-count.cron';
 import { cronTimeCheck } from '../cron-jobs/cron-time-check.cron';
 import { cronWarningCount } from '../cron-jobs/cron-warning-count.cron';
 import { workerMaintenance } from '../cron-jobs/worker-maintenance.cron';
-import CronHistoryEntity from '../entities/cron-history.entity';
-import { CronHistoryStatusEnum } from '../enums/cron-history-status.enum';
-import { LogCategoryEnum } from '../enums/log-category.enum';
 import NotFoundError from '../exceptions/not-found.error';
+import CronHistoryEntity from '../features/cron-history/cron-history.entity';
+import CronHistoryRepository from '../features/cron-history/cron-history.repository';
+import { CronHistoryStatusEnum } from '../features/cron-history/cron-history-status.enum';
+import { LogDataCategoryEnum } from '../features/log-data/log-data-category.enum';
 import { dateDiffInSeconds } from '../helpers/date.helper';
-import CronHistoryRepository from '../repositories/cron-history.repository';
 import logger, { childLogger } from './logger.provider';
 
-const cronLogger: Logger = childLogger(logger, LogCategoryEnum.CRON);
+const cronLogger: Logger = childLogger(logger, LogDataCategoryEnum.CRON);
 
 /**
  * Execute cron job and save history

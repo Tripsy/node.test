@@ -4,11 +4,11 @@ import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { lang } from '../config/i18n-setup.config';
 import templates from '../config/nunjucks.config';
 import { cfg } from '../config/settings.config';
-import MailQueueEntity from '../entities/mail-queue.entity';
-import { TemplateTypeEnum } from '../enums/template-type.enum';
+import MailQueueEntity from '../features/mail-queue/mail-queue.entity';
+import MailQueueRepository from '../features/mail-queue/mail-queue.repository';
+import TemplateRepository from '../features/template/template.repository';
+import { TemplateTypeEnum } from '../features/template/template-type.enum';
 import { getErrorMessage } from '../helpers/system.helper';
-import MailQueueRepository from '../repositories/mail-queue.repository';
-import TemplateRepository from '../repositories/template.repository';
 import type { EmailContent, EmailTemplate } from '../types/template.type';
 import { systemLogger } from './logger.provider';
 

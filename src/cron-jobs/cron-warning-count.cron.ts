@@ -1,7 +1,7 @@
 import { cfg } from '../config/settings.config';
+import CronHistoryRepository from '../features/cron-history/cron-history.repository';
 import { createPastDate } from '../helpers/date.helper';
 import { loadEmailTemplate, queueEmail } from '../providers/email.provider';
-import CronHistoryRepository from '../repositories/cron-history.repository';
 import type { EmailTemplate } from '../types/template.type';
 
 // Report cron warnings in the last 7 days

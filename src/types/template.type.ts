@@ -5,7 +5,7 @@ export type PageContent = {
 	layout?: string;
 };
 
-export type TemplateVarValue =
+type TemplateVarValue =
 	| string
 	| number
 	| boolean
@@ -13,7 +13,7 @@ export type TemplateVarValue =
 	| { [key: string]: TemplateVarValue }
 	| TemplateVarValue[];
 
-export type TemplateVars = Record<string, TemplateVarValue>;
+type TemplateVars = Record<string, TemplateVarValue>;
 
 export type EmailContent = {
 	subject: string;

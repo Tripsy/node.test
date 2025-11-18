@@ -1,17 +1,17 @@
 import type { NextFunction, Request, Response } from 'express';
 import { cfg } from '../config/settings.config';
-import type AccountTokenEntity from '../entities/account-token.entity';
-import { UserRoleEnum } from '../enums/user-role.enum';
-import { UserStatusEnum } from '../enums/user-status.enum';
+import { getActiveAuthToken } from '../features/account/account.service';
+import type AccountTokenEntity from '../features/account/account-token.entity';
+import AccountTokenRepository from '../features/account/account-token.repository';
+import UserRepository from '../features/user/user.repository';
+import { getPolicyPermissions } from '../features/user/user.service';
+import { UserRoleEnum } from '../features/user/user-role.enum';
+import { UserStatusEnum } from '../features/user/user-status.enum';
 import { createFutureDate, dateDiffInSeconds } from '../helpers/date.helper';
 import {
 	compareMetaDataValue,
 	tokenMetaData,
 } from '../helpers/meta-data.helper';
-import AccountTokenRepository from '../repositories/account-token.repository';
-import UserRepository from '../repositories/user.repository';
-import { getActiveAuthToken } from '../services/account.service';
-import { getPolicyPermissions } from '../services/user.service';
 
 async function authMiddleware(
 	req: Request,

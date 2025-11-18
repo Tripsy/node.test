@@ -1,4 +1,4 @@
-import AccountRegisterValidator from '../../validators/account-register.validator';
+import AccountRegisterValidator from '../../features/account/account-register.validator';
 
 const testData = {
 	name: 'John Doe',

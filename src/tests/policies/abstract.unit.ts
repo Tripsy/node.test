@@ -1,10 +1,10 @@
 import type { Request } from 'express';
-import { UserRoleEnum } from '../../enums/user-role.enum';
+import PolicyAbstract from '../../abstracts/policy.abstract';
 import NotAllowedError from '../../exceptions/not-allowed.error';
 import UnauthorizedError from '../../exceptions/unauthorized.error';
-import AbstractPolicy from '../../policies/abstract.policy';
+import { UserRoleEnum } from '../../features/user/user-role.enum';
 
-describe('AbstractPolicy', () => {
+describe('PolicyAbstract', () => {
 	describe('checks around admin role', () => {
 		const req = {
 			user: {
@@ -14,7 +14,7 @@ describe('AbstractPolicy', () => {
 			},
 		} as unknown as Request;
 
-		const policy = new AbstractPolicy(req, 'entity');
+		const policy = new PolicyAbstract(req, 'entity');
 
 		it('should initialize properties correctly', () => {
 			expect(policy.getUserId()).toBe(1); // Check userId
@@ -44,7 +44,7 @@ describe('AbstractPolicy', () => {
 			},
 		} as unknown as Request;
 
-		const policy = new AbstractPolicy(req, 'entity');
+		const policy = new PolicyAbstract(req, 'entity');
 
 		it('should not be authenticated', () => {
 			expect(policy.isAuthenticated()).toBe(false);
@@ -68,7 +68,7 @@ describe('AbstractPolicy', () => {
 			},
 		} as unknown as Request;
 
-		const policy = new AbstractPolicy(req, 'entity');
+		const policy = new PolicyAbstract(req, 'entity');
 
 		test('isAllowed', () => {
 			expect(policy.isAllowed('entity.read', 1)).toBe(true);
@@ -94,7 +94,7 @@ describe('AbstractPolicy', () => {
 			},
 		} as unknown as Request;
 
-		const policy = new AbstractPolicy(req, 'entity');
+		const policy = new PolicyAbstract(req, 'entity');
 
 		test('isAllowed', () => {
 			expect(policy.isAllowed('entity.read')).toBe(true);
