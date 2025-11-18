@@ -1,4 +1,4 @@
-import { appReady, closeHandler, server } from '../app';
+import { appReady, closeHandler, server } from '@/app';
 
 beforeAll(async () => {
 	await appReady;

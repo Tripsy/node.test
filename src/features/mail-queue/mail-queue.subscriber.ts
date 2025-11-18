@@ -4,12 +4,12 @@ import {
 	EventSubscriber,
 	type InsertEvent,
 } from 'typeorm';
+import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import {
 	type EmailQueueData,
 	prepareEmailContent,
-} from '../../providers/email.provider';
-import emailQueue from '../../queues/email.queue';
-import MailQueueEntity from './mail-queue.entity';
+} from '@/providers/email.provider';
+import emailQueue from '@/queues/email.queue';
 
 @EventSubscriber()
 export class MailQueueSubscriber

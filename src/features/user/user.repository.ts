@@ -1,6 +1,6 @@
-import RepositoryAbstract from '../../abstracts/repository.abstract';
-import dataSource from '../../config/data-source.config';
-import UserEntity from './user.entity';
+import RepositoryAbstract from '@/abstracts/repository.abstract';
+import dataSource from '@/config/data-source.config';
+import UserEntity from '@/features/user/user.entity';
 
 export class UserQuery extends RepositoryAbstract<UserEntity> {
 	static entityAlias: string = 'user';

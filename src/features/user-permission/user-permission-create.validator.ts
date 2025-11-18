@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { lang } from '../../config/i18n-setup.config';
+import { lang } from '@/config/i18n-setup.config';
 
 const UserPermissionCreateValidator = z.object({
 	permission_ids: z.array(z.number(), {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { lang } from '../../config/i18n-setup.config';
-import { cfg } from '../../config/settings.config';
+import { lang } from '@/config/i18n-setup.config';
+import { cfg } from '@/config/settings.config';
 
 const AccountPasswordUpdateValidator = z
 	.object({

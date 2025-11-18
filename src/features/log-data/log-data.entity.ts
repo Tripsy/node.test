@@ -5,7 +5,7 @@ import {
 	Index,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import { LogDataLevelEnum } from './log-data-level.enum';
+import { LogDataLevelEnum } from '@/features/log-data/log-data-level.enum';
 
 @Entity({
 	name: 'log_data',

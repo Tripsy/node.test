@@ -1,6 +1,6 @@
-import dataSource from '../../config/data-source.config';
-import TemplateRepository from '../../features/template/template.repository';
-import { TemplateTypeEnum } from '../../features/template/template-type.enum';
+import dataSource from '@/config/data-source.config';
+import TemplateRepository from '@/features/template/template.repository';
+import { TemplateTypeEnum } from '@/features/template/template-type.enum';
 
 const templateData = [
 	{

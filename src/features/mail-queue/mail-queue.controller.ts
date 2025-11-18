@@ -1,13 +1,15 @@
 import type { Request, Response } from 'express';
-import { lang } from '../../config/i18n-setup.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import asyncHandler from '../../helpers/async.handler';
-import { logHistory } from '../../helpers/subscriber.helper';
-import { getCacheProvider } from '../../providers/cache.provider';
-import MailQueuePolicy from './mail-queue.policy';
-import MailQueueRepository, { MailQueueQuery } from './mail-queue.repository';
-import MailQueueDeleteValidator from './mail-queue-delete.validator';
-import MailQueueFindValidator from './mail-queue-find.validator';
+import { lang } from '@/config/i18n-setup.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import MailQueuePolicy from '@/features/mail-queue/mail-queue.policy';
+import MailQueueRepository, {
+	MailQueueQuery,
+} from '@/features/mail-queue/mail-queue.repository';
+import MailQueueDeleteValidator from '@/features/mail-queue/mail-queue-delete.validator';
+import MailQueueFindValidator from '@/features/mail-queue/mail-queue-find.validator';
+import asyncHandler from '@/helpers/async.handler';
+import { logHistory } from '@/helpers/subscriber.helper';
+import { getCacheProvider } from '@/providers/cache.provider';
 
 class MailQueueController {
 	public read = asyncHandler(async (req: Request, res: Response) => {

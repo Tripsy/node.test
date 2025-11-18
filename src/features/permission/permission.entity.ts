@@ -6,8 +6,8 @@ import {
 	OneToMany,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import type { EntityContextData } from '../../abstracts/entity.abstract';
-import UserPermissionEntity from '../user-permission/user-permission.entity';
+import type { EntityContextData } from '@/abstracts/entity.abstract';
+import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 
 @Entity({
 	name: 'permission',

@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { cfg } from '../config/settings.config';
+import { cfg } from '@/config/settings.config';
 
 function getLanguageFromHeaders(acceptLanguage?: string): string {
 	if (!acceptLanguage) {

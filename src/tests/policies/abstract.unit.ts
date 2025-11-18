@@ -1,8 +1,8 @@
 import type { Request } from 'express';
-import PolicyAbstract from '../../abstracts/policy.abstract';
-import NotAllowedError from '../../exceptions/not-allowed.error';
-import UnauthorizedError from '../../exceptions/unauthorized.error';
-import { UserRoleEnum } from '../../features/user/user-role.enum';
+import PolicyAbstract from '@/abstracts/policy.abstract';
+import NotAllowedError from '@/exceptions/not-allowed.error';
+import UnauthorizedError from '@/exceptions/unauthorized.error';
+import { UserRoleEnum } from '@/features/user/user-role.enum';
 
 describe('PolicyAbstract', () => {
 	describe('checks around admin role', () => {

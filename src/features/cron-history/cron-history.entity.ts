@@ -1,5 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-import { CronHistoryStatusEnum } from './cron-history-status.enum';
+import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history-status.enum';
 
 @Entity({
 	name: 'cron_history',

@@ -6,13 +6,13 @@ import nodemailer from 'nodemailer';
 import pino, { type Logger } from 'pino';
 import pinoPretty from 'pino-pretty';
 import { v4 as uuid } from 'uuid';
-import dataSource from '../config/data-source.config';
-import { lang } from '../config/i18n-setup.config';
-import { cfg } from '../config/settings.config';
-import LogDataEntity from '../features/log-data/log-data.entity';
-import { LogDataCategoryEnum } from '../features/log-data/log-data-category.enum';
-import { LogDataLevelEnum } from '../features/log-data/log-data-level.enum';
-import { buildRootPath } from '../helpers/system.helper';
+import dataSource from '@/config/data-source.config';
+import { lang } from '@/config/i18n-setup.config';
+import { cfg } from '@/config/settings.config';
+import LogDataEntity from '@/features/log-data/log-data.entity';
+import { LogDataCategoryEnum } from '@/features/log-data/log-data-category.enum';
+import { LogDataLevelEnum } from '@/features/log-data/log-data-level.enum';
+import { buildRootPath } from '@/helpers/system.helper';
 
 interface CallStackInterface {
 	trace: string[];

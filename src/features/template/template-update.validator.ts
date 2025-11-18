@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { lang } from '../../config/i18n-setup.config';
-import { hasAtLeastOneValue, safeHtml } from '../../helpers/utils.helper';
-import { TemplateTypeEnum } from './template-type.enum';
+import { lang } from '@/config/i18n-setup.config';
+import { TemplateTypeEnum } from '@/features/template/template-type.enum';
+import { hasAtLeastOneValue, safeHtml } from '@/helpers/utils.helper';
 
 export const paramsUpdateList: string[] = [
 	'label',

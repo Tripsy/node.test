@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
-import { cfg } from '../config/settings.config';
-import CustomError from '../exceptions/custom.error';
-import { systemLogger } from '../providers/logger.provider';
+import { cfg } from '@/config/settings.config';
+import CustomError from '@/exceptions/custom.error';
+import { systemLogger } from '@/providers/logger.provider';
 
 export const errorHandler = (
 	err: Error,

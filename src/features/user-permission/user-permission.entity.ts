@@ -8,9 +8,9 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import type { EntityContextData } from '../../abstracts/entity.abstract';
-import PermissionEntity from '../permission/permission.entity';
-import UserEntity from '../user/user.entity';
+import type { EntityContextData } from '@/abstracts/entity.abstract';
+import PermissionEntity from '@/features/permission/permission.entity';
+import UserEntity from '@/features/user/user.entity';
 
 @Entity({
 	name: 'user_permission',

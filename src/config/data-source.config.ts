@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { buildSrcPath } from '../helpers/system.helper';
-import { cfg } from './settings.config';
+import { cfg } from '@/config/settings.config';
+import { buildSrcPath } from '@/helpers/system.helper';
 
 const dataSource = new DataSource({
 	type: cfg('database.connection') as 'postgres' | 'mariadb',

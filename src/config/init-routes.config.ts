@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import { Router } from 'express';
-import { buildSrcPath } from '../helpers/system.helper';
-import { getObjectValue } from '../helpers/utils.helper';
-import { cfg } from './settings.config';
+import { cfg } from '@/config/settings.config';
+import { buildSrcPath } from '@/helpers/system.helper';
+import { getObjectValue } from '@/helpers/utils.helper';
 
 export const routesConfig = {
 	user: {
@@ -94,6 +94,7 @@ export function routeLink(
 
 const router: Router = Router();
 
+//TODO /routes doesn't exist anymore
 const loadRoutes = async (router: Router): Promise<void> => {
 	const routesDir = buildSrcPath('routes');
 	const files = await fs.readdir(routesDir);

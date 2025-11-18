@@ -2,12 +2,12 @@ import { Column, Entity, Index, OneToMany } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
-} from '../../abstracts/entity.abstract';
-import AccountRecoveryEntity from '../account/account-recovery.entity';
-import AccountTokenEntity from '../account/account-token.entity';
-import UserPermissionEntity from '../user-permission/user-permission.entity';
-import { UserRoleEnum } from './user-role.enum';
-import { UserStatusEnum } from './user-status.enum';
+} from '@/abstracts/entity.abstract';
+import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
+import AccountTokenEntity from '@/features/account/account-token.entity';
+import { UserRoleEnum } from '@/features/user/user-role.enum';
+import { UserStatusEnum } from '@/features/user/user-status.enum';
+import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 
 @Entity({
 	name: 'user',

@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { systemLogger } from '../providers/logger.provider';
+import { systemLogger } from '@/providers/logger.provider';
 
 export const notFoundHandler = (
 	req: Request,

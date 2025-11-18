@@ -1,21 +1,21 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { cfg } from '../../config/settings.config';
-import { readToken } from '../../features/account/account.service';
-import AccountTokenRepository from '../../features/account/account-token.repository';
-import UserRepository from '../../features/user/user.repository';
-import { UserRoleEnum } from '../../features/user/user-role.enum';
-import { UserStatusEnum } from '../../features/user/user-status.enum';
-import { createFutureDate, dateDiffInSeconds } from '../../helpers/date.helper';
-import { compareMetaDataValue } from '../../helpers/meta-data.helper';
-import authMiddleware from '../../middleware/auth.middleware';
+import { cfg } from '@/config/settings.config';
+import { readToken } from '@/features/account/account.service';
+import AccountTokenRepository from '@/features/account/account-token.repository';
+import UserRepository from '@/features/user/user.repository';
+import { UserRoleEnum } from '@/features/user/user-role.enum';
+import { UserStatusEnum } from '@/features/user/user-status.enum';
+import { createFutureDate, dateDiffInSeconds } from '@/helpers/date.helper';
+import { compareMetaDataValue } from '@/helpers/meta-data.helper';
+import authMiddleware from '@/middleware/auth.middleware';
 
-jest.mock('../../features/account/account.service');
+jest.mock('@/features/account/account.service');
 jest.mock('jsonwebtoken');
-jest.mock('../../features/account/account-token.repository');
-jest.mock('../../features/user/user.repository');
-jest.mock('../../helpers/meta-data.helper');
-jest.mock('../../helpers/utils.helper');
+jest.mock('@/features/account/account-token.repository');
+jest.mock('@/features/user/user.repository');
+jest.mock('@/helpers/meta-data.helper');
+jest.mock('@/helpers/utils.helper');
 
 describe('authMiddleware', () => {
 	let req: Partial<Request>;

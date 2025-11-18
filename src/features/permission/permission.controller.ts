@@ -1,15 +1,17 @@
 import type { Request, Response } from 'express';
-import { lang } from '../../config/i18n-setup.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import CustomError from '../../exceptions/custom.error';
-import asyncHandler from '../../helpers/async.handler';
-import { getCacheProvider } from '../../providers/cache.provider';
-import PermissionEntity from './permission.entity';
-import PermissionPolicy from './permission.policy';
-import PermissionRepository, { PermissionQuery } from './permission.repository';
-import PermissionCreateValidator from './permission-create.validator';
-import PermissionFindValidator from './permission-find.validator';
-import PermissionUpdateValidator from './permission-update.validator';
+import { lang } from '@/config/i18n-setup.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import CustomError from '@/exceptions/custom.error';
+import PermissionEntity from '@/features/permission/permission.entity';
+import PermissionPolicy from '@/features/permission/permission.policy';
+import PermissionRepository, {
+	PermissionQuery,
+} from '@/features/permission/permission.repository';
+import PermissionCreateValidator from '@/features/permission/permission-create.validator';
+import PermissionFindValidator from '@/features/permission/permission-find.validator';
+import PermissionUpdateValidator from '@/features/permission/permission-update.validator';
+import asyncHandler from '@/helpers/async.handler';
+import { getCacheProvider } from '@/providers/cache.provider';
 
 class PermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

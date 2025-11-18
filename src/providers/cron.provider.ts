@@ -1,18 +1,18 @@
 import cron from 'node-cron';
 import type { Logger } from 'pino';
-import { cleanAccountRecovery } from '../cron-jobs/clean-account-recovery.cron';
-import { cleanAccountToken } from '../cron-jobs/clean-account-token.cron';
-import { cronErrorCount } from '../cron-jobs/cron-error-count.cron';
-import { cronTimeCheck } from '../cron-jobs/cron-time-check.cron';
-import { cronWarningCount } from '../cron-jobs/cron-warning-count.cron';
-import { workerMaintenance } from '../cron-jobs/worker-maintenance.cron';
-import NotFoundError from '../exceptions/not-found.error';
-import CronHistoryEntity from '../features/cron-history/cron-history.entity';
-import CronHistoryRepository from '../features/cron-history/cron-history.repository';
-import { CronHistoryStatusEnum } from '../features/cron-history/cron-history-status.enum';
-import { LogDataCategoryEnum } from '../features/log-data/log-data-category.enum';
-import { dateDiffInSeconds } from '../helpers/date.helper';
-import logger, { childLogger } from './logger.provider';
+import { cleanAccountRecovery } from '@/cron-jobs/clean-account-recovery.cron';
+import { cleanAccountToken } from '@/cron-jobs/clean-account-token.cron';
+import { cronErrorCount } from '@/cron-jobs/cron-error-count.cron';
+import { cronTimeCheck } from '@/cron-jobs/cron-time-check.cron';
+import { cronWarningCount } from '@/cron-jobs/cron-warning-count.cron';
+import { workerMaintenance } from '@/cron-jobs/worker-maintenance.cron';
+import NotFoundError from '@/exceptions/not-found.error';
+import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
+import CronHistoryRepository from '@/features/cron-history/cron-history.repository';
+import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history-status.enum';
+import { LogDataCategoryEnum } from '@/features/log-data/log-data-category.enum';
+import { dateDiffInSeconds } from '@/helpers/date.helper';
+import logger, { childLogger } from '@/providers/logger.provider';
 
 const cronLogger: Logger = childLogger(logger, LogDataCategoryEnum.CRON);
 

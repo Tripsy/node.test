@@ -1,13 +1,13 @@
 import { Worker } from 'bullmq';
-import { cfg } from '../config/settings.config';
-import MailQueueRepository from '../features/mail-queue/mail-queue.repository';
-import { MailQueueStatusEnum } from '../features/mail-queue/mail-queue-status.enum';
+import { cfg } from '@/config/settings.config';
+import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
+import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue-status.enum';
 import {
 	type EmailQueueData,
 	sendEmail,
 	systemFrom,
-} from '../providers/email.provider';
-import logger from '../providers/logger.provider';
+} from '@/providers/email.provider';
+import logger from '@/providers/logger.provider';
 
 const emailWorker = new Worker(
 	'emailQueue',

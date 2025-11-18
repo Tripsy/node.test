@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { Request } from 'express';
-import { cfg } from '../config/settings.config';
-import { isValidIp } from './utils.helper';
+import { cfg } from '@/config/settings.config';
+import { isValidIp } from '@/helpers/utils.helper';
 
 export function getErrorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : String(error);

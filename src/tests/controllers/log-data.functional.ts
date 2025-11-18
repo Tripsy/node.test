@@ -1,12 +1,12 @@
 import request from 'supertest';
-import app from '../../app';
-import { routeLink } from '../../config/init-routes.config';
-import type LogDataEntity from '../../features/log-data/log-data.entity';
-import LogDataPolicy from '../../features/log-data/log-data.policy';
-import LogDataRepository from '../../features/log-data/log-data.repository';
-import { LogDataLevelEnum } from '../../features/log-data/log-data-level.enum';
-import * as subscriberHelper from '../../helpers/subscriber.helper';
-import * as cacheProvider from '../../providers/cache.provider';
+import app from '@/app';
+import { routeLink } from '@/config/init-routes.config';
+import type LogDataEntity from '@/features/log-data/log-data.entity';
+import LogDataPolicy from '@/features/log-data/log-data.policy';
+import LogDataRepository from '@/features/log-data/log-data.repository';
+import { LogDataLevelEnum } from '@/features/log-data/log-data-level.enum';
+import * as subscriberHelper from '@/helpers/subscriber.helper';
+import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
 
 beforeEach(() => {

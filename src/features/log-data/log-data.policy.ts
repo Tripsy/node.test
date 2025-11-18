@@ -1,6 +1,6 @@
 import type { Request } from 'express';
-import PolicyAbstract from '../../abstracts/policy.abstract';
-import { LogDataQuery } from './log-data.repository';
+import PolicyAbstract from '@/abstracts/policy.abstract';
+import { LogDataQuery } from '@/features/log-data/log-data.repository';
 
 class LogDataPolicy extends PolicyAbstract {
 	constructor(req: Request) {

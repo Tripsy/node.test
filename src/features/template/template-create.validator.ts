@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { lang } from '../../config/i18n-setup.config';
-import { safeHtml } from '../../helpers/utils.helper';
-import { TemplateTypeEnum } from './template-type.enum';
+import { lang } from '@/config/i18n-setup.config';
+import { TemplateTypeEnum } from '@/features/template/template-type.enum';
+import { safeHtml } from '@/helpers/utils.helper';
 
 const TemplateCreateBaseValidator = z.object({
 	label: z.string().nonempty({

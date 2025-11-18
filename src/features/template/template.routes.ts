@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { routesConfig } from '../../config/init-routes.config';
-import metaDocumentation from '../../middleware/meta-documentation.middleware';
-import { validateParamsWhenId } from '../../middleware/validate-params.middleware';
-import TemplateController from './template.controller';
+import { routesConfig } from '@/config/init-routes.config';
+import TemplateController from '@/features/template/template.controller';
+import metaDocumentation from '@/middleware/meta-documentation.middleware';
+import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
 
 const routes: Router = Router();
 

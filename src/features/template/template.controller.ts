@@ -1,18 +1,20 @@
 import type { Request, Response } from 'express';
-import { lang } from '../../config/i18n-setup.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import CustomError from '../../exceptions/custom.error';
-import asyncHandler from '../../helpers/async.handler';
-import { getCacheProvider } from '../../providers/cache.provider';
-import TemplateEntity from './template.entity';
-import TemplatePolicy from './template.policy';
-import TemplateRepository, { TemplateQuery } from './template.repository';
-import TemplateCreateValidator from './template-create.validator';
-import TemplateFindValidator from './template-find.validator';
+import { lang } from '@/config/i18n-setup.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import CustomError from '@/exceptions/custom.error';
+import TemplateEntity from '@/features/template/template.entity';
+import TemplatePolicy from '@/features/template/template.policy';
+import TemplateRepository, {
+	TemplateQuery,
+} from '@/features/template/template.repository';
+import TemplateCreateValidator from '@/features/template/template-create.validator';
+import TemplateFindValidator from '@/features/template/template-find.validator';
 import {
 	paramsUpdateList,
 	TemplateUpdateValidator,
-} from './template-update.validator';
+} from '@/features/template/template-update.validator';
+import asyncHandler from '@/helpers/async.handler';
+import { getCacheProvider } from '@/providers/cache.provider';
 
 class TemplateController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

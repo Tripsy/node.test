@@ -6,6 +6,8 @@ import {
 	type SoftRemoveEvent,
 	type UpdateEvent,
 } from 'typeorm';
+import TemplateEntity from '@/features/template/template.entity';
+import { TemplateQuery } from '@/features/template/template.repository';
 import {
 	cacheClean,
 	getAuthIdFromContext,
@@ -13,9 +15,7 @@ import {
 	logHistory,
 	removeOperation,
 	restoreOperation,
-} from '../../helpers/subscriber.helper';
-import TemplateEntity from './template.entity';
-import { TemplateQuery } from './template.repository';
+} from '@/helpers/subscriber.helper';
 
 @EventSubscriber()
 export class TemplateSubscriber

@@ -2,26 +2,26 @@ import bcrypt from 'bcrypt';
 import type { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
-import { cfg } from '../../config/settings.config';
-import { createFutureDate } from '../../helpers/date.helper';
+import { cfg } from '@/config/settings.config';
+import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
+import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
+import AccountTokenEntity from '@/features/account/account-token.entity';
+import AccountTokenRepository from '@/features/account/account-token.repository';
+import type UserEntity from '@/features/user/user.entity';
+import { createFutureDate } from '@/helpers/date.helper';
 import {
 	getMetaDataValue,
 	type TokenMetadata,
 	tokenMetaData,
-} from '../../helpers/meta-data.helper';
-import { getErrorMessage } from '../../helpers/system.helper';
-import { loadEmailTemplate, queueEmail } from '../../providers/email.provider';
-import type { EmailTemplate } from '../../types/template.type';
+} from '@/helpers/meta-data.helper';
+import { getErrorMessage } from '@/helpers/system.helper';
+import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
+import type { EmailTemplate } from '@/types/template.type';
 import type {
 	AuthTokenPayload,
 	AuthValidToken,
 	ConfirmationTokenPayload,
-} from '../../types/token.type';
-import type UserEntity from '../user/user.entity';
-import AccountRecoveryEntity from './account-recovery.entity';
-import AccountRecoveryRepository from './account-recovery.repository';
-import AccountTokenEntity from './account-token.entity';
-import AccountTokenRepository from './account-token.repository';
+} from '@/types/token.type';
 
 export async function encryptPassword(password: string): Promise<string> {
 	return await bcrypt.hash(password, 10);

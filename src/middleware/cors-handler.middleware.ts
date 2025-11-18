@@ -1,6 +1,6 @@
 import cors from 'cors';
-import { cfg } from '../config/settings.config';
-import NotAllowedError from '../exceptions/not-allowed.error';
+import { cfg } from '@/config/settings.config';
+import NotAllowedError from '@/exceptions/not-allowed.error';
 
 export const corsHandler = cors({
 	origin: (origin, callback) => {

@@ -1,19 +1,19 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { createRequest } from 'node-mocks-http';
-import { redisClose } from '../../config/init-redis.config';
-import * as accountService from '../../features/account/account.service';
-import AccountRecoveryRepository from '../../features/account/account-recovery.repository';
-import AccountTokenRepository from '../../features/account/account-token.repository';
-import type { TokenMetadata } from '../../helpers/meta-data.helper';
-import { loadEmailTemplate, queueEmail } from '../../providers/email.provider';
-import type { EmailTemplate } from '../../types/template.type';
+import { redisClose } from '@/config/init-redis.config';
+import * as accountService from '@/features/account/account.service';
+import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
+import AccountTokenRepository from '@/features/account/account-token.repository';
+import type { TokenMetadata } from '@/helpers/meta-data.helper';
+import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
+import type { EmailTemplate } from '@/types/template.type';
 
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
-jest.mock('../../features/account/account-token.repository');
-jest.mock('../../features/account/account-recovery.repository');
-jest.mock('../../providers/email.provider');
+jest.mock('@/features/account/account-token.repository');
+jest.mock('@/features/account/account-recovery.repository');
+jest.mock('@/providers/email.provider');
 
 const mockUser = {
 	id: 1,

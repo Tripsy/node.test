@@ -1,10 +1,10 @@
 import type { Logger } from 'pino';
 import type { UpdateEvent } from 'typeorm';
-import type { EntityContextData } from '../abstracts/entity.abstract';
-import { lang } from '../config/i18n-setup.config';
-import { LogDataCategoryEnum } from '../features/log-data/log-data-category.enum';
-import { getCacheProvider } from '../providers/cache.provider';
-import logger, { childLogger } from '../providers/logger.provider';
+import type { EntityContextData } from '@/abstracts/entity.abstract';
+import { lang } from '@/config/i18n-setup.config';
+import { LogDataCategoryEnum } from '@/features/log-data/log-data-category.enum';
+import { getCacheProvider } from '@/providers/cache.provider';
+import logger, { childLogger } from '@/providers/logger.provider';
 
 export function cacheClean(entity: string, id: number) {
 	const cacheProvider = getCacheProvider();

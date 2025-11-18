@@ -1,11 +1,11 @@
 import type { Request } from 'express';
-import PolicyAbstract from '../../abstracts/policy.abstract';
-import { lang } from '../../config/i18n-setup.config';
-import { getRedisClient } from '../../config/init-redis.config';
-import { cfg } from '../../config/settings.config';
-import CustomError from '../../exceptions/custom.error';
-import UnauthorizedError from '../../exceptions/unauthorized.error';
-import logger from '../../providers/logger.provider';
+import PolicyAbstract from '@/abstracts/policy.abstract';
+import { lang } from '@/config/i18n-setup.config';
+import { getRedisClient } from '@/config/init-redis.config';
+import { cfg } from '@/config/settings.config';
+import CustomError from '@/exceptions/custom.error';
+import UnauthorizedError from '@/exceptions/unauthorized.error';
+import logger from '@/providers/logger.provider';
 
 class AccountPolicy extends PolicyAbstract {
 	constructor(req: Request) {

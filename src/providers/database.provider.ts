@@ -1,5 +1,5 @@
-import dataSource from '../config/data-source.config';
-import logger, { systemLogger } from './logger.provider';
+import dataSource from '@/config/data-source.config';
+import logger, { systemLogger } from '@/providers/logger.provider';
 
 export const initDatabase = async () => {
 	try {

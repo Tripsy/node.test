@@ -7,8 +7,8 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm';
-import type { EmailContent } from '../../types/template.type';
-import { MailQueueStatusEnum } from './mail-queue-status.enum';
+import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue-status.enum';
+import type { EmailContent } from '@/types/template.type';
 
 @Entity({
 	name: 'mail_queue',

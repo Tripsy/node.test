@@ -6,7 +6,15 @@ import {
 	type SoftRemoveEvent,
 	type UpdateEvent,
 } from 'typeorm';
-import { cfg } from '../../config/settings.config';
+import { cfg } from '@/config/settings.config';
+import {
+	encryptPassword,
+	sendEmailConfirmCreate,
+	sendWelcomeEmail,
+} from '@/features/account/account.service';
+import UserEntity from '@/features/user/user.entity';
+import { UserQuery } from '@/features/user/user.repository';
+import { UserStatusEnum } from '@/features/user/user-status.enum';
 import {
 	cacheClean,
 	getAuthIdFromContext,
@@ -14,15 +22,7 @@ import {
 	logHistory,
 	removeOperation,
 	restoreOperation,
-} from '../../helpers/subscriber.helper';
-import {
-	encryptPassword,
-	sendEmailConfirmCreate,
-	sendWelcomeEmail,
-} from '../account/account.service';
-import UserEntity from './user.entity';
-import { UserQuery } from './user.repository';
-import { UserStatusEnum } from './user-status.enum';
+} from '@/helpers/subscriber.helper';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {

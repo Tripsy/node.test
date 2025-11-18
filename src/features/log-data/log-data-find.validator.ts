@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { OrderDirectionEnum } from '../../abstracts/entity.abstract';
-import { lang } from '../../config/i18n-setup.config';
-import { cfg } from '../../config/settings.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import { formatDate, isValidDate } from '../../helpers/date.helper';
-import { parseJsonFilter } from '../../helpers/utils.helper';
-import { LogDataCategoryEnum } from './log-data-category.enum';
-import { LogDataLevelEnum } from './log-data-level.enum';
+import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
+import { lang } from '@/config/i18n-setup.config';
+import { cfg } from '@/config/settings.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import { LogDataCategoryEnum } from '@/features/log-data/log-data-category.enum';
+import { LogDataLevelEnum } from '@/features/log-data/log-data-level.enum';
+import { formatDate, isValidDate } from '@/helpers/date.helper';
+import { parseJsonFilter } from '@/helpers/utils.helper';
 
 enum OrderByEnum {
 	ID = 'id',

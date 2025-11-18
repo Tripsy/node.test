@@ -1,7 +1,7 @@
 import type Redis from 'ioredis';
-import { getRedisClient } from '../config/init-redis.config';
-import { cfg } from '../config/settings.config';
-import { systemLogger } from './logger.provider';
+import { getRedisClient } from '@/config/init-redis.config';
+import { cfg } from '@/config/settings.config';
+import { systemLogger } from '@/providers/logger.provider';
 
 type CacheData = string | string[] | number | boolean | null;
 

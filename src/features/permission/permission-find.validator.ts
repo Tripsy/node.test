@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { OrderDirectionEnum } from '../../abstracts/entity.abstract';
-import { lang } from '../../config/i18n-setup.config';
-import { cfg } from '../../config/settings.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import { parseJsonFilter } from '../../helpers/utils.helper';
+import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
+import { lang } from '@/config/i18n-setup.config';
+import { cfg } from '@/config/settings.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import { parseJsonFilter } from '@/helpers/utils.helper';
 
 enum PermissionOrderByEnum {
 	ID = 'id',

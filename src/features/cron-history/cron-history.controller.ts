@@ -1,15 +1,15 @@
 import type { Request, Response } from 'express';
-import { lang } from '../../config/i18n-setup.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import asyncHandler from '../../helpers/async.handler';
-import { logHistory } from '../../helpers/subscriber.helper';
-import { getCacheProvider } from '../../providers/cache.provider';
-import CronHistoryPolicy from './cron-history.policy';
+import { lang } from '@/config/i18n-setup.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import CronHistoryPolicy from '@/features/cron-history/cron-history.policy';
 import CronHistoryRepository, {
 	CronHistoryQuery,
-} from './cron-history.repository';
-import CronHistoryDeleteValidator from './cron-history-delete.validator';
-import CronHistoryFindValidator from './cron-history-find.validator';
+} from '@/features/cron-history/cron-history.repository';
+import CronHistoryDeleteValidator from '@/features/cron-history/cron-history-delete.validator';
+import CronHistoryFindValidator from '@/features/cron-history/cron-history-find.validator';
+import asyncHandler from '@/helpers/async.handler';
+import { logHistory } from '@/helpers/subscriber.helper';
+import { getCacheProvider } from '@/providers/cache.provider';
 
 class CronHistoryController {
 	public read = asyncHandler(async (req: Request, res: Response) => {

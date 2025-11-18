@@ -1,6 +1,6 @@
-import RepositoryAbstract from '../../abstracts/repository.abstract';
-import dataSource from '../../config/data-source.config';
-import CronHistoryEntity from './cron-history.entity';
+import RepositoryAbstract from '@/abstracts/repository.abstract';
+import dataSource from '@/config/data-source.config';
+import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 
 export class CronHistoryQuery extends RepositoryAbstract<CronHistoryEntity> {
 	static entityAlias: string = 'cron_history';

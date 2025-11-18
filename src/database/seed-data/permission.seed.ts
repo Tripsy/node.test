@@ -1,5 +1,5 @@
-import dataSource from '../../config/data-source.config';
-import PermissionEntity from '../../features/permission/permission.entity';
+import dataSource from '@/config/data-source.config';
+import PermissionEntity from '@/features/permission/permission.entity';
 
 /**
  * The `delete` action is also considered for `restore` action

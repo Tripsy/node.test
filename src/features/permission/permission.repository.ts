@@ -1,6 +1,6 @@
-import RepositoryAbstract from '../../abstracts/repository.abstract';
-import dataSource from '../../config/data-source.config';
-import PermissionEntity from './permission.entity';
+import RepositoryAbstract from '@/abstracts/repository.abstract';
+import dataSource from '@/config/data-source.config';
+import PermissionEntity from '@/features/permission/permission.entity';
 
 export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
 	static entityAlias: string = 'permission';

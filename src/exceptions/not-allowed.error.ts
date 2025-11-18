@@ -1,5 +1,5 @@
-import { cfg } from '../config/settings.config';
-import CustomError from './custom.error';
+import { cfg } from '@/config/settings.config';
+import CustomError from '@/exceptions/custom.error';
 
 class NotAllowedError extends CustomError {
 	constructor(message?: string) {

@@ -1,17 +1,17 @@
 import type { NextFunction, Request, Response } from 'express';
-import { cfg } from '../config/settings.config';
-import { getActiveAuthToken } from '../features/account/account.service';
-import type AccountTokenEntity from '../features/account/account-token.entity';
-import AccountTokenRepository from '../features/account/account-token.repository';
-import UserRepository from '../features/user/user.repository';
-import { getPolicyPermissions } from '../features/user/user.service';
-import { UserRoleEnum } from '../features/user/user-role.enum';
-import { UserStatusEnum } from '../features/user/user-status.enum';
-import { createFutureDate, dateDiffInSeconds } from '../helpers/date.helper';
+import { cfg } from '@/config/settings.config';
+import { getActiveAuthToken } from '@/features/account/account.service';
+import type AccountTokenEntity from '@/features/account/account-token.entity';
+import AccountTokenRepository from '@/features/account/account-token.repository';
+import UserRepository from '@/features/user/user.repository';
+import { getPolicyPermissions } from '@/features/user/user.service';
+import { UserRoleEnum } from '@/features/user/user-role.enum';
+import { UserStatusEnum } from '@/features/user/user-status.enum';
+import { createFutureDate, dateDiffInSeconds } from '@/helpers/date.helper';
 import {
 	compareMetaDataValue,
 	tokenMetaData,
-} from '../helpers/meta-data.helper';
+} from '@/helpers/meta-data.helper';
 
 async function authMiddleware(
 	req: Request,

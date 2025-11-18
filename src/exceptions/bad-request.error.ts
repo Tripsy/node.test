@@ -1,4 +1,4 @@
-import CustomError from './custom.error';
+import CustomError from '@/exceptions/custom.error';
 
 class BadRequestError extends CustomError {
 	constructor(message?: string) {

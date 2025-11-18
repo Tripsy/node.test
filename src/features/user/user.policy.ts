@@ -1,6 +1,6 @@
 import type { Request } from 'express';
-import PolicyAbstract from '../../abstracts/policy.abstract';
-import { UserQuery } from './user.repository';
+import PolicyAbstract from '@/abstracts/policy.abstract';
+import { UserQuery } from '@/features/user/user.repository';
 
 class UserPolicy extends PolicyAbstract {
 	constructor(req: Request) {

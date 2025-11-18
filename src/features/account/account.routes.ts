@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { routesConfig } from '../../config/init-routes.config';
-import metaDocumentation from '../../middleware/meta-documentation.middleware';
-import AccountController from './account.controller';
+import { routesConfig } from '@/config/init-routes.config';
+import AccountController from '@/features/account/account.controller';
+import metaDocumentation from '@/middleware/meta-documentation.middleware';
 
 const routes: Router = Router();
 

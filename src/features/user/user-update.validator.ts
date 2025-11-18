@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { lang } from '../../config/i18n-setup.config';
-import { cfg } from '../../config/settings.config';
-import { hasAtLeastOneValue } from '../../helpers/utils.helper';
-import { UserRoleEnum } from './user-role.enum';
+import { lang } from '@/config/i18n-setup.config';
+import { cfg } from '@/config/settings.config';
+import { UserRoleEnum } from '@/features/user/user-role.enum';
+import { hasAtLeastOneValue } from '@/helpers/utils.helper';
 
 export const paramsUpdateList: string[] = [
 	'name',

@@ -1,16 +1,16 @@
 import nodemailer, { type Transporter } from 'nodemailer';
 import type Mail from 'nodemailer/lib/mailer';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { lang } from '../config/i18n-setup.config';
-import templates from '../config/nunjucks.config';
-import { cfg } from '../config/settings.config';
-import MailQueueEntity from '../features/mail-queue/mail-queue.entity';
-import MailQueueRepository from '../features/mail-queue/mail-queue.repository';
-import TemplateRepository from '../features/template/template.repository';
-import { TemplateTypeEnum } from '../features/template/template-type.enum';
-import { getErrorMessage } from '../helpers/system.helper';
-import type { EmailContent, EmailTemplate } from '../types/template.type';
-import { systemLogger } from './logger.provider';
+import { lang } from '@/config/i18n-setup.config';
+import templates from '@/config/nunjucks.config';
+import { cfg } from '@/config/settings.config';
+import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
+import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
+import TemplateRepository from '@/features/template/template.repository';
+import { TemplateTypeEnum } from '@/features/template/template-type.enum';
+import { getErrorMessage } from '@/helpers/system.helper';
+import { systemLogger } from '@/providers/logger.provider';
+import type { EmailContent, EmailTemplate } from '@/types/template.type';
 
 let emailTransporter: Transporter<SMTPTransport.SentMessageInfo> | null = null;
 

@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import { getClientIp } from './system.helper';
+import { getClientIp } from '@/helpers/system.helper';
 
 export function getMetaDataValue(
 	metadata: Record<string, unknown>,

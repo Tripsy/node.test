@@ -1,16 +1,18 @@
 import type { Request, Response } from 'express';
-import { lang } from '../../config/i18n-setup.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import CustomError from '../../exceptions/custom.error';
-import asyncHandler from '../../helpers/async.handler';
-import { getCacheProvider } from '../../providers/cache.provider';
-import AccountTokenRepository from '../account/account-token.repository';
-import UserEntity from './user.entity';
-import UserPolicy from './user.policy';
-import UserRepository, { UserQuery } from './user.repository';
-import UserCreateValidator from './user-create.validator';
-import UserFindValidator from './user-find.validator';
-import UserUpdateValidator, { paramsUpdateList } from './user-update.validator';
+import { lang } from '@/config/i18n-setup.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import CustomError from '@/exceptions/custom.error';
+import AccountTokenRepository from '@/features/account/account-token.repository';
+import UserEntity from '@/features/user/user.entity';
+import UserPolicy from '@/features/user/user.policy';
+import UserRepository, { UserQuery } from '@/features/user/user.repository';
+import UserCreateValidator from '@/features/user/user-create.validator';
+import UserFindValidator from '@/features/user/user-find.validator';
+import UserUpdateValidator, {
+	paramsUpdateList,
+} from '@/features/user/user-update.validator';
+import asyncHandler from '@/helpers/async.handler';
+import { getCacheProvider } from '@/providers/cache.provider';
 
 class UserController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

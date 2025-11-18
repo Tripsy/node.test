@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { routesConfig } from '../../config/init-routes.config';
-import metaDocumentation from '../../middleware/meta-documentation.middleware';
+import { routesConfig } from '@/config/init-routes.config';
+import UserController from '@/features/user/user.controller';
+import { UserStatusEnum } from '@/features/user/user-status.enum';
+import metaDocumentation from '@/middleware/meta-documentation.middleware';
 import {
 	validateParamsWhenId,
 	validateParamsWhenStatus,
-} from '../../middleware/validate-params.middleware';
-import UserController from './user.controller';
-import { UserStatusEnum } from './user-status.enum';
+} from '@/middleware/validate-params.middleware';
 
 const routes: Router = Router();
 

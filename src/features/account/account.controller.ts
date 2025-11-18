@@ -1,29 +1,13 @@
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { lang } from '../../config/i18n-setup.config';
-import { cfg } from '../../config/settings.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import CustomError from '../../exceptions/custom.error';
-import NotAllowedError from '../../exceptions/not-allowed.error';
-import NotFoundError from '../../exceptions/not-found.error';
-import UnauthorizedError from '../../exceptions/unauthorized.error';
-import asyncHandler from '../../helpers/async.handler';
-import { createPastDate } from '../../helpers/date.helper';
-import {
-	compareMetaDataValue,
-	tokenMetaData,
-} from '../../helpers/meta-data.helper';
-import { getClientIp } from '../../helpers/system.helper';
-import { loadEmailTemplate, queueEmail } from '../../providers/email.provider';
-import type { EmailTemplate } from '../../types/template.type';
-import type {
-	AuthValidToken,
-	ConfirmationTokenPayload,
-} from '../../types/token.type';
-import UserEntity from '../user/user.entity';
-import UserRepository from '../user/user.repository';
-import { UserStatusEnum } from '../user/user-status.enum';
-import AccountPolicy from './account.policy';
+import { lang } from '@/config/i18n-setup.config';
+import { cfg } from '@/config/settings.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import CustomError from '@/exceptions/custom.error';
+import NotAllowedError from '@/exceptions/not-allowed.error';
+import NotFoundError from '@/exceptions/not-found.error';
+import UnauthorizedError from '@/exceptions/unauthorized.error';
+import AccountPolicy from '@/features/account/account.policy';
 import {
 	getActiveAuthToken,
 	getAuthValidTokens,
@@ -31,16 +15,32 @@ import {
 	setupRecovery,
 	setupToken,
 	verifyPassword,
-} from './account.service';
-import AccountEmailUpdateValidator from './account-email-update.validator';
-import AccountLoginValidator from './account-login.validator';
-import AccountPasswordRecoverValidator from './account-password-recover.validator';
-import AccountPasswordRecoverChangeValidator from './account-password-recover-change.validator';
-import AccountPasswordUpdateValidator from './account-password-update.validator';
-import AccountRecoveryRepository from './account-recovery.repository';
-import AccountRegisterValidator from './account-register.validator';
-import AccountRemoveTokenValidator from './account-remove-token.validator';
-import AccountTokenRepository from './account-token.repository';
+} from '@/features/account/account.service';
+import AccountEmailUpdateValidator from '@/features/account/account-email-update.validator';
+import AccountLoginValidator from '@/features/account/account-login.validator';
+import AccountPasswordRecoverValidator from '@/features/account/account-password-recover.validator';
+import AccountPasswordRecoverChangeValidator from '@/features/account/account-password-recover-change.validator';
+import AccountPasswordUpdateValidator from '@/features/account/account-password-update.validator';
+import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
+import AccountRegisterValidator from '@/features/account/account-register.validator';
+import AccountRemoveTokenValidator from '@/features/account/account-remove-token.validator';
+import AccountTokenRepository from '@/features/account/account-token.repository';
+import UserEntity from '@/features/user/user.entity';
+import UserRepository from '@/features/user/user.repository';
+import { UserStatusEnum } from '@/features/user/user-status.enum';
+import asyncHandler from '@/helpers/async.handler';
+import { createPastDate } from '@/helpers/date.helper';
+import {
+	compareMetaDataValue,
+	tokenMetaData,
+} from '@/helpers/meta-data.helper';
+import { getClientIp } from '@/helpers/system.helper';
+import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
+import type { EmailTemplate } from '@/types/template.type';
+import type {
+	AuthValidToken,
+	ConfirmationTokenPayload,
+} from '@/types/token.type';
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {

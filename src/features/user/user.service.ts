@@ -1,6 +1,6 @@
-import { getCacheProvider } from '../../providers/cache.provider';
-import UserPermissionRepository from '../user-permission/user-permission.repository';
-import { UserQuery } from './user.repository';
+import { UserQuery } from '@/features/user/user.repository';
+import UserPermissionRepository from '@/features/user-permission/user-permission.repository';
+import { getCacheProvider } from '@/providers/cache.provider';
 
 export async function getPolicyPermissions(user_id: number): Promise<string[]> {
 	const cacheProvider = getCacheProvider();

@@ -6,15 +6,15 @@ import {
 	type SoftRemoveEvent,
 	type UpdateEvent,
 } from 'typeorm';
+import { UserQuery } from '@/features/user/user.repository';
+import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
+import { UserPermissionQuery } from '@/features/user-permission/user-permission.repository';
 import {
 	cacheClean,
 	getAuthIdFromContext,
 	isRestore,
 	logHistory,
-} from '../../helpers/subscriber.helper';
-import { UserQuery } from '../user/user.repository';
-import UserPermissionEntity from './user-permission.entity';
-import { UserPermissionQuery } from './user-permission.repository';
+} from '@/helpers/subscriber.helper';
 
 @EventSubscriber()
 export class UserPermissionSubscriber

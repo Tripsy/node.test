@@ -2,8 +2,8 @@ import { Column, Entity, Index } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
-} from '../../abstracts/entity.abstract';
-import { TemplateTypeEnum } from './template-type.enum';
+} from '@/abstracts/entity.abstract';
+import { TemplateTypeEnum } from '@/features/template/template-type.enum';
 
 @Entity({
 	name: 'template',

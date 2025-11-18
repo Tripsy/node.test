@@ -1,6 +1,6 @@
-import RepositoryAbstract from '../../abstracts/repository.abstract';
-import dataSource from '../../config/data-source.config';
-import MailQueueEntity from './mail-queue.entity';
+import RepositoryAbstract from '@/abstracts/repository.abstract';
+import dataSource from '@/config/data-source.config';
+import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 
 export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
 	static entityAlias: string = 'mail_queue';

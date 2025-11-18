@@ -1,6 +1,6 @@
-import RepositoryAbstract from '../../abstracts/repository.abstract';
-import dataSource from '../../config/data-source.config';
-import LogDataEntity from './log-data.entity';
+import RepositoryAbstract from '@/abstracts/repository.abstract';
+import dataSource from '@/config/data-source.config';
+import LogDataEntity from '@/features/log-data/log-data.entity';
 
 export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 	static entityAlias: string = 'log_data';

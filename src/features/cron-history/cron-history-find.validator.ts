@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { OrderDirectionEnum } from '../../abstracts/entity.abstract';
-import { lang } from '../../config/i18n-setup.config';
-import { cfg } from '../../config/settings.config';
-import BadRequestError from '../../exceptions/bad-request.error';
-import { formatDate, isValidDate } from '../../helpers/date.helper';
-import { parseJsonFilter } from '../../helpers/utils.helper';
-import { CronHistoryStatusEnum } from './cron-history-status.enum';
+import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
+import { lang } from '@/config/i18n-setup.config';
+import { cfg } from '@/config/settings.config';
+import BadRequestError from '@/exceptions/bad-request.error';
+import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history-status.enum';
+import { formatDate, isValidDate } from '@/helpers/date.helper';
+import { parseJsonFilter } from '@/helpers/utils.helper';
 
 enum OrderByEnum {
 	ID = 'id',

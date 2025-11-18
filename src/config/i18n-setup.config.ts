@@ -2,10 +2,10 @@ import fs from 'node:fs/promises';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
-import { buildSrcPath } from '../helpers/system.helper';
-import { getCacheProvider } from '../providers/cache.provider';
-import logger from '../providers/logger.provider';
-import { cfg } from './settings.config';
+import { cfg } from '@/config/settings.config';
+import { buildSrcPath } from '@/helpers/system.helper';
+import { getCacheProvider } from '@/providers/cache.provider';
+import logger from '@/providers/logger.provider';
 
 async function getNamespaces() {
 	try {

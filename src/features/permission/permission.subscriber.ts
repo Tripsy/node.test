@@ -6,6 +6,8 @@ import {
 	type SoftRemoveEvent,
 	type UpdateEvent,
 } from 'typeorm';
+import PermissionEntity from '@/features/permission/permission.entity';
+import { PermissionQuery } from '@/features/permission/permission.repository';
 import {
 	cacheClean,
 	getAuthIdFromContext,
@@ -13,9 +15,7 @@ import {
 	logHistory,
 	removeOperation,
 	restoreOperation,
-} from '../../helpers/subscriber.helper';
-import PermissionEntity from './permission.entity';
-import { PermissionQuery } from './permission.repository';
+} from '@/helpers/subscriber.helper';
 
 @EventSubscriber()
 export class PermissionSubscriber
