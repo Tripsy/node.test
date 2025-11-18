@@ -40,7 +40,7 @@ const settingsConfig: { [key: string]: ObjectValue } = {
 	redis: {
 		host: process.env.REDIS_HOST || 'localhost',
 		port: parseInt(process.env.REDIS_PORT || '6379', 10),
-		password: process.env.REDIS_PASSWORD || undefined,
+		password: process.env.REDIS_PASSWORD || '',
 	},
 	cache: {
 		ttl: Number(process.env.CACHE_TTL) || 60,
@@ -107,8 +107,8 @@ const settingsConfig: { [key: string]: ObjectValue } = {
  * @returns {string | boolean | void} - The value, existence boolean, or undefined when setting
  */
 export function cfg(key: string): ObjectValue;
-export function cfg(key: string, value: ObjectValue): void;
-export function cfg(key: string, checkOnly: boolean): boolean;
+// export function cfg(key: string, value: ObjectValue): void;
+// export function cfg(key: string, checkOnly: boolean): boolean;
 export function cfg(
 	key: string,
 	value?: ObjectValue,
@@ -140,7 +140,7 @@ export function cfg(
 }
 
 export const isSupportedLanguage = (language: string): boolean => {
-	return (cfg('app.supportedLanguages') as string)
-		.split(',')
-		.includes(language);
+	const languages = cfg('app.supportedLanguages') as string[];
+
+	return Array.isArray(languages) && languages.includes(language);
 };

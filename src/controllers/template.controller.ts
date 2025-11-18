@@ -121,25 +121,21 @@ class TemplateController {
 			throw new CustomError(409, lang('template.error.already_exists'));
 		}
 
-		// Create a new object with only allowed fields
-		const updatedTemplate: Partial<TemplateEntity> = {
+		const updatedEntity: Partial<TemplateEntity> = {
 			id: template.id,
+			...(Object.fromEntries(
+				Object.entries(validated.data).filter(([key]) =>
+					paramsUpdateList.includes(key as keyof TemplateEntity),
+				),
+			) as Partial<TemplateEntity>),
 		};
 
-		for (const key in validated.data) {
-			// We allow update only for the fields used in the select
-			if (paramsUpdateList.includes(key)) {
-				updatedTemplate[key as keyof TemplateEntity] =
-					validated.data[key];
-			}
-		}
-
 		// Set `contextData` for usage in subscriber
-		updatedTemplate.contextData = {
+		updatedEntity.contextData = {
 			auth_id: policy.getUserId(),
 		};
 
-		await TemplateRepository.save(updatedTemplate);
+		await TemplateRepository.save(updatedEntity);
 
 		res.output.message(lang('template.success.update'));
 		res.output.data(template);

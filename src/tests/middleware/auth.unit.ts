@@ -66,12 +66,18 @@ describe('authMiddleware', () => {
 			ident: 'ident123',
 		});
 
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountToken = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			filterBy: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		(
 			AccountTokenRepository.createQuery().first as jest.Mock
@@ -95,12 +101,18 @@ describe('authMiddleware', () => {
 			ident: 'ident123',
 		});
 
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountToken = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			filterBy: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(expiredToken),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		(AccountTokenRepository.removeTokenById as jest.Mock).mockResolvedValue(
 			undefined,
@@ -129,12 +141,18 @@ describe('authMiddleware', () => {
 			ident: 'ident123',
 		});
 
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountToken = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			filterBy: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(validToken),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		(compareMetaDataValue as jest.Mock).mockReturnValue(false);
 
@@ -162,20 +180,30 @@ describe('authMiddleware', () => {
 			ident: 'ident1234',
 		});
 
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountToken = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			filterBy: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(validToken),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		(compareMetaDataValue as jest.Mock).mockReturnValue(true);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		await authMiddleware(req as Request, res as Response, next);
 
@@ -207,11 +235,15 @@ describe('authMiddleware', () => {
 
 		(compareMetaDataValue as jest.Mock).mockReturnValue(true);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		(dateDiffInSeconds as jest.Mock).mockReturnValue(
 			(cfg('user.authRefreshExpiresIn') as number) - 1,

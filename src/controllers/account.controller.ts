@@ -252,7 +252,8 @@ class AccountController {
 				);
 			}
 
-			const [ident, expire_at] = await setupRecovery(user, req);
+			const metadata = tokenMetaData(req);
+			const [ident, expire_at] = await setupRecovery(user, metadata);
 
 			const emailTemplate: EmailTemplate = await loadEmailTemplate(
 				'password-recover',

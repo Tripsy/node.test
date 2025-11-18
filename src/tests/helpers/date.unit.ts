@@ -53,16 +53,20 @@ describe('helpers/utils.helper.ts - Unit Tests', () => {
 			const invalidDateString = 'invalid-date';
 
 			expect(() => stringToDate(invalidDateString)).toThrow(
-				`Invalid date (eg: ${invalidDateString})`,
+				`Invalid date format: ${invalidDateString}`,
 			);
 		});
 	});
 
 	describe('formatDate', () => {
-		it('should throw an error if for invalid date', () => {
+		it('should throw an error for invalid date', () => {
 			const invalidDate = new Date('invalid-date');
 
-			expect(() => formatDate(invalidDate)).toThrow(`Invalid date`);
+			expect(() =>
+				formatDate(invalidDate, 'default', {
+					strict: true,
+				}),
+			).toThrow(`Invalid date`);
 		});
 
 		it('should convert a Date object to an ISO string', () => {

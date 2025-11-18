@@ -22,6 +22,7 @@ import '../jest-functional.setup';
 
 import * as settingsModule from '../../config/settings.config';
 import { createFutureDate } from '../../helpers/date.helper';
+import type { ObjectValue } from '../../helpers/utils.helper';
 
 jest.mock('jsonwebtoken');
 
@@ -55,10 +56,14 @@ describe('AccountController - register', () => {
 	};
 
 	it('simulate existing user', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app)
 			.post(accountRegisterLink)
@@ -70,10 +75,14 @@ describe('AccountController - register', () => {
 	});
 
 	it('should register a new user', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(UserRepository, 'save').mockResolvedValue(mockUser);
 
@@ -149,18 +158,22 @@ describe('AccountController - login', () => {
 
 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.PENDING);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app)
 			.post(accountLoginLink)
 			.send(testData);
 
 		// Assertions
-		expect(response.status).toBe(404);
+		expect(response.status).toBe(400);
 		expect(response.body.message).toBe('account.error.not_active');
 	});
 
@@ -170,11 +183,15 @@ describe('AccountController - login', () => {
 			'checkRateLimitOnLogin',
 		).mockImplementation();
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(accountService, 'verifyPassword').mockResolvedValue(false);
 
@@ -192,20 +209,27 @@ describe('AccountController - login', () => {
 			'checkRateLimitOnLogin',
 		).mockImplementation();
 
-		// Set a higher number than mockAuthValidTokens.length to avoid condition authValidTokens.length >= settings.user.maxActiveSessions
-		jest.spyOn(settingsModule, 'cfg').mockImplementation((key: string) => {
-			if (key === 'user.maxActiveSessions') {
-				return 3;
-			}
+		const originalCfg = settingsModule.cfg;
 
-			return (settingsModule.cfg as any)(key);
-		});
+		jest.spyOn(settingsModule, 'cfg').mockImplementation(
+			(key: string): ObjectValue => {
+				if (key === 'user.maxActiveSessions') {
+					return 3;
+				}
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+				return originalCfg(key);
+			},
+		);
+
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(accountService, 'verifyPassword').mockResolvedValue(true);
 		jest.spyOn(accountService, 'getAuthValidTokens').mockResolvedValue(
@@ -230,19 +254,27 @@ describe('AccountController - login', () => {
 		).mockImplementation();
 
 		// Set a number lower or equal than mockAuthValidTokens.length to trigger condition authValidTokens.length >= settings.user.maxActiveSessions
-		jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
-			if (key === 'user.maxActiveSessions') {
-				return 1;
-			}
+		const originalCfg = settingsModule.cfg;
 
-			return (settingsModule.cfg as any)(key);
-		});
+		jest.spyOn(settingsModule, 'cfg').mockImplementation(
+			(key: string): ObjectValue => {
+				if (key === 'user.maxActiveSessions') {
+					return 1;
+				}
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+				return originalCfg(key);
+			},
+		);
+
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(accountService, 'verifyPassword').mockResolvedValue(true);
 		jest.spyOn(accountService, 'getAuthValidTokens').mockResolvedValue(
@@ -285,10 +317,16 @@ describe('AccountController - removeToken', () => {
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountToken = {
 			filterByIdent: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		const response = await request(app)
 			.delete(accountRemoveTokenLink)
@@ -313,10 +351,25 @@ describe('AccountController - logout', () => {
 	it('should return success', async () => {
 		jest.spyOn(AccountPolicy.prototype, 'logout').mockImplementation();
 
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		jest.spyOn(accountService, 'getActiveAuthToken').mockResolvedValue({
+			id: 1,
+			ident: 'test-ident-123',
+			user_id: 1,
+			created_at: new Date(),
+			used_at: new Date(),
+			expire_at: new Date(Date.now() + 86400000),
+		});
+
+		const mockQueryBuilderAccountToken = {
 			filterBy: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		const response = await request(app).delete(accountLogoutLink).send();
 
@@ -346,11 +399,15 @@ describe('AccountController - passwordRecover', () => {
 	};
 
 	it('should return not found for pending user', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app)
 			.post(accountPasswordRecoverLink)
@@ -364,26 +421,40 @@ describe('AccountController - passwordRecover', () => {
 	it('should simulate recovery attempts exceeded', async () => {
 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
 
-		jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
-			if (key === 'user.recoveryAttemptsInLastSixHours') {
-				return 3;
-			}
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
-			return (settingsModule.cfg as any)(key);
-		});
+		const originalCfg = settingsModule.cfg;
 
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		jest.spyOn(settingsModule, 'cfg').mockImplementation(
+			(key: string): ObjectValue => {
+				if (key === 'user.recoveryAttemptsInLastSixHours') {
+					return 3;
+				}
+
+				return originalCfg(key);
+			},
+		);
+
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterBy: jest.fn().mockReturnThis(),
 			filterByRange: jest.fn().mockReturnThis(),
 			count: jest.fn().mockResolvedValue(10),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
 		const response = await request(app)
 			.post(accountPasswordRecoverLink)
@@ -399,18 +470,28 @@ describe('AccountController - passwordRecover', () => {
 	it('should return success', async () => {
 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
 
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
+
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterBy: jest.fn().mockReturnThis(),
 			filterByRange: jest.fn().mockReturnThis(),
 			count: jest.fn().mockResolvedValue(0),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
 		jest.spyOn(accountService, 'setupRecovery').mockResolvedValue([
 			'random-ident',
@@ -477,11 +558,17 @@ describe('AccountController - passwordRecoverChange', () => {
 			new Date('2025-01-01T00:00:00Z'),
 		);
 
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
 		const response = await request(app)
 			.post(accountPasswordRecoverChange)
@@ -499,11 +586,17 @@ describe('AccountController - passwordRecoverChange', () => {
 			new Date('2024-01-01T00:00:00Z'),
 		);
 
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
 		const response = await request(app)
 			.post(accountPasswordRecoverChange)
@@ -517,19 +610,29 @@ describe('AccountController - passwordRecoverChange', () => {
 	});
 
 	it("should throw bad request when token meta doesn't match", async () => {
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
 
-		jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
-			if (key === 'user.recoveryEnableMetadataCheck') {
-				return true;
-			}
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
-			return (settingsModule.cfg as any)(key);
-		});
+		const originalCfg = settingsModule.cfg;
+
+		jest.spyOn(settingsModule, 'cfg').mockImplementation(
+			(key: string): ObjectValue => {
+				if (key === 'user.recoveryEnableMetadataCheck') {
+					return true;
+				}
+
+				return originalCfg(key);
+			},
+		);
 
 		jest.spyOn(metaDataHelper, 'compareMetaDataValue').mockReturnValue(
 			false,
@@ -547,25 +650,39 @@ describe('AccountController - passwordRecoverChange', () => {
 	});
 
 	it('should throw not found if user is not active', async () => {
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
 
-		jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
-			if (key === 'user.recoveryEnableMetadataCheck') {
-				return false;
-			}
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
-			return (settingsModule.cfg as any)(key);
-		});
+		const originalCfg = settingsModule.cfg;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		jest.spyOn(settingsModule, 'cfg').mockImplementation(
+			(key: string): ObjectValue => {
+				if (key === 'user.recoveryEnableMetadataCheck') {
+					return false;
+				}
+
+				return originalCfg(key);
+			},
+		);
+
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app)
 			.post(accountPasswordRecoverChange)
@@ -577,34 +694,54 @@ describe('AccountController - passwordRecoverChange', () => {
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterByIdent: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
 
-		jest.spyOn(settingsModule, 'cfg').mockImplementation((key) => {
-			if (key === 'user.recoveryEnableMetadataCheck') {
-				return false;
-			}
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
-			return (settingsModule.cfg as any)(key);
-		});
+		const originalCfg = settingsModule.cfg;
+
+		jest.spyOn(settingsModule, 'cfg').mockImplementation(
+			(key: string): ObjectValue => {
+				if (key === 'user.recoveryEnableMetadataCheck') {
+					return false;
+				}
+
+				return originalCfg(key);
+			},
+		);
 
 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(UserRepository, 'save').mockImplementation();
 
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountToken = {
 			filterBy: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		jest.spyOn(emailProvider, 'loadEmailTemplate').mockResolvedValue({
 			id: 1,
@@ -663,11 +800,17 @@ describe('AccountController - passwordUpdate', () => {
 			'passwordUpdate',
 		).mockImplementation();
 
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
 		jest.spyOn(accountService, 'verifyPassword').mockResolvedValue(false);
 
@@ -690,20 +833,32 @@ describe('AccountController - passwordUpdate', () => {
 			'passwordUpdate',
 		).mockImplementation();
 
-		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountRecoveryRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountRecovery,
+		);
 
 		jest.spyOn(accountService, 'verifyPassword').mockResolvedValue(true);
 
 		jest.spyOn(UserRepository, 'save').mockImplementation();
 
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderAccountToken = {
 			filterBy: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		jest.spyOn(UserRepository, 'save').mockImplementation();
 
@@ -759,12 +914,16 @@ describe('AccountController - emailConfirm', () => {
 	it('should simulate user is not found', async () => {
 		(jwt.verify as jest.Mock).mockReturnValue(confirmationTokenPayload);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).post(accountEmailConfirm).send();
 
@@ -782,12 +941,16 @@ describe('AccountController - emailConfirm', () => {
 			'some-new@email.test',
 		);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(UserRepository, 'save').mockImplementation();
 
@@ -803,12 +966,16 @@ describe('AccountController - emailConfirm', () => {
 
 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).post(accountEmailConfirm).send();
 
@@ -822,12 +989,16 @@ describe('AccountController - emailConfirm', () => {
 
 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.INACTIVE);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).post(accountEmailConfirm).send();
 
@@ -838,12 +1009,16 @@ describe('AccountController - emailConfirm', () => {
 	it('should return success', async () => {
 		(jwt.verify as jest.Mock).mockReturnValue(confirmationTokenPayload);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(UserRepository, 'save').mockImplementation();
 
@@ -884,11 +1059,15 @@ describe('AccountController - emailUpdate', () => {
 		jest.replaceProperty(mockUser, 'id', 2);
 
 		// Mock - query for existing user
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterBy: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app)
 			.post(accountEmailUpdate)
@@ -904,14 +1083,18 @@ describe('AccountController - emailUpdate', () => {
 
 		jest.replaceProperty(mockUser, 'email', 'some-new@email.com');
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterBy: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app)
 			.post(accountEmailUpdate)
@@ -925,14 +1108,18 @@ describe('AccountController - emailUpdate', () => {
 	it('should return success', async () => {
 		jest.spyOn(AccountPolicy.prototype, 'emailUpdate').mockImplementation();
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterBy: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(
 			accountService,

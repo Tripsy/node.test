@@ -133,26 +133,21 @@ class UserController {
 				.delete(false, true);
 		}
 
-		// Create a new object with only allowed fields
-		const updatedUser: Partial<UserEntity> = {
+		const updatedEntity: Partial<UserEntity> = {
 			id: user.id,
+			...(Object.fromEntries(
+				Object.entries(validated.data).filter(([key]) =>
+					paramsUpdateList.includes(key as keyof UserEntity),
+				),
+			) as Partial<UserEntity>),
 		};
 
-		for (const key in validated.data) {
-			// We allow update only for the fields used in the select
-			if (paramsUpdateList.includes(key)) {
-				(updatedUser as Record<string, any>)[key] = (
-					validated.data as Record<string, any>
-				)[key];
-			}
-		}
-
 		// Set `contextData` for usage in subscriber
-		updatedUser.contextData = {
+		updatedEntity.contextData = {
 			auth_id: policy.getUserId(),
 		};
 
-		await UserRepository.save(updatedUser);
+		await UserRepository.save(updatedEntity);
 
 		res.output.message(lang('user.success.update'));
 		res.output.data(user);

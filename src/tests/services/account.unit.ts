@@ -2,8 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { createRequest } from 'node-mocks-http';
 import { redisClose } from '../../config/init-redis.config';
-import { cfg } from '../../config/settings.config';
-import { createFutureDate } from '../../helpers/date.helper';
+import type { TokenMetadata } from '../../helpers/meta-data.helper';
 import { loadEmailTemplate, queueEmail } from '../../providers/email.provider';
 import AccountRecoveryRepository from '../../repositories/account-recovery.repository';
 import AccountTokenRepository from '../../repositories/account-token.repository';
@@ -118,10 +117,16 @@ describe('Account Service', () => {
 				null,
 			);
 
-			const req = { headers: { 'user-agent': 'Mozilla' } } as any;
+			const metadata: TokenMetadata = {
+				'user-agent': 'Mozilla',
+				'accept-language': 'en-US,en;q=0.9',
+				ip: '127.0.0.1',
+				os: 'Windows',
+			};
+
 			const [ident, expire_at] = await accountService.setupRecovery(
 				mockUser,
-				req,
+				metadata,
 			);
 
 			expect(ident).toBeDefined();
@@ -144,9 +149,6 @@ describe('Account Service', () => {
 	describe('sendEmailConfirmCreate', () => {
 		it('should send an email confirmation for account creation', async () => {
 			const token = 'jwt-token-123';
-			const expire_at = createFutureDate(
-				(cfg('user.emailConfirmationExpiresIn') as number) * 86400,
-			);
 			const emailTemplate: EmailTemplate = {
 				language: mockUser.language,
 				content: {
@@ -164,27 +166,17 @@ describe('Account Service', () => {
 				'email-confirm-create',
 				mockUser.language,
 			);
-			expect(queueEmail).toHaveBeenCalledWith(
-				emailTemplate,
-				{
-					name: mockUser.name,
-					token: token,
-					expire_at: expire_at.toISOString(),
-				},
-				{
-					name: mockUser.name,
-					address: mockUser.email,
-				},
-			);
+
+			expect(queueEmail).toHaveBeenCalledWith(emailTemplate, {
+				name: mockUser.name,
+				address: mockUser.email,
+			});
 		});
 	});
 
 	describe('sendEmailConfirmUpdate', () => {
 		it('should send an email confirmation for email update', async () => {
 			const token = 'jwt-token-123';
-			const expire_at = createFutureDate(
-				(cfg('user.emailConfirmationExpiresIn') as number) * 86400,
-			);
 			const emailTemplate: EmailTemplate = {
 				language: mockUser.language,
 				content: {
@@ -202,18 +194,11 @@ describe('Account Service', () => {
 				'email-confirm-update',
 				mockUser.language,
 			);
-			expect(queueEmail).toHaveBeenCalledWith(
-				emailTemplate,
-				{
-					name: mockUser.name,
-					token: token,
-					expire_at: expire_at.toISOString(),
-				},
-				{
-					name: mockUser.name,
-					address: mockUser.email,
-				},
-			);
+
+			expect(queueEmail).toHaveBeenCalledWith(emailTemplate, {
+				name: mockUser.name,
+				address: mockUser.email,
+			});
 		});
 	});
 
@@ -235,16 +220,11 @@ describe('Account Service', () => {
 				'email-welcome',
 				mockUser.language,
 			);
-			expect(queueEmail).toHaveBeenCalledWith(
-				emailTemplate,
-				{
-					name: mockUser.name,
-				},
-				{
-					name: mockUser.name,
-					address: mockUser.email,
-				},
-			);
+
+			expect(queueEmail).toHaveBeenCalledWith(emailTemplate, {
+				name: mockUser.name,
+				address: mockUser.email,
+			});
 		});
 	});
 });

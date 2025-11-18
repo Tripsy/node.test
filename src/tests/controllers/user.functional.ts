@@ -68,11 +68,15 @@ describe('UserController - create', () => {
 	it('should return error if (new) email is already used by another account', async () => {
 		jest.replaceProperty(mockUser, 'id', 2);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterByEmail: jest.fn().mockReturnThis(),
 			withDeleted: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).post(userCreateLink).send(testData);
 
@@ -82,11 +86,15 @@ describe('UserController - create', () => {
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterByEmail: jest.fn().mockReturnThis(),
 			withDeleted: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		jest.spyOn(UserRepository, 'save').mockResolvedValue(mockUser);
 
@@ -147,15 +155,21 @@ describe('UserController - read', () => {
 			get: jest
 				.fn()
 				.mockImplementation(async (_key, fallbackFunction) => {
-					return await fallbackFunction(); // Simulating cache miss
+					return await fallbackFunction();
 				}),
-		} as any);
+		} as Partial<
+			ReturnType<typeof cacheProvider.getCacheProvider>
+		> as ReturnType<typeof cacheProvider.getCacheProvider>);
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterById: jest.fn().mockReturnThis(),
 			withDeleted: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).get(userReadLink).send();
 
@@ -180,6 +194,7 @@ describe('UserController - update', () => {
 		password: 'Password123!',
 		password_confirm: 'Password123!',
 		language: 'en',
+		role: UserRoleEnum.MEMBER,
 	};
 
 	const mockUser: UserEntity = {
@@ -196,13 +211,17 @@ describe('UserController - update', () => {
 	};
 
 	it('should return 404 if user is not found', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockImplementation(() => {
 				throw new NotFoundError();
 			}),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).put(userUpdateLink).send(testData);
 
@@ -211,14 +230,18 @@ describe('UserController - update', () => {
 	});
 
 	it('should return error if email is already used by another account', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
 			filterBy: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).put(userUpdateLink).send(testData);
 
@@ -228,19 +251,29 @@ describe('UserController - update', () => {
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
 			filterBy: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
 
-		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue({
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
+
+		const mockQueryBuilderAccountToken = {
 			filterBy: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof AccountTokenRepository.createQuery>
+		>;
+
+		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderAccountToken,
+		);
 
 		jest.spyOn(UserRepository, 'save').mockResolvedValue(mockUser);
 
@@ -274,11 +307,15 @@ describe('UserController - delete', () => {
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterById: jest.fn().mockReturnThis(),
 			setContextData: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).delete(userDeleteLink).send();
 
@@ -309,11 +346,15 @@ describe('UserController - restore', () => {
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderUser = {
 			filterById: jest.fn().mockReturnThis(),
 			setContextData: jest.fn().mockReturnThis(),
 			restore: jest.fn().mockResolvedValue(1),
-		} as any);
+		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+
+		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderUser,
+		);
 
 		const response = await request(app).patch(userRestoreLink).send();
 

@@ -7,7 +7,11 @@ import AccountRecoveryEntity from '../entities/account-recovery.entity';
 import AccountTokenEntity from '../entities/account-token.entity';
 import type UserEntity from '../entities/user.entity';
 import { createFutureDate } from '../helpers/date.helper';
-import { getMetaDataValue, tokenMetaData } from '../helpers/meta-data.helper';
+import {
+	getMetaDataValue,
+	type TokenMetadata,
+	tokenMetaData,
+} from '../helpers/meta-data.helper';
 import { getErrorMessage } from '../helpers/system.helper';
 import { loadEmailTemplate, queueEmail } from '../providers/email.provider';
 import AccountRecoveryRepository from '../repositories/account-recovery.repository';
@@ -131,7 +135,7 @@ export async function getAuthValidTokens(
 
 export async function setupRecovery(
 	user: Partial<UserEntity> & { id: number },
-	req: Request,
+	metadata: TokenMetadata,
 ): Promise<[string, Date]> {
 	const ident: string = uuid();
 	const expire_at = createFutureDate(
@@ -141,7 +145,7 @@ export async function setupRecovery(
 	const accountRecoveryEntity = new AccountRecoveryEntity();
 	accountRecoveryEntity.user_id = user.id;
 	accountRecoveryEntity.ident = uuid();
-	accountRecoveryEntity.metadata = tokenMetaData(req);
+	accountRecoveryEntity.metadata = metadata;
 	accountRecoveryEntity.expire_at = expire_at;
 
 	await AccountRecoveryRepository.save(accountRecoveryEntity);

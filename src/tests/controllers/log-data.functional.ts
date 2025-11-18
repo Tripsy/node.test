@@ -21,13 +21,7 @@ beforeEach(() => {
 });
 
 describe('LogDataController - read', () => {
-	const logDataReadLink = routeLink(
-		'logData.read',
-		{
-			id: 1,
-		},
-		false,
-	);
+	const logDataReadLink = routeLink('logData.read', { id: 1 }, false);
 
 	const mockLogData: LogDataEntity = {
 		id: 1,
@@ -46,7 +40,6 @@ describe('LogDataController - read', () => {
 
 		const response = await request(app).get(logDataReadLink).send();
 
-		// Assertions
 		expect(response.status).toBe(401);
 	});
 
@@ -55,38 +48,48 @@ describe('LogDataController - read', () => {
 
 		const response = await request(app).get(logDataReadLink).send();
 
-		// Assertions
 		expect(response.status).toBe(403);
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(cacheProvider, 'getCacheProvider').mockReturnValue({
+		const mockCacheProvider = {
 			buildKey: jest.fn().mockReturnValue('cache-key'),
-			get: jest.fn().mockImplementation(async (key, fallbackFunction) => {
-				return await fallbackFunction(); // Simulating cache miss
-			}),
-		} as any);
+			get: jest
+				.fn()
+				.mockImplementation(async (_key, fallbackFunction) => {
+					return await fallbackFunction();
+				}),
+		} as jest.MockedObject<
+			ReturnType<typeof cacheProvider.getCacheProvider>
+		>;
 
-		jest.spyOn(LogDataRepository, 'createQuery').mockReturnValue({
+		jest.spyOn(cacheProvider, 'getCacheProvider').mockReturnValue(
+			mockCacheProvider,
+		);
+
+		const mockQueryBuilderLogData = {
 			filterById: jest.fn().mockReturnThis(),
 			withDeleted: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockLogData),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof LogDataRepository.createQuery>
+		>;
+
+		jest.spyOn(LogDataRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderLogData,
+		);
 
 		const response = await request(app).get(logDataReadLink).send();
 
-		// Assertions
 		expect(response.status).toBe(200);
 		expect(response.body.data).toHaveProperty('pid', mockLogData.pid);
+		expect(mockQueryBuilderLogData.filterById).toHaveBeenCalledWith(1);
 	});
 });
 
 describe('LogDataController - delete', () => {
 	const logDataDeleteLink = routeLink('logData.delete', {}, false);
-
-	const testData = {
-		ids: [1, 2, 3],
-	};
+	const testData = { ids: [1, 2, 3] };
 
 	it('should fail if not authenticated', async () => {
 		jest.spyOn(LogDataPolicy.prototype, 'isAuthenticated').mockReturnValue(
@@ -97,15 +100,20 @@ describe('LogDataController - delete', () => {
 			.delete(logDataDeleteLink)
 			.send(testData);
 
-		// Assertions
 		expect(response.status).toBe(401);
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(LogDataRepository, 'createQuery').mockReturnValue({
+		const mockQueryBuilderLogData = {
 			filterBy: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as any);
+		} as jest.MockedObject<
+			ReturnType<typeof LogDataRepository.createQuery>
+		>;
+
+		jest.spyOn(LogDataRepository, 'createQuery').mockReturnValue(
+			mockQueryBuilderLogData,
+		);
 
 		jest.spyOn(subscriberHelper, 'logHistory').mockImplementation();
 
@@ -113,8 +121,13 @@ describe('LogDataController - delete', () => {
 			.delete(logDataDeleteLink)
 			.send(testData);
 
-		// Assertions
 		expect(response.status).toBe(200);
 		expect(response.body.message).toBe('log_data.success.delete');
+		expect(mockQueryBuilderLogData.filterBy).toHaveBeenCalledWith(
+			'id',
+			[1, 2, 3],
+			'IN',
+		);
+		expect(mockQueryBuilderLogData.delete).toHaveBeenCalled();
 	});
 });
