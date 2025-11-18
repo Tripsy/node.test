@@ -19,10 +19,10 @@ import type {
 } from '@/types/token.type';
 import '../jest-functional.setup';
 
+import { routeLink } from '@/config/routes.setup';
 import * as settingsModule from '@/config/settings.config';
 import { createFutureDate } from '@/helpers/date.helper';
 import type { ObjectValue } from '@/helpers/utils.helper';
-import {routeLink} from "@/config/routes.setup";
 
 jest.mock('jsonwebtoken');
 

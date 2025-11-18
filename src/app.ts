@@ -73,8 +73,6 @@ async function initializeApp() {
 	// Start the server
 	const port: number = cfg('app.port') as number;
 
-	console.log('rootPath', cfg('app.rootPath'));
-
 	server = app.listen(port, () => {
 		logger.debug(`App listening on port ${port}`);
 	});

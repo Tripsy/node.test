@@ -7,7 +7,7 @@ import { LogDataLevelEnum } from '@/features/log-data/log-data-level.enum';
 import * as subscriberHelper from '@/helpers/subscriber.helper';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
-import {routeLink} from "@/config/routes.setup";
+import { routeLink } from '@/config/routes.setup';
 
 beforeEach(() => {
 	jest.clearAllMocks();

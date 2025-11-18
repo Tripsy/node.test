@@ -9,7 +9,7 @@ import { UserRoleEnum } from '@/features/user/user-role.enum';
 import { UserStatusEnum } from '@/features/user/user-status.enum';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
-import {routeLink} from "@/config/routes.setup";
+import { routeLink } from '@/config/routes.setup';
 
 beforeEach(() => {
 	jest.clearAllMocks();
