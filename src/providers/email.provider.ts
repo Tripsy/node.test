@@ -1,7 +1,7 @@
 import nodemailer, { type Transporter } from 'nodemailer';
 import type Mail from 'nodemailer/lib/mailer';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import templates from '@/config/nunjucks.config';
 import { cfg } from '@/config/settings.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';

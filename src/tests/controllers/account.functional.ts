@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import app from '@/app';
-import { routeLink } from '@/config/init-routes.config';
 import NotAllowedError from '@/exceptions/not-allowed.error';
 import AccountPolicy from '@/features/account/account.policy';
 import * as accountService from '@/features/account/account.service';
@@ -23,6 +22,7 @@ import '../jest-functional.setup';
 import * as settingsModule from '@/config/settings.config';
 import { createFutureDate } from '@/helpers/date.helper';
 import type { ObjectValue } from '@/helpers/utils.helper';
+import {routeLink} from "@/config/routes.setup";
 
 jest.mock('jsonwebtoken');
 

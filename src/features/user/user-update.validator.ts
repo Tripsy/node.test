@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import { UserRoleEnum } from '@/features/user/user-role.enum';
 import { hasAtLeastOneValue } from '@/helpers/utils.helper';

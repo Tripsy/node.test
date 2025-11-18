@@ -21,7 +21,7 @@ async function languageMiddleware(
 	}
 
 	// Attach lang value to the request object
-	if ((cfg('app.supportedLanguages') as string[]).includes(lang)) {
+	if ((cfg('app.languageSupported') as string[]).includes(lang)) {
 		req.lang = lang;
 	} else {
 		req.lang = cfg('app.language') as string;

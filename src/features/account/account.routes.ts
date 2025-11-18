@@ -1,78 +1,63 @@
-import { Router } from 'express';
-import { routesConfig } from '@/config/init-routes.config';
+import {Router} from 'express';
 import AccountController from '@/features/account/account.controller';
-import metaDocumentation from '@/middleware/meta-documentation.middleware';
+import {buildRoutes, RoutesConfigType} from "@/config/routes.setup";
+
+const accountRoutesBasePath: string = '/account';
+export const accountRoutesConfig: RoutesConfigType<typeof AccountController> = {
+    register: {
+        path: '/register',
+        method: 'post',
+        action: 'register'
+    },
+    login: {
+        path: '/login',
+        method: 'post',
+        action: 'login'
+    },
+    'remove-token': {
+        path: '/token',
+        method: 'delete',
+        action: 'removeToken'
+    },
+    logout: {
+        path: '/logout',
+        method: 'delete',
+        action: 'logout'
+    },
+    'password-recover': {
+        path: '/password-recover',
+        method: 'post',
+        action: 'passwordRecoverChange',
+    },
+    'password-recover-change': {
+        path: '/password-recover-change/:ident',
+        method: 'post',
+        action: 'passwordRecoverChange',
+    },
+    'password-update': {
+        path: '/password-update',
+        method: 'post',
+        action: 'passwordUpdate'
+    },
+    'email-confirm': {
+        path: '/email-confirm/:token',
+        method: 'post',
+        action: 'emailConfirm'
+    },
+    'email-update': {
+        path: '/email-update',
+        method: 'post',
+        action: 'emailUpdate'
+    },
+    'details': {
+        path: '/details',
+        method: 'get',
+        action: 'details'
+    }
+}
 
 const routes: Router = Router();
 
-// Account - Register
-routes.post(
-	routesConfig.account.register,
-	[metaDocumentation('account', 'register')],
-	AccountController.register,
-);
-
-// Account - Login
-routes.post(
-	routesConfig.account.login,
-	[metaDocumentation('account', 'login')],
-	AccountController.login,
-);
-
-// Account - Remove token
-routes.delete(
-	routesConfig.account.removeToken,
-	[metaDocumentation('account', 'removeToken')],
-	AccountController.removeToken,
-);
-
-// Account - Logout
-routes.delete(
-	routesConfig.account.logout,
-	[metaDocumentation('account', 'logout')],
-	AccountController.logout,
-);
-
-// Account - Recover password
-routes.post(
-	routesConfig.account.passwordRecover,
-	[metaDocumentation('account', 'password-recover')],
-	AccountController.passwordRecover,
-);
-
-// Account - Change password based on recovery token
-routes.post(
-	routesConfig.account.passwordRecoverChange,
-	[metaDocumentation('account', 'password-recover-change')],
-	AccountController.passwordRecoverChange,
-);
-
-// Account - Update password (when logged in based on old password)
-routes.post(
-	routesConfig.account.passwordUpdate,
-	[metaDocumentation('account', 'password-update')],
-	AccountController.passwordUpdate,
-);
-
-// Account - Confirm email
-routes.post(
-	routesConfig.account.emailConfirm,
-	[metaDocumentation('account', 'email-confirm')],
-	AccountController.emailConfirm,
-);
-
-// Account - Update email
-routes.post(
-	routesConfig.account.emailUpdate,
-	[metaDocumentation('account', 'email-update')],
-	AccountController.emailUpdate,
-);
-
-// Account - Get details
-routes.get(
-	routesConfig.account.details,
-	[metaDocumentation('account', 'details')],
-	AccountController.details,
-);
+buildRoutes(routes, AccountController, accountRoutesConfig, accountRoutesBasePath);
 
 export default routes;

@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CronHistoryPolicy from '@/features/cron-history/cron-history.policy';
 import CronHistoryRepository, {

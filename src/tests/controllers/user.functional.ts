@@ -1,6 +1,5 @@
 import request from 'supertest';
 import app from '@/app';
-import { routeLink } from '@/config/init-routes.config';
 import NotFoundError from '@/exceptions/not-found.error';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
@@ -10,6 +9,7 @@ import { UserRoleEnum } from '@/features/user/user-role.enum';
 import { UserStatusEnum } from '@/features/user/user-status.enum';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
+import {routeLink} from "@/config/routes.setup";
 
 beforeEach(() => {
 	jest.clearAllMocks();

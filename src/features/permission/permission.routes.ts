@@ -1,51 +1,58 @@
-import { Router } from 'express';
-import { routesConfig } from '@/config/init-routes.config';
+import {Router} from 'express';
 import PermissionController from '@/features/permission/permission.controller';
-import metaDocumentation from '@/middleware/meta-documentation.middleware';
-import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
+import {
+    validateParamsWhenId,
+} from '@/middleware/validate-params.middleware';
+import {buildRoutes, RoutesConfigType} from "@/config/routes.setup";
+
+const permissionRoutesBasePath: string = '/permissions';
+export const permissionRoutesConfig: RoutesConfigType<typeof PermissionController> = {
+    create: {
+        path: '',
+        method: 'post',
+        action: 'create'
+    },
+    read: {
+        path: '/:id',
+        method: 'get',
+        action: 'read',
+        handlers: [
+            validateParamsWhenId('id')
+        ]
+    },
+    update: {
+        path: '/:id',
+        method: 'post',
+        action: 'update',
+        handlers: [
+            validateParamsWhenId('id')
+        ]
+    },
+    delete: {
+        path: '/:id',
+        method: 'delete',
+        action: 'delete',
+        handlers: [
+            validateParamsWhenId('id')
+        ]
+    },
+    restore: {
+        path: '/:id/restore',
+        method: 'patch',
+        action: 'restore',
+        handlers: [
+            validateParamsWhenId('id')
+        ]
+    },
+    find: {
+        path: '',
+        method: 'get',
+        action: 'find'
+    }
+}
 
 const routes: Router = Router();
 
-// Permission - Create
-routes.post(
-	routesConfig.permission.create,
-	[metaDocumentation('permission', 'create')],
-	PermissionController.create,
-);
-
-// Permission - Read
-routes.get(
-	routesConfig.permission.read,
-	[metaDocumentation('permission', 'read'), validateParamsWhenId('id')],
-	PermissionController.read,
-);
-
-// Permission - Update
-routes.put(
-	routesConfig.permission.update,
-	[metaDocumentation('permission', 'update'), validateParamsWhenId('id')],
-	PermissionController.update,
-);
-
-// Permission - Delete
-routes.delete(
-	routesConfig.permission.delete,
-	[metaDocumentation('permission', 'delete'), validateParamsWhenId('id')],
-	PermissionController.delete,
-);
-
-// Permission - Restore
-routes.patch(
-	routesConfig.permission.restore,
-	[metaDocumentation('permission', 'restore'), validateParamsWhenId('id')],
-	PermissionController.restore,
-);
-
-// Permission - Find
-routes.get(
-	routesConfig.permission.find,
-	[metaDocumentation('permission', 'find')],
-	PermissionController.find,
-);
+buildRoutes(routes, PermissionController, permissionRoutesConfig, permissionRoutesBasePath);
 
 export default routes;

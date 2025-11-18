@@ -4,7 +4,7 @@ import {
 	type EntityContextData,
 	OrderDirectionEnum,
 } from '@/abstracts/entity.abstract';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import CustomError from '@/exceptions/custom.error';
 import NotFoundError from '@/exceptions/not-found.error';
 import { formatDate } from '@/helpers/date.helper';
@@ -189,7 +189,11 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 
 		if (!result) {
 			throw new NotFoundError(
-				lang(`${this.entityAlias}.error.not_found`),
+				lang(
+					`${this.entityAlias}.error.not_found`,
+					{},
+					'Entry not found',
+				),
 			);
 		}
 

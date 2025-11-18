@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import BadRequestError from '@/exceptions/bad-request.error';
 import { UserRoleEnum } from '@/features/user/user-role.enum';

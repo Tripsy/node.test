@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import { TemplateTypeEnum } from '@/features/template/template-type.enum';
 import { safeHtml } from '@/helpers/utils.helper';
 

@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import MailQueuePolicy from '@/features/mail-queue/mail-queue.policy';
 import MailQueueRepository, {

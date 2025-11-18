@@ -4,9 +4,9 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
 import { handle as i18nextMiddleware } from 'i18next-http-middleware';
-import i18next from '@/config/i18n-setup.config';
+import i18next from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
-import { initRoutes } from '@/config/init-routes.config';
+import { initRoutes } from '@/config/routes.setup';
 import { cfg } from '@/config/settings.config';
 import authMiddleware from '@/middleware/auth.middleware';
 import { corsHandler } from '@/middleware/cors-handler.middleware';
@@ -61,7 +61,7 @@ async function initializeApp() {
 	app.use(authMiddleware);
 
 	// Initialize routes
-	const router = await initRoutes();
+	const router = initRoutes();
 
 	// Add route handling middleware
 	app.use('/', router);

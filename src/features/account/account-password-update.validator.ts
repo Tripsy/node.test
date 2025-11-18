@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 
 const AccountPasswordUpdateValidator = z

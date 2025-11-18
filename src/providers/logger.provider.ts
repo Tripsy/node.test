@@ -7,7 +7,7 @@ import pino, { type Logger } from 'pino';
 import pinoPretty from 'pino-pretty';
 import { v4 as uuid } from 'uuid';
 import dataSource from '@/config/data-source.config';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import LogDataEntity from '@/features/log-data/log-data.entity';
 import { LogDataCategoryEnum } from '@/features/log-data/log-data-category.enum';

@@ -15,12 +15,24 @@ const settingsConfig: { [key: string]: ObjectValue } = {
 		rootPath: process.env.ROOT_PATH || '/var/www/html',
 		srcPath: process.env.SRC_PATH || '/var/www/html/src',
 		name: process.env.APP_NAME || 'sample-node-api',
-		email: process.env.APP_EMAIL || 'hello@example.com', // TODO move var
+		email: process.env.APP_EMAIL || 'hello@example.com',
 		timezone: process.env.APP_TIMEZONE || 'UTC',
 		language: process.env.APP_LANG || 'en',
-		supportedLanguages: (process.env.APP_SUPPORTED_LANGUAGES || 'en')
+		languageSupported: (process.env.APP_LANGUAGE_SUPPORTED || 'en')
 			.trim()
 			.split(','),
+		languageNamespaces: [
+			'account',
+			'cron_history',
+			'debug',
+			'error',
+			'log_data',
+			'mail_queue',
+			'permission',
+			'template',
+			'user',
+			'user_permission',
+		],
 	},
 	frontend: {
 		url: process.env.FRONTEND_URL || 'http://nextjs.test',
@@ -140,7 +152,7 @@ export function cfg(
 }
 
 export const isSupportedLanguage = (language: string): boolean => {
-	const languages = cfg('app.supportedLanguages') as string[];
+	const languages = cfg('app.languageSupported') as string[];
 
 	return Array.isArray(languages) && languages.includes(language);
 };

@@ -1,6 +1,6 @@
 import type { Request } from 'express';
 import PolicyAbstract from '@/abstracts/policy.abstract';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import { getRedisClient } from '@/config/init-redis.config';
 import { cfg } from '@/config/settings.config';
 import CustomError from '@/exceptions/custom.error';

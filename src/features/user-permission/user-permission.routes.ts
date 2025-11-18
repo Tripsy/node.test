@@ -1,49 +1,48 @@
-import { Router } from 'express';
-import { routesConfig } from '@/config/init-routes.config';
+import {Router} from 'express';
 import UserPermissionController from '@/features/user-permission/user-permission.controller';
-import metaDocumentation from '@/middleware/meta-documentation.middleware';
-import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
+import {
+    validateParamsWhenId,
+} from '@/middleware/validate-params.middleware';
+import {buildRoutes, RoutesConfigType} from "@/config/routes.setup";
+
+const userPermissionRoutesBasePath: string = '/users';
+export const userPermissionRoutesConfig: RoutesConfigType<typeof UserPermissionController> = {
+    create: {
+        path: '/:user_id/permissions',
+        method: 'post',
+        action: 'create',
+        handlers: [
+            validateParamsWhenId('user_id')
+        ]
+    },
+    delete: {
+        path: '/:user_id/permissions/:permission_id',
+        method: 'delete',
+        action: 'delete',
+        handlers: [
+            validateParamsWhenId('user_id', 'permission_id')
+        ]
+    },
+    restore: {
+        path: '/:user_id/permissions/:id/restore',
+        method: 'patch',
+        action: 'restore',
+        handlers: [
+            validateParamsWhenId('user_id', 'id')
+        ]
+    },
+    find: {
+        path: '/:user_id/permissions',
+        method: 'get',
+        action: 'find',
+        handlers: [
+            validateParamsWhenId('user_id')
+        ]
+    }
+}
 
 const routes: Router = Router();
 
-// UserPermission - Create
-routes.post(
-	routesConfig.userPermission.create,
-	[
-		metaDocumentation('user-permission', 'create'),
-		validateParamsWhenId('user_id'),
-	],
-	UserPermissionController.create,
-);
-
-// UserPermission - Delete
-routes.delete(
-	routesConfig.userPermission.delete,
-	[
-		metaDocumentation('user-permission', 'delete'),
-		validateParamsWhenId('user_id', 'permission_id'),
-	],
-	UserPermissionController.delete,
-);
-
-// UserPermission - Restore
-routes.patch(
-	routesConfig.userPermission.restore,
-	[
-		metaDocumentation('user-permission', 'restore'),
-		validateParamsWhenId('user_id', 'id'),
-	],
-	UserPermissionController.restore,
-);
-
-// UserPermission - Find
-routes.get(
-	routesConfig.userPermission.find,
-	[
-		metaDocumentation('user-permission', 'find'),
-		validateParamsWhenId('user_id'),
-	],
-	UserPermissionController.find,
-);
+buildRoutes(routes, UserPermissionController, userPermissionRoutesConfig, userPermissionRoutesBasePath);
 
 export default routes;

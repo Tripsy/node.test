@@ -1,68 +1,71 @@
-import { Router } from 'express';
-import { routesConfig } from '@/config/init-routes.config';
+import {Router} from 'express';
 import UserController from '@/features/user/user.controller';
 import { UserStatusEnum } from '@/features/user/user-status.enum';
-import metaDocumentation from '@/middleware/meta-documentation.middleware';
 import {
 	validateParamsWhenId,
 	validateParamsWhenStatus,
 } from '@/middleware/validate-params.middleware';
+import {buildRoutes, RoutesConfigType} from "@/config/routes.setup";
+
+const userRoutesBasePath: string = '/users';
+export const userRoutesConfig: RoutesConfigType<typeof UserController> = {
+    create: {
+        path: '',
+        method: 'post',
+        action: 'create'
+    },
+    read: {
+        path: '/:id',
+        method: 'get',
+        action: 'read',
+        handlers: [
+            validateParamsWhenId('id')
+        ]
+    },
+    update: {
+        path: '/:id',
+        method: 'post',
+        action: 'update',
+        handlers: [
+            validateParamsWhenId('id')
+        ]
+    },
+    delete: {
+        path: '/:id',
+        method: 'delete',
+        action: 'delete',
+        handlers: [
+            validateParamsWhenId('id')
+        ]
+    },
+    restore: {
+        path: '/:id/restore',
+        method: 'patch',
+        action: 'restore',
+        handlers: [
+            validateParamsWhenId('id')
+        ]
+    },
+    find: {
+        path: '',
+        method: 'get',
+        action: 'find'
+    },
+    'update-status': {
+        path: '/:id/status/:status',
+        method: 'patch',
+        action: 'statusUpdate',
+        handlers: [
+            validateParamsWhenId('id'),
+            validateParamsWhenStatus({
+                status: [UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE],
+            }),
+        ],
+    }
+}
 
 const routes: Router = Router();
 
-// User - Create
-routes.post(
-	routesConfig.user.create,
-	[metaDocumentation('user', 'create')],
-	UserController.create,
-);
-
-// User - Read
-routes.get(
-	routesConfig.user.read,
-	[metaDocumentation('user', 'read'), validateParamsWhenId('id')],
-	UserController.read,
-);
-
-// User - Update
-routes.put(
-	routesConfig.user.update,
-	[metaDocumentation('user', 'update'), validateParamsWhenId('id')],
-	UserController.update,
-);
-
-// User - Delete
-routes.delete(
-	routesConfig.user.delete,
-	[metaDocumentation('user', 'delete'), validateParamsWhenId('id')],
-	UserController.delete,
-);
-
-// User - Restore
-routes.patch(
-	routesConfig.user.restore,
-	[metaDocumentation('user', 'restore'), validateParamsWhenId('id')],
-	UserController.restore,
-);
-
-// User - Find
-routes.get(
-	routesConfig.user.find,
-	[metaDocumentation('user', 'find')],
-	UserController.find,
-);
-
-// User - Update status
-routes.patch(
-	routesConfig.user.updateStatus,
-	[
-		metaDocumentation('user', 'update-status'),
-		validateParamsWhenId('id'),
-		validateParamsWhenStatus({
-			status: [UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE],
-		}),
-	],
-	UserController.statusUpdate,
-);
+buildRoutes(routes, UserController, userRoutesConfig, userRoutesBasePath);
 
 export default routes;

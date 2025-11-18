@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { lang } from '@/config/i18n-setup.config';
+import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 
 export const validateParamsWhenId = (...args: string[]) => {
