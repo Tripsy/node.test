@@ -136,6 +136,79 @@ const templateData = [
 			layout: 'layout-default',
 		},
 	},
+	{
+		label: 'terms-and-conditions',
+		language: 'en',
+		type: TemplateTypeEnum.PAGE,
+		content: {
+			title: 'Terms & Conditions',
+			html: `
+                <h2>Introduction</h2>
+                <p>
+                    These Terms & Conditions outline the rules and guidelines for using our website and services.
+                    By accessing or using this site, you agree to follow all conditions described here.
+                </p>
+    
+                <h2>Use of the Website</h2>
+                <p>
+                    You agree to use the website only for lawful purposes and in a way that does not
+                    infringe on the rights of others or restrict their use of the platform.
+                </p>
+    
+                <h2>Limitations</h2>
+                <p>
+                    We are not responsible for any damages resulting from the use of our website or services.
+                    Content may change at any time without notice.
+                </p>
+    
+                <h2>Changes to These Terms</h2>
+                <p>
+                    We may update these Terms & Conditions occasionally. Continued use of the site
+                    means you accept the updated terms.
+                </p>
+		`,
+			layout: 'layout-default',
+		},
+	},
+	{
+		label: 'privacy-policy',
+		language: 'en',
+		type: TemplateTypeEnum.PAGE,
+		content: {
+			title: 'Privacy Policy',
+			html: `
+                <h2>Overview</h2>
+                <p>
+                    This Privacy Policy explains how we collect, use, and protect your personal information
+                    when you use our website and services.
+                </p>
+    
+                <h2>Information We Collect</h2>
+                <p>
+                    We may collect basic information such as your name, email address, and usage data
+                    to improve our services and enhance your experience.
+                </p>
+    
+                <h2>How We Use Your Information</h2>
+                <p>
+                    Your information is used to provide services, improve functionality,
+                    and communicate important updates. We do not sell your data to third parties.
+                </p>
+    
+                <h2>Data Security</h2>
+                <p>
+                    We use reasonable security measures to protect your personal information,
+                    though no online system can be completely secure.
+                </p>
+    
+                <h2>Updates to This Policy</h2>
+                <p>
+                    We may update this Privacy Policy from time to time. We encourage you to review it periodically.
+                </p>
+		`,
+			layout: 'layout-default',
+		},
+	},
 ];
 
 async function seedTemplates() {
