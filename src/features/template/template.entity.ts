@@ -28,7 +28,7 @@ export default class TemplateEntity extends EntityAbstract {
 	})
 	type!: TemplateTypeEnum;
 
-	@Column({ type: 'json', nullable: false, comment: 'Template data' })
+	@Column({ type: 'jsonb', nullable: false, comment: 'Template data' })
 	content!: Record<string, unknown>;
 
 	// Virtual column

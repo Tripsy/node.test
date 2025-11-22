@@ -4,10 +4,13 @@ import {
 	CreateDateColumn,
 	Entity,
 	Index,
+	JoinColumn,
+	ManyToOne,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue-status.enum';
+import TemplateEntity from '@/features/template/template.entity';
 import type { EmailContent } from '@/types/template.type';
 
 @Entity({
@@ -26,16 +29,16 @@ export default class MailQueueEntity {
 	language!: string;
 
 	@Column({
-		type: 'json',
+		type: 'jsonb',
 		nullable: false,
 		comment: 'Email content: subject, text, html, vars, layout',
 	})
 	content!: EmailContent;
 
-	@Column({ type: 'json', nullable: false, comment: 'To: name & address' })
+	@Column({ type: 'jsonb', nullable: false, comment: 'To: name & address' })
 	to!: Mail.Address;
 
-	@Column({ type: 'json', nullable: true, comment: 'From: name & address' })
+	@Column({ type: 'jsonb', nullable: true, comment: 'From: name & address' })
 	from?: Mail.Address;
 
 	@Index('IDX_mail_queue_status', { unique: false })
@@ -59,4 +62,12 @@ export default class MailQueueEntity {
 
 	@UpdateDateColumn({ type: 'timestamp', nullable: true })
 	updated_at!: Date | null;
+
+	@ManyToOne(() => TemplateEntity, {
+		nullable: true,
+		createForeignKeyConstraints: false,
+		eager: false,
+	})
+	@JoinColumn({ name: 'template_id', referencedColumnName: 'id' })
+	template?: TemplateEntity | null;
 }

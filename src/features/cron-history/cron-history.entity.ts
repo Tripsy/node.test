@@ -35,6 +35,6 @@ export default class CronHistoryEntity {
 	})
 	run_time!: number;
 
-	@Column({ type: 'json', nullable: true, comment: 'Cron data' })
+	@Column({ type: 'jsonb', nullable: true, comment: 'Cron data' })
 	content?: Record<string, unknown>;
 }
