@@ -9,6 +9,7 @@ import TemplateRepository, {
 } from '@/features/template/template.repository';
 import TemplateCreateValidator from '@/features/template/template-create.validator';
 import TemplateFindValidator from '@/features/template/template-find.validator';
+import { TemplateTypeEnum } from '@/features/template/template-type.enum';
 import {
 	paramsUpdateList,
 	TemplateUpdateValidator,
@@ -215,6 +216,28 @@ class TemplateController {
 			},
 			query: validated.data,
 		});
+
+		res.json(res.output);
+	});
+
+	public readPage = asyncHandler(async (req: Request, res: Response) => {
+		const cacheProvider = getCacheProvider();
+
+		const cacheKey = cacheProvider.buildKey(
+			TemplateQuery.entityAlias,
+			res.locals.validated.label,
+			'read',
+		);
+		const template = await cacheProvider.get(cacheKey, async () => {
+			return TemplateRepository.createQuery()
+				.filterBy('label', res.locals.validated.label)
+				.filterBy('language', req.lang)
+				.filterBy('type', TemplateTypeEnum.PAGE)
+				.firstOrFail();
+		});
+
+		res.output.meta(cacheProvider.isCached, 'isCached');
+		res.output.data(template);
 
 		res.json(res.output);
 	});

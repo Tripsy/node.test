@@ -64,10 +64,10 @@ const TemplateUpdatePageValidator = TemplateUpdateBaseValidator.extend({
 			title: z.string().nonempty({
 				message: lang('template.validation.page_title_invalid'),
 			}),
-			body: z
+			html: z
 				.string()
 				.nonempty({
-					message: lang('template.validation.page_body_invalid'),
+					message: lang('template.validation.page_html_invalid'),
 				})
 				.transform((val) => safeHtml(val)),
 			layout: z

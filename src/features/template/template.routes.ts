@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { buildRoutes, type RoutesConfigType } from '@/config/routes.setup';
 import TemplateController from '@/features/template/template.controller';
-import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
+import {
+	validateParamsWhenId,
+	validateParamsWhenString,
+} from '@/middleware/validate-params.middleware';
 
 export const templateRoutesBasePath: string = '/templates';
 export const templateRoutesConfig: RoutesConfigType<typeof TemplateController> =
@@ -17,9 +20,15 @@ export const templateRoutesConfig: RoutesConfigType<typeof TemplateController> =
 			action: 'read',
 			handlers: [validateParamsWhenId('id')],
 		},
+		'read-page': {
+			path: '/:label/page',
+			method: 'get',
+			action: 'readPage',
+			handlers: [validateParamsWhenString('label')],
+		},
 		update: {
 			path: '/:id',
-			method: 'post',
+			method: 'put',
 			action: 'update',
 			handlers: [validateParamsWhenId('id')],
 		},

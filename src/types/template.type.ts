@@ -1,6 +1,6 @@
 export type PageContent = {
 	title: string;
-	body: string;
+	html: string;
 	vars?: TemplateVars;
 	layout?: string;
 };
