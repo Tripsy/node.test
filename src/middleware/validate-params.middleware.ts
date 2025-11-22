@@ -70,3 +70,21 @@ export const validateParamsWhenStatus = (data: Record<string, unknown[]>) => {
 		next(); // Proceed to the next middleware or route handler
 	};
 };
+
+export const validateParamsWhenString = (...args: string[]) => {
+	return (req: Request, res: Response, next: NextFunction) => {
+		const validated: Record<string, string> = {};
+
+		for (const name of args) {
+			validated[name] = req.params[name];
+		}
+
+		// Attach the validated IDs to the response object for later use
+		res.locals.validated = {
+			...(res.locals.validated || {}),
+			...validated,
+		};
+
+		next(); // Proceed to the next middleware or route handler
+	};
+};

@@ -45,6 +45,8 @@ export class TemplateSubscriber
 			},
 			false,
 		);
+
+		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
 	}
 
 	/**
@@ -64,6 +66,8 @@ export class TemplateSubscriber
 			},
 			true,
 		);
+
+		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
 	}
 
 	async afterInsert(event: InsertEvent<TemplateEntity>) {
@@ -90,6 +94,7 @@ export class TemplateSubscriber
 
 		// When entry is updated
 		cacheClean(TemplateQuery.entityAlias, id);
+		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
 
 		logHistory(TemplateQuery.entityAlias, 'updated', {
 			id: id.toString(),

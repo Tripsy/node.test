@@ -6,11 +6,17 @@ import { LogDataCategoryEnum } from '@/features/log-data/log-data-category.enum'
 import { getCacheProvider } from '@/providers/cache.provider';
 import logger, { childLogger } from '@/providers/logger.provider';
 
-export function cacheClean(entity: string, id: number) {
+export function cacheClean(entity: string, ident: number | string) {
+	const identString = ident.toString();
+
+	if (!identString) {
+		return;
+	}
+
 	const cacheProvider = getCacheProvider();
 
 	void cacheProvider.deleteByPattern(
-		`${cacheProvider.buildKey(entity, id.toString())}*`,
+		`${cacheProvider.buildKey(entity, identString)}*`,
 	);
 }
 
