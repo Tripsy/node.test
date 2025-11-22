@@ -22,7 +22,7 @@ export const userRoutesConfig: RoutesConfigType<typeof UserController> = {
 	},
 	update: {
 		path: '/:id',
-		method: 'post',
+		method: 'put',
 		action: 'update',
 		handlers: [validateParamsWhenId('id')],
 	},

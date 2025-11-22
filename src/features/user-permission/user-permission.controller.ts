@@ -141,9 +141,10 @@ class UserPermissionController {
 			throw new BadRequestError();
 		}
 
+		const querySelect = ['id', 'user_id', 'permission_id', 'created_at'];
+
 		const withDeleted: boolean =
 			policy.allowDeleted() && validated.data.filter.is_deleted;
-		const querySelect = ['id', 'user_id', 'permission_id', 'created_at'];
 
 		if (withDeleted) {
 			querySelect.push('deleted_at');

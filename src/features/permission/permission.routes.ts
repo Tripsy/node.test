@@ -20,7 +20,7 @@ export const permissionRoutesConfig: RoutesConfigType<
 	},
 	update: {
 		path: '/:id',
-		method: 'post',
+		method: 'put',
 		action: 'update',
 		handlers: [validateParamsWhenId('id')],
 	},
