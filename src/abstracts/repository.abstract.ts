@@ -124,7 +124,8 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	}
 
 	isValidColumn(column: string): boolean {
-		const columnPattern = /^[a-zA-Z0-9_.]+$/; // Allow only letters, numbers, underscores, and dots
+		// Allow only letters, numbers, underscores dots and cast characters (:)
+		const columnPattern = /^[a-zA-Z0-9_.:]+$/;
 
 		return columnPattern.test(column);
 	}
@@ -138,24 +139,17 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		return column.includes('.') ? column : `${this.entityAlias}.${column}`;
 	}
 
-	// This version had issues while ordering - see user-permission.controller.ts - with order defined as `permission.id`
-	// private prepareColumn(column: string): string {
-	//     column = column.trim();
-	//
-	//     // Validate or sanitize the column name
-	//     if (!this.isValidColumn(column)) {
-	//         throw new Error(`Invalid column name: ${column}`);
-	//     }
-	//
-	//     // If the column includes a dot (table.column), split and escape both parts
-	//     if (column.includes('.')) {
-	//         const [table, col] = column.split('.');
-	//         return `\`${table}\`.\`${col}\``;
-	//     }
-	//
-	//     // Escape reserved words or special characters
-	//     return `\`${this.entityAlias}\`.\`${column}\``;
-	// }
+	private safeColumnKey(column: string): string {
+		return (
+			column
+				// Replace all non-alphanumeric characters (except underscore) with _
+				.replace(/[^a-zA-Z0-9_]/g, '_')
+				// Remove leading/trailing underscores
+				.replace(/^_+|_+$/g, '')
+				// Ensure it doesn't start with a number
+				.replace(/^(\d)/, 'param_$1')
+		);
+	}
 
 	/**
 	 * Return query builder object so further TypeOrm methods can be chained
@@ -344,74 +338,57 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		operator: string = '=',
 	): this {
 		if (value) {
-			const columns = column
-				.split(',')
-				.map((col) => this.prepareColumn(col));
-
-			if (columns.length > 1 && operator === 'IN') {
-				throw new CustomError(
-					500,
-					'The IN operator can only be used with a single column',
-				);
-			}
-
 			switch (operator) {
 				case '=':
-					if (columns.length === 1) {
-						if (
-							columns[0].endsWith('_id') ||
-							columns[0].endsWith('.id')
-						) {
-							this.hasFilter = true;
-						}
+					if (column.endsWith('_id') || column.endsWith('.id')) {
+						this.hasFilter = true;
 					}
 					break;
 				case 'IN':
-					if (columns.length === 1) {
-						if (
-							columns[0].endsWith('_id') ||
-							columns[0].endsWith('.id')
-						) {
-							this.hasFilter = true;
-						}
+					if (column.endsWith('_id') || column.endsWith('.id')) {
+						this.hasFilter = true;
 					}
 					break;
 				case 'LIKE':
+				case 'ILIKE':
 					value = `%${value}%`;
 					break;
 				case 'START_LIKE':
+				case 'START_ILIKE':
 					operator = 'LIKE';
 					value = `${value}%`;
 					break;
 				case 'END_LIKE':
+				case 'END_ILIKE':
 					operator = 'LIKE';
 					value = `%${value}`;
 					break;
 			}
 
+			const columnKey = this.safeColumnKey(column);
+
 			switch (operator) {
 				case 'IN':
-					this.query.andWhere(`${column} IN (:...${column})`, {
-						[column]: value as (string | number)[],
-					});
-					break;
-				default:
-					if (columns.length > 1) {
-						const whereString = columns
-							.map((col) => `${col} ${operator} :${col}`)
-							.join(' OR ');
-
-						const whereParams = Object.fromEntries(
-							columns.map((col) => [col, value]),
-						);
-
-						this.query.andWhere(`(${whereString})`, whereParams);
-					} else {
-						this.query.andWhere(
-							`${this.prepareColumn(column)} ${operator} :${column}`,
-							{ [column]: value },
+					// Handle IN operator with array values
+					if (!Array.isArray(value)) {
+						throw new CustomError(
+							500,
+							'IN operator requires an array value',
 						);
 					}
+
+					if (value.length > 0) {
+						this.query.andWhere(
+							`${this.prepareColumn(column)} IN (:...${columnKey})`,
+							{ [columnKey]: value },
+						);
+					}
+					break;
+				default:
+					this.query.andWhere(
+						`${this.prepareColumn(column)} ${operator} :${columnKey}`,
+						{ [columnKey]: value },
+					);
 					break;
 			}
 		}
@@ -428,7 +405,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		const maxValue = max instanceof Date ? formatDate(max) : max;
 
 		if (min && max) {
-			const stringColumn = column;
+			const stringColumn = this.safeColumnKey(column);
 			column = this.prepareColumn(column);
 
 			this.query.andWhere(

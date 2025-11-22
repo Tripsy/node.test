@@ -83,17 +83,34 @@ class MailQueueController {
 			throw new BadRequestError();
 		}
 
+		const querySelect = [
+			'id',
+			'template.id',
+			'template.label',
+			'language',
+			'content',
+			'to',
+			'from',
+			'status',
+			'error',
+			'sent_at',
+			'created_at',
+			'updated_at',
+		];
+
 		const [entries, total] = await MailQueueRepository.createQuery()
+			.select(querySelect)
+			.join('mail_queue.template', 'template', 'LEFT')
 			.filterById(validated.data.filter.id)
-			.filterBy('template_id', validated.data.filter.template_id)
 			.filterByRange(
 				'sent_at',
 				validated.data.filter.sent_date_start,
 				validated.data.filter.sent_date_end,
 			)
 			.filterBy('status', validated.data.filter.status)
-			.filterBy('content', validated.data.filter.content, 'LIKE')
-			.filterBy('to', validated.data.filter.to, 'LIKE')
+			.filterByTemplate(validated.data.filter.template)
+			.filterBy('content::text', validated.data.filter.content, 'ILIKE')
+			.filterBy('to::text', validated.data.filter.to, 'ILIKE')
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
