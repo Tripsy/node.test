@@ -1,5 +1,6 @@
 import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
+import { cfg } from '@/config/settings.config';
 import TemplateEntity from '@/features/template/template.entity';
 
 export class TemplateQuery extends RepositoryAbstract<TemplateEntity> {
@@ -13,18 +14,24 @@ export class TemplateQuery extends RepositoryAbstract<TemplateEntity> {
 
 	filterByTerm(term?: string): this {
 		if (term) {
-			this.query.andWhere(
-				`(
-                   ${TemplateQuery.entityAlias}.id = :id
-                OR ${TemplateQuery.entityAlias}.label LIKE :label    
-                OR ${TemplateQuery.entityAlias}.content LIKE :content
-            )`,
-				{
-					id: term,
-					label: `%${term}%`,
-					content: `%${term}%`,
-				},
-			);
+			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
+				this.filterBy('id', Number(term));
+			} else {
+				if (term.length > (cfg('filter.termMinLength') as number)) {
+					this.filterAny([
+						{
+							column: 'label',
+							value: term,
+							operator: 'ILIKE',
+						},
+						{
+							column: 'content::text',
+							value: term,
+							operator: 'ILIKE',
+						},
+					]);
+				}
+			}
 		}
 
 		return this;

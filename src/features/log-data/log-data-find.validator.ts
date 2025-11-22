@@ -55,12 +55,6 @@ const LogDataFindValidator = z.object({
 				level: z.nativeEnum(LogDataLevelEnum).optional(),
 				term: z
 					.string({ message: lang('error.invalid_string') })
-					.min(cfg('filter.termMinLength') as number, {
-						message: lang('error.string_min', {
-							min: cfg('filter.termMinLength') as string,
-							field: 'term',
-						}),
-					})
 					.optional(),
 				create_date_start: z
 					.string({ message: lang('error.invalid_string') })

@@ -39,9 +39,7 @@ const MailQueueFindValidator = z.object({
 				id: z.coerce
 					.number({ message: lang('error.invalid_number') })
 					.optional(),
-				template_id: z.coerce
-					.number({ message: lang('error.invalid_number') })
-					.optional(),
+				template: z.union([z.string(), z.number()]).optional(),
 				language: z
 					.string({ message: lang('error.invalid_string') })
 					.length(2, {
@@ -104,7 +102,8 @@ const MailQueueFindValidator = z.object({
 		.optional()
 		.default({
 			id: undefined,
-			template_id: undefined,
+			template: undefined,
+			language: undefined,
 			status: undefined,
 			content: undefined,
 			to: undefined,

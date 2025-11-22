@@ -1,5 +1,6 @@
 import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
+import { cfg } from '@/config/settings.config';
 import PermissionEntity from '@/features/permission/permission.entity';
 
 export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
@@ -15,18 +16,24 @@ export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
 
 	filterByTerm(term?: string): this {
 		if (term) {
-			this.query.andWhere(
-				`(
-                   ${PermissionQuery.entityAlias}.id = :id
-                OR ${PermissionQuery.entityAlias}.entity LIKE :entity    
-                OR ${PermissionQuery.entityAlias}.operation LIKE :operation
-            )`,
-				{
-					id: term,
-					entity: `%${term}%`,
-					operation: `%${term}%`,
-				},
-			);
+			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
+				this.filterBy('id', Number(term));
+			} else {
+				if (term.length > (cfg('filter.termMinLength') as number)) {
+					this.filterAny([
+						{
+							column: 'entity',
+							value: term,
+							operator: 'ILIKE',
+						},
+						{
+							column: 'operation',
+							value: term,
+							operator: 'ILIKE',
+						},
+					]);
+				}
+			}
 		}
 
 		return this;

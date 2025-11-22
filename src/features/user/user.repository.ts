@@ -1,5 +1,6 @@
 import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
+import { cfg } from '@/config/settings.config';
 import UserEntity from '@/features/user/user.entity';
 
 export class UserQuery extends RepositoryAbstract<UserEntity> {
@@ -22,18 +23,24 @@ export class UserQuery extends RepositoryAbstract<UserEntity> {
 
 	filterByTerm(term?: string): this {
 		if (term) {
-			this.query.andWhere(
-				`(
-                   ${UserQuery.entityAlias}.id = :id
-                OR ${UserQuery.entityAlias}.name LIKE :name    
-                OR ${UserQuery.entityAlias}.email LIKE :email
-            )`,
-				{
-					id: term,
-					name: `%${term}%`,
-					email: `%${term}%`,
-				},
-			);
+			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
+				this.filterBy('id', Number(term));
+			} else {
+				if (term.length > (cfg('filter.termMinLength') as number)) {
+					this.filterAny([
+						{
+							column: 'name',
+							value: term,
+							operator: 'ILIKE',
+						},
+						{
+							column: 'email',
+							value: term,
+							operator: 'ILIKE',
+						},
+					]);
+				}
+			}
 		}
 
 		return this;

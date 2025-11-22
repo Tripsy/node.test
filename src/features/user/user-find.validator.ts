@@ -43,11 +43,6 @@ const UserFindValidator = z.object({
 					.optional(),
 				term: z
 					.string({ message: lang('error.invalid_string') })
-					.min(cfg('filter.termMinLength') as number, {
-						message: lang('error.string_min', {
-							min: cfg('filter.termMinLength') as string,
-						}),
-					})
 					.optional(),
 				status: z.nativeEnum(UserStatusEnum).optional(),
 				role: z.nativeEnum(UserRoleEnum).optional(),

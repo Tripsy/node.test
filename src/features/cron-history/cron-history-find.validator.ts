@@ -41,11 +41,6 @@ const LogDataFindValidator = z.object({
 					.optional(),
 				term: z
 					.string({ message: lang('error.invalid_string') })
-					.min(cfg('filter.termMinLength') as number, {
-						message: lang('error.string_min', {
-							min: cfg('filter.termMinLength') as string,
-						}),
-					})
 					.optional(),
 				status: z.nativeEnum(CronHistoryStatusEnum).optional(),
 				start_date_start: z

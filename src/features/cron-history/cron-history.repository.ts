@@ -1,5 +1,6 @@
 import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
+import { cfg } from '@/config/settings.config';
 import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 
 export class CronHistoryQuery extends RepositoryAbstract<CronHistoryEntity> {
@@ -15,18 +16,24 @@ export class CronHistoryQuery extends RepositoryAbstract<CronHistoryEntity> {
 
 	filterByTerm(term?: string): this {
 		if (term) {
-			this.query.andWhere(
-				`(
-                   ${CronHistoryQuery.entityAlias}.id = :id
-                OR ${CronHistoryQuery.entityAlias}.label LIKE :label    
-                OR ${CronHistoryQuery.entityAlias}.content LIKE :content
-            )`,
-				{
-					id: term,
-					label: `%${term}%`,
-					content: `%${term}%`,
-				},
-			);
+			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
+				this.filterBy('id', Number(term));
+			} else {
+				if (term.length > (cfg('filter.termMinLength') as number)) {
+					this.filterAny([
+						{
+							column: 'label',
+							value: term,
+							operator: 'ILIKE',
+						},
+						{
+							column: 'content::text',
+							value: term,
+							operator: 'ILIKE',
+						},
+					]);
+				}
+			}
 		}
 
 		return this;

@@ -1,4 +1,9 @@
-import type { ObjectLiteral, QueryBuilder, SelectQueryBuilder } from 'typeorm';
+import {
+	Brackets,
+	type ObjectLiteral,
+	type QueryBuilder,
+	type SelectQueryBuilder,
+} from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
 import {
 	type EntityContextData,
@@ -8,6 +13,15 @@ import { lang } from '@/config/i18n.setup';
 import CustomError from '@/exceptions/custom.error';
 import NotFoundError from '@/exceptions/not-found.error';
 import { formatDate } from '@/helpers/date.helper';
+
+type QueryValue = string | number | (string | number)[];
+type QueryParams = Record<string, QueryValue>;
+
+type FilterByPropsType = {
+	column: string;
+	value?: QueryValue | null;
+	operator: string;
+};
 
 class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	private repository: Repository<TEntity>;
@@ -123,7 +137,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		);
 	}
 
-	isValidColumn(column: string): boolean {
+	private isValidColumn(column: string): boolean {
 		// Allow only letters, numbers, underscores dots and cast characters (:)
 		const columnPattern = /^[a-zA-Z0-9_.:]+$/;
 
@@ -149,6 +163,19 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 				// Ensure it doesn't start with a number
 				.replace(/^(\d)/, 'param_$1')
 		);
+	}
+
+	private buildWhereCondition(
+		column: string,
+		columnKey: string,
+		operator: string,
+	): string {
+		switch (operator) {
+			case 'IN':
+				return `${this.prepareColumn(column)} IN (:...${columnKey})`;
+			default:
+				return `${this.prepareColumn(column)} ${operator} :${columnKey}`;
+		}
 	}
 
 	/**
@@ -332,12 +359,22 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		return results.length;
 	}
 
-	filterBy(
-		column: string,
-		value?: string | number | (string | number)[] | null,
-		operator: string = '=',
-	): this {
+	filterBy(column: string, value?: QueryValue, operator: string = '='): this {
 		if (value) {
+			if (operator === 'IN' && !Array.isArray(value)) {
+				throw new CustomError(
+					500,
+					'IN operator requires an array for `value`',
+				);
+			}
+
+			if (operator !== 'IN' && Array.isArray(value)) {
+				throw new CustomError(
+					500,
+					'`value` cannot be an array for operator other than `IN`',
+				);
+			}
+
 			switch (operator) {
 				case '=':
 					if (column.endsWith('_id') || column.endsWith('.id')) {
@@ -367,30 +404,75 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 
 			const columnKey = this.safeColumnKey(column);
 
-			switch (operator) {
-				case 'IN':
-					// Handle IN operator with array values
-					if (!Array.isArray(value)) {
-						throw new CustomError(
-							500,
-							'IN operator requires an array value',
-						);
-					}
+			this.query.andWhere(
+				this.buildWhereCondition(column, columnKey, operator),
+				{ [columnKey]: value },
+			);
+		}
 
-					if (value.length > 0) {
-						this.query.andWhere(
-							`${this.prepareColumn(column)} IN (:...${columnKey})`,
-							{ [columnKey]: value },
-						);
-					}
-					break;
-				default:
-					this.query.andWhere(
-						`${this.prepareColumn(column)} ${operator} :${columnKey}`,
-						{ [columnKey]: value },
+		return this;
+	}
+
+	filterAny(filters: FilterByPropsType[]): this {
+		const conditions: string[] = [];
+		const params: QueryParams = {};
+
+		filters.forEach((filter) => {
+			if (filter.value) {
+				let operator = filter.operator;
+				let value = filter.value;
+
+				if (operator === 'IN' && !Array.isArray(value)) {
+					throw new CustomError(
+						500,
+						'IN operator requires an array for `value`',
 					);
-					break;
+				}
+
+				if (operator !== 'IN' && Array.isArray(value)) {
+					throw new CustomError(
+						500,
+						'`value` cannot be an array for operator other than `IN`',
+					);
+				}
+
+				switch (operator) {
+					case 'LIKE':
+					case 'ILIKE':
+						value = `%${value}%`;
+						break;
+					case 'START_LIKE':
+					case 'START_ILIKE':
+						operator = 'LIKE';
+						value = `${value}%`;
+						break;
+					case 'END_LIKE':
+					case 'END_ILIKE':
+						operator = 'LIKE';
+						value = `%${value}`;
+						break;
+				}
+
+				const columnKey = this.safeColumnKey(filter.column);
+
+				conditions.push(
+					this.buildWhereCondition(
+						filter.column,
+						columnKey,
+						operator,
+					),
+				);
+
+				params[columnKey] = value;
 			}
+		});
+
+		if (conditions.length > 0) {
+			this.query.andWhere(
+				new Brackets((qb) => {
+					qb.where(conditions.join(' OR '), params);
+				}),
+			);
 		}
 
 		return this;
@@ -404,7 +486,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		const minValue = min instanceof Date ? formatDate(min) : min;
 		const maxValue = max instanceof Date ? formatDate(max) : max;
 
-		if (min && max) {
+		if (minValue && maxValue) {
 			const stringColumn = this.safeColumnKey(column);
 			column = this.prepareColumn(column);
 
@@ -415,9 +497,9 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 					[`max${stringColumn}`]: maxValue,
 				},
 			);
-		} else if (min) {
+		} else if (minValue) {
 			this.filterBy(column, minValue, '>=');
-		} else if (max) {
+		} else if (maxValue) {
 			this.filterBy(column, maxValue, '<=');
 		}
 
