@@ -247,7 +247,7 @@ class AccountController {
 				countRecoveryAttempts >=
 				(cfg('user.recoveryAttemptsInLastSixHours') as number)
 			) {
-				throw new BadRequestError(
+				throw new CustomError(425,
 					lang('account.error.recovery_attempts_exceeded'),
 				);
 			}

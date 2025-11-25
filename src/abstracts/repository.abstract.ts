@@ -14,12 +14,12 @@ import CustomError from '@/exceptions/custom.error';
 import NotFoundError from '@/exceptions/not-found.error';
 import { formatDate } from '@/helpers/date.helper';
 
-type QueryValue = string | number | (string | number)[];
+type QueryValue = string | number | (string | number)[] | null;
 type QueryParams = Record<string, QueryValue>;
 
 type FilterByPropsType = {
 	column: string;
-	value?: QueryValue | null;
+	value?: QueryValue;
 	operator: string;
 };
 

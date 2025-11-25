@@ -27,7 +27,7 @@ export const accountRoutesConfig: RoutesConfigType<typeof AccountController> = {
 	'password-recover': {
 		path: '/password-recover',
 		method: 'post',
-		action: 'passwordRecoverChange',
+		action: 'passwordRecover',
 	},
 	'password-recover-change': {
 		path: '/password-recover-change/:ident',

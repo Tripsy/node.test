@@ -87,6 +87,21 @@ const shutdown = async () => {
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
-logger.info('Email worker started and ready to process jobs');
+// Add event listeners for worker status
+emailWorker.on('ready', () => {
+    logger.info('Email worker is ready and listening for jobs');
+});
+
+// emailWorker.on('active', (job) => {
+//     logger.info(`Job ${job.id} is now active`);
+// });
+//
+// emailWorker.on('completed', (job) => {
+//     logger.info(`Job ${job.id} completed successfully`);
+// });
+//
+// emailWorker.on('failed', (job, err) => {
+//     logger.error(err, `Job ${job?.id || 'n/a'} failed with error:`);
+// });
 
 export default emailWorker;
