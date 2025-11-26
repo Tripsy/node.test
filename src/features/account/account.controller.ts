@@ -10,7 +10,8 @@ import UnauthorizedError from '@/exceptions/unauthorized.error';
 import AccountPolicy from '@/features/account/account.policy';
 import {
     getActiveAuthToken,
-    getAuthValidTokens, sendEmailConfirmCreate,
+    getAuthValidTokens,
+    sendEmailConfirmCreate,
     sendEmailConfirmUpdate,
     setupRecovery,
     setupToken,
@@ -58,10 +59,16 @@ class AccountController {
 			.first();
 
 		if (existingUser) {
-			throw new CustomError(
-				409,
-				lang('account.error.email_already_used'),
-			);
+            if (existingUser.status === UserStatusEnum.PENDING) {
+                throw new CustomError(
+                    409,
+                    lang('account.error.pending_account'),
+                );
+            } else {
+                throw new BadRequestError(
+                    lang('account.error.email_already_used'),
+                );
+            }
 		}
 
 		const user = new UserEntity();
@@ -103,11 +110,18 @@ class AccountController {
 			.filterByEmail(validated.data.email)
 			.firstOrFail();
 
-		if (user.status !== UserStatusEnum.ACTIVE) {
+		if (user.status === UserStatusEnum.PENDING) {
 			// Update failed login attempts
 			await policy.updateFailedAttemptsOnLogin(ipKey, emailKey);
 
-			throw new CustomError(400, lang('account.error.not_active'));
+			throw new CustomError(409, lang('account.error.pending_account'));
+		}
+
+		if (user.status === UserStatusEnum.INACTIVE) {
+			// Update failed login attempts
+			await policy.updateFailedAttemptsOnLogin(ipKey, emailKey);
+
+			throw new BadRequestError(lang('account.error.not_active'));
 		}
 
 		const isValidPassword: boolean = await verifyPassword(

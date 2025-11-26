@@ -2,7 +2,8 @@
 	"error": {
 		"already_logged_in": "Already logged in",
 		"not_found": "Account not found",
-		"not_active": "Account not found",
+		"not_active": "Inactive account",
+		"pending_account": "Pending account",
 		"already_active": "Account already active",
 		"not_authorized": "Invalid email or password",
 		"max_active_sessions": "Too many active sessions",
