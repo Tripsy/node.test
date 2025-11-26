@@ -144,7 +144,7 @@ export async function setupRecovery(
 
 	const accountRecoveryEntity = new AccountRecoveryEntity();
 	accountRecoveryEntity.user_id = user.id;
-	accountRecoveryEntity.ident = uuid();
+	accountRecoveryEntity.ident = ident;
 	accountRecoveryEntity.metadata = metadata;
 	accountRecoveryEntity.expire_at = expire_at;
 

@@ -50,7 +50,7 @@ const templateData = [
 		content: {
 			subject: 'Recover password',
 			html: `
-                <p>Hello {{ name }}. Click <a href="{{ siteUrl }}//account/password-recover-change/{{ ident }}">here</a> to recover your password. The link will expire at {{ expire_at }}.</p>
+                <p>Hello {{ name }}. Click <a href="{{ siteUrl }}/account/password-recover-change/{{ ident }}">here</a> to recover your password. The link will expire at {{ expire_at }}.</p>
             `,
 			layout: 'layout-default',
 		},

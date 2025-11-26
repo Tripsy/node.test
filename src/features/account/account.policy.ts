@@ -50,6 +50,12 @@ class AccountPolicy extends PolicyAbstract {
 		}
 	}
 
+    public emailConfirmSend(): void {
+        if (this.isAuthenticated()) {
+            throw new CustomError(406, lang('account.error.already_logged_in'));
+        }
+    }
+
 	public emailUpdate(): void {
 		if (!this.isAuthenticated()) {
 			throw new UnauthorizedError();

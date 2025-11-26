@@ -44,6 +44,11 @@ export const accountRoutesConfig: RoutesConfigType<typeof AccountController> = {
 		method: 'post',
 		action: 'emailConfirm',
 	},
+	'email-confirm-send': {
+		path: '/email-confirm-send',
+		method: 'post',
+		action: 'emailConfirmSend',
+	},
 	'email-update': {
 		path: '/email-update',
 		method: 'post',

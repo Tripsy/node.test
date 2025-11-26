@@ -25,6 +25,7 @@
 		"password_changed": "Password changed successfully",
 		"password_updated": "User password updated successfully",
 		"email_confirmed": "Email confirmed successfully",
+        "email_confirmation_sent": "Confirmation email sent with success",
 		"email_updated": "Email updated successfully",
 		"email_update": "Follow email confirmation instructions"
 	},

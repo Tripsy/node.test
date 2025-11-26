@@ -1,7 +1,7 @@
-import type { Request, Response } from 'express';
+import type {Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
-import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import {lang} from '@/config/i18n.setup';
+import {cfg} from '@/config/settings.config';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
 import NotAllowedError from '@/exceptions/not-allowed.error';
@@ -9,12 +9,12 @@ import NotFoundError from '@/exceptions/not-found.error';
 import UnauthorizedError from '@/exceptions/unauthorized.error';
 import AccountPolicy from '@/features/account/account.policy';
 import {
-	getActiveAuthToken,
-	getAuthValidTokens,
-	sendEmailConfirmUpdate,
-	setupRecovery,
-	setupToken,
-	verifyPassword,
+    getActiveAuthToken,
+    getAuthValidTokens, sendEmailConfirmCreate,
+    sendEmailConfirmUpdate,
+    setupRecovery,
+    setupToken,
+    verifyPassword,
 } from '@/features/account/account.service';
 import AccountEmailUpdateValidator from '@/features/account/account-email-update.validator';
 import AccountLoginValidator from '@/features/account/account-login.validator';
@@ -27,20 +27,15 @@ import AccountRemoveTokenValidator from '@/features/account/account-remove-token
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity from '@/features/user/user.entity';
 import UserRepository from '@/features/user/user.repository';
-import { UserStatusEnum } from '@/features/user/user-status.enum';
+import {UserStatusEnum} from '@/features/user/user-status.enum';
 import asyncHandler from '@/helpers/async.handler';
-import { createPastDate } from '@/helpers/date.helper';
-import {
-	compareMetaDataValue,
-	tokenMetaData,
-} from '@/helpers/meta-data.helper';
-import { getClientIp } from '@/helpers/system.helper';
-import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
-import type { EmailTemplate } from '@/types/template.type';
-import type {
-	AuthValidToken,
-	ConfirmationTokenPayload,
-} from '@/types/token.type';
+import {createPastDate} from '@/helpers/date.helper';
+import {compareMetaDataValue, tokenMetaData,} from '@/helpers/meta-data.helper';
+import {getClientIp} from '@/helpers/system.helper';
+import {loadEmailTemplate, queueEmail} from '@/providers/email.provider';
+import type {EmailTemplate} from '@/types/template.type';
+import type {AuthValidToken, ConfirmationTokenPayload,} from '@/types/token.type';
+import AccountEmailConfirmSendValidator from "@/features/account/account-email-confirm-send.validator";
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {
@@ -492,6 +487,45 @@ class AccountController {
 
 			res.output.message(lang('account.success.email_confirmed'));
 		}
+
+		res.json(res.output);
+	});
+
+	/**
+	 * This endpoint is used to resend the confirmation email after account registration or email update
+	 */
+	public emailConfirmSend = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (should not be authenticated)
+        policy.emailConfirmSend();
+
+        // Validate against the schema
+        const validated = AccountEmailConfirmSendValidator.safeParse(req.body);
+
+        if (!validated.success) {
+            res.output.errors(validated.error.errors);
+
+            throw new BadRequestError();
+        }
+
+		const user = await UserRepository.createQuery()
+			.select(['id', 'name', 'email', 'language', 'status'])
+			.filterByEmail(validated.data.email)
+			.first();
+
+		// User not found
+		if (!user) {
+			throw new NotFoundError(lang('account.error.not_found'));
+		}
+
+        if (user.status !== UserStatusEnum.PENDING) {
+            throw new NotAllowedError();
+        }
+
+        await sendEmailConfirmCreate(user);
+
+        res.output.message(lang('account.success.email_confirmation_sent'));
 
 		res.json(res.output);
 	});
