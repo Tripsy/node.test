@@ -54,10 +54,15 @@ export const accountRoutesConfig: RoutesConfigType<typeof AccountController> = {
 		method: 'post',
 		action: 'emailUpdate',
 	},
-	details: {
-		path: '/details',
+	me: {
+		path: '/me',
 		method: 'get',
-		action: 'details',
+		action: 'me',
+	},
+	sessions: {
+		path: '/me/sessions',
+		method: 'get',
+		action: 'sessions',
 	},
 };
 

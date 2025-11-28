@@ -16,7 +16,7 @@ const dataSource = new DataSource({
 			? 'system.migrations'
 			: 'migrations',
     entities: [buildSrcPath('features/**/*.entity.ts')],
-	migrations: [buildSrcPath('migrations', '*.ts')],
+	migrations: [buildSrcPath('database/migrations', '*.ts')],
 	subscribers: [buildSrcPath('features/**/*.subscriber.ts')],
 	poolSize: 10,
 });

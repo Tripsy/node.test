@@ -22,6 +22,7 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/types/token.type';
+import UserRepository from "@/features/user/user.repository";
 
 export async function encryptPassword(password: string): Promise<string> {
 	return await bcrypt.hash(password, 10);
@@ -129,6 +130,7 @@ export async function getAuthValidTokens(
 			ident: token.ident,
 			label: getMetaDataValue(token.metadata, 'user-agent'),
 			used_at: token.used_at,
+            used_now: false
 		};
 	});
 }
@@ -272,4 +274,17 @@ export async function sendWelcomeEmail(
 		name: user.name,
 		address: user.email,
 	});
+}
+
+export async function updateUserPassword(user: UserEntity, password: string): Promise<void> {
+    // Update user password
+    user.password = await encryptPassword(password);
+    user.password_updated_at = new Date();
+
+    await UserRepository.save(user);
+
+    // Remove all account tokens
+    await AccountTokenRepository.createQuery()
+        .filterBy('user_id', user.id)
+        .delete(false, true);
 }

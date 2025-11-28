@@ -22,10 +22,16 @@ export default class UserEntity extends EntityAbstract {
 	@Index('IDX_user_email', { unique: true })
 	email!: string;
 
+    @Column({ type: 'timestamp', nullable: true })
+    email_verified_at!: Date | null;
+
 	@Column('varchar', { nullable: false, select: false })
 	password!: string;
 
-	@Column('char', { length: 2, nullable: false })
+    @Column({ type: 'timestamp', nullable: false })
+    password_updated_at!: Date;
+
+    @Column('char', { length: 2, nullable: false })
 	language!: string;
 
 	@Column({

@@ -62,7 +62,7 @@ class AccountPolicy extends PolicyAbstract {
 		}
 	}
 
-	public details(): void {
+	public me(): void {
 		if (!this.isAuthenticated()) {
 			throw new UnauthorizedError();
 		}

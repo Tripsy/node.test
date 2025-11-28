@@ -90,11 +90,11 @@ CREATE SCHEMA IF NOT EXISTS logs
 > Always check the migrations before run it, sometimes columns are dropped
 
 ```
-// Generate migration file for schemas
+// Generate migration file for schemas - DEPRECATED
 $ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/migrations/CreateSchemas
 
 // Generate migration file
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/migrations/init
+$ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/database/migrations/init
 
 // Run new migrations - update DB structure
 $ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts
@@ -138,6 +138,7 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
+1. account delete
 1. Tests
    - account.controller - emailConfirmSend
    - user.controller - find, statusUpdate missing tests

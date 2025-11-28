@@ -45,6 +45,8 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 		if (!event.entity.language) {
 			event.entity.language = cfg('app.language') as string;
 		}
+
+        event.entity.password_updated_at = new Date();
 	}
 
 	async beforeUpdate(event: UpdateEvent<UserEntity>) {

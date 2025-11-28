@@ -13,4 +13,5 @@ export type AuthValidToken = {
 	ident: string;
 	label: string;
 	used_at: Date;
+    used_now: false;
 };

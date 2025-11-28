@@ -14,7 +14,7 @@ import {
     sendEmailConfirmCreate,
     sendEmailConfirmUpdate,
     setupRecovery,
-    setupToken,
+    setupToken, updateUserPassword,
     verifyPassword,
 } from '@/features/account/account.service';
 import AccountEmailUpdateValidator from '@/features/account/account-email-update.validator';
@@ -31,7 +31,7 @@ import UserRepository from '@/features/user/user.repository';
 import {UserStatusEnum} from '@/features/user/user-status.enum';
 import asyncHandler from '@/helpers/async.handler';
 import {createPastDate} from '@/helpers/date.helper';
-import {compareMetaDataValue, tokenMetaData,} from '@/helpers/meta-data.helper';
+import {compareMetaDataValue, getMetaDataValue, tokenMetaData,} from '@/helpers/meta-data.helper';
 import {getClientIp} from '@/helpers/system.helper';
 import {loadEmailTemplate, queueEmail} from '@/providers/email.provider';
 import type {EmailTemplate} from '@/types/template.type';
@@ -348,14 +348,8 @@ class AccountController {
 				throw new NotFoundError(lang('account.error.not_found'));
 			}
 
-			// Update user password
-			user.password = validated.data.password;
-			await UserRepository.save(user);
-
-			// Remove all account tokens
-			await AccountTokenRepository.createQuery()
-				.filterBy('user_id', recovery.user_id)
-				.delete(false, true);
+            // Update user password & remove all account tokens
+            await updateUserPassword(user, validated.data.password);
 
 			// Mark recovery token as used
 			await AccountRecoveryRepository.update(recovery.id, {
@@ -422,14 +416,8 @@ class AccountController {
 				throw new BadRequestError();
 			}
 
-			// Update user password
-			user.password = validated.data.password;
-			await UserRepository.save(user);
-
-			// Remove all account tokens
-			await AccountTokenRepository.createQuery()
-				.filterBy('user_id', policy.getUserId())
-				.delete(false, true);
+            // Update user password & remove all account tokens
+            await updateUserPassword(user, validated.data.password);
 
 			// Generate new token
 			const token = await setupToken(user, req);
@@ -479,6 +467,7 @@ class AccountController {
 		if (payload.user_email_new) {
 			// Confirm procedure for email update
 			user.email = payload.user_email_new;
+            user.email_verified_at = new Date();
 
 			await UserRepository.save(user);
 
@@ -496,6 +485,7 @@ class AccountController {
 
 			// Update user status
 			user.status = UserStatusEnum.ACTIVE;
+            user.email_verified_at = new Date();
 
 			await UserRepository.save(user);
 
@@ -593,11 +583,11 @@ class AccountController {
 		res.json(res.output);
 	});
 
-	public details = asyncHandler(async (req: Request, res: Response) => {
+	public me = asyncHandler(async (req: Request, res: Response) => {
 		const policy = new AccountPolicy(req);
 
 		// Check permission (needs to be authenticated)
-		policy.details();
+		policy.me();
 
 		// const cacheProvider = getCacheProvider();
 
@@ -621,6 +611,35 @@ class AccountController {
 
 		res.json(res.output);
 	});
+
+    /**
+     * Returns a list of all active sessions for the current user
+     */
+    public sessions = asyncHandler(async (req: Request, res: Response) => {
+        const policy = new AccountPolicy(req);
+
+        // Check permission (needs to be authenticated)
+        policy.me();
+
+        const user_id = policy.getUserId();
+
+        if (user_id) {
+            const authValidTokens: AuthValidToken[] = await getAuthValidTokens(user_id);
+
+            const tokens = authValidTokens.map((token) => {
+                return {
+                    ...token,
+                    used_now: token.ident === req.user?.activeToken
+                };
+            });
+
+            res.output.data(tokens);
+        } else {
+            throw new NotAllowedError();
+        }
+
+        res.json(res.output);
+    });
 }
 
 export default new AccountController();
