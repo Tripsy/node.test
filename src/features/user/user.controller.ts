@@ -93,9 +93,6 @@ class UserController {
 		res.json(res.output);
 	});
 
-	/**
-	 * This method lacks some safety measures regarding password & email update => no confirmation required from user side
-	 */
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		const policy = new UserPolicy(req);
 

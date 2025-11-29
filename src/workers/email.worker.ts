@@ -89,7 +89,7 @@ process.on('SIGINT', shutdown);
 
 // Add event listeners for worker status
 emailWorker.on('ready', () => {
-    logger.info('Email worker is ready and listening for jobs');
+	logger.info('Email worker is ready and listening for jobs');
 });
 
 // emailWorker.on('active', (job) => {

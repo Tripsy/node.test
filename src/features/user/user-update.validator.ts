@@ -20,10 +20,12 @@ const UserUpdateValidator = z
 				message: lang('user.validation.name_min', {
 					min: cfg('user.nameMinLength') as string,
 				}),
-			}),
+			})
+			.optional(),
 		email: z
 			.string({ message: lang('user.validation.email_invalid') })
-			.email({ message: lang('user.validation.email_invalid') }),
+			.email({ message: lang('user.validation.email_invalid') })
+			.optional(),
 		password: z.preprocess(
 			(val) => (val === '' ? undefined : val),
 			z
@@ -61,8 +63,9 @@ const UserUpdateValidator = z
 		),
 		language: z
 			.string({ message: lang('user.validation.language_invalid') })
-			.length(2, { message: lang('user.validation.language_invalid') }),
-		role: z.nativeEnum(UserRoleEnum),
+			.length(2, { message: lang('user.validation.language_invalid') })
+			.optional(),
+		role: z.nativeEnum(UserRoleEnum).optional(),
 	})
 	.refine((data) => hasAtLeastOneValue(data), {
 		message: lang('error.params_at_least_one', {

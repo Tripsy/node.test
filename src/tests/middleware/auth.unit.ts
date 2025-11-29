@@ -32,6 +32,7 @@ describe('authMiddleware', () => {
 				language: '',
 				role: UserRoleEnum.ADMIN,
 				permissions: [],
+				activeToken: '',
 			},
 		};
 		res = {};

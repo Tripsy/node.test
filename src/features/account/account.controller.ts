@@ -1,7 +1,7 @@
-import type {Request, Response} from 'express';
+import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import {lang} from '@/config/i18n.setup';
-import {cfg} from '@/config/settings.config';
+import { lang } from '@/config/i18n.setup';
+import { cfg } from '@/config/settings.config';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
 import NotAllowedError from '@/exceptions/not-allowed.error';
@@ -9,14 +9,17 @@ import NotFoundError from '@/exceptions/not-found.error';
 import UnauthorizedError from '@/exceptions/unauthorized.error';
 import AccountPolicy from '@/features/account/account.policy';
 import {
-    getActiveAuthToken,
-    getAuthValidTokens,
-    sendEmailConfirmCreate,
-    sendEmailConfirmUpdate,
-    setupRecovery,
-    setupToken, updateUserPassword,
-    verifyPassword,
+	getActiveAuthToken,
+	getAuthValidTokens,
+	sendEmailConfirmCreate,
+	sendEmailConfirmUpdate,
+	setupRecovery,
+	setupToken,
+	updateUserPassword,
+	verifyPassword,
 } from '@/features/account/account.service';
+import AccountEditValidator from '@/features/account/account-edit.validator';
+import AccountEmailConfirmSendValidator from '@/features/account/account-email-confirm-send.validator';
 import AccountEmailUpdateValidator from '@/features/account/account-email-update.validator';
 import AccountLoginValidator from '@/features/account/account-login.validator';
 import AccountPasswordRecoverValidator from '@/features/account/account-password-recover.validator';
@@ -28,15 +31,20 @@ import AccountRemoveTokenValidator from '@/features/account/account-remove-token
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity from '@/features/user/user.entity';
 import UserRepository from '@/features/user/user.repository';
-import {UserStatusEnum} from '@/features/user/user-status.enum';
+import { UserStatusEnum } from '@/features/user/user-status.enum';
 import asyncHandler from '@/helpers/async.handler';
-import {createPastDate} from '@/helpers/date.helper';
-import {compareMetaDataValue, getMetaDataValue, tokenMetaData,} from '@/helpers/meta-data.helper';
-import {getClientIp} from '@/helpers/system.helper';
-import {loadEmailTemplate, queueEmail} from '@/providers/email.provider';
-import type {EmailTemplate} from '@/types/template.type';
-import type {AuthValidToken, ConfirmationTokenPayload,} from '@/types/token.type';
-import AccountEmailConfirmSendValidator from "@/features/account/account-email-confirm-send.validator";
+import { createPastDate } from '@/helpers/date.helper';
+import {
+	compareMetaDataValue,
+	tokenMetaData,
+} from '@/helpers/meta-data.helper';
+import { getClientIp } from '@/helpers/system.helper';
+import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
+import type { EmailTemplate } from '@/types/template.type';
+import type {
+	AuthValidToken,
+	ConfirmationTokenPayload,
+} from '@/types/token.type';
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {
@@ -59,16 +67,16 @@ class AccountController {
 			.first();
 
 		if (existingUser) {
-            if (existingUser.status === UserStatusEnum.PENDING) {
-                throw new CustomError(
-                    409,
-                    lang('account.error.pending_account'),
-                );
-            } else {
-                throw new BadRequestError(
-                    lang('account.error.email_already_used'),
-                );
-            }
+			if (existingUser.status === UserStatusEnum.PENDING) {
+				throw new CustomError(
+					409,
+					lang('account.error.pending_account'),
+				);
+			} else {
+				throw new BadRequestError(
+					lang('account.error.email_already_used'),
+				);
+			}
 		}
 
 		const user = new UserEntity();
@@ -256,7 +264,8 @@ class AccountController {
 				countRecoveryAttempts >=
 				(cfg('user.recoveryAttemptsInLastSixHours') as number)
 			) {
-				throw new CustomError(425,
+				throw new CustomError(
+					425,
 					lang('account.error.recovery_attempts_exceeded'),
 				);
 			}
@@ -348,8 +357,8 @@ class AccountController {
 				throw new NotFoundError(lang('account.error.not_found'));
 			}
 
-            // Update user password & remove all account tokens
-            await updateUserPassword(user, validated.data.password);
+			// Update user password & remove all account tokens
+			await updateUserPassword(user, validated.data.password);
 
 			// Mark recovery token as used
 			await AccountRecoveryRepository.update(recovery.id, {
@@ -408,7 +417,7 @@ class AccountController {
 				res.output.errors([
 					{
 						old_password: lang(
-							'account.validation.old_password_invalid',
+							'account.validation.password_invalid',
 						),
 					},
 				]);
@@ -416,8 +425,8 @@ class AccountController {
 				throw new BadRequestError();
 			}
 
-            // Update user password & remove all account tokens
-            await updateUserPassword(user, validated.data.password);
+			// Update user password & remove all account tokens
+			await updateUserPassword(user, validated.data.password);
 
 			// Generate new token
 			const token = await setupToken(user, req);
@@ -467,7 +476,7 @@ class AccountController {
 		if (payload.user_email_new) {
 			// Confirm procedure for email update
 			user.email = payload.user_email_new;
-            user.email_verified_at = new Date();
+			user.email_verified_at = new Date();
 
 			await UserRepository.save(user);
 
@@ -485,7 +494,7 @@ class AccountController {
 
 			// Update user status
 			user.status = UserStatusEnum.ACTIVE;
-            user.email_verified_at = new Date();
+			user.email_verified_at = new Date();
 
 			await UserRepository.save(user);
 
@@ -498,41 +507,45 @@ class AccountController {
 	/**
 	 * This endpoint is used to resend the confirmation email after account registration or email update
 	 */
-	public emailConfirmSend = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new AccountPolicy(req);
+	public emailConfirmSend = asyncHandler(
+		async (req: Request, res: Response) => {
+			const policy = new AccountPolicy(req);
 
-        // Check permission (should not be authenticated)
-        policy.emailConfirmSend();
+			// Check permission (should not be authenticated)
+			policy.emailConfirmSend();
 
-        // Validate against the schema
-        const validated = AccountEmailConfirmSendValidator.safeParse(req.body);
+			// Validate against the schema
+			const validated = AccountEmailConfirmSendValidator.safeParse(
+				req.body,
+			);
 
-        if (!validated.success) {
-            res.output.errors(validated.error.errors);
+			if (!validated.success) {
+				res.output.errors(validated.error.errors);
 
-            throw new BadRequestError();
-        }
+				throw new BadRequestError();
+			}
 
-		const user = await UserRepository.createQuery()
-			.select(['id', 'name', 'email', 'language', 'status'])
-			.filterByEmail(validated.data.email)
-			.first();
+			const user = await UserRepository.createQuery()
+				.select(['id', 'name', 'email', 'language', 'status'])
+				.filterByEmail(validated.data.email)
+				.first();
 
-		// User not found
-		if (!user) {
-			throw new NotFoundError(lang('account.error.not_found'));
-		}
+			// User not found
+			if (!user) {
+				throw new NotFoundError(lang('account.error.not_found'));
+			}
 
-        if (user.status !== UserStatusEnum.PENDING) {
-            throw new NotAllowedError();
-        }
+			if (user.status !== UserStatusEnum.PENDING) {
+				throw new NotAllowedError();
+			}
 
-        await sendEmailConfirmCreate(user);
+			await sendEmailConfirmCreate(user);
 
-        res.output.message(lang('account.success.email_confirmation_sent'));
+			res.output.message(lang('account.success.email_confirmation_sent'));
 
-		res.json(res.output);
-	});
+			res.json(res.output);
+		},
+	);
 
 	public emailUpdate = asyncHandler(async (req: Request, res: Response) => {
 		const policy = new AccountPolicy(req);
@@ -612,34 +625,76 @@ class AccountController {
 		res.json(res.output);
 	});
 
-    /**
-     * Returns a list of all active sessions for the current user
-     */
-    public sessions = asyncHandler(async (req: Request, res: Response) => {
-        const policy = new AccountPolicy(req);
+	/**
+	 * Returns a list of all active sessions for the current user
+	 */
+	public sessions = asyncHandler(async (req: Request, res: Response) => {
+		const policy = new AccountPolicy(req);
 
-        // Check permission (needs to be authenticated)
-        policy.me();
+		// Check permission (needs to be authenticated)
+		policy.me();
 
-        const user_id = policy.getUserId();
+		const user_id = policy.getUserId();
 
-        if (user_id) {
-            const authValidTokens: AuthValidToken[] = await getAuthValidTokens(user_id);
+		if (!user_id) {
+			throw new NotAllowedError();
+		}
 
-            const tokens = authValidTokens.map((token) => {
-                return {
-                    ...token,
-                    used_now: token.ident === req.user?.activeToken
-                };
-            });
+		const authValidTokens: AuthValidToken[] =
+			await getAuthValidTokens(user_id);
 
-            res.output.data(tokens);
-        } else {
-            throw new NotAllowedError();
-        }
+		const tokens = authValidTokens.map((token) => {
+			return {
+				...token,
+				used_now: token.ident === req.user?.activeToken,
+			};
+		});
 
-        res.json(res.output);
-    });
+		res.output.data(tokens);
+
+		res.json(res.output);
+	});
+
+	public edit = asyncHandler(async (req: Request, res: Response) => {
+		const policy = new AccountPolicy(req);
+
+		// Check permission (needs to be authenticated)
+		policy.me();
+
+		const user_id = policy.getUserId();
+
+		if (!user_id) {
+			throw new NotAllowedError();
+		}
+
+		// Validate against the schema
+		const validated = AccountEditValidator.safeParse(req.body);
+
+		if (!validated.success) {
+			res.output.errors(validated.error.errors);
+
+			throw new BadRequestError();
+		}
+
+		const user = await UserRepository.createQuery()
+			.select(['name', 'language'])
+			.filterById(user_id)
+			.firstOrFail();
+
+		user.name = validated.data.name;
+		user.language = validated.data.language;
+
+		// Set `contextData` for usage in subscriber
+		user.contextData = {
+			auth_id: user_id,
+		};
+
+		await UserRepository.save(user);
+
+		res.output.message(lang('account.success.edit'));
+
+		res.json(res.output);
+	});
 }
 
 export default new AccountController();

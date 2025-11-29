@@ -1,6 +1,5 @@
 import { Queue } from 'bullmq';
 import { getRedisClient } from '@/config/init-redis.config';
-import logger from "@/providers/logger.provider";
 
 const emailQueue = new Queue('emailQueue', {
 	connection: getRedisClient(),

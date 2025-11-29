@@ -6,7 +6,7 @@ const AccountPasswordUpdateValidator = z
 	.object({
 		old_password: z
 			.string({
-				message: lang('account.validation.old_password_invalid'),
+				message: lang('account.validation.password_invalid'),
 			})
 			.min(cfg('user.passwordMinLength') as number, {
 				message: lang('user.validation.password_min', {

@@ -64,6 +64,11 @@ export const accountRoutesConfig: RoutesConfigType<typeof AccountController> = {
 		method: 'get',
 		action: 'sessions',
 	},
+	edit: {
+		path: '/me/edit',
+		method: 'post',
+		action: 'edit',
+	},
 };
 
 const routes: Router = Router();

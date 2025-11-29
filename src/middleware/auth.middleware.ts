@@ -27,7 +27,7 @@ async function authMiddleware(
 			language: cfg('app.language') as string,
 			role: 'visitor',
 			permissions: [],
-            activeToken: '',
+			activeToken: '',
 		};
 
 		let activeToken: AccountTokenEntity;
@@ -64,7 +64,7 @@ async function authMiddleware(
 				'name',
 				'email',
 				'email_verified_at',
-                'password_updated_at',
+				'password_updated_at',
 				'language',
 				'role',
 				'status',
@@ -106,7 +106,7 @@ async function authMiddleware(
 				user.role === UserRoleEnum.OPERATOR
 					? await getPolicyPermissions(user.id)
 					: [],
-            activeToken: activeToken.ident,
+			activeToken: activeToken.ident,
 		};
 
 		next();

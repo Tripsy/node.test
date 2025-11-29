@@ -46,7 +46,9 @@ describe('AccountController - register', () => {
 		id: 1,
 		name: 'John Doe',
 		password: 'hashed-password',
+		password_updated_at: new Date(),
 		email: 'john.doe@example.com',
+		email_verified_at: new Date(),
 		status: UserStatusEnum.PENDING,
 		language: 'en',
 		role: UserRoleEnum.MEMBER,
@@ -119,6 +121,7 @@ describe('AccountController - login', () => {
 			ident: 'afa6b787-x123-x456-x789-b9a840284bb5',
 			label: '',
 			used_at: new Date(),
+			used_now: false,
 		},
 	];
 
@@ -822,7 +825,7 @@ describe('AccountController - passwordUpdate', () => {
 		expect(response.status).toBe(400);
 		expect(response.body).toMatchObject({
 			errors: expect.arrayContaining([
-				{ old_password: 'account.validation.old_password_invalid' },
+				{ old_password: 'account.validation.password_invalid' },
 			]),
 		});
 	});

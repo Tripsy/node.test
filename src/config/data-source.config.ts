@@ -15,7 +15,7 @@ const dataSource = new DataSource({
 		cfg('database.connection') === 'postgres'
 			? 'system.migrations'
 			: 'migrations',
-    entities: [buildSrcPath('features/**/*.entity.ts')],
+	entities: [buildSrcPath('features/**/*.entity.ts')],
 	migrations: [buildSrcPath('database/migrations', '*.ts')],
 	subscribers: [buildSrcPath('features/**/*.subscriber.ts')],
 	poolSize: 10,

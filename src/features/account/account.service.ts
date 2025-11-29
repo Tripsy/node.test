@@ -8,6 +8,7 @@ import AccountRecoveryRepository from '@/features/account/account-recovery.repos
 import AccountTokenEntity from '@/features/account/account-token.entity';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
+import UserRepository from '@/features/user/user.repository';
 import { createFutureDate } from '@/helpers/date.helper';
 import {
 	getMetaDataValue,
@@ -22,7 +23,6 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/types/token.type';
-import UserRepository from "@/features/user/user.repository";
 
 export async function encryptPassword(password: string): Promise<string> {
 	return await bcrypt.hash(password, 10);
@@ -130,7 +130,7 @@ export async function getAuthValidTokens(
 			ident: token.ident,
 			label: getMetaDataValue(token.metadata, 'user-agent'),
 			used_at: token.used_at,
-            used_now: false
+			used_now: false,
 		};
 	});
 }
@@ -276,15 +276,18 @@ export async function sendWelcomeEmail(
 	});
 }
 
-export async function updateUserPassword(user: UserEntity, password: string): Promise<void> {
-    // Update user password
-    user.password = await encryptPassword(password);
-    user.password_updated_at = new Date();
+export async function updateUserPassword(
+	user: UserEntity,
+	password: string,
+): Promise<void> {
+	// Update user password
+	user.password = await encryptPassword(password);
+	user.password_updated_at = new Date();
 
-    await UserRepository.save(user);
+	await UserRepository.save(user);
 
-    // Remove all account tokens
-    await AccountTokenRepository.createQuery()
-        .filterBy('user_id', user.id)
-        .delete(false, true);
+	// Remove all account tokens
+	await AccountTokenRepository.createQuery()
+		.filterBy('user_id', user.id)
+		.delete(false, true);
 }
