@@ -775,8 +775,8 @@ describe('AccountController - passwordUpdate', () => {
 	);
 
 	const testData = {
-		old_password: '1OldP@ssw0rd',
-		password: 'StrongP@ssw0rd',
+		password_current: '1OldP@ssw0rd',
+		password_new: 'StrongP@ssw0rd',
 		password_confirm: 'StrongP@ssw0rd',
 	};
 
@@ -825,7 +825,7 @@ describe('AccountController - passwordUpdate', () => {
 		expect(response.status).toBe(400);
 		expect(response.body).toMatchObject({
 			errors: expect.arrayContaining([
-				{ old_password: 'account.validation.password_invalid' },
+				{ password_current: 'account.validation.password_invalid' },
 			]),
 		});
 	});

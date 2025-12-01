@@ -409,24 +409,24 @@ class AccountController {
 				.firstOrFail();
 
 			const isValidPassword: boolean = await verifyPassword(
-				validated.data.old_password,
+				validated.data.password_current,
 				user.password,
 			);
 
 			if (!isValidPassword) {
 				res.output.errors([
 					{
-						old_password: lang(
+						password_current: lang(
 							'account.validation.password_invalid',
 						),
 					},
 				]);
 
-				throw new BadRequestError();
+				throw new UnauthorizedError();
 			}
 
 			// Update user password & remove all account tokens
-			await updateUserPassword(user, validated.data.password);
+			await updateUserPassword(user, validated.data.password_new);
 
 			// Generate new token
 			const token = await setupToken(user, req);
@@ -446,7 +446,7 @@ class AccountController {
 	 * & "Yes" - based on implementation (maybe auto-login after registration) - confirmation can take place even if logged in
 	 */
 	public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
-		const token = req.params.token;
+		const token = decodeURIComponent(req.params.token);
 
 		// Verify JWT and extract payload
 		let payload: ConfirmationTokenPayload;
@@ -563,8 +563,7 @@ class AccountController {
 		}
 
 		const existingUser = await UserRepository.createQuery()
-			.filterBy('id', policy.getUserId(), '!=')
-			.filterByEmail(validated.data.email)
+			.filterByEmail(validated.data.email_new)
 			.first();
 
 		// Return error if email already in use by another account
@@ -580,16 +579,8 @@ class AccountController {
 			.filterById(policy.getUserId())
 			.firstOrFail();
 
-		// Return error if email is the same
-		if (user.email === validated.data.email) {
-			throw new CustomError(409, lang('account.error.email_same'));
-		}
-
-		// Add new email to user entity (added in the confirmation token payload)
-		user.email_new = validated.data.email;
-
 		// Send confirmation email
-		await sendEmailConfirmUpdate(user);
+		await sendEmailConfirmUpdate(user, validated.data.email_new);
 
 		res.output.message(lang('account.success.email_update'));
 

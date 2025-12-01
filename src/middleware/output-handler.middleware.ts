@@ -133,7 +133,8 @@ export class OutputWrapper {
 				const sensitiveFields = [
 					'password',
 					'password_confirm',
-					'old_password',
+					'password_new',
+					'password_current',
 				];
 
 				sensitiveFields.forEach((field) => {

@@ -161,13 +161,14 @@ export async function setupRecovery(
  *  - creates a JWT token which is used to confirm the email address of the user on email update
  *
  * @param user
+ * @param email_new
  */
 export function createConfirmationToken(
 	user: Partial<UserEntity> & {
 		id: number;
 		email: string;
-		email_new?: string;
 	},
+	email_new?: string,
 ): {
 	token: string;
 	expire_at: Date;
@@ -181,7 +182,7 @@ export function createConfirmationToken(
 	const payload: ConfirmationTokenPayload = {
 		user_id: user.id,
 		user_email: user.email,
-		user_email_new: user.email_new,
+		user_email_new: email_new,
 	};
 
 	const token = jwt.sign(
@@ -217,7 +218,7 @@ export async function sendEmailConfirmCreate(
 
 	emailTemplate.content.vars = {
 		name: user.name,
-		token: token,
+		token: encodeURIComponent(token),
 		expire_at: expire_at.toISOString(),
 	};
 
@@ -234,8 +235,9 @@ export async function sendEmailConfirmUpdate(
 		email: string;
 		language: string;
 	},
+	email_new: string,
 ): Promise<void> {
-	const { token, expire_at } = createConfirmationToken(user);
+	const { token, expire_at } = createConfirmationToken(user, email_new);
 
 	const emailTemplate: EmailTemplate = await loadEmailTemplate(
 		'email-confirm-update',
@@ -244,13 +246,13 @@ export async function sendEmailConfirmUpdate(
 
 	emailTemplate.content.vars = {
 		name: user.name,
-		token: token,
+		token: encodeURIComponent(token),
 		expire_at: expire_at.toISOString(),
 	};
 
 	await queueEmail(emailTemplate, {
 		name: user.name,
-		address: user.email,
+		address: email_new,
 	});
 }
 
@@ -280,8 +282,7 @@ export async function updateUserPassword(
 	user: UserEntity,
 	password: string,
 ): Promise<void> {
-	// Update user password
-	user.password = await encryptPassword(password);
+	user.password = password; // Encryption it handled in subscriber
 	user.password_updated_at = new Date();
 
 	await UserRepository.save(user);

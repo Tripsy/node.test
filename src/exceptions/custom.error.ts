@@ -8,7 +8,7 @@ export type HttpStatusCode =
 	| 404 // Not Found
 	| 406 // Not Acceptable
 	| 409 // Conflict
-	| 422 // Conflict
+	// | 422 // Unprocessable Content
 	| 425 // Indicates that the server is unwilling to risk processing a request that might be replayed.
 	| 429 // Too Many Requests
 	| 500; // Internal Server Error
