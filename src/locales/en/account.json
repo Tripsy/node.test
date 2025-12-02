@@ -28,8 +28,9 @@
 		"email_confirmed": "Email confirmed successfully",
 		"email_confirmation_sent": "Confirmation email sent with success",
 		"email_updated": "Email updated successfully",
-		"email_update": "Follow email confirmation instructions",
-		"edit": "Account updated successfully"
+		"email_update_request": "Follow email confirmation instructions",
+		"edit": "Account updated successfully",
+		"delete": "Account deleted successfully"
 	},
 	"validation": {
 		"ident_required": "Ident is required",

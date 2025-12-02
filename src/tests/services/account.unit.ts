@@ -177,6 +177,7 @@ describe('Account Service', () => {
 	describe('sendEmailConfirmUpdate', () => {
 		it('should send an email confirmation for email update', async () => {
 			const token = 'jwt-token-123';
+            const email_new = 'some-new-email@sample.com'
 			const emailTemplate: EmailTemplate = {
 				language: mockUser.language,
 				content: {
@@ -188,7 +189,7 @@ describe('Account Service', () => {
 			(jwt.sign as jest.Mock).mockReturnValue(token);
 			(loadEmailTemplate as jest.Mock).mockResolvedValue(emailTemplate);
 
-			await accountService.sendEmailConfirmUpdate(mockUser);
+			await accountService.sendEmailConfirmUpdate(mockUser, email_new);
 
 			expect(loadEmailTemplate).toHaveBeenCalledWith(
 				'email-confirm-update',
@@ -197,7 +198,7 @@ describe('Account Service', () => {
 
 			expect(queueEmail).toHaveBeenCalledWith(emailTemplate, {
 				name: mockUser.name,
-				address: mockUser.email,
+				address: email_new,
 			});
 		});
 	});

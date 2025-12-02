@@ -69,6 +69,11 @@ export const accountRoutesConfig: RoutesConfigType<typeof AccountController> = {
 		method: 'post',
 		action: 'edit',
 	},
+	delete: {
+		path: '/me/delete',
+		method: 'delete',
+		action: 'delete',
+	},
 };
 
 const routes: Router = Router();

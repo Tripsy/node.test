@@ -45,6 +45,7 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/types/token.type';
+import AccountDeleteValidator from "@/features/account/account-delete.validator";
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {
@@ -390,7 +391,7 @@ class AccountController {
 			const policy = new AccountPolicy(req);
 
 			// Check permission (needs to be authenticated)
-			policy.passwordUpdate();
+			policy.me();
 
 			// Validate against the schema
 			const validated = AccountPasswordUpdateValidator.safeParse(
@@ -551,7 +552,7 @@ class AccountController {
 		const policy = new AccountPolicy(req);
 
 		// Check permission (needs to be authenticated)
-		policy.emailUpdate();
+		policy.me();
 
 		// Validate against the schema
 		const validated = AccountEmailUpdateValidator.safeParse(req.body);
@@ -582,7 +583,7 @@ class AccountController {
 		// Send confirmation email
 		await sendEmailConfirmUpdate(user, validated.data.email_new);
 
-		res.output.message(lang('account.success.email_update'));
+		res.output.message(lang('account.success.email_update_request'));
 
 		res.json(res.output);
 	});
@@ -686,6 +687,65 @@ class AccountController {
 
 		res.json(res.output);
 	});
+
+    public delete = asyncHandler(
+        async (req: Request, res: Response) => {
+            const policy = new AccountPolicy(req);
+
+            // Check permission (needs to be authenticated)
+            policy.me();
+
+            const user_id = policy.getUserId();
+
+            if (!user_id) {
+                throw new NotAllowedError();
+            }
+
+            // Validate against the schema
+            const validated = AccountDeleteValidator.safeParse(
+                req.body,
+            );
+
+            if (!validated.success) {
+                res.output.errors(validated.error.errors);
+
+                throw new BadRequestError();
+            }
+
+            const user = await UserRepository.createQuery()
+                .select(['id', 'password'])
+                .filterById(user_id)
+                .firstOrFail();
+
+            const isValidPassword: boolean = await verifyPassword(
+                validated.data.password_current,
+                user.password,
+            );
+
+            if (!isValidPassword) {
+                res.output.errors([
+                    {
+                        password_current: lang(
+                            'account.validation.password_invalid',
+                        ),
+                    },
+                ]);
+
+                throw new UnauthorizedError();
+            }
+
+            await UserRepository.createQuery()
+                .filterById(user_id)
+                .setContextData({
+                    auth_id: user_id,
+                })
+                .delete();
+
+            res.output.message(lang('account.success.delete'));
+
+            res.json(res.output);
+        },
+    );
 }
 
 export default new AccountController();

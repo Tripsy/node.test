@@ -800,7 +800,7 @@ describe('AccountController - passwordUpdate', () => {
 	it('should simulate invalid password', async () => {
 		jest.spyOn(
 			AccountPolicy.prototype,
-			'passwordUpdate',
+			'me',
 		).mockImplementation();
 
 		const mockQueryBuilderAccountRecovery = {
@@ -833,7 +833,7 @@ describe('AccountController - passwordUpdate', () => {
 	it('should return success', async () => {
 		jest.spyOn(
 			AccountPolicy.prototype,
-			'passwordUpdate',
+			'me',
 		).mockImplementation();
 
 		const mockQueryBuilderAccountRecovery = {
@@ -1057,7 +1057,7 @@ describe('AccountController - emailUpdate', () => {
 	});
 
 	it('should return error if (new) email is already used by another account', async () => {
-		jest.spyOn(AccountPolicy.prototype, 'emailUpdate').mockImplementation();
+		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
 
 		jest.replaceProperty(mockUser, 'id', 2);
 
@@ -1082,7 +1082,7 @@ describe('AccountController - emailUpdate', () => {
 	});
 
 	it('should return error if (new) email is the same', async () => {
-		jest.spyOn(AccountPolicy.prototype, 'emailUpdate').mockImplementation();
+		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
 
 		jest.replaceProperty(mockUser, 'email', 'some-new@email.com');
 
@@ -1109,7 +1109,7 @@ describe('AccountController - emailUpdate', () => {
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(AccountPolicy.prototype, 'emailUpdate').mockImplementation();
+		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
 
 		const mockQueryBuilderUser = {
 			filterBy: jest.fn().mockReturnThis(),
