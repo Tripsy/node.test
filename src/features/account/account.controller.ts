@@ -18,6 +18,7 @@ import {
 	updateUserPassword,
 	verifyPassword,
 } from '@/features/account/account.service';
+import AccountDeleteValidator from '@/features/account/account-delete.validator';
 import AccountEditValidator from '@/features/account/account-edit.validator';
 import AccountEmailConfirmSendValidator from '@/features/account/account-email-confirm-send.validator';
 import AccountEmailUpdateValidator from '@/features/account/account-email-update.validator';
@@ -45,7 +46,6 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/types/token.type';
-import AccountDeleteValidator from "@/features/account/account-delete.validator";
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {
@@ -688,64 +688,60 @@ class AccountController {
 		res.json(res.output);
 	});
 
-    public delete = asyncHandler(
-        async (req: Request, res: Response) => {
-            const policy = new AccountPolicy(req);
+	public delete = asyncHandler(async (req: Request, res: Response) => {
+		const policy = new AccountPolicy(req);
 
-            // Check permission (needs to be authenticated)
-            policy.me();
+		// Check permission (needs to be authenticated)
+		policy.me();
 
-            const user_id = policy.getUserId();
+		const user_id = policy.getUserId();
 
-            if (!user_id) {
-                throw new NotAllowedError();
-            }
+		if (!user_id) {
+			throw new NotAllowedError();
+		}
 
-            // Validate against the schema
-            const validated = AccountDeleteValidator.safeParse(
-                req.body,
-            );
+		// Validate against the schema
+		const validated = AccountDeleteValidator.safeParse(req.body);
 
-            if (!validated.success) {
-                res.output.errors(validated.error.errors);
+		if (!validated.success) {
+			res.output.errors(validated.error.errors);
 
-                throw new BadRequestError();
-            }
+			throw new BadRequestError();
+		}
 
-            const user = await UserRepository.createQuery()
-                .select(['id', 'password'])
-                .filterById(user_id)
-                .firstOrFail();
+		const user = await UserRepository.createQuery()
+			.select(['id', 'password'])
+			.filterById(user_id)
+			.firstOrFail();
 
-            const isValidPassword: boolean = await verifyPassword(
-                validated.data.password_current,
-                user.password,
-            );
+		const isValidPassword: boolean = await verifyPassword(
+			validated.data.password_current,
+			user.password,
+		);
 
-            if (!isValidPassword) {
-                res.output.errors([
-                    {
-                        password_current: lang(
-                            'account.validation.password_invalid',
-                        ),
-                    },
-                ]);
+		if (!isValidPassword) {
+			res.output.errors([
+				{
+					password_current: lang(
+						'account.validation.password_invalid',
+					),
+				},
+			]);
 
-                throw new UnauthorizedError();
-            }
+			throw new UnauthorizedError();
+		}
 
-            await UserRepository.createQuery()
-                .filterById(user_id)
-                .setContextData({
-                    auth_id: user_id,
-                })
-                .delete();
+		await UserRepository.createQuery()
+			.filterById(user_id)
+			.setContextData({
+				auth_id: user_id,
+			})
+			.delete();
 
-            res.output.message(lang('account.success.delete'));
+		res.output.message(lang('account.success.delete'));
 
-            res.json(res.output);
-        },
-    );
+		res.json(res.output);
+	});
 }
 
 export default new AccountController();

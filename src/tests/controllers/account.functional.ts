@@ -798,10 +798,7 @@ describe('AccountController - passwordUpdate', () => {
 	});
 
 	it('should simulate invalid password', async () => {
-		jest.spyOn(
-			AccountPolicy.prototype,
-			'me',
-		).mockImplementation();
+		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
 
 		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),
@@ -831,10 +828,7 @@ describe('AccountController - passwordUpdate', () => {
 	});
 
 	it('should return success', async () => {
-		jest.spyOn(
-			AccountPolicy.prototype,
-			'me',
-		).mockImplementation();
+		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
 
 		const mockQueryBuilderAccountRecovery = {
 			select: jest.fn().mockReturnThis(),

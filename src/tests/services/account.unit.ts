@@ -177,7 +177,7 @@ describe('Account Service', () => {
 	describe('sendEmailConfirmUpdate', () => {
 		it('should send an email confirmation for email update', async () => {
 			const token = 'jwt-token-123';
-            const email_new = 'some-new-email@sample.com'
+			const email_new = 'some-new-email@sample.com';
 			const emailTemplate: EmailTemplate = {
 				language: mockUser.language,
 				content: {
