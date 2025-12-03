@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
-import app from '@/app';
 import NotAllowedError from '@/exceptions/not-allowed.error';
 import AccountPolicy from '@/features/account/account.policy';
 import * as accountService from '@/features/account/account.service';
@@ -19,6 +18,7 @@ import type {
 } from '@/types/token.type';
 import '../jest-functional.setup';
 
+import app from '@/app';
 import { routeLink } from '@/config/routes.setup';
 import * as settingsModule from '@/config/settings.config';
 import { createFutureDate } from '@/helpers/date.helper';

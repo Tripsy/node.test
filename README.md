@@ -138,8 +138,8 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
 
 # TODO
 
-1. account delete
-1. Tests
+1. we have some tests which are failing
+2. Tests
    - account.controller - emailConfirmSend
    - user.controller - find, statusUpdate missing tests
    - log-data.controller - find missing tests
@@ -147,7 +147,6 @@ $ pnpm run test account-register.unit.ts --detect-open-handles
    - permission.controller
    - user-permission.controller
    - mail-queue controller
-
    - validators
    - middleware
        - output-handler.middleware

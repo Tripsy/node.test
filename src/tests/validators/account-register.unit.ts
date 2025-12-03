@@ -17,7 +17,7 @@ describe('AccountRegisterValidator', () => {
 		jest.replaceProperty(testData, 'name', 'J');
 
 		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-			/user.validation.name_min/,
+			/account.validation.name_min/,
 		);
 	});
 
@@ -25,7 +25,7 @@ describe('AccountRegisterValidator', () => {
 		jest.replaceProperty(testData, 'email', 'invalid-email');
 
 		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-			/user.validation.email_invalid/,
+			/account.validation.email_invalid/,
 		);
 	});
 
@@ -33,7 +33,7 @@ describe('AccountRegisterValidator', () => {
 		jest.replaceProperty(testData, 'password', 'Ab!');
 
 		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-			/user.validation.password_min/,
+			/account.validation.password_min/,
 		);
 	});
 
@@ -41,7 +41,7 @@ describe('AccountRegisterValidator', () => {
 		jest.replaceProperty(testData, 'password', 'weakpassword1!');
 
 		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-			/user.validation.password_condition_capital_letter/,
+			/account.validation.password_condition_capital_letter/,
 		);
 	});
 
@@ -49,7 +49,7 @@ describe('AccountRegisterValidator', () => {
 		jest.replaceProperty(testData, 'password', 'StrongPassword!');
 
 		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-			/user.validation.password_condition_number/,
+			/account.validation.password_condition_number/,
 		);
 	});
 
@@ -57,7 +57,7 @@ describe('AccountRegisterValidator', () => {
 		jest.replaceProperty(testData, 'password', 'StrongPassword1');
 
 		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-			/user.validation.password_condition_special_character/,
+			/account.validation.password_condition_special_character/,
 		);
 	});
 
@@ -65,7 +65,7 @@ describe('AccountRegisterValidator', () => {
 		jest.replaceProperty(testData, 'password_confirm', 'WrongP@ssw0rd');
 
 		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
-			/user.validation.password_confirm_mismatch/,
+			/account.validation.password_confirm_mismatch/,
 		);
 	});
 });
