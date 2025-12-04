@@ -7,9 +7,8 @@ import type AccountRecoveryEntity from '@/features/account/account-recovery.enti
 import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
+import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import UserRepository from '@/features/user/user.repository';
-import { UserRoleEnum } from '@/features/user/user-role.enum';
-import { UserStatusEnum } from '@/features/user/user-status.enum';
 import * as metaDataHelper from '@/helpers/meta-data.helper';
 import * as emailProvider from '@/providers/email.provider';
 import type {

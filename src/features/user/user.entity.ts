@@ -5,9 +5,19 @@ import {
 } from '@/abstracts/entity.abstract';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import AccountTokenEntity from '@/features/account/account-token.entity';
-import { UserRoleEnum } from '@/features/user/user-role.enum';
-import { UserStatusEnum } from '@/features/user/user-status.enum';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
+
+export enum UserStatusEnum {
+	ACTIVE = 'active',
+	INACTIVE = 'inactive',
+	PENDING = 'pending',
+}
+
+export enum UserRoleEnum {
+	ADMIN = 'admin',
+	MEMBER = 'member',
+	OPERATOR = 'operator',
+}
 
 @Entity({
 	name: 'user',

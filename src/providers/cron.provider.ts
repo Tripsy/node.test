@@ -7,10 +7,11 @@ import { cronTimeCheck } from '@/cron-jobs/cron-time-check.cron';
 import { cronWarningCount } from '@/cron-jobs/cron-warning-count.cron';
 import { workerMaintenance } from '@/cron-jobs/worker-maintenance.cron';
 import NotFoundError from '@/exceptions/not-found.error';
-import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
+import CronHistoryEntity, {
+	CronHistoryStatusEnum,
+} from '@/features/cron-history/cron-history.entity';
 import CronHistoryRepository from '@/features/cron-history/cron-history.repository';
-import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history-status.enum';
-import { LogDataCategoryEnum } from '@/features/log-data/log-data-category.enum';
+import { LogDataCategoryEnum } from '@/features/log-data/log-data.entity';
 import { dateDiffInSeconds } from '@/helpers/date.helper';
 import logger, { childLogger } from '@/providers/logger.provider';
 

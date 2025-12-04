@@ -1,5 +1,10 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history-status.enum';
+
+export enum CronHistoryStatusEnum {
+	ERROR = 'error',
+	OK = 'ok',
+	WARNING = 'warning', // Set when cron job is not running in expected time
+}
 
 @Entity({
 	name: 'cron_history',

@@ -21,4 +21,4 @@ RUN pnpm init
 EXPOSE 3000
 
 # Define the command to run your application
-CMD ["pnpm", "run", "dev"]
+# CMD ["pnpm", "run", "dev"]

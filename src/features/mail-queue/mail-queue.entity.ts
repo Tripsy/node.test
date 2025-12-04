@@ -9,9 +9,14 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm';
-import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue-status.enum';
 import TemplateEntity from '@/features/template/template.entity';
 import type { EmailContent } from '@/types/template.type';
+
+export enum MailQueueStatusEnum {
+	PENDING = 'pending',
+	SENT = 'sent',
+	ERROR = 'error',
+}
 
 @Entity({
 	name: 'mail_queue',

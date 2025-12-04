@@ -5,11 +5,10 @@ import CronHistoryPolicy from '@/features/cron-history/cron-history.policy';
 import CronHistoryRepository, {
 	CronHistoryQuery,
 } from '@/features/cron-history/cron-history.repository';
-import CronHistoryDeleteValidator from '@/features/cron-history/cron-history-delete.validator';
-import CronHistoryFindValidator from '@/features/cron-history/cron-history-find.validator';
 import asyncHandler from '@/helpers/async.handler';
 import { logHistory } from '@/helpers/subscriber.helper';
 import { getCacheProvider } from '@/providers/cache.provider';
+import {CronHistoryDeleteValidator, CronHistoryFindValidator} from "@/features/cron-history/cron-history.validator";
 
 class CronHistoryController {
 	public read = asyncHandler(async (req: Request, res: Response) => {

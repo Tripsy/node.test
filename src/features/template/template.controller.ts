@@ -2,20 +2,21 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
-import TemplateEntity from '@/features/template/template.entity';
+import TemplateEntity, {
+	TemplateTypeEnum,
+} from '@/features/template/template.entity';
 import TemplatePolicy from '@/features/template/template.policy';
 import TemplateRepository, {
 	TemplateQuery,
 } from '@/features/template/template.repository';
-import TemplateCreateValidator from '@/features/template/template-create.validator';
-import TemplateFindValidator from '@/features/template/template-find.validator';
-import { TemplateTypeEnum } from '@/features/template/template-type.enum';
-import {
-	paramsUpdateList,
-	TemplateUpdateValidator,
-} from '@/features/template/template-update.validator';
 import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
+import {
+    TemplateCreateValidator,
+    TemplateFindValidator,
+    TemplateUpdateValidator
+} from "@/features/template/template.validator";
+import {paramsUpdateList} from "@/features/user/user.validator";
 
 class TemplateController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

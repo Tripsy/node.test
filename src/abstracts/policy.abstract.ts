@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import NotAllowedError from '@/exceptions/not-allowed.error';
 import UnauthorizedError from '@/exceptions/unauthorized.error';
-import { UserRoleEnum } from '@/features/user/user-role.enum';
+import { UserRoleEnum } from '@/features/user/user.entity';
 
 class PolicyAbstract {
 	protected entity: string;

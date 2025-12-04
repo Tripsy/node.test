@@ -132,7 +132,7 @@ $ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
 ```
 $ pnpm run test --testTimeout=60000
 $ pnpm run test account.functional.ts --testTimeout=60000 --detectOpenHandles
-$ pnpm run test account-register.unit.ts --detect-open-handles
+$ pnpm run test account.unit.ts --detect-open-handles
 
 ```
 

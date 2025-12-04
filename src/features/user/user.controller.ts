@@ -6,11 +6,12 @@ import AccountTokenRepository from '@/features/account/account-token.repository'
 import UserEntity from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
 import UserRepository, { UserQuery } from '@/features/user/user.repository';
-import UserCreateValidator from '@/features/user/user-create.validator';
-import UserFindValidator from '@/features/user/user-find.validator';
-import UserUpdateValidator, {
+import {
 	paramsUpdateList,
-} from '@/features/user/user-update.validator';
+	UserCreateValidator,
+	UserFindValidator,
+	UserUpdateValidator,
+} from '@/features/user/user.validator';
 import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
 

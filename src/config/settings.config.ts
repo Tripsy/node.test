@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import type { LogDataLevelEnum } from '@/features/log-data/log-data-level.enum';
+import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import {
 	getObjectValue,
 	type ObjectValue,
@@ -58,7 +58,6 @@ const settingsConfig: { [key: string]: ObjectValue } = {
 		ttl: Number(process.env.CACHE_TTL) || 60,
 	},
 	/**
-	 * Log levels are defined in log-data-level.enum.ts
 	 * For `app.env` === test OR `app.debug` === true logs will always be printed to console
 	 * Below log level 30 can only be logged to a file
 	 */

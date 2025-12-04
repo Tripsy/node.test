@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { cfg } from '@/config/settings.config';
+import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
 import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
-import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue-status.enum';
 import {
 	type EmailQueueData,
 	sendEmail,

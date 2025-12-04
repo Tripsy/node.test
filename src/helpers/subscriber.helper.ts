@@ -2,7 +2,7 @@ import type { Logger } from 'pino';
 import type { UpdateEvent } from 'typeorm';
 import type { EntityContextData } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
-import { LogDataCategoryEnum } from '@/features/log-data/log-data-category.enum';
+import { LogDataCategoryEnum } from '@/features/log-data/log-data.entity';
 import { getCacheProvider } from '@/providers/cache.provider';
 import logger, { childLogger } from '@/providers/logger.provider';
 

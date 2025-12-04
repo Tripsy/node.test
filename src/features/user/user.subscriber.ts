@@ -12,9 +12,8 @@ import {
 	sendEmailConfirmCreate,
 	sendWelcomeEmail,
 } from '@/features/account/account.service';
-import UserEntity from '@/features/user/user.entity';
+import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
 import { UserQuery } from '@/features/user/user.repository';
-import { UserStatusEnum } from '@/features/user/user-status.enum';
 import {
 	cacheClean,
 	getAuthIdFromContext,

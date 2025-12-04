@@ -18,21 +18,9 @@ import {
 	updateUserPassword,
 	verifyPassword,
 } from '@/features/account/account.service';
-import AccountDeleteValidator from '@/features/account/account-delete.validator';
-import AccountEditValidator from '@/features/account/account-edit.validator';
-import AccountEmailConfirmSendValidator from '@/features/account/account-email-confirm-send.validator';
-import AccountEmailUpdateValidator from '@/features/account/account-email-update.validator';
-import AccountLoginValidator from '@/features/account/account-login.validator';
-import AccountPasswordRecoverValidator from '@/features/account/account-password-recover.validator';
-import AccountPasswordRecoverChangeValidator from '@/features/account/account-password-recover-change.validator';
-import AccountPasswordUpdateValidator from '@/features/account/account-password-update.validator';
-import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
-import AccountRegisterValidator from '@/features/account/account-register.validator';
-import AccountRemoveTokenValidator from '@/features/account/account-remove-token.validator';
 import AccountTokenRepository from '@/features/account/account-token.repository';
-import UserEntity from '@/features/user/user.entity';
+import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
 import UserRepository from '@/features/user/user.repository';
-import { UserStatusEnum } from '@/features/user/user-status.enum';
 import asyncHandler from '@/helpers/async.handler';
 import { createPastDate } from '@/helpers/date.helper';
 import {
@@ -46,6 +34,16 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/types/token.type';
+import {
+    AccountDeleteValidator,
+    AccountEditValidator,
+    AccountEmailConfirmSendValidator, AccountEmailUpdateValidator,
+    AccountLoginValidator, AccountPasswordRecoverChangeValidator, AccountPasswordRecoverValidator,
+    AccountPasswordUpdateValidator,
+    AccountRegisterValidator,
+    AccountRemoveTokenValidator
+} from "@/features/account/account.validator";
+import AccountRecoveryRepository from "@/features/account/account-recovery.repository";
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {

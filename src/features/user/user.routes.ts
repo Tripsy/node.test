@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { buildRoutes, type RoutesConfigType } from '@/config/routes.setup';
 import UserController from '@/features/user/user.controller';
-import { UserStatusEnum } from '@/features/user/user-status.enum';
+import { UserStatusEnum } from '@/features/user/user.entity';
 import {
 	validateParamsWhenId,
 	validateParamsWhenStatus,

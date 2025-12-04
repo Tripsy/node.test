@@ -3,7 +3,11 @@ import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
-import { TemplateTypeEnum } from '@/features/template/template-type.enum';
+
+export enum TemplateTypeEnum {
+	PAGE = 'page',
+	EMAIL = 'email',
+}
 
 @Entity({
 	name: 'template',
