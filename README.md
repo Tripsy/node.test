@@ -138,26 +138,40 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. we have some tests which are failing
-2. Tests
-   - account.controller - emailConfirmSend
-   - user.controller - find, statusUpdate missing tests
-   - log-data.controller - find missing tests
-   - template.controller
-   - permission.controller
-   - user-permission.controller
-   - mail-queue controller
-   - validators
-   - middleware
-       - output-handler.middleware
-       - validate-params.middleware
-   - providers
+1. client
+    - wip
+2. wip entities: 
+    - carrier
+    - client 
+    - discount
+    - order
+    - order-invoice
+    - order-product
+    - order-product-shipping
+    - order-shipping
+    - product ?
+3. Entity `country`. Does it make sense to create a "places" table: country, country_abbr, region, region_abbr, region_label (eg: judet), city, city_abbr, address, postal_code
+4. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # BUGS & ISSUES
 
-1. src/tests/middleware/auth.unit.ts is broken
-2. types/express.d.ts - is in .gitignore
-3. consider replacing moment library
+1. we have some tests which are failing
+2. Tests
+    - account.controller - emailConfirmSend
+    - user.controller - find, statusUpdate missing tests
+    - log-data.controller - find missing tests
+    - template.controller
+    - permission.controller
+    - user-permission.controller
+    - mail-queue controller
+    - validators
+    - middleware
+        - output-handler.middleware
+        - validate-params.middleware
+    - providers
+3. src/tests/middleware/auth.unit.ts is broken
+4. types/express.d.ts - is in .gitignore
+5. consider replacing moment library
 
 # IDEAS
 
