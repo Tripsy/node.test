@@ -9,14 +9,14 @@ import TemplatePolicy from '@/features/template/template.policy';
 import TemplateRepository, {
 	TemplateQuery,
 } from '@/features/template/template.repository';
+import {
+	TemplateCreateValidator,
+	TemplateFindValidator,
+	TemplateUpdateValidator,
+} from '@/features/template/template.validator';
+import { paramsUpdateList } from '@/features/user/user.validator';
 import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
-import {
-    TemplateCreateValidator,
-    TemplateFindValidator,
-    TemplateUpdateValidator
-} from "@/features/template/template.validator";
-import {paramsUpdateList} from "@/features/user/user.validator";
 
 class TemplateController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

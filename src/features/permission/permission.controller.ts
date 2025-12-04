@@ -7,13 +7,13 @@ import PermissionPolicy from '@/features/permission/permission.policy';
 import PermissionRepository, {
 	PermissionQuery,
 } from '@/features/permission/permission.repository';
+import {
+	PermissionCreateValidator,
+	PermissionFindValidator,
+	PermissionUpdateValidator,
+} from '@/features/permission/permission.validator';
 import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
-import {
-    PermissionCreateValidator,
-    PermissionFindValidator,
-    PermissionUpdateValidator
-} from "@/features/permission/permission.validator";
 
 class PermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

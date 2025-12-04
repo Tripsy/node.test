@@ -78,6 +78,6 @@ export default class UserEntity extends EntityAbstract {
 	)
 	permissions?: UserPermissionEntity[];
 
-	// Virtual column
+	// Virtual
 	contextData?: EntityContextData;
 }

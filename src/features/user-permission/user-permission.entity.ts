@@ -60,6 +60,6 @@ export default class UserPermissionEntity {
 	})
 	permission?: PermissionEntity;
 
-	// Virtual column
+	// Virtual
 	contextData?: EntityContextData;
 }

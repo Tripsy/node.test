@@ -33,7 +33,7 @@ export default class CronHistoryEntity {
 	})
 	status!: CronHistoryStatusEnum;
 
-	@Column('int', {
+	@Column('smallint', {
 		nullable: false,
 		default: 0,
 		comment: 'Run time in seconds',

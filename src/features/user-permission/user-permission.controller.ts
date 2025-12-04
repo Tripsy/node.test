@@ -4,11 +4,11 @@ import BadRequestError from '@/exceptions/bad-request.error';
 import PermissionPolicy from '@/features/permission/permission.policy';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 import UserPermissionRepository from '@/features/user-permission/user-permission.repository';
-import asyncHandler from '@/helpers/async.handler';
 import {
-    UserPermissionCreateValidator,
-    UserPermissionFindValidator
-} from "@/features/user-permission/user-permission.validator";
+	UserPermissionCreateValidator,
+	UserPermissionFindValidator,
+} from '@/features/user-permission/user-permission.validator';
+import asyncHandler from '@/helpers/async.handler';
 
 class UserPermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

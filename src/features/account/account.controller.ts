@@ -18,6 +18,19 @@ import {
 	updateUserPassword,
 	verifyPassword,
 } from '@/features/account/account.service';
+import {
+	AccountDeleteValidator,
+	AccountEditValidator,
+	AccountEmailConfirmSendValidator,
+	AccountEmailUpdateValidator,
+	AccountLoginValidator,
+	AccountPasswordRecoverChangeValidator,
+	AccountPasswordRecoverValidator,
+	AccountPasswordUpdateValidator,
+	AccountRegisterValidator,
+	AccountRemoveTokenValidator,
+} from '@/features/account/account.validator';
+import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
 import UserRepository from '@/features/user/user.repository';
@@ -34,16 +47,6 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/types/token.type';
-import {
-    AccountDeleteValidator,
-    AccountEditValidator,
-    AccountEmailConfirmSendValidator, AccountEmailUpdateValidator,
-    AccountLoginValidator, AccountPasswordRecoverChangeValidator, AccountPasswordRecoverValidator,
-    AccountPasswordUpdateValidator,
-    AccountRegisterValidator,
-    AccountRemoveTokenValidator
-} from "@/features/account/account.validator";
-import AccountRecoveryRepository from "@/features/account/account-recovery.repository";
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {

@@ -5,10 +5,13 @@ import LogDataPolicy from '@/features/log-data/log-data.policy';
 import LogDataRepository, {
 	LogDataQuery,
 } from '@/features/log-data/log-data.repository';
+import {
+	LogDataDeleteValidator,
+	LogDataFindValidator,
+} from '@/features/log-data/log-data.validator';
 import asyncHandler from '@/helpers/async.handler';
 import { logHistory } from '@/helpers/subscriber.helper';
 import { getCacheProvider } from '@/providers/cache.provider';
-import {LogDataDeleteValidator, LogDataFindValidator} from "@/features/log-data/log-data.validator";
 
 class LogDataController {
 	public read = asyncHandler(async (req: Request, res: Response) => {

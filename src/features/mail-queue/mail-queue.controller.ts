@@ -5,10 +5,13 @@ import MailQueuePolicy from '@/features/mail-queue/mail-queue.policy';
 import MailQueueRepository, {
 	MailQueueQuery,
 } from '@/features/mail-queue/mail-queue.repository';
+import {
+	MailQueueDeleteValidator,
+	MailQueueFindValidator,
+} from '@/features/mail-queue/mail-queue.validator';
 import asyncHandler from '@/helpers/async.handler';
 import { logHistory } from '@/helpers/subscriber.helper';
 import { getCacheProvider } from '@/providers/cache.provider';
-import {MailQueueDeleteValidator, MailQueueFindValidator} from "@/features/mail-queue/mail-queue.validator";
 
 class MailQueueController {
 	public read = asyncHandler(async (req: Request, res: Response) => {
