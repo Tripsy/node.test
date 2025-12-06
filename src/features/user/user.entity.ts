@@ -19,6 +19,12 @@ export enum UserRoleEnum {
 	OPERATOR = 'operator',
 }
 
+export enum UserOperatorTypeEnum {
+	SELLER = 'seller',
+	PRODUCT_MANAGER = 'product_manager',
+	CONTENT_EDITOR = 'content_editor',
+}
+
 @Entity({
 	name: 'user',
 	schema: 'public',
@@ -58,6 +64,14 @@ export default class UserEntity extends EntityAbstract {
 		nullable: false,
 	})
 	role!: UserRoleEnum;
+
+	@Column({
+		type: 'enum',
+		enum: UserOperatorTypeEnum,
+		nullable: true,
+		comment: 'Operator type; only relevant when role is OPERATOR',
+	})
+	operator_type!: UserOperatorTypeEnum | null;
 
 	// RELATIONS
 	@OneToMany(

@@ -25,6 +25,7 @@ async function authMiddleware(
 			name: '',
 			language: cfg('app.language') as string,
 			role: 'visitor',
+			operator_type: null,
 			permissions: [],
 			activeToken: '',
 		};
@@ -66,6 +67,7 @@ async function authMiddleware(
 				'password_updated_at',
 				'language',
 				'role',
+				'operator_type',
 				'status',
 				'created_at',
 			])

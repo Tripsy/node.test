@@ -3,7 +3,7 @@ import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
 import AccountTokenRepository from '@/features/account/account-token.repository';
-import UserEntity from '@/features/user/user.entity';
+import UserEntity, {UserRoleEnum} from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
 import UserRepository, { UserQuery } from '@/features/user/user.repository';
 import {
@@ -46,6 +46,12 @@ class UserController {
 		user.password = validated.data.password;
 		user.status = validated.data.status;
 		user.role = validated.data.role;
+
+		if (validated.data.role === UserRoleEnum.OPERATOR) {
+			user.operator_type = validated.data.operator_type ?? null;
+		} else {
+			user.operator_type = null;
+		}
 
 		if (validated.data.language) {
 			user.language = validated.data.language;
