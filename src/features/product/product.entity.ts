@@ -7,28 +7,6 @@ import {validateHeaderValue} from "http";
 
 how do you handle subscriptions?
 
-specs
-    type ( text / image)
-    label (
-        text: name, description, meta_title, meta_description, promo_text
-        image: alt, caption, description
-    )
-
-how do you store images and provide specs based on language for them?
-
-product_specs
-    - product_id
-    - spec_id
-    - language
-    - value
-
-product_images
-    - product_id
-    - spec_id
-    - language
-    - value
-    - cdn
-
 export enum ProductWorkflowEnum {
 	DRAFT = 'draft', // Initial creation
 	PENDING_REVIEW = 'pending_review', // Awaiting approval
@@ -68,9 +46,6 @@ export default class ProductEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	@Index('IDX_product_sku', { unique: true })
 	sku!: string;
-
-	@Column('varchar', { nullable: false })
-	label!: string; // Short label or reference name
 
 	@Column('decimal', {
 		precision: 12,
@@ -140,8 +115,12 @@ export default class ProductEntity extends EntityAbstract {
 	@Column({ type: 'timestamp', nullable: false })
 	stock_updated_at!: Date;
 
-	@Column('text', { nullable: true })
-	notes!: string | null;
+    @Column('jsonb', {
+        nullable: true,
+        comment:
+            'Reserved column for future use',
+    })
+    details!: Record<string, string | number | boolean>;
 
 	// Virtual
 	contextData?: EntityContextData;
