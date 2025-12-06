@@ -26,15 +26,7 @@ export default class OrderShippingEntity extends EntityAbstract {
 	@Index('IDX_order_shipping_order_id')
 	order_id!: number;
 
-	@ManyToOne(
-		() => OrderEntity,
-		(order) => order.id,
-		{
-			onDelete: 'CASCADE',
-		},
-	)
-	order!: OrderEntity;
-
+    @Index('IDX_order_shipping_status')
 	@Column({
 		type: 'enum',
 		enum: ShippingStatusEnum,
@@ -47,17 +39,15 @@ export default class OrderShippingEntity extends EntityAbstract {
 		nullable: true,
 		comment: 'eg: courier, pickup, same-day, own-fleet, etc',
 	})
-	shipping_method!: string | null;
+	@Index('IDX_order_shipping_method')
+	method!: string | null;
 
 	@Column('bigint', { nullable: true })
+	@Index('IDX_order_shipping_carrier_id')
 	carrier_id!: number | null;
 
-	@ManyToOne(() => CarrierEntity, {
-		onDelete: 'RESTRICT',
-	})
-	carrier!: CarrierEntity | null;
-
 	@Column('varchar', { nullable: true })
+	@Index('IDX_order_shipping_tracking_number', { unique: true })
 	tracking_number!: string | null;
 
 	@Column('varchar', { nullable: true })
@@ -134,6 +124,17 @@ export default class OrderShippingEntity extends EntityAbstract {
 	@Column('text', { nullable: true })
 	notes!: string | null;
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
+
+	// RELATIONS
+	@ManyToOne(() => OrderEntity, {
+		onDelete: 'CASCADE',
+	})
+	order!: OrderEntity;
+
+	@ManyToOne(() => CarrierEntity, {
+		onDelete: 'RESTRICT',
+	})
+	carrier!: CarrierEntity | null;
 }

@@ -1,5 +1,8 @@
-import { Column, Entity } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
+import { Column, Entity, Index } from 'typeorm';
+import {
+	EntityAbstract,
+	type EntityContextData,
+} from '@/abstracts/entity.abstract';
 
 export enum DiscountScopeEnum {
 	CLIENT = 'client',
@@ -50,6 +53,7 @@ export type DiscountSnapshot = {
 	comment:
 		'Stores discount definitions. Note: Discount applied only for prices without VAT before exchange rate conversion',
 })
+@Index('IDX_discount_active', ['start_at', 'end_at', 'scope'])
 export default class DiscountEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false, comment: 'Discount name' })
 	label!: string;
@@ -59,6 +63,7 @@ export default class DiscountEntity extends EntityAbstract {
 		enum: DiscountScopeEnum,
 		nullable: false,
 	})
+	@Index('IDX_discount_scope')
 	scope!: DiscountScopeEnum;
 
 	@Column({
@@ -66,12 +71,14 @@ export default class DiscountEntity extends EntityAbstract {
 		enum: DiscountReasonEnum,
 		nullable: false,
 	})
+	@Index('IDX_discount_reason')
 	reason!: DiscountReasonEnum;
 
 	@Column('varchar', {
 		nullable: true,
 		comment: 'Coupon code, referral code, etc',
 	})
+	@Index('IDX_discount_reference')
 	reference?: string | null;
 
 	@Column({
@@ -96,6 +103,10 @@ export default class DiscountEntity extends EntityAbstract {
 	@Column({ type: 'timestamp', nullable: false })
 	end_at!: Date;
 
+	// OTHER
 	@Column('text', { nullable: true })
-	notes?: string | null;
+	notes!: string | null;
+
+	// VIRTUAL
+	contextData?: EntityContextData;
 }

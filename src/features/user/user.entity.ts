@@ -22,7 +22,6 @@ export enum UserRoleEnum {
 @Entity({
 	name: 'user',
 	schema: 'public',
-	comment: 'Stores email & page templates',
 })
 export default class UserEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
@@ -60,6 +59,7 @@ export default class UserEntity extends EntityAbstract {
 	})
 	role!: UserRoleEnum;
 
+	// RELATIONS
 	@OneToMany(
 		() => AccountTokenEntity,
 		(accountToken) => accountToken.user,
@@ -78,6 +78,6 @@ export default class UserEntity extends EntityAbstract {
 	)
 	permissions?: UserPermissionEntity[];
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
 }

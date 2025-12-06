@@ -77,17 +77,8 @@ export type BillingDetails = BillingDetailsPerson | BillingDetailsCompany;
 })
 export default class OrderInvoiceEntity extends EntityAbstract {
 	@Column('bigint', { nullable: false })
-	@Index('IDX_order_shipping_order_id')
+	@Index('IDX_order_invoice_order_id')
 	order_id!: number;
-
-	@ManyToOne(
-		() => OrderEntity,
-		(order) => order.id,
-		{
-			onDelete: 'RESTRICT',
-		},
-	)
-	order!: OrderEntity;
 
 	@Column('char', {
 		length: 3,
@@ -102,6 +93,7 @@ export default class OrderInvoiceEntity extends EntityAbstract {
 	})
 	invoice_number!: number;
 
+    @Index('IDX_order_invoice_status')
 	@Column({
 		type: 'enum',
 		enum: InvoiceStatusEnum,
@@ -143,6 +135,12 @@ export default class OrderInvoiceEntity extends EntityAbstract {
 	@Column('text', { nullable: true })
 	notes!: string | null;
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
+
+	// RELATIONS
+	@ManyToOne(() => OrderEntity, {
+		onDelete: 'RESTRICT',
+	})
+	order!: OrderEntity;
 }

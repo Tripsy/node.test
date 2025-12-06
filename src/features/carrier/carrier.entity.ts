@@ -1,5 +1,9 @@
-import { Column, Entity } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
+import { Column, Entity, OneToMany } from 'typeorm';
+import {
+	EntityAbstract,
+	type EntityContextData,
+} from '@/abstracts/entity.abstract';
+import OrderShippingEntity from '@/features/order/order-shipping.entity';
 
 @Entity({
 	name: 'carrier',
@@ -21,4 +25,14 @@ export default class CarrierEntity extends EntityAbstract {
 
 	@Column('text', { nullable: true })
 	notes!: string | null;
+
+	// VIRTUAL
+	contextData?: EntityContextData;
+
+	// RELATIONS
+	@OneToMany(
+		() => OrderShippingEntity,
+		(shipping) => shipping.carrier,
+	)
+	order_shipments?: OrderShippingEntity[];
 }

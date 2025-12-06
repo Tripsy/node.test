@@ -1,13 +1,12 @@
 import {
-	Column,
-	DeleteDateColumn,
-	Entity,
-	Index,
-	OneToMany,
-	PrimaryGeneratedColumn,
+    Column,
+    DeleteDateColumn,
+    Entity,
+    Index, OneToMany,
+    PrimaryGeneratedColumn,
 } from 'typeorm';
 import type { EntityContextData } from '@/abstracts/entity.abstract';
-import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
+import UserPermissionEntity from "@/features/user-permission/user-permission.entity";
 
 @Entity({
 	name: 'permission',
@@ -28,12 +27,13 @@ export default class PermissionEntity {
 	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: true })
 	deleted_at!: Date | null;
 
-	@OneToMany(
-		() => UserPermissionEntity,
-		(userPermission) => userPermission.permission_id,
-	)
-	user_permissions?: UserPermissionEntity[];
-
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
+
+    // RELATIONS
+    @OneToMany(
+        () => UserPermissionEntity,
+        (userPermission) => userPermission.permission,
+    )
+    user_permissions?: UserPermissionEntity[];
 }

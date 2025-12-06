@@ -5,7 +5,7 @@ import {
 } from '@/abstracts/entity.abstract';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
 import OrderEntity from '@/features/order/order.entity';
-import ProductEntity from "@/features/product/product.entity";
+import ProductEntity from '@/features/product/product.entity';
 
 @Entity({
 	name: 'order_product',
@@ -17,24 +17,9 @@ export default class OrderProductEntity extends EntityAbstract {
 	@Index('IDX_order_product_order_id')
 	order_id!: number;
 
-	@ManyToOne(
-		() => OrderEntity,
-		(order) => order.id,
-		{ onDelete: 'CASCADE' },
-	)
-	order!: OrderEntity;
-
 	@Column('bigint', { nullable: false })
+	@Index('IDX_order_product_product_id')
 	product_id!: number;
-
-	@ManyToOne(
-		() => ProductEntity,
-		(product) => product.id,
-		{
-			onDelete: 'RESTRICT',
-		},
-	)
-	product!: ProductEntity;
 
 	@Column('numeric', { precision: 12, scale: 2, nullable: false })
 	quantity!: number;
@@ -73,6 +58,17 @@ export default class OrderProductEntity extends EntityAbstract {
 	@Column('text', { nullable: true })
 	notes!: string | null;
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
+
+	// RELATIONS
+	@ManyToOne(() => OrderEntity, {
+		onDelete: 'CASCADE',
+	})
+	order!: OrderEntity;
+
+	@ManyToOne(() => ProductEntity, {
+		onDelete: 'RESTRICT',
+	})
+	product!: ProductEntity;
 }

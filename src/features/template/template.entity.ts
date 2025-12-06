@@ -35,6 +35,6 @@ export default class TemplateEntity extends EntityAbstract {
 	@Column({ type: 'jsonb', nullable: false, comment: 'Template data' })
 	content!: Record<string, unknown>;
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
 }

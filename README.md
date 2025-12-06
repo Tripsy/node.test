@@ -166,7 +166,6 @@ image_content -
     - category
       - category-content
       
-    Check relations & created indexes & create diagram  
 3. Entity `country`. Does it make sense to create a "places" table: country, country_abbr, region, region_abbr, region_label (eg: judet), city, city_abbr, address, postal_code
 4. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 

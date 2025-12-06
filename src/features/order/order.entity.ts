@@ -1,9 +1,12 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
 import ClientEntity from '@/features/client/client.entity';
+import OrderInvoiceEntity from '@/features/order/order-invoice.entity';
+import OrderProductEntity from '@/features/order/order-product.entity';
+import OrderShippingEntity from '@/features/order/order-shipping.entity';
 
 export enum OrderStatusEnum {
 	DRAFT = 'draft',
@@ -23,19 +26,11 @@ export default class OrderEntity extends EntityAbstract {
 	@Index('IDX_order_client_ref', { unique: true })
 	client_ref!: string;
 
-	@Column('uuid', { nullable: false })
+	@Column('bigint', { nullable: false })
 	@Index('IDX_order_client_id')
-	client_id!: string;
+	client_id!: number;
 
-	@ManyToOne(
-		() => ClientEntity,
-		(client) => client.id,
-		{
-			onDelete: 'RESTRICT',
-		},
-	)
-	client!: ClientEntity;
-
+    @Index('IDX_order_status')
 	@Column({
 		type: 'enum',
 		enum: OrderStatusEnum,
@@ -44,12 +39,37 @@ export default class OrderEntity extends EntityAbstract {
 	})
 	status!: OrderStatusEnum;
 
+    @Index('IDX_order_issued_at')
 	@Column({ type: 'timestamp', nullable: false })
 	issued_at!: Date;
 
 	@Column('text', { nullable: true })
 	notes!: string | null;
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
+
+	// RELATIONS
+	@ManyToOne(() => ClientEntity, {
+		onDelete: 'RESTRICT',
+	})
+	client!: ClientEntity;
+
+	@OneToMany(
+		() => OrderProductEntity,
+		(orderProduct) => orderProduct.order,
+	)
+	order_products?: OrderProductEntity[];
+
+	@OneToMany(
+		() => OrderShippingEntity,
+		(orderShipping) => orderShipping.order,
+	)
+	order_shipments?: OrderShippingEntity[];
+
+	@OneToMany(
+		() => OrderInvoiceEntity,
+		(orderInvoice) => orderInvoice.order,
+	)
+	order_invoices?: OrderInvoiceEntity[];
 }

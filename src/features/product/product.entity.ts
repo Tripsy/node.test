@@ -1,11 +1,12 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
-import {validateHeaderValue} from "http";
-
-how do you handle subscriptions?
+import OrderProductEntity from '@/features/order/order-product.entity';
+import ProductAttributeEntity from '@/features/product/product-attribute.entity';
+import ProductCategoryEntity from '@/features/product/product-category.entity';
+import ProductTagEntity from '@/features/product/product-tag.entity';
 
 export enum ProductWorkflowEnum {
 	DRAFT = 'draft', // Initial creation
@@ -72,6 +73,7 @@ export default class ProductEntity extends EntityAbstract {
 	})
 	vat_rate!: number;
 
+	@Index('IDX_product_workflow')
 	@Column({
 		type: 'enum',
 		enum: ProductWorkflowEnum,
@@ -80,6 +82,7 @@ export default class ProductEntity extends EntityAbstract {
 	})
 	workflow!: ProductWorkflowEnum;
 
+	@Index('IDX_product_status')
 	@Column({
 		type: 'enum',
 		enum: ProductSaleStatusEnum,
@@ -115,13 +118,37 @@ export default class ProductEntity extends EntityAbstract {
 	@Column({ type: 'timestamp', nullable: false })
 	stock_updated_at!: Date;
 
-    @Column('jsonb', {
-        nullable: true,
-        comment:
-            'Reserved column for future use',
-    })
-    details!: Record<string, string | number | boolean>;
+	@Column('jsonb', {
+		nullable: true,
+		comment: 'Reserved column for future use',
+	})
+	details!: Record<string, string | number | boolean>;
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
+
+	// RELATIONS
+	@OneToMany(
+		() => ProductTagEntity,
+		(tag) => tag.product,
+	)
+	tags?: ProductTagEntity[];
+
+	@OneToMany(
+		() => ProductCategoryEntity,
+		(productCategory) => productCategory.product,
+	)
+	categories?: ProductCategoryEntity[];
+
+	@OneToMany(
+		() => ProductAttributeEntity,
+		(attribute) => attribute.product,
+	)
+	attributes?: ProductAttributeEntity[];
+
+	@OneToMany(
+		() => OrderProductEntity,
+		(orderProduct) => orderProduct.product,
+	)
+	order_products?: OrderProductEntity[];
 }

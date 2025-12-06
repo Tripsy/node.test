@@ -1,8 +1,9 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
+import OrderEntity from '@/features/order/order.entity';
 
 export enum ClientStatusEnum {
 	ACTIVE = 'active',
@@ -91,6 +92,13 @@ export default class ClientEntity extends EntityAbstract {
 	@Column('text', { nullable: true })
 	notes!: string | null;
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
+
+	// RELATIONS
+	@OneToMany(
+		() => OrderEntity,
+		(order) => order.client,
+	)
+	orders?: OrderEntity[];
 }

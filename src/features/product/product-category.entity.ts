@@ -1,39 +1,44 @@
-import { Column, Entity, ManyToOne, Index } from 'typeorm';
-import { EntityAbstract, type EntityContextData } from '@/abstracts/entity.abstract';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import {
+	EntityAbstract,
+	type EntityContextData,
+} from '@/abstracts/entity.abstract';
+import CategoryEntity from '@/features/category/category.entity';
 import ProductEntity from '@/features/product/product.entity';
-import TermEntity from '@/features/term/term.entity';
 
 @Entity({
-    name: 'product_category',
-    schema: 'public',
-    comment: 'Links products to categories (multilingual via term)',
+	name: 'product_category',
+	schema: 'public',
+	comment: 'Links products to categories (multilingual via term)',
 })
 @Index('IDX_product_category_unique', ['product_id', 'category_id'], {
-    unique: true,
+	unique: true,
 })
 export default class ProductCategoryEntity extends EntityAbstract {
-    @Column('bigint', { nullable: false })
-    product_id!: number;
+	@Column('bigint', { nullable: false })
+	product_id!: number;
 
-    @ManyToOne(() => ProductEntity, (product) => product.id, {
-        onDelete: 'CASCADE',
-    })
-    product!: ProductEntity;
+	@Column('bigint', { nullable: false })
+	@Index('IDX_product_category_category_id')
+	category_id!: number;
 
-    @Column('bigint', { nullable: false })
-    category_id!: number;
+	@Column('jsonb', {
+		nullable: true,
+		comment: 'Reserved column for future use',
+	})
+	details!: Record<string, string | number | boolean>;
 
-    @ManyToOne(() => TermEntity, (term) => term.id, {
-        onDelete: 'RESTRICT',
-    })
-    category!: TermEntity;
+	// VIRTUAL
+	contextData?: EntityContextData;
 
-    @Column('jsonb', {
-        nullable: true,
-        comment:
-            'Reserved column for future use',
-    })
-    details!: Record<string, string | number | boolean>;
+	// RELATIONS
+	@ManyToOne(() => ProductEntity, {
+		onDelete: 'CASCADE',
+	})
+	product!: ProductEntity;
 
-    contextData?: EntityContextData;
+	@ManyToOne(() => CategoryEntity, {
+		onDelete: 'CASCADE',
+	})
+	category!: CategoryEntity;
 }

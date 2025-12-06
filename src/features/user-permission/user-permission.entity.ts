@@ -4,7 +4,6 @@ import {
 	DeleteDateColumn,
 	Entity,
 	Index,
-	JoinColumn,
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -36,30 +35,17 @@ export default class UserPermissionEntity {
 	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: false })
 	deleted_at!: Date | null;
 
-	@ManyToOne(
-		() => UserEntity,
-		(user) => user.permissions,
-		{ onDelete: 'CASCADE' },
-	)
-	@JoinColumn({
-		name: 'user_id', // The column in this entity that references the foreign key
-		referencedColumnName: 'id', // The column in the referenced entity (UserEntity)
-		foreignKeyConstraintName: 'FK_user_permission_user_id', // Custom foreign key name
+	// VIRTUAL
+	contextData?: EntityContextData;
+
+	// RELATIONS
+	@ManyToOne(() => UserEntity, {
+		onDelete: 'CASCADE',
 	})
 	user?: UserEntity;
 
-	@ManyToOne(
-		() => PermissionEntity,
-		(permission) => permission.user_permissions,
-		{ onDelete: 'CASCADE' },
-	)
-	@JoinColumn({
-		name: 'permission_id', // The column in this entity that references the foreign key
-		referencedColumnName: 'id', // The column in the referenced entity (UserEntity)
-		foreignKeyConstraintName: 'FK_user_permission_permission_id', // Custom foreign key name
+	@ManyToOne(() => PermissionEntity, {
+		onDelete: 'CASCADE',
 	})
 	permission?: PermissionEntity;
-
-	// Virtual
-	contextData?: EntityContextData;
 }

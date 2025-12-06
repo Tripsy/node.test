@@ -1,37 +1,58 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
-import { EntityAbstract, type EntityContextData } from '@/abstracts/entity.abstract';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import {
+	EntityAbstract,
+	type EntityContextData,
+} from '@/abstracts/entity.abstract';
 import ProductEntity from '@/features/product/product.entity';
 import TermEntity from '@/features/term/term.entity';
 
 @Entity({
-    name: 'product_attribute',
-    schema: 'public',
-    comment: 'Key/value attributes for products, using multilingual terms',
+	name: 'product_attribute',
+	schema: 'public',
+	comment: 'Key/value attributes for products, using multilingual terms',
 })
+@Index(
+	'IDX_product_attribute_unique',
+	['product_id', 'attribute_label_id', 'attribute_value_id'],
+	{
+		unique: true,
+	},
+)
 export default class ProductAttributeEntity extends EntityAbstract {
-    @Column('bigint', { nullable: false })
-    product_id!: number;
+	@Column('bigint', { nullable: false })
+	@Index('IDX_product_attribute_product_id')
+	product_id!: number;
 
-    @ManyToOne(() => ProductEntity, (product) => product.id, {
-        onDelete: 'CASCADE',
-    })
-    product!: ProductEntity;
+	@Column('bigint', { nullable: false })
+	attribute_label_id!: number;
 
-    @Column('bigint', { nullable: false })
-    attribute_label_id!: number;
+	@Column('bigint', { nullable: false })
+	attribute_value_id!: number;
 
-    @ManyToOne(() => TermEntity, (term) => term.id, {
-        onDelete: 'RESTRICT',
-    })
-    attribute_label!: TermEntity;
+	// VIRTUAL
+	contextData?: EntityContextData;
 
-    @Column('bigint', { nullable: false })
-    attribute_value_id!: number;
+	// RELATIONS
+	@ManyToOne(() => ProductEntity, {
+		onDelete: 'CASCADE',
+	})
+	product!: ProductEntity;
 
-    @ManyToOne(() => TermEntity, (term) => term.id, {
-        onDelete: 'RESTRICT',
-    })
-    attribute_value!: TermEntity;
+	@ManyToOne(
+		() => TermEntity,
+		(term) => term.id,
+		{
+			onDelete: 'RESTRICT',
+		},
+	)
+	attribute_label!: TermEntity;
 
-    contextData?: EntityContextData;
+	@ManyToOne(
+		() => TermEntity,
+		(term) => term.id,
+		{
+			onDelete: 'RESTRICT',
+		},
+	)
+	attribute_value!: TermEntity;
 }

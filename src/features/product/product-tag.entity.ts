@@ -1,39 +1,44 @@
-import { Column, Entity, ManyToOne, Index } from 'typeorm';
-import { EntityAbstract, type EntityContextData } from '@/abstracts/entity.abstract';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import {
+	EntityAbstract,
+	type EntityContextData,
+} from '@/abstracts/entity.abstract';
 import ProductEntity from '@/features/product/product.entity';
 import TermEntity from '@/features/term/term.entity';
 
 @Entity({
-    name: 'product_tag',
-    schema: 'public',
-    comment: 'Links products to tag terms',
+	name: 'product_tag',
+	schema: 'public',
+	comment: 'Links products to tag terms',
 })
 @Index('IDX_product_tag_unique', ['product_id', 'tag_id'], {
-    unique: true,
+	unique: true,
 })
 export default class ProductTagEntity extends EntityAbstract {
-    @Column('bigint', { nullable: false })
-    product_id!: number;
+	@Column('bigint', { nullable: false })
+	product_id!: number;
 
-    @ManyToOne(() => ProductEntity, (product) => product.id, {
-        onDelete: 'CASCADE',
-    })
-    product!: ProductEntity;
+	@Column('bigint', { nullable: false })
+	@Index('IDX_product_tag_tag_id')
+	tag_id!: number;
 
-    @Column('bigint', { nullable: false })
-    tag_id!: number;
+	@Column('jsonb', {
+		nullable: true,
+		comment: 'Reserved column for future use',
+	})
+	details!: Record<string, string | number | boolean>;
 
-    @ManyToOne(() => TermEntity, (term) => term.id, {
-        onDelete: 'RESTRICT',
-    })
-    tag!: TermEntity;
+	// VIRTUAL
+	contextData?: EntityContextData;
 
-    @Column('jsonb', {
-        nullable: true,
-        comment:
-            'Reserved column for future use',
-    })
-    details!: Record<string, string | number | boolean>;
+	// RELATIONS
+	@ManyToOne(() => ProductEntity, {
+		onDelete: 'CASCADE',
+	})
+	product!: ProductEntity;
 
-    contextData?: EntityContextData;
+	@ManyToOne(() => TermEntity, {
+		onDelete: 'RESTRICT',
+	})
+	tag!: TermEntity;
 }

@@ -10,42 +10,42 @@ import OrderProductEntity from '@/features/order/order-product.entity';
 import OrderShippingEntity from '@/features/order/order-shipping.entity';
 
 @Entity({
-	name: 'order_product_shipping',
+	name: 'order_shipping_product',
 	schema: 'public',
 	comment: 'Allocation of ordered products to specific shipments',
 })
-export default class OrderProductShippingEntity {
+@Index('IDX_order_shipping_product_unique', ['order_shipping_id', 'order_product_id'], {
+    unique: true,
+})
+export default class OrderShippingProductEntity {
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 
 	@Column('bigint', { nullable: false })
-	@Index('IDX_order_product_shipping_product_id')
+	@Index('IDX_order_shipping_product_order_product_id')
 	order_product_id!: number;
 
-	@ManyToOne(
-		() => OrderProductEntity,
-		(item) => item.id,
-		{ onDelete: 'CASCADE' },
-	)
-	order_product!: OrderProductEntity;
-
 	@Column('bigint', { nullable: false })
-	@Index('IDX_order_product_shipping_shipping_id')
 	order_shipping_id!: number;
-
-	@ManyToOne(
-		() => OrderShippingEntity,
-		(shipping) => shipping.id,
-		{ onDelete: 'CASCADE' },
-	)
-	order_shipping!: OrderShippingEntity;
 
 	@Column('numeric', { precision: 12, scale: 2, nullable: false })
 	quantity!: number;
 
+	// OTHER
 	@Column('text', { nullable: true })
 	notes!: string | null;
 
-	// Virtual
+	// VIRTUAL
 	contextData?: EntityContextData;
+
+	// RELATIONS
+	@ManyToOne(() => OrderProductEntity, {
+		onDelete: 'RESTRICT',
+	})
+	order_product!: OrderProductEntity;
+
+	@ManyToOne(() => OrderShippingEntity, {
+		onDelete: 'RESTRICT',
+	})
+	order_shipping!: OrderShippingEntity;
 }
