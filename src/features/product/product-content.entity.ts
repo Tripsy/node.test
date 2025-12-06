@@ -3,8 +3,8 @@ import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
+import TermEntity from '@/features/term/term.entity';
 import ProductEntity from './product.entity';
-import TermEntity from "@/features/term/term.entity";
 
 @Entity({
 	name: 'product_content',
@@ -55,18 +55,18 @@ export default class ProductContentEntity extends EntityAbstract {
 	})
 	product!: ProductEntity;
 
-    @ManyToOne(() => TermEntity, {
-        onDelete: 'RESTRICT',
-    })
-    label!: TermEntity;
+	@ManyToOne(() => TermEntity, {
+		onDelete: 'RESTRICT',
+	})
+	label!: TermEntity;
 
-    @ManyToOne(() => TermEntity, {
-        onDelete: 'RESTRICT',
-    })
-    slug!: TermEntity;
+	@ManyToOne(() => TermEntity, {
+		onDelete: 'RESTRICT',
+	})
+	slug!: TermEntity;
 
-    @ManyToOne(() => TermEntity, {
-        onDelete: 'SET NULL',
-    })
-    description!: TermEntity | null;
+	@ManyToOne(() => TermEntity, {
+		onDelete: 'SET NULL',
+	})
+	description!: TermEntity | null;
 }

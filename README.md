@@ -106,8 +106,8 @@ $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/c
 $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 
 // Import seed data
-$ pnpx tsx /var/www/html/src/seed-data/template.seed.ts  
-$ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
+$ pnpx tsx /var/www/html/src/database/seed-data/template.seed.ts  
+$ pnpx tsx /var/www/html/src/database/seed-data/permission.seed.ts
 ```
 
 # Dependencies

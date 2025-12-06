@@ -58,10 +58,7 @@ export const UserCreateValidator = z
 			.nativeEnum(UserRoleEnum)
 			.optional()
 			.default(UserRoleEnum.MEMBER),
-		operator_type: z
-			.nativeEnum(UserOperatorTypeEnum)
-			.nullable()
-			.optional(),
+		operator_type: z.nativeEnum(UserOperatorTypeEnum).nullable().optional(),
 	})
 	.superRefine(({ password, password_confirm }, ctx) => {
 		if (password !== password_confirm) {
@@ -84,7 +81,9 @@ export const UserCreateValidator = z
 		if (role !== UserRoleEnum.OPERATOR && operator_type) {
 			ctx.addIssue({
 				path: ['operator_type'],
-				message: lang('user.validation.operator_type_only_for_operator'),
+				message: lang(
+					'user.validation.operator_type_only_for_operator',
+				),
 				code: z.ZodIssueCode.custom,
 			});
 		}
@@ -153,10 +152,7 @@ export const UserUpdateValidator = z
 			.length(2, { message: lang('user.validation.language_invalid') })
 			.optional(),
 		role: z.nativeEnum(UserRoleEnum).optional(),
-		operator_type: z
-			.nativeEnum(UserOperatorTypeEnum)
-			.nullable()
-			.optional(),
+		operator_type: z.nativeEnum(UserOperatorTypeEnum).nullable().optional(),
 	})
 	.refine((data) => hasAtLeastOneValue(data), {
 		message: lang('error.params_at_least_one', {
@@ -175,7 +171,10 @@ export const UserUpdateValidator = z
 	})
 	.superRefine(({ role, operator_type }, ctx) => {
 		// If role is being set to OPERATOR, operator_type must be provided
-		if (role === UserRoleEnum.OPERATOR && (operator_type === null || operator_type === undefined)) {
+		if (
+			role === UserRoleEnum.OPERATOR &&
+			(operator_type === null || operator_type === undefined)
+		) {
 			ctx.addIssue({
 				path: ['operator_type'],
 				message: lang('user.validation.operator_type_required'),
@@ -184,10 +183,17 @@ export const UserUpdateValidator = z
 		}
 
 		// If role is being set to something other than OPERATOR, operator_type must be null
-		if (role && role !== UserRoleEnum.OPERATOR && operator_type !== null && operator_type !== undefined) {
+		if (
+			role &&
+			role !== UserRoleEnum.OPERATOR &&
+			operator_type !== null &&
+			operator_type !== undefined
+		) {
 			ctx.addIssue({
 				path: ['operator_type'],
-				message: lang('user.validation.operator_type_only_for_operator'),
+				message: lang(
+					'user.validation.operator_type_only_for_operator',
+				),
 				code: z.ZodIssueCode.custom,
 			});
 		}

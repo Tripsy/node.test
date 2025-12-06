@@ -93,7 +93,7 @@ export default class OrderInvoiceEntity extends EntityAbstract {
 	})
 	invoice_number!: number;
 
-    @Index('IDX_order_invoice_status')
+	@Index('IDX_order_invoice_status')
 	@Column({
 		type: 'enum',
 		enum: InvoiceStatusEnum,

@@ -3,6 +3,7 @@ import {
 	CreateDateColumn,
 	Entity,
 	Index,
+	JoinColumn,
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -41,5 +42,6 @@ export default class AccountRecoveryEntity {
 	@ManyToOne(() => UserEntity, {
 		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'user_id' })
 	user?: UserEntity;
 }

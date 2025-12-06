@@ -30,7 +30,7 @@ export default class OrderEntity extends EntityAbstract {
 	@Index('IDX_order_client_id')
 	client_id!: number;
 
-    @Index('IDX_order_status')
+	@Index('IDX_order_status')
 	@Column({
 		type: 'enum',
 		enum: OrderStatusEnum,
@@ -39,7 +39,7 @@ export default class OrderEntity extends EntityAbstract {
 	})
 	status!: OrderStatusEnum;
 
-    @Index('IDX_order_issued_at')
+	@Index('IDX_order_issued_at')
 	@Column({ type: 'timestamp', nullable: false })
 	issued_at!: Date;
 

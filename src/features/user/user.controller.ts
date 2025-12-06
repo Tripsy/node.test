@@ -3,7 +3,7 @@ import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
 import AccountTokenRepository from '@/features/account/account-token.repository';
-import UserEntity, {UserRoleEnum} from '@/features/user/user.entity';
+import UserEntity, { UserRoleEnum } from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
 import UserRepository, { UserQuery } from '@/features/user/user.repository';
 import {

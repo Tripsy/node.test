@@ -14,9 +14,13 @@ import OrderShippingEntity from '@/features/order/order-shipping.entity';
 	schema: 'public',
 	comment: 'Allocation of ordered products to specific shipments',
 })
-@Index('IDX_order_shipping_product_unique', ['order_shipping_id', 'order_product_id'], {
-    unique: true,
-})
+@Index(
+	'IDX_order_shipping_product_unique',
+	['order_shipping_id', 'order_product_id'],
+	{
+		unique: true,
+	},
+)
 export default class OrderShippingProductEntity {
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;

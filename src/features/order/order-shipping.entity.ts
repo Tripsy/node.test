@@ -26,7 +26,7 @@ export default class OrderShippingEntity extends EntityAbstract {
 	@Index('IDX_order_shipping_order_id')
 	order_id!: number;
 
-    @Index('IDX_order_shipping_status')
+	@Index('IDX_order_shipping_status')
 	@Column({
 		type: 'enum',
 		enum: ShippingStatusEnum,
