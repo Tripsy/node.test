@@ -1,4 +1,4 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
@@ -35,10 +35,12 @@ export default class ProductCategoryEntity extends EntityAbstract {
 	@ManyToOne(() => ProductEntity, {
 		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'product_id' })
 	product!: ProductEntity;
 
 	@ManyToOne(() => CategoryEntity, {
 		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'category_id' })
 	category!: CategoryEntity;
 }

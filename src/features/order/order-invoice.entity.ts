@@ -1,4 +1,4 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
@@ -142,5 +142,6 @@ export default class OrderInvoiceEntity extends EntityAbstract {
 	@ManyToOne(() => OrderEntity, {
 		onDelete: 'RESTRICT',
 	})
+	@JoinColumn({ name: 'order_id' })
 	order!: OrderEntity;
 }

@@ -4,6 +4,7 @@ import {
 	DeleteDateColumn,
 	Entity,
 	Index,
+	JoinColumn,
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -42,10 +43,12 @@ export default class UserPermissionEntity {
 	@ManyToOne(() => UserEntity, {
 		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'user_id' })
 	user?: UserEntity;
 
 	@ManyToOne(() => PermissionEntity, {
 		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'permission_id' })
 	permission?: PermissionEntity;
 }

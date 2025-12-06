@@ -2,6 +2,7 @@ import {
 	Column,
 	Entity,
 	Index,
+	JoinColumn,
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -46,10 +47,12 @@ export default class OrderShippingProductEntity {
 	@ManyToOne(() => OrderProductEntity, {
 		onDelete: 'RESTRICT',
 	})
+	@JoinColumn({ name: 'order_product_id' })
 	order_product!: OrderProductEntity;
 
 	@ManyToOne(() => OrderShippingEntity, {
 		onDelete: 'RESTRICT',
 	})
+	@JoinColumn({ name: 'order_shipping_id' })
 	order_shipping!: OrderShippingEntity;
 }

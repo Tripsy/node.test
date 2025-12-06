@@ -1,4 +1,4 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
@@ -131,10 +131,12 @@ export default class OrderShippingEntity extends EntityAbstract {
 	@ManyToOne(() => OrderEntity, {
 		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'order_id' })
 	order!: OrderEntity;
 
 	@ManyToOne(() => CarrierEntity, {
 		onDelete: 'RESTRICT',
 	})
+	@JoinColumn({ name: 'carrier_id' })
 	carrier!: CarrierEntity | null;
 }
