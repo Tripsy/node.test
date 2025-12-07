@@ -4,6 +4,10 @@ import accountRoutes, {
 	accountRoutesBasePath,
 	accountRoutesConfig,
 } from '@/features/account/account.routes';
+import carrierRoutes, {
+	carrierRoutesBasePath,
+	carrierRoutesConfig,
+} from '@/features/carrier/carrier.routes';
 import cronHistoryRoutes, {
 	cronHistoryRoutesBasePath,
 	cronHistoryRoutesConfig,
@@ -47,6 +51,7 @@ export const initRoutes = (): Router => {
 	const router = Router();
 
 	router.use(accountRoutes);
+	router.use(carrierRoutes);
 	router.use(cronHistoryRoutes);
 	router.use(logDataRoutes);
 	router.use(mailQueueRoutes);
@@ -99,6 +104,7 @@ export function baseLink(): string {
 
 const routesPath = {
 	account: extractRoutesPath(accountRoutesConfig, accountRoutesBasePath),
+	carrier: extractRoutesPath(carrierRoutesConfig, carrierRoutesBasePath),
 	cronHistory: extractRoutesPath(
 		cronHistoryRoutesConfig,
 		cronHistoryRoutesBasePath,

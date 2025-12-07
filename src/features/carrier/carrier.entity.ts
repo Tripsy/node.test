@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
@@ -12,6 +12,7 @@ import OrderShippingEntity from '@/features/order/order-shipping.entity';
 })
 export default class CarrierEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false, unique: true })
+	@Index('IDX_carrier_name', { unique: true })
 	name!: string;
 
 	@Column('varchar', { nullable: true })

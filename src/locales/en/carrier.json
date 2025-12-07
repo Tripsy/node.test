@@ -1,0 +1,26 @@
+{
+	"validation": {
+		"name_invalid": "Name is invalid",
+		"website_invalid": "Website URL is invalid",
+		"phone_invalid": "Phone is invalid",
+		"email_invalid": "Email is invalid",
+		"notes_invalid": "Notes is invalid"
+	},
+	"error": {
+		"not_found": "Carrier not found",
+		"name_already_used": "Name already used by another carrier"
+	},
+	"success": {
+		"create": "Carrier created successfully",
+		"update": "Carrier updated successfully",
+		"delete": "Carrier deleted successfully",
+		"restore": "Carrier restored successfully"
+	},
+	"history": {
+		"created": "Carrier #{{id}} created by user #{{auth_id}}",
+		"updated": "Carrier #{{id}} updated by user #{{auth_id}}",
+		"deleted": "Carrier #{{id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Carrier #{{id}} has been removed by user #{{auth_id}}",
+		"restored": "Carrier #{{id}} has been restored by user #{{auth_id}}"
+	}
+}

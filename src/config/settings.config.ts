@@ -23,6 +23,7 @@ const settingsConfig: { [key: string]: ObjectValue } = {
 			.split(','),
 		languageNamespaces: [
 			'account',
+			'carrier',
 			'cron_history',
 			'debug',
 			'error',

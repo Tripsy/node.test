@@ -30,6 +30,7 @@ describe('authMiddleware', () => {
 				name: '',
 				language: '',
 				role: UserRoleEnum.ADMIN,
+				operator_type: null,
 				permissions: [],
 				activeToken: '',
 			},

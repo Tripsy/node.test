@@ -51,6 +51,7 @@ describe('AccountController - register', () => {
 		status: UserStatusEnum.PENDING,
 		language: 'en',
 		role: UserRoleEnum.MEMBER,
+		operator_type: null,
 		created_at: new Date(),
 		updated_at: null,
 		deleted_at: null,
