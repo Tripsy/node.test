@@ -19,10 +19,6 @@ export function buildSrcPath(...args: string[]): string {
 	return buildPath(cfg('app.srcPath') as string, ...args);
 }
 
-export function apiDocumentationUrl(...args: string[]): string {
-	return `${cfg('app.url')}/api-docs/${args.join('/')}`;
-}
-
 /**
  * Check if a string is a valid IP address
  *

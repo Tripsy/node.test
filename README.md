@@ -138,14 +138,13 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. create more validators utilities
-2. discount 
-3. create a library / package for my utilities - drop moment !!!
-4. image as id, type (product, category, etc.), language, entity_id, image_content )
-5. Entity `country`. Does it make sense to create a "places" table: country, country_abbr, region, region_abbr, region_label (eg: judet), city, city_abbr, address, postal_code
-6. add brand ( & update product entity)
-7. article
-8. wip entities:
+1. discount 
+2. image as id, type (product, category, etc.), language, entity_id, image_content )
+3. Entity `country`. Does it make sense to create a "places" table: country, country_abbr, region, region_abbr, region_label (eg: judet), city, city_abbr, address, postal_code
+4. add brand ( & update product entity)
+5. create a library / package for my utilities - drop moment !!!
+6. article
+7. wip entities:
      // carrier
     - client 
     - discount
@@ -164,7 +163,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - term
     - category
       - category-content
-9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+8. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # BUGS & ISSUES
 

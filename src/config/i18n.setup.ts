@@ -105,7 +105,7 @@ export const lang = (
 		}
 
 		throw Error(
-			`Namespace "${ns}" not found. Available namespaces: ${availableNamespaces.join(', ')}.`,
+			`Namespace "${ns}" not found. Available namespaces declared in 'settings.config.ts': ${availableNamespaces.join(', ')}.`,
 		);
 	}
 
