@@ -1,33 +1,3 @@
-import net from 'node:net';
-import sanitizeHtml from 'sanitize-html';
-
-/**
- * Check if a string is a valid IP address
- *
- * @param {string} ip - The IP address to check
- * @returns {boolean} - True if the IP address is valid, false otherwise
- */
-export function isValidIp(ip: string): boolean {
-	return net.isIP(ip) !== 0; // Returns 4 for IPv4, 6 for IPv6, and 0 for invalid
-}
-
-/**
- * Replace variables in a string
- * Ex variables: {{key}}, {{Key}}, {{sub_key}}, {{key1}}
- *
- * @param {string} content - The string to replace template variables in
- * @param {Record<string, string>} vars - The template variables to replace
- * @returns {string} - The string with template variables replaced
- */
-export function replaceVars(
-	content: string,
-	vars: Record<string, string> = {},
-): string {
-	return content.replace(/{{(\w+)}}/g, (_, key) =>
-		key in vars ? vars[key] : `{{${key}}}`,
-	);
-}
-
 export type ObjectValue =
 	| string
 	| number
@@ -103,6 +73,12 @@ export function setObjectValue(
 	return false;
 }
 
+/**
+ * Check if an object has at least one value
+ *
+ * @param {unknown} obj - The object to check
+ * @returns {boolean} - True if the object has at least one value, false otherwise
+ */
 export function hasAtLeastOneValue(obj: unknown): boolean {
 	if (obj === null || obj === undefined) return false;
 
@@ -120,47 +96,4 @@ export function hasAtLeastOneValue(obj: unknown): boolean {
 
 	// Check children
 	return values.some((v) => hasAtLeastOneValue(v));
-}
-
-export function safeHtml(dirtyHtml: string): string {
-	return sanitizeHtml(dirtyHtml, {
-		allowedTags: [
-			'p',
-			'br',
-			'strong',
-			'em',
-			'i',
-			'b',
-			'u',
-			'span',
-			'div',
-			'h1',
-			'h2',
-			'h3',
-			'h4',
-			'h5',
-			'h6',
-			'ul',
-			'ol',
-			'li',
-			'blockquote',
-			'code',
-			'pre',
-			'a',
-			'img',
-			'table',
-			'thead',
-			'tbody',
-			'tr',
-			'th',
-			'td',
-		],
-		allowedAttributes: {
-			a: ['href', 'title', 'target'],
-			img: ['src', 'alt', 'width', 'height'],
-		},
-		disallowedTagsMode: 'discard',
-		allowedSchemes: ['http', 'https', 'mailto'],
-		allowProtocolRelative: false,
-	});
 }

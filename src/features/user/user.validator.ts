@@ -8,22 +8,23 @@ import {
 	UserStatusEnum,
 } from '@/features/user/user.entity';
 import {
-	booleanFromString,
-	dateSchema,
 	hasAtLeastOneValue,
-	makeJsonFilterSchema,
+	makeFindValidator,
 	nullableString,
+	validateBoolean,
+	validateDate,
+	validateStringMin,
 } from '@/helpers';
 
 export const UserCreateValidator = z
 	.object({
-		name: z
-			.string({ message: lang('user.validation.name_invalid') })
-			.min(cfg('user.nameMinLength') as number, {
-				message: lang('user.validation.name_min', {
-					min: cfg('user.nameMinLength') as string,
-				}),
+		name: validateStringMin(
+			lang('user.validation.name_invalid'),
+			cfg('user.nameMinLength') as number,
+			lang('user.validation.name_min', {
+				min: cfg('user.nameMinLength') as string,
 			}),
+		),
 		email: z
 			.string({ message: lang('user.validation.email_invalid') })
 			.email({ message: lang('user.validation.email_invalid') }),
@@ -104,14 +105,13 @@ export const paramsUpdateList: string[] = [
 
 export const UserUpdateValidator = z
 	.object({
-		name: z
-			.string({ message: lang('user.validation.name_invalid') })
-			.min(cfg('user.nameMinLength') as number, {
-				message: lang('user.validation.name_min', {
-					min: cfg('user.nameMinLength') as string,
-				}),
-			})
-			.optional(),
+		name: validateStringMin(
+			lang('user.validation.name_invalid'),
+			cfg('user.nameMinLength') as number,
+			lang('user.validation.name_min', {
+				min: cfg('user.nameMinLength') as string,
+			}),
+		).optional(),
 		email: z
 			.string({ message: lang('user.validation.email_invalid') })
 			.email({ message: lang('user.validation.email_invalid') })
@@ -205,58 +205,34 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export const UserFindValidator = z
-	.object({
-		order_by: z.nativeEnum(OrderByEnum).optional().default(OrderByEnum.ID),
-		direction: z
-			.nativeEnum(OrderDirectionEnum)
-			.optional()
-			.default(OrderDirectionEnum.ASC),
-		limit: z.coerce
+export const UserFindValidator = makeFindValidator({
+	orderByEnum: OrderByEnum,
+	defaultOrderBy: OrderByEnum.ID,
+
+	directionEnum: OrderDirectionEnum,
+	defaultDirection: OrderDirectionEnum.ASC,
+
+	filterShape: {
+		id: z.coerce
 			.number({ message: lang('error.invalid_number') })
-			.min(1)
-			.optional()
-			.default(cfg('filter.limit') as number),
-		page: z.coerce
-			.number({ message: lang('error.invalid_number') })
-			.min(1)
-			.optional()
-			.default(1),
-		filter: makeJsonFilterSchema({
-			id: z.coerce
-				.number({ message: lang('error.invalid_number') })
-				.optional(),
-			term: z
-				.string({ message: lang('error.invalid_string') })
-				.optional(),
-			status: z.nativeEnum(UserStatusEnum).optional(),
-			role: z.nativeEnum(UserRoleEnum).optional(),
-			create_date_start: dateSchema(),
-			create_date_end: dateSchema(),
-			is_deleted: booleanFromString().default(false),
-		})
-			.optional()
-			.default({
-				id: undefined,
-				term: undefined,
-				status: undefined,
-				role: undefined,
-				operator_type: undefined,
-				create_date_start: undefined,
-				create_date_end: undefined,
-				is_deleted: false,
-			}),
-	})
-	.superRefine((data, ctx) => {
-		if (
-			data.filter.create_date_start &&
-			data.filter.create_date_end &&
-			data.filter.create_date_start > data.filter.create_date_end
-		) {
-			ctx.addIssue({
-				path: ['filter', 'create_date_start'],
-				message: lang('error.invalid_date_range'),
-				code: z.ZodIssueCode.custom,
-			});
-		}
-	});
+			.optional(),
+		term: z.string({ message: lang('error.invalid_string') }).optional(),
+		status: z.nativeEnum(UserStatusEnum).optional(),
+		role: z.nativeEnum(UserRoleEnum).optional(),
+		create_date_start: validateDate(),
+		create_date_end: validateDate(),
+		is_deleted: validateBoolean().default(false),
+	},
+}).superRefine((data, ctx) => {
+	if (
+		data.filter.create_date_start &&
+		data.filter.create_date_end &&
+		data.filter.create_date_start > data.filter.create_date_end
+	) {
+		ctx.addIssue({
+			path: ['filter', 'create_date_start'],
+			message: lang('error.invalid_date_range'),
+			code: z.ZodIssueCode.custom,
+		});
+	}
+});

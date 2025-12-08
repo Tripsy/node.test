@@ -1,16 +1,17 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
+import { validateStringMin } from '@/helpers';
 
 export const AccountRegisterValidator = z
 	.object({
-		name: z
-			.string({ message: lang('account.validation.name_invalid') })
-			.min(cfg('user.nameMinLength') as number, {
-				message: lang('account.validation.name_min', {
-					min: cfg('user.nameMinLength') as string,
-				}),
+		name: validateStringMin(
+			lang('account.validation.name_invalid'),
+			cfg('user.nameMinLength') as number,
+			lang('account.validation.name_min', {
+				min: cfg('user.nameMinLength') as string,
 			}),
+		),
 		email: z
 			.string({ message: lang('account.validation.email_invalid') })
 			.email({ message: lang('account.validation.email_invalid') }),
@@ -159,16 +160,14 @@ export const AccountEmailUpdateValidator = z.object({
 		.email({ message: lang('account.validation.email_invalid') }),
 });
 
-export const paramsUpdateList: string[] = ['name', 'language'];
-
 export const AccountEditValidator = z.object({
-	name: z
-		.string({ message: lang('account.validation.name_invalid') })
-		.min(cfg('user.nameMinLength') as number, {
-			message: lang('account.validation.name_min', {
-				min: cfg('user.nameMinLength') as string,
-			}),
+	name: validateStringMin(
+		lang('account.validation.name_invalid'),
+		cfg('user.nameMinLength') as number,
+		lang('account.validation.name_min', {
+			min: cfg('user.nameMinLength') as string,
 		}),
+	),
 	language: z
 		.string({ message: lang('account.validation.language_invalid') })
 		.length(2, { message: lang('account.validation.language_invalid') }),

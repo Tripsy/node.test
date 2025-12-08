@@ -3,10 +3,10 @@ import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import {
-	booleanFromString,
 	hasAtLeastOneValue,
 	makeJsonFilterSchema,
 	nullableString,
+	validateBoolean,
 } from '@/helpers';
 
 export const CarrierCreateValidator = z.object({
@@ -111,7 +111,7 @@ export const CarrierFindValidator = z.object({
 			.number({ message: lang('error.invalid_number') })
 			.optional(),
 		term: z.string({ message: lang('error.invalid_string') }).optional(),
-		is_deleted: booleanFromString().default(false),
+		is_deleted: validateBoolean().default(false),
 	})
 		.optional()
 		.default({
