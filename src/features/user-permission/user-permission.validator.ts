@@ -2,8 +2,7 @@ import { z } from 'zod';
 import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import BadRequestError from '@/exceptions/bad-request.error';
-import { parseJsonFilter } from '@/helpers/utils.helper';
+import { booleanFromString, makeJsonFilterSchema } from '@/helpers';
 
 export const UserPermissionCreateValidator = z.object({
 	permission_ids: z.array(z.number(), {
@@ -37,42 +36,30 @@ export const UserPermissionFindValidator = z.object({
 		.min(1)
 		.optional()
 		.default(1),
-	filter: z
-		.preprocess(
-			(val) =>
-				parseJsonFilter(val, () => {
-					throw new BadRequestError(lang('error.invalid_filter'));
+	filter: makeJsonFilterSchema({
+		user_id: z.coerce
+			.number({ message: lang('error.invalid_number') })
+			.optional(),
+		entity: z
+			.string({ message: lang('error.invalid_string') })
+			.min(cfg('filter.termMinLength') as number, {
+				message: lang('error.string_min', {
+					min: cfg('filter.termMinLength') as string,
+					field: 'entity',
 				}),
-			z.object({
-				user_id: z.coerce
-					.number({ message: lang('error.invalid_number') })
-					.optional(),
-				entity: z
-					.string({ message: lang('error.invalid_string') })
-					.min(cfg('filter.termMinLength') as number, {
-						message: lang('error.string_min', {
-							min: cfg('filter.termMinLength') as string,
-							field: 'entity',
-						}),
-					})
-					.optional(),
-				operation: z
-					.string({ message: lang('error.invalid_string') })
-					.min(cfg('filter.termMinLength') as number, {
-						message: lang('error.string_min', {
-							min: cfg('filter.termMinLength') as string,
-							field: 'operation',
-						}),
-					})
-					.optional(),
-				is_deleted: z
-					.preprocess(
-						(val) => val === 'true' || val === true,
-						z.boolean({ message: lang('error.invalid_boolean') }),
-					)
-					.default(false),
-			}),
-		)
+			})
+			.optional(),
+		operation: z
+			.string({ message: lang('error.invalid_string') })
+			.min(cfg('filter.termMinLength') as number, {
+				message: lang('error.string_min', {
+					min: cfg('filter.termMinLength') as string,
+					field: 'operation',
+				}),
+			})
+			.optional(),
+		is_deleted: booleanFromString().default(false),
+	})
 		.optional()
 		.default({
 			user_id: undefined,

@@ -12,7 +12,7 @@ import CronHistoryEntity, {
 } from '@/features/cron-history/cron-history.entity';
 import CronHistoryRepository from '@/features/cron-history/cron-history.repository';
 import { LogDataCategoryEnum } from '@/features/log-data/log-data.entity';
-import { dateDiffInSeconds } from '@/helpers/date.helper';
+import { dateDiffInSeconds } from '@/helpers';
 import logger, { childLogger } from '@/providers/logger.provider';
 
 const cronLogger: Logger = childLogger(logger, LogDataCategoryEnum.CRON);

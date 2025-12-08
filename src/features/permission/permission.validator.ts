@@ -2,8 +2,7 @@ import { z } from 'zod';
 import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import BadRequestError from '@/exceptions/bad-request.error';
-import { parseJsonFilter } from '@/helpers/utils.helper';
+import { booleanFromString, makeJsonFilterSchema } from '@/helpers';
 
 export const PermissionCreateValidator = z.object({
 	entity: z.string({ message: lang('permission.validation.entity_invalid') }),
@@ -40,27 +39,13 @@ export const PermissionFindValidator = z.object({
 		.min(1)
 		.optional()
 		.default(1),
-	filter: z
-		.preprocess(
-			(val) =>
-				parseJsonFilter(val, () => {
-					throw new BadRequestError(lang('error.invalid_filter'));
-				}),
-			z.object({
-				id: z.coerce
-					.number({ message: lang('error.invalid_number') })
-					.optional(),
-				term: z
-					.string({ message: lang('error.invalid_string') })
-					.optional(),
-				is_deleted: z
-					.preprocess(
-						(val) => val === 'true' || val === true,
-						z.boolean({ message: lang('error.invalid_boolean') }),
-					)
-					.default(false),
-			}),
-		)
+	filter: makeJsonFilterSchema({
+		id: z.coerce
+			.number({ message: lang('error.invalid_number') })
+			.optional(),
+		term: z.string({ message: lang('error.invalid_string') }).optional(),
+		is_deleted: booleanFromString().default(false),
+	})
 		.optional()
 		.default({
 			id: undefined,

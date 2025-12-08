@@ -12,6 +12,10 @@ import cronHistoryRoutes, {
 	cronHistoryRoutesBasePath,
 	cronHistoryRoutesConfig,
 } from '@/features/cron-history/cron-history.routes';
+import discountRoutes, {
+	discountRoutesBasePath,
+	discountRoutesConfig,
+} from '@/features/discount/discount.routes';
 import logDataRoutes, {
 	logDataRoutesBasePath,
 	logDataRoutesConfig,
@@ -33,7 +37,7 @@ import userRoutes, {
 	userRoutesConfig,
 } from '@/features/user/user.routes';
 import userPermissionRoutes from '@/features/user-permission/user-permission.routes';
-import { getObjectValue } from '@/helpers/utils.helper';
+import { getObjectValue } from '@/helpers';
 import metaDocumentation from '@/middleware/meta-documentation.middleware';
 
 type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
@@ -53,6 +57,7 @@ export const initRoutes = (): Router => {
 	router.use(accountRoutes);
 	router.use(carrierRoutes);
 	router.use(cronHistoryRoutes);
+	router.use(discountRoutes);
 	router.use(logDataRoutes);
 	router.use(mailQueueRoutes);
 	router.use(permissionRoutes);
@@ -109,6 +114,7 @@ const routesPath = {
 		cronHistoryRoutesConfig,
 		cronHistoryRoutesBasePath,
 	),
+	discount: extractRoutesPath(discountRoutesConfig, discountRoutesBasePath),
 	logData: extractRoutesPath(logDataRoutesConfig, logDataRoutesBasePath),
 	mailQueue: extractRoutesPath(
 		mailQueueRoutesConfig,

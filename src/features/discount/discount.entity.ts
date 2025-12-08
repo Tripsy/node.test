@@ -79,7 +79,7 @@ export default class DiscountEntity extends EntityAbstract {
 		comment: 'Coupon code, referral code, etc',
 	})
 	@Index('IDX_discount_reference')
-	reference?: string | null;
+	reference!: string | null;
 
 	@Column({
 		type: 'enum',
@@ -97,11 +97,11 @@ export default class DiscountEntity extends EntityAbstract {
 	@Column('decimal', { precision: 12, scale: 2, nullable: false })
 	value!: number;
 
-	@Column({ type: 'timestamp', nullable: false })
-	start_at!: Date;
+	@Column({ type: 'timestamp', nullable: true })
+	start_at!: Date | null;
 
-	@Column({ type: 'timestamp', nullable: false })
-	end_at!: Date;
+	@Column({ type: 'timestamp', nullable: true })
+	end_at!: Date | null;
 
 	// OTHER
 	@Column('text', { nullable: true })

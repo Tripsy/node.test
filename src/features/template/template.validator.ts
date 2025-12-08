@@ -2,13 +2,13 @@ import { z } from 'zod';
 import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import BadRequestError from '@/exceptions/bad-request.error';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
 import {
+	booleanFromString,
 	hasAtLeastOneValue,
-	parseJsonFilter,
+	makeJsonFilterSchema,
 	safeHtml,
-} from '@/helpers/utils.helper';
+} from '@/helpers';
 
 export const TemplateCreateBaseValidator = z.object({
 	label: z.string().nonempty({
@@ -184,38 +184,22 @@ export const TemplateFindValidator = z.object({
 		.min(1)
 		.optional()
 		.default(1),
-	filter: z
-		.preprocess(
-			(val) =>
-				parseJsonFilter(val, () => {
-					throw new BadRequestError(lang('error.invalid_filter'));
-				}),
-			z.object({
-				id: z
-					.number({ message: lang('error.invalid_number') })
-					.optional(),
-				term: z
-					.string({ message: lang('error.invalid_string') })
-					.optional(),
-				language: z
-					.string({ message: lang('error.invalid_string') })
-					.length(2, {
-						message: lang('template.validation.language_invalid'),
-					})
-					.optional(),
-				type: z
-					.nativeEnum(TemplateTypeEnum, {
-						message: lang('template.validation.type_invalid'),
-					})
-					.optional(),
-				is_deleted: z
-					.preprocess(
-						(val) => val === 'true' || val === true,
-						z.boolean({ message: lang('error.invalid_boolean') }),
-					)
-					.default(false),
-			}),
-		)
+	filter: makeJsonFilterSchema({
+		id: z.number({ message: lang('error.invalid_number') }).optional(),
+		term: z.string({ message: lang('error.invalid_string') }).optional(),
+		language: z
+			.string({ message: lang('error.invalid_string') })
+			.length(2, {
+				message: lang('template.validation.language_invalid'),
+			})
+			.optional(),
+		type: z
+			.nativeEnum(TemplateTypeEnum, {
+				message: lang('template.validation.type_invalid'),
+			})
+			.optional(),
+		is_deleted: booleanFromString().default(false),
+	})
 		.optional()
 		.default({
 			id: undefined,

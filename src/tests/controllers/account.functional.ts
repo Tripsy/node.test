@@ -9,7 +9,6 @@ import AccountTokenRepository from '@/features/account/account-token.repository'
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import UserRepository from '@/features/user/user.repository';
-import * as metaDataHelper from '@/helpers/meta-data.helper';
 import * as emailProvider from '@/providers/email.provider';
 import type {
 	AuthValidToken,
@@ -20,8 +19,8 @@ import '../jest-functional.setup';
 import app from '@/app';
 import { routeLink } from '@/config/routes.setup';
 import * as settingsModule from '@/config/settings.config';
-import { createFutureDate } from '@/helpers/date.helper';
-import type { ObjectValue } from '@/helpers/utils.helper';
+import { createFutureDate, type ObjectValue } from '@/helpers';
+import * as metaDataHelper from '@/helpers/meta-data.helper';
 
 jest.mock('jsonwebtoken');
 

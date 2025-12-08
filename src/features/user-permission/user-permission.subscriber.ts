@@ -14,7 +14,7 @@ import {
 	getAuthIdFromContext,
 	isRestore,
 	logHistory,
-} from '@/helpers/subscriber.helper';
+} from '@/helpers';
 
 @EventSubscriber()
 export class UserPermissionSubscriber

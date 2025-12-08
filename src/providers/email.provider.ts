@@ -8,7 +8,7 @@ import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
 import TemplateRepository from '@/features/template/template.repository';
-import { getErrorMessage } from '@/helpers/system.helper';
+import { getErrorMessage } from '@/helpers';
 import { systemLogger } from '@/providers/logger.provider';
 import type { EmailContent, EmailTemplate } from '@/types/template.type';
 

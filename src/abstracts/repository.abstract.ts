@@ -12,7 +12,7 @@ import {
 import { lang } from '@/config/i18n.setup';
 import CustomError from '@/exceptions/custom.error';
 import NotFoundError from '@/exceptions/not-found.error';
-import { formatDate } from '@/helpers/date.helper';
+import { formatDate } from '@/helpers';
 
 type QueryValue = string | number | (string | number)[] | null;
 type QueryParams = Record<string, QueryValue>;

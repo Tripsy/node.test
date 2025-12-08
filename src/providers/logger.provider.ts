@@ -13,7 +13,7 @@ import LogDataEntity, {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
 } from '@/features/log-data/log-data.entity';
-import { buildRootPath } from '@/helpers/system.helper';
+import { buildRootPath } from '@/helpers';
 
 interface CallStackInterface {
 	trace: string[];

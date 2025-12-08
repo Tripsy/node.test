@@ -21,7 +21,7 @@ import {
 	logHistory,
 	removeOperation,
 	restoreOperation,
-} from '@/helpers/subscriber.helper';
+} from '@/helpers';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {

@@ -9,8 +9,8 @@ import {
 	CronHistoryDeleteValidator,
 	CronHistoryFindValidator,
 } from '@/features/cron-history/cron-history.validator';
+import { logHistory } from '@/helpers';
 import asyncHandler from '@/helpers/async.handler';
-import { logHistory } from '@/helpers/subscriber.helper';
 import { getCacheProvider } from '@/providers/cache.provider';
 
 class CronHistoryController {

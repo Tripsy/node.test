@@ -103,25 +103,6 @@ export function setObjectValue(
 	return false;
 }
 
-export function parseJsonFilter(
-	val: unknown,
-	onError: (val: string) => unknown,
-) {
-	if (typeof val === 'string') {
-		if (val.trim() === '') {
-			return {};
-		}
-
-		try {
-			return JSON.parse(val);
-		} catch {
-			return onError(val);
-		}
-	}
-
-	return val;
-}
-
 export function hasAtLeastOneValue(obj: unknown): boolean {
 	if (obj === null || obj === undefined) return false;
 

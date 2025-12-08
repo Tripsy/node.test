@@ -9,8 +9,8 @@ import {
 	MailQueueDeleteValidator,
 	MailQueueFindValidator,
 } from '@/features/mail-queue/mail-queue.validator';
+import { logHistory } from '@/helpers';
 import asyncHandler from '@/helpers/async.handler';
-import { logHistory } from '@/helpers/subscriber.helper';
 import { getCacheProvider } from '@/providers/cache.provider';
 
 class MailQueueController {

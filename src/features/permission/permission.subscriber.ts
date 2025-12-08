@@ -15,7 +15,7 @@ import {
 	logHistory,
 	removeOperation,
 	restoreOperation,
-} from '@/helpers/subscriber.helper';
+} from '@/helpers';
 
 @EventSubscriber()
 export class PermissionSubscriber

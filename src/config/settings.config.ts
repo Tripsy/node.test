@@ -1,10 +1,6 @@
 import 'dotenv/config';
 import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
-import {
-	getObjectValue,
-	type ObjectValue,
-	setObjectValue,
-} from '@/helpers/utils.helper';
+import { getObjectValue, type ObjectValue, setObjectValue } from '@/helpers';
 
 const settingsConfig: { [key: string]: ObjectValue } = {
 	app: {

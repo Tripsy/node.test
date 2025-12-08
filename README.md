@@ -147,7 +147,7 @@ image_content -
 1. client
     - wip
 2. wip entities:
-    - carrier
+     // carrier
     - client 
     - discount
     - order

@@ -4,10 +4,10 @@ import type LogDataEntity from '@/features/log-data/log-data.entity';
 import { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import LogDataPolicy from '@/features/log-data/log-data.policy';
 import LogDataRepository from '@/features/log-data/log-data.repository';
-import * as subscriberHelper from '@/helpers/subscriber.helper';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
 import { routeLink } from '@/config/routes.setup';
+import * as subscriberHelper from '@/helpers/subscriber.helper';
 
 beforeEach(() => {
 	jest.clearAllMocks();

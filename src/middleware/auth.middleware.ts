@@ -6,11 +6,12 @@ import AccountTokenRepository from '@/features/account/account-token.repository'
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import UserRepository from '@/features/user/user.repository';
 import { getPolicyPermissions } from '@/features/user/user.service';
-import { createFutureDate, dateDiffInSeconds } from '@/helpers/date.helper';
 import {
 	compareMetaDataValue,
+	createFutureDate,
+	dateDiffInSeconds,
 	tokenMetaData,
-} from '@/helpers/meta-data.helper';
+} from '@/helpers';
 
 async function authMiddleware(
 	req: Request,
