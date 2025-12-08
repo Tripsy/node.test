@@ -3,7 +3,7 @@ import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history.entity';
-import { formatDate, isValidDate, makeJsonFilterSchema } from '@/helpers';
+import { dateSchema, makeJsonFilterSchema } from '@/helpers';
 
 export const CronHistoryDeleteValidator = z.object({
 	ids: z.array(z.number(), {
@@ -42,38 +42,8 @@ export const CronHistoryFindValidator = z
 				.string({ message: lang('error.invalid_string') })
 				.optional(),
 			status: z.nativeEnum(CronHistoryStatusEnum).optional(),
-			start_date_start: z
-				.string()
-				.optional()
-				.refine(
-					(val) => {
-						if (!val) {
-							return true;
-						} // allow undefined or empty string
-
-						return isValidDate(val); // `false` is string is not a valid date
-					},
-					{
-						message: lang('error.invalid_date'),
-					},
-				)
-				.transform((val) => (val ? formatDate(val) : undefined)),
-			start_date_end: z
-				.string()
-				.optional()
-				.refine(
-					(val) => {
-						if (!val) {
-							return true;
-						} // allow undefined or empty string
-
-						return isValidDate(val); // `false` is string is not a valid date
-					},
-					{
-						message: lang('error.invalid_date'),
-					},
-				)
-				.transform((val) => (val ? formatDate(val) : undefined)),
+			start_date_start: dateSchema(),
+			start_date_end: dateSchema(),
 		})
 			.optional()
 			.default({

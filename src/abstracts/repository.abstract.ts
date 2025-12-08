@@ -480,8 +480,8 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 
 	filterByRange(
 		column: string,
-		min?: Date | string | null,
-		max?: Date | string | null,
+		min?: Date | number | null,
+		max?: Date | number | null,
 	): this {
 		const minValue = min instanceof Date ? formatDate(min) : min;
 		const maxValue = max instanceof Date ? formatDate(max) : max;

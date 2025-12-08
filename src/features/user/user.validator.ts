@@ -9,9 +9,8 @@ import {
 } from '@/features/user/user.entity';
 import {
 	booleanFromString,
-	formatDate,
+	dateSchema,
 	hasAtLeastOneValue,
-	isValidDate,
 	makeJsonFilterSchema,
 	nullableString,
 } from '@/helpers';
@@ -232,38 +231,8 @@ export const UserFindValidator = z
 				.optional(),
 			status: z.nativeEnum(UserStatusEnum).optional(),
 			role: z.nativeEnum(UserRoleEnum).optional(),
-			create_date_start: z
-				.string()
-				.optional()
-				.refine(
-					(val) => {
-						if (!val) {
-							return true;
-						} // allow undefined or empty string
-
-						return isValidDate(val); // `false` is string is not a valid date
-					},
-					{
-						message: lang('error.invalid_date'),
-					},
-				)
-				.transform((val) => (val ? formatDate(val) : undefined)),
-			create_date_end: z
-				.string()
-				.optional()
-				.refine(
-					(val) => {
-						if (!val) {
-							return true;
-						} // allow undefined or empty string
-
-						return isValidDate(val); // `false` is string is not a valid date
-					},
-					{
-						message: lang('error.invalid_date'),
-					},
-				)
-				.transform((val) => (val ? formatDate(val) : undefined)),
+			create_date_start: dateSchema(),
+			create_date_end: dateSchema(),
 			is_deleted: booleanFromString().default(false),
 		})
 			.optional()

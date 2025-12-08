@@ -3,7 +3,7 @@ import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
-import { formatDate, isValidDate, makeJsonFilterSchema } from '@/helpers';
+import { dateSchema, makeJsonFilterSchema } from '@/helpers';
 
 export const MailQueueDeleteValidator = z.object({
 	ids: z.array(z.number(), {
@@ -64,38 +64,8 @@ export const MailQueueFindValidator = z
 					}),
 				})
 				.optional(),
-			sent_date_start: z
-				.string()
-				.optional()
-				.refine(
-					(val) => {
-						if (!val) {
-							return true;
-						} // Allow undefined or empty string
-
-						return isValidDate(val); // `false` is string is not a valid date
-					},
-					{
-						message: lang('error.invalid_date'),
-					},
-				)
-				.transform((val) => (val ? formatDate(val) : undefined)),
-			sent_date_end: z
-				.string()
-				.optional()
-				.refine(
-					(val) => {
-						if (!val) {
-							return true;
-						} // allow undefined or empty string
-
-						return isValidDate(val); // `false` is string is not a valid date
-					},
-					{
-						message: lang('error.invalid_date'),
-					},
-				)
-				.transform((val) => (val ? formatDate(val) : undefined)),
+			sent_date_start: dateSchema(),
+			sent_date_end: dateSchema(),
 		})
 			.optional()
 			.default({

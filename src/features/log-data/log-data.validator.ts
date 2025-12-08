@@ -6,7 +6,7 @@ import {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
 } from '@/features/log-data/log-data.entity';
-import { formatDate, isValidDate, makeJsonFilterSchema } from '@/helpers';
+import { dateSchema, makeJsonFilterSchema } from '@/helpers';
 
 export const LogDataDeleteValidator = z.object({
 	ids: z.array(z.number(), {
@@ -57,38 +57,8 @@ export const LogDataFindValidator = z
 			term: z
 				.string({ message: lang('error.invalid_string') })
 				.optional(),
-			create_date_start: z
-				.string()
-				.optional()
-				.refine(
-					(val) => {
-						if (!val) {
-							return true;
-						} // allow undefined or empty string
-
-						return isValidDate(val); // `false` is string is not a valid date
-					},
-					{
-						message: lang('error.invalid_date'),
-					},
-				)
-				.transform((val) => (val ? formatDate(val) : undefined)),
-			create_date_end: z
-				.string()
-				.optional()
-				.refine(
-					(val) => {
-						if (!val) {
-							return true;
-						} // allow undefined or empty string
-
-						return isValidDate(val); // `false` is string is not a valid date
-					},
-					{
-						message: lang('error.invalid_date'),
-					},
-				)
-				.transform((val) => (val ? formatDate(val) : undefined)),
+			create_date_start: dateSchema(),
+			create_date_end: dateSchema(),
 		})
 			.optional()
 			.default({

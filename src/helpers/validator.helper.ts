@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
+import { isValidDate, stringToDate } from '@/helpers/date.helper';
 
 export function parseJsonFilter(
 	val: unknown,
@@ -44,4 +45,16 @@ export function booleanFromString(message = lang('error.invalid_boolean')) {
 		if (val === 'false' || val === false) return false;
 		return val; // let zod handle invalid cases
 	}, z.boolean({ message }));
+}
+
+export function dateSchema(
+	message = lang('error.invalid_date'),
+	optional = true,
+) {
+	const schema = z
+		.string()
+		.refine((val) => isValidDate(val), { message })
+		.transform((val) => stringToDate(val));
+
+	return optional ? schema.optional() : schema;
 }
