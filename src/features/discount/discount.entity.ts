@@ -14,7 +14,7 @@ export enum DiscountScopeEnum {
 
 export enum DiscountTypeEnum {
 	PERCENT = 'percent',
-	FIXED_AMOUNT = 'fixed_amount',
+	AMOUNT = 'amount',
 }
 
 export enum DiscountReasonEnum {

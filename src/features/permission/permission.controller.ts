@@ -141,7 +141,8 @@ class PermissionController {
 
 		await PermissionRepository.save(permission);
 
-		res.output.message(lang('permission.success.update'));
+        res.output.message(lang('permission.success.update'));
+        res.output.data(permission);
 
 		res.json(res.output);
 	});

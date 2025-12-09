@@ -140,7 +140,7 @@ class TemplateController {
 		await TemplateRepository.save(updatedEntity);
 
 		res.output.message(lang('template.success.update'));
-		res.output.data(template);
+		res.output.data(updatedEntity);
 
 		res.json(res.output);
 	});

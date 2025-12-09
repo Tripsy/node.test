@@ -154,7 +154,7 @@ class UserController {
 		await UserRepository.save(updatedEntity);
 
 		res.output.message(lang('user.success.update'));
-		res.output.data(user);
+		res.output.data(updatedEntity);
 
 		res.json(res.output);
 	});
