@@ -5,17 +5,17 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-	if (server) {
-		await new Promise<void>((resolve, reject) => {
-			server.close((err) => {
-				if (err) {
-					return reject(err);
-				}
+    const srv = server;
 
-				closeHandler().then(resolve).catch(reject);
-			});
-		});
-	} else {
-		await closeHandler();
-	}
+    if (srv) {
+        await new Promise<void>((resolve, reject) => {
+            srv.close((err) => {
+                if (err) return reject(err);
+
+                closeHandler().then(resolve).catch(reject);
+            });
+        });
+    } else {
+        await closeHandler();
+    }
 });

@@ -103,6 +103,8 @@ const startCronJobs = () => {
 	cron.schedule('02 04 */7 * *', async () => {
 		await executeCron(cleanAccountRecovery, 1);
 	});
+
+    logger.debug('Cron jobs started');
 };
 
 export default startCronJobs;
