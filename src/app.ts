@@ -3,8 +3,9 @@ import type { Server } from 'node:http';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
+import i18next from 'i18next';
 import { handle as i18nextMiddleware } from 'i18next-http-middleware';
-import i18next from '@/config/i18n.setup';
+import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
 import { initRoutes } from '@/config/routes.setup';
 import { cfg } from '@/config/settings.config';
@@ -35,9 +36,20 @@ app.use(corsHandler);
 app.use(cookieParser());
 app.use(express.json());
 
-// Middleware for handling language
+// Middleware - attach language to request
 app.use(languageMiddleware);
 
+// Initialize i18next
+(async () => {
+    await initializeI18next();
+})().catch((error) => {
+    logger.fatal(error, 'Failed to initialize i18next');
+    process.exit(1);
+});
+
+app.use(i18nextMiddleware(i18next));
+
+// Initialize app
 let appReadyResolve: () => void;
 
 export const appReady = new Promise<void>((resolve) => {
@@ -47,12 +59,6 @@ export const appReady = new Promise<void>((resolve) => {
 async function initializeApp() {
 	// Initialize the database
 	await initDatabase();
-
-	// Initialize i18next
-	await i18next.init();
-
-	// Language middleware
-	app.use(i18nextMiddleware(i18next));
 
 	// Standardized response handler
 	app.use(outputHandler);
