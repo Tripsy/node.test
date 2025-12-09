@@ -97,6 +97,12 @@ export class OutputWrapper {
 			this.success(true);
 		}
 
+		// Pull metadata added by metaDocumentation
+		if (this.res.locals._documentationUrl) {
+			this.result.meta.documentationUrl =
+				this.res.locals._documentationUrl;
+		}
+
 		if (filter) {
 			const filteredResult: Partial<OutputWrapperInterface> = {
 				...this.result,

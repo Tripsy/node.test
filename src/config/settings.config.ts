@@ -23,7 +23,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 				'carrier',
 				'cron_history',
 				'debug',
-                'discount',
+				'discount',
 				'error',
 				'log_data',
 				'mail_queue',

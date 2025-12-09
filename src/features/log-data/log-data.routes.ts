@@ -1,37 +1,28 @@
-import { Router } from 'express';
-import { buildRoutes, type RoutesConfigType } from '@/config/routes.setup';
 import LogDataController from '@/features/log-data/log-data.controller';
 import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/types/routing.type';
 
-export const logDataRoutesBasePath: string = '/log-data';
-export const logDataRoutesConfig: RoutesConfigType<typeof LogDataController> = {
-	read: {
-		path: '/:id',
-		method: 'get',
-		action: 'read',
-		handlers: [validateParamsWhenId('id')],
-	},
-	delete: {
-		path: '/:id',
-		method: 'delete',
-		action: 'delete',
-		handlers: [validateParamsWhenId('id')],
-	},
-	find: {
-		path: '',
-		method: 'get',
-		action: 'find',
-	},
+export default {
+	basePath: '/log-data',
+	documentation: 'log-data',
+	controller: LogDataController,
+	routesConfig: {
+		read: {
+			path: '/:id',
+			method: 'get',
+			action: 'read',
+			handlers: [validateParamsWhenId('id')],
+		},
+		delete: {
+			path: '/:id',
+			method: 'delete',
+			action: 'delete',
+			handlers: [validateParamsWhenId('id')],
+		},
+		find: {
+			path: '',
+			method: 'get',
+			action: 'find',
+		},
+	} as RoutesConfigType<typeof LogDataController>,
 };
-
-const routes: Router = Router();
-
-buildRoutes(
-	routes,
-	LogDataController,
-	'log-data',
-	logDataRoutesConfig,
-	logDataRoutesBasePath,
-);
-
-export default routes;

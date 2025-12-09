@@ -1,11 +1,9 @@
-// import fs from 'node:fs/promises';
+import 'dotenv/config';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
 import { cfg } from '@/config/settings.config';
 import { buildSrcPath } from '@/helpers';
-// import { getCacheProvider } from '@/providers/cache.provider';
-import logger from '@/providers/logger.provider';
 
 // async function getNamespaces() {
 // 	try {
@@ -46,33 +44,28 @@ import logger from '@/providers/logger.provider';
 // 	)) as string[];
 // }
 
-async function initializeI18next() {
+export async function initializeI18next() {
 	// const namespaces = await returnNamespaces();
 
 	await i18next
-		.use(Backend) // Use the file system backend
-		.use(LanguageDetector) // Use the language detector middleware
+		.use(Backend)
+		.use(LanguageDetector)
 		.init({
-			lng: 'en', // Default language
-			fallbackLng: 'en', // Fallback language
+			fallbackLng: 'en',
 			supportedLngs: cfg('app.languageSupported') as string[], // List of supported languages
-			ns: cfg('app.languageNamespaces') as string[],
-			backend: {
-				loadPath: buildSrcPath('locales/{{lng}}/{{ns}}.json'), // Path to translation files
-			},
 			interpolation: {
 				escapeValue: false, // Disable escaping for HTML (if needed)
 			},
 			saveMissing: false, // Disable saving missing translations
+			ns: cfg('app.languageNamespaces') as string[],
+			backend: {
+				loadPath: buildSrcPath('locales/{{lng}}/{{ns}}.json'),
+			},
 			detection: {
 				order: ['header', 'cookie', 'querystring'], // Detect language from headers, cookies, or query parameters
 			},
 		});
 }
-
-initializeI18next().catch(() => {
-	logger.debug('Failed to initialize i18next');
-});
 
 /**
  * Translate a key with optional replacements.
@@ -96,7 +89,7 @@ export const lang = (
 	const [ns, ...rest] = key.split('.'); // Extract namespace
 	const newKey = rest.join('.'); // Reconstruct key without namespace
 
-	const availableNamespaces = i18next.options.ns as string[];
+	const availableNamespaces = cfg('app.languageNamespaces') as string[];
 
 	// Ensure the namespace exists
 	if (!availableNamespaces.includes(ns)) {
@@ -111,5 +104,3 @@ export const lang = (
 
 	return i18next.t(newKey, { ns, ...replacements });
 };
-
-export default i18next;

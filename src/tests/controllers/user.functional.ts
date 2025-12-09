@@ -8,7 +8,7 @@ import UserPolicy from '@/features/user/user.policy';
 import UserRepository from '@/features/user/user.repository';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
-import { routeLink } from '@/config/routes.setup';
+import { routeLink } from '@/helpers/routing.helper';
 
 beforeEach(() => {
 	jest.clearAllMocks();
