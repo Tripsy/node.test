@@ -49,7 +49,7 @@ export enum ProductStockEnum {
 	name: 'product',
 	schema: 'public',
 	comment:
-		'Stores core product information; textual content is saved in a separate entity',
+		'Stores core product information; textual content is saved in a product-content.entity',
 })
 export default class ProductEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
@@ -94,7 +94,7 @@ export default class ProductEntity extends EntityAbstract {
 	})
 	workflow!: ProductWorkflowEnum;
 
-	@Index('IDX_product_status')
+	@Index('IDX_product_sale_status')
 	@Column({
 		type: 'enum',
 		enum: ProductSaleStatusEnum,

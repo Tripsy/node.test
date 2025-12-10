@@ -138,9 +138,13 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. add brand ( & update product entity)
-2. article
-3. wip entities:
+1. client
+1. wip entities:
+    - article
+      - article-category
+      - article-content
+      - article-tag  
+      - article-track
     - brand
     - client 
     - order
@@ -160,8 +164,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - term
     - category
       - category-content
-4. create a library / package for my utilities - drop moment !!!
-5. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+2. create a library / package for my utilities - drop moment !!!
+3. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # BUGS & ISSUES
 

@@ -45,7 +45,7 @@ export default class ImageEntity extends EntityAbstract {
 		default: 0,
 		comment: 'Order/position of the image within the entity type',
 	})
-	position!: number;
+    sort_order!: number;
 
 	@Column('jsonb', {
 		nullable: true,

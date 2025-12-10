@@ -30,6 +30,13 @@ export default class BrandEntity extends EntityAbstract {
 	})
 	status!: BrandStatusEnum;
 
+    @Column('int', {
+        nullable: false,
+        default: 0,
+        comment: 'Order/position of the brand in a listing',
+    })
+    sort_order!: number;
+
 	@Column('jsonb', {
 		nullable: true,
 		comment: 'Reserved column for future use',
