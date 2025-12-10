@@ -6,8 +6,14 @@ import {
 
 export type ImageEntityType = 'product' | 'category' | 'brand';
 
+export enum ImageKindEnum {
+	PRIMARY = 'primary',
+	LOGO = 'logo',
+	GALLERY = 'gallery',
+}
+
 @Entity({ name: 'image', schema: 'public' })
-@Index('IDX_image_type_id', ['entity_type', 'entity_id'])
+@Index('IDX_image_type_id', ['entity_type', 'entity_id', 'kind'])
 export default class ImageEntity extends EntityAbstract {
 	@Column('text', {
 		nullable: false,
@@ -21,6 +27,12 @@ export default class ImageEntity extends EntityAbstract {
 		comment: 'ID of the entity this image is linked to',
 	})
 	entity_id!: number;
+
+	@Column('text', {
+		nullable: false,
+		comment: 'The kind of the image (eg: primary, logo, gallery, etc)',
+	})
+	kind!: ImageKindEnum;
 
 	@Index('IDX_image_unique_main', ['entity_type', 'entity_id'], {
 		unique: true,

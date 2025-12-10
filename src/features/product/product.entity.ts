@@ -1,8 +1,16 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import {
+	Column,
+	Entity,
+	Index,
+	JoinColumn,
+	ManyToOne,
+	OneToMany,
+} from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
+import BrandEntity from '@/features/brand/brand.entity';
 import OrderProductEntity from '@/features/order/order-product.entity';
 import ProductAttributeEntity from '@/features/product/product-attribute.entity';
 import ProductCategoryEntity from '@/features/product/product-category.entity';
@@ -47,6 +55,10 @@ export default class ProductEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	@Index('IDX_product_sku', { unique: true })
 	sku!: string;
+
+	@Column('bigint', { nullable: false })
+	@Index('IDX_product_brand_id')
+	brand_id!: number;
 
 	@Column('decimal', {
 		precision: 12,
@@ -128,6 +140,16 @@ export default class ProductEntity extends EntityAbstract {
 	contextData?: EntityContextData;
 
 	// RELATIONS
+	@ManyToOne(
+		() => BrandEntity,
+		(brand) => brand.products,
+		{
+			onDelete: 'RESTRICT',
+		},
+	)
+	@JoinColumn({ name: 'brand_id' })
+	brand?: BrandEntity;
+
 	@OneToMany(
 		() => ProductTagEntity,
 		(tag) => tag.product,

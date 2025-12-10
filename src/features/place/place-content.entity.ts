@@ -28,7 +28,7 @@ export default class PlaceContentEntity extends EntityAbstract {
 		nullable: false,
 		comment: 'ex: Country, Region, City, Oras, Judet',
 	})
-	label!: string;
+	typeName!: string;
 
 	@Column('jsonb', {
 		nullable: true,

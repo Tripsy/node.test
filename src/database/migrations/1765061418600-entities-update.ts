@@ -225,7 +225,7 @@ export class EntitiesUpdate1765061418600 implements MigrationInterface {
 			`CREATE INDEX "IDX_product_content_unique_per_lang" ON "product_content" ("product_id", "language") `,
 		);
 		await queryRunner.query(
-			`COMMENT ON TABLE "product_content" IS 'Language-specific content for products (name, slug, descriptions, SEO)'`,
+			`COMMENT ON TABLE "product_content" IS 'Language-specific content for products (name, slug, descriptions, meta)'`,
 		);
 		await queryRunner.query(
 			`CREATE TYPE "public"."discount_scope_enum" AS ENUM('client', 'order', 'product', 'category', 'country')`,
