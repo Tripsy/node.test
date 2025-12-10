@@ -180,11 +180,11 @@ class DiscountController {
 			.filterBy('scope', validated.data.filter.scope)
 			.filterBy('reason', validated.data.filter.reason)
 			.filterBy('type', validated.data.filter.type)
-            .filterByRange(
-                'start_at',
-                validated.data.filter.start_at_start,
-                validated.data.filter.start_at_end,
-            )
+			.filterByRange(
+				'start_at',
+				validated.data.filter.start_at_start,
+				validated.data.filter.start_at_end,
+			)
 			.filterByTerm(validated.data.filter.term)
 			.withDeleted(
 				policy.allowDeleted() && validated.data.filter.is_deleted,

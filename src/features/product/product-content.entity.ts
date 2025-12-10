@@ -47,6 +47,7 @@ export default class ProductContentEntity extends EntityAbstract {
 	})
 	details!: Record<string, string | number | boolean>;
 
+	// VIRTUAL
 	contextData?: EntityContextData;
 
 	// RELATIONS

@@ -104,7 +104,7 @@ const startCronJobs = () => {
 		await executeCron(cleanAccountRecovery, 1);
 	});
 
-    logger.debug('Cron jobs started');
+	logger.debug('Cron jobs started');
 };
 
 export default startCronJobs;

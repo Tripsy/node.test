@@ -138,16 +138,11 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. discount 
-2. image as id, type (product, category, etc.), language, entity_id, image_content )
-3. Entity `country`. Does it make sense to create a "places" table: country, country_abbr, region, region_abbr, region_label (eg: judet), city, city_abbr, address, postal_code
-4. add brand ( & update product entity)
-5. create a library / package for my utilities - drop moment !!!
-6. article
-7. wip entities:
-     // carrier
+1. add brand ( & update product entity)
+2. create a library / package for my utilities - drop moment !!!
+3. article
+4. wip entities:
     - client 
-    - discount
     - order
     - order-invoice
     - order-product
@@ -155,6 +150,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - order-shipping
     - payments ?
     - subscriptions ?
+    - place  
+      - place-content
     - product > 
       - product-attribute
       - product-category
@@ -163,7 +160,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - term
     - category
       - category-content
-8. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+5. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # BUGS & ISSUES
 

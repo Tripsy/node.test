@@ -33,7 +33,7 @@ export default class UserEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	name!: string;
 
-	@Column('varchar', { nullable: false, unique: true })
+	@Column('varchar', { nullable: false })
 	@Index('IDX_user_email', { unique: true })
 	email!: string;
 

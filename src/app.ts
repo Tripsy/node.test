@@ -20,7 +20,7 @@ import { notFoundHandler } from '@/middleware/not-found-handler.middleware';
 import { outputHandler } from '@/middleware/output-handler.middleware';
 import startCronJobs from '@/providers/cron.provider';
 import { destroyDatabase, initDatabase } from '@/providers/database.provider';
-import {LogStream, systemLogger} from '@/providers/logger.provider';
+import { LogStream, systemLogger } from '@/providers/logger.provider';
 import emailQueue from '@/queues/email.queue';
 
 const app: express.Application = express();
@@ -59,14 +59,14 @@ function validateConfig(): void {
 	}
 
 	// Port validation
-	if (isNaN(APP_PORT) || APP_PORT < 1 || APP_PORT > 65535) {
+	if (Number.isNaN(APP_PORT) || APP_PORT < 1 || APP_PORT > 65535) {
 		throw new Error(`Invalid port: ${APP_PORT}. Must be 1-65535`);
 	}
 }
 
 // Print startup banner
 function printStartupInfo(): void {
-    const width = 50;
+	const width = 50;
 	const lines = [
 		['Environment:', APP_ENV],
 		['Port:', APP_PORT.toString()],
@@ -74,16 +74,16 @@ function printStartupInfo(): void {
 		['Health:', `${APP_URL}:${APP_PORT}/health`],
 	];
 
-    console.log('┌' + '─'.repeat(width + 2) + '┐');
+	console.log(`┌${'─'.repeat(width + 2)}┐`);
 	console.log(`│ ${APP_NAME.padEnd(width)} │`);
-	console.log('├' + '─'.repeat(width + 2) + '┤');
+	console.log(`├${'─'.repeat(width + 2)}┤`);
 
 	for (const [label, value] of lines) {
 		const text = `${label} ${value}`.padEnd(width);
 		console.log(`│ ${text} │`);
 	}
 
-    console.log('└' + '─'.repeat(width + 2) + '┘');
+	console.log(`└${'─'.repeat(width + 2)}┘`);
 }
 
 // Graceful shutdown helpers
@@ -100,40 +100,42 @@ export async function closeHandler(): Promise<void> {
 		closeOperations.map(async ({ name, fn }) => {
 			try {
 				await fn();
-                systemLogger.debug(`${name} closed successfully`);
+				systemLogger.debug(`${name} closed successfully`);
 			} catch (error) {
-                systemLogger.warn(error, `${name} close warning:`);
+				systemLogger.warn(error, `${name} close warning:`);
 			}
 		}),
 	);
 }
 
 function shutdown(signal: string): void {
-    systemLogger.debug(`${signal} received. Starting graceful shutdown...`);
+	systemLogger.debug(`${signal} received. Starting graceful shutdown...`);
 
 	if (isStartingUp) {
-        systemLogger.debug('Shutdown requested during startup');
+		systemLogger.debug('Shutdown requested during startup');
 		process.exit(1);
 	}
 
 	if (!server) {
-        systemLogger.debug('No server instance to close');
+		systemLogger.debug('No server instance to close');
 		process.exit(0);
 	}
 
 	server.close(async () => {
 		try {
 			await closeHandler();
-            systemLogger.debug('Server closed gracefully');
+			systemLogger.debug('Server closed gracefully');
 			process.exit(0);
 		} catch (error) {
-            systemLogger.fatal(error, 'Error during shutdown:');
+			systemLogger.fatal(error, 'Error during shutdown:');
 			process.exit(1);
 		}
 	});
 
 	setTimeout(() => {
-        systemLogger.fatal(`Forcing shutdown after ${FORCE_SHUTDOWN_TIMEOUT}ms`);
+		systemLogger.fatal(
+			`Forcing shutdown after ${FORCE_SHUTDOWN_TIMEOUT}ms`,
+		);
 		process.exit(1);
 	}, FORCE_SHUTDOWN_TIMEOUT).unref();
 }
@@ -213,7 +215,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Request timeout
 app.use((req, _res, next) => {
 	req.setTimeout(REQUEST_TIMEOUT, () => {
-        systemLogger.warn(`Request timeout: ${req.method} ${req.url} (${req.id})`);
+		systemLogger.warn(
+			`Request timeout: ${req.method} ${req.url} (${req.id})`,
+		);
 	});
 
 	next();
@@ -243,11 +247,11 @@ app.get('/health', (_req, res) => {
 
 // Ready
 app.get('/ready', (_req, res) => {
-    if (isAppReady) {
-        res.status(200).json({ ready: true });
-    } else {
-        res.status(503).json({ ready: false }); // Service Unavailable
-    }
+	if (isAppReady) {
+		res.status(200).json({ ready: true });
+	} else {
+		res.status(503).json({ ready: false }); // Service Unavailable
+	}
 });
 
 // ========== APPLICATION INITIALIZATION ==========
@@ -270,7 +274,7 @@ async function initializeApp(): Promise<void> {
 		// Routes
 		const router = initRoutes();
 		app.use('/', router);
-        systemLogger.debug('Routes initialized');
+		systemLogger.debug('Routes initialized');
 
 		// Error handlers (must be last)
 		app.use(notFoundHandler);
@@ -289,13 +293,12 @@ async function initializeApp(): Promise<void> {
 		// Start background services (non-test env only)
 		if (APP_ENV !== 'test') {
 			// Email worker
-			import('./workers/email.worker')
-				.catch((error) => {
-                    systemLogger.error(
-						{ err: error },
-						'Failed to start email worker',
-					);
-				});
+			import('./workers/email.worker').catch((error) => {
+				systemLogger.error(
+					{ err: error },
+					'Failed to start email worker',
+				);
+			});
 
 			// Cron jobs
 			startCronJobs();
@@ -304,10 +307,10 @@ async function initializeApp(): Promise<void> {
 		// Mark app as ready
 		appReadyResolve();
 
-        // Print startup banner
-        printStartupInfo();
+		// Print startup banner
+		printStartupInfo();
 	} catch (error) {
-        systemLogger.fatal(error, 'Failed to initialize application');
+		systemLogger.fatal(error, 'Failed to initialize application');
 		throw error;
 	}
 }
@@ -317,17 +320,17 @@ async function initializeApp(): Promise<void> {
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('uncaughtException', (error) => {
-    systemLogger.fatal(error, 'Uncaught exception:');
+	systemLogger.fatal(error, 'Uncaught exception:');
 	shutdown('UNCAUGHT_EXCEPTION');
 });
 process.on('unhandledRejection', (reason, _promise) => {
-    systemLogger.error(reason, 'Unhandled rejection');
+	systemLogger.error(reason, 'Unhandled rejection');
 });
 
 // ========== START APPLICATION ==========
 
 initializeApp().catch((error) => {
-    systemLogger.fatal('Application startup failed:', error);
+	systemLogger.fatal('Application startup failed:', error);
 	process.exit(1);
 });
 
