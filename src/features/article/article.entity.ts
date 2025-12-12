@@ -1,16 +1,11 @@
-import {
-    Column,
-    Entity,
-    Index,
-    OneToMany, OneToOne,
-} from 'typeorm';
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
 import ArticleCategoryEntity from '@/features/article/article-category.entity';
 import ArticleTagEntity from '@/features/article/article-tag.entity';
-import ArticleTrackEntity from "@/features/article/article-track.entity";
+import ArticleTrackEntity from '@/features/article/article-track.entity';
 
 export enum ArticleStatusEnum {
 	DRAFT = 'draft', // Initial creation
@@ -25,7 +20,7 @@ export enum ArticleLayoutEnum {
 export enum ArticleFeaturedStatusEnum {
 	NOWHERE = 'nowhere',
 	HOME = 'home',
-    CATEGORY = 'category',
+	CATEGORY = 'category',
 }
 
 @Entity({
@@ -44,10 +39,10 @@ export default class ArticleEntity extends EntityAbstract {
 	})
 	status!: ArticleStatusEnum;
 
-    @Column('text', {
-        nullable: false,
-    })
-    layout!: ArticleLayoutEnum;
+	@Column('text', {
+		nullable: false,
+	})
+	layout!: ArticleLayoutEnum;
 
 	@Column('jsonb', {
 		nullable: true,
@@ -55,22 +50,30 @@ export default class ArticleEntity extends EntityAbstract {
 	})
 	details!: Record<string, string | number | boolean>;
 
-    @Column({ type: 'timestamp', nullable: true })
-    publish_at?: Date | null;
+	@Column({ type: 'timestamp', nullable: true })
+	publish_at?: Date | null;
 
-    @Column({ type: 'timestamp', nullable: true, comment: 'Controls when the article should be displayed' })
-    show_start_at?: Date | null;
+	@Column({
+		type: 'timestamp',
+		nullable: true,
+		comment: 'Controls when the article should be displayed',
+	})
+	show_start_at?: Date | null;
 
-    @Column({ type: 'timestamp', nullable: true, comment: 'Controls when the article should be displayed' })
-    show_end_at?: Date | null;
+	@Column({
+		type: 'timestamp',
+		nullable: true,
+		comment: 'Controls when the article should be displayed',
+	})
+	show_end_at?: Date | null;
 
-    @Column({
-        type: 'enum',
-        enum: ArticleFeaturedStatusEnum,
-        default: ArticleFeaturedStatusEnum.NOWHERE,
-        nullable: false,
-    })
-    featuredStatus!: ArticleFeaturedStatusEnum;
+	@Column({
+		type: 'enum',
+		enum: ArticleFeaturedStatusEnum,
+		default: ArticleFeaturedStatusEnum.NOWHERE,
+		nullable: false,
+	})
+	featuredStatus!: ArticleFeaturedStatusEnum;
 
 	// VIRTUAL
 	contextData?: EntityContextData;
@@ -88,6 +91,9 @@ export default class ArticleEntity extends EntityAbstract {
 	)
 	categories?: ArticleCategoryEntity[];
 
-    @OneToOne(() => ArticleTrackEntity, (track) => track.article)
-    track?: ArticleTrackEntity;
+	@OneToOne(
+		() => ArticleTrackEntity,
+		(track) => track.article,
+	)
+	track?: ArticleTrackEntity;
 }

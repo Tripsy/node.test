@@ -3,8 +3,8 @@ import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
-import CategoryEntity from '@/features/category/category.entity';
 import ArticleEntity from '@/features/article/article.entity';
+import CategoryEntity from '@/features/category/category.entity';
 
 @Entity({
 	name: 'article_category',

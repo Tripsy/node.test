@@ -145,12 +145,12 @@ function shutdown(signal: string): void {
 // Helmet security headers (configured for API)
 app.use(
 	helmet({
-        /**
-         * @security
-         * APIs don't render HTML.
-         * Content-Security-Policy adds overhead and provides no value for API endpoints.
-         * This is a deliberate, security-conscious decision for API-only applications.
-         */
+		/**
+		 * @security
+		 * APIs don't render HTML.
+		 * Content-Security-Policy adds overhead and provides no value for API endpoints.
+		 * This is a deliberate, security-conscious decision for API-only applications.
+		 */
 		contentSecurityPolicy: false,
 
 		/**
@@ -165,11 +165,11 @@ app.use(
 		 */
 		referrerPolicy: { policy: 'no-referrer' },
 
-        /**
-         * @security
-         * Not relevant for APIs, disable it.
-         * API endpoints are not embedded in iframes.
-         */
+		/**
+		 * @security
+		 * Not relevant for APIs, disable it.
+		 * API endpoints are not embedded in iframes.
+		 */
 		frameguard: false,
 
 		/**

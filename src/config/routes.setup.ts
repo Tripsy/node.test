@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import accountRoutes from '@/features/account/account.routes';
 import carrierRoutes from '@/features/carrier/carrier.routes';
+import clientRoutes from '@/features/client/client.routes';
 import cronHistoryRoutes from '@/features/cron-history/cron-history.routes';
 import discountRoutes from '@/features/discount/discount.routes';
 import logDataRoutes from '@/features/log-data/log-data.routes';
@@ -10,17 +11,20 @@ import templateRoutes from '@/features/template/template.routes';
 import userRoutes from '@/features/user/user.routes';
 import userPermissionRoutes from '@/features/user-permission/user-permission.routes';
 import { buildRoutes, extractRoutesPath } from '@/helpers/routing.helper';
+import placeRoutes from "@/features/place/place.routes";
 
 export const initRoutes = (): Router => {
 	const router = Router();
 
 	router.use(buildRoutes(accountRoutes));
 	router.use(buildRoutes(carrierRoutes));
+	router.use(buildRoutes(clientRoutes));
 	router.use(buildRoutes(cronHistoryRoutes));
 	router.use(buildRoutes(discountRoutes));
 	router.use(buildRoutes(mailQueueRoutes));
 	router.use(buildRoutes(logDataRoutes));
 	router.use(buildRoutes(permissionRoutes));
+	router.use(buildRoutes(placeRoutes));
 	router.use(buildRoutes(templateRoutes));
 	router.use(buildRoutes(userRoutes));
 	router.use(buildRoutes(userPermissionRoutes));
@@ -41,6 +45,10 @@ export function getRoutesPath() {
 				carrierRoutes.routesConfig,
 				carrierRoutes.basePath,
 			),
+			clients: extractRoutesPath(
+				clientRoutes.routesConfig,
+				clientRoutes.basePath,
+			),
 			cronHistory: extractRoutesPath(
 				cronHistoryRoutes.routesConfig,
 				cronHistoryRoutes.basePath,
@@ -60,6 +68,10 @@ export function getRoutesPath() {
 			permission: extractRoutesPath(
 				permissionRoutes.routesConfig,
 				permissionRoutes.basePath,
+			),
+			place: extractRoutesPath(
+				placeRoutes.routesConfig,
+				placeRoutes.basePath,
 			),
 			template: extractRoutesPath(
 				templateRoutes.routesConfig,

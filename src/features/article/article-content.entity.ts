@@ -6,11 +6,11 @@ import {
 import ArticleEntity from './article.entity';
 
 export type ArticleAuthorType = {
-    name: string;
-    email?: string;
-    avatar?: string;
-    description?: string;
-}
+	name: string;
+	email?: string;
+	avatar?: string;
+	description?: string;
+};
 
 @Entity({
 	name: 'article_content',
@@ -35,11 +35,11 @@ export default class ArticleContentEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	slug!: string;
 
-    @Column('jsonb', {
-        nullable: true,
-        comment: 'Author details',
-    })
-    author!: ArticleAuthorType | null;
+	@Column('jsonb', {
+		nullable: true,
+		comment: 'Author details',
+	})
+	author!: ArticleAuthorType | null;
 
 	@Column('text', { nullable: false })
 	title!: string;
@@ -50,11 +50,11 @@ export default class ArticleContentEntity extends EntityAbstract {
 	@Column('text', { nullable: false })
 	content!: string;
 
-    @Column('jsonb', {
-        nullable: true,
-        comment: 'Reserved column for future use',
-    })
-    content_blocks!: Record<string, string>;
+	@Column('jsonb', {
+		nullable: true,
+		comment: 'Reserved column for future use',
+	})
+	content_blocks!: Record<string, string>;
 
 	@Column('jsonb', {
 		nullable: true,
