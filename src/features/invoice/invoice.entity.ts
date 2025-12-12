@@ -16,6 +16,12 @@ export enum InvoiceStatusEnum {
 	REFUNDED = 'refunded', // Payment returned to customer
 }
 
+export enum InvoiceTypeEnum {
+	CHARGE = 'charge',
+	PROFORMA = 'proforma',
+	CREDIT_NOTE = 'credit_note', // Reduces the amount the buyer owes from a previous order
+}
+
 export type BillingDetailsPerson = {
 	type: ClientTypeEnum.PERSON;
 
@@ -68,16 +74,16 @@ export type BillingDetailsCompany = {
 export type BillingDetails = BillingDetailsPerson | BillingDetailsCompany;
 
 @Entity({
-	name: 'order_invoice',
+	name: 'invoice',
 	schema: 'public',
 	comment: 'Stores invoices generated from orders',
 })
-@Index('IDX_invoice_code_number', ['invoice_code', 'invoice_number'], {
+@Index('IDX_invoice_ref', ['ref_number', 'ref_code'], {
 	unique: true,
 })
-export default class OrderInvoiceEntity extends EntityAbstract {
+export default class InvoiceEntity extends EntityAbstract {
 	@Column('bigint', { nullable: false })
-	@Index('IDX_order_invoice_order_id')
+	@Index('IDX_invoice_order_id')
 	order_id!: number;
 
 	@Column('char', {
@@ -85,22 +91,31 @@ export default class OrderInvoiceEntity extends EntityAbstract {
 		nullable: false,
 		comment: 'Invoice series/code, e.g., ABC',
 	})
-	invoice_code!: string;
+	ref_code!: string;
 
 	@Column('int', {
 		nullable: false,
 		comment: 'Sequential invoice number within the series',
 	})
-	invoice_number!: number;
+	ref_number!: number;
 
-	@Index('IDX_order_invoice_status')
 	@Column({
 		type: 'enum',
 		enum: InvoiceStatusEnum,
 		default: InvoiceStatusEnum.DRAFT,
 		nullable: false,
 	})
+	@Index('IDX_invoice_status')
 	status!: InvoiceStatusEnum;
+
+	@Column({
+		type: 'enum',
+		enum: InvoiceTypeEnum,
+		default: InvoiceTypeEnum.CHARGE,
+		nullable: false,
+	})
+	@Index('IDX_invoice_type')
+	type!: InvoiceTypeEnum;
 
 	@Column('char', {
 		length: 3,
@@ -131,6 +146,12 @@ export default class OrderInvoiceEntity extends EntityAbstract {
 			'Snapshot of billing info at the moment of issuing the invoice',
 	})
 	billing_details!: BillingDetails;
+
+	@Column('jsonb', {
+		nullable: true,
+		comment: 'Reserved column for future use',
+	})
+	details!: Record<string, string | number | boolean>;
 
 	@Column('text', { nullable: true })
 	notes!: string | null;

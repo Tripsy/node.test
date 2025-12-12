@@ -34,10 +34,10 @@ export default class ImageEntity extends EntityAbstract {
 	})
 	kind!: ImageKindEnum;
 
+	@Column('boolean', { default: false })
 	@Index('IDX_image_unique_main', ['entity_type', 'entity_id'], {
 		unique: true,
 	})
-	@Column('boolean', { default: false })
 	is_primary!: boolean;
 
 	@Column('int', {

@@ -18,8 +18,8 @@ export default class BrandEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	name!: string;
 
-	@Index('IDX_brand_slug', { unique: true })
 	@Column('varchar', { nullable: false })
+	@Index('IDX_brand_slug', { unique: true })
 	slug!: string;
 
 	@Column({

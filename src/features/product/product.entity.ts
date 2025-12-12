@@ -85,22 +85,22 @@ export default class ProductEntity extends EntityAbstract {
 	})
 	vat_rate!: number;
 
-	@Index('IDX_product_workflow')
 	@Column({
 		type: 'enum',
 		enum: ProductWorkflowEnum,
 		default: ProductWorkflowEnum.DRAFT,
 		nullable: false,
 	})
+	@Index('IDX_product_workflow')
 	workflow!: ProductWorkflowEnum;
 
-	@Index('IDX_product_sale_status')
 	@Column({
 		type: 'enum',
 		enum: ProductSaleStatusEnum,
 		default: ProductSaleStatusEnum.ON_SALE,
 		nullable: false,
 	})
+	@Index('IDX_product_sale_status')
 	sale_status!: ProductSaleStatusEnum;
 
 	@Column({

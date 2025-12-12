@@ -30,13 +30,13 @@ export enum ArticleFeaturedStatusEnum {
 		'Stores core article information; textual content is saved in article-content.entity',
 })
 export default class ArticleEntity extends EntityAbstract {
-	@Index('IDX_article_status')
 	@Column({
 		type: 'enum',
 		enum: ArticleStatusEnum,
 		default: ArticleStatusEnum.DRAFT,
 		nullable: false,
 	})
+	@Index('IDX_article_status')
 	status!: ArticleStatusEnum;
 
 	@Column('text', {

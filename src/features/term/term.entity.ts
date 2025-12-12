@@ -19,13 +19,13 @@ export enum TermTypeEnum {
 	comment:
 		'Multilingual taxonomy terms: categories, tags, attribute labels/values',
 })
-@Index('IDX_term_type', ['type'])
 export default class TermEntity extends EntityAbstract {
 	@Column({
 		type: 'enum',
 		enum: TermTypeEnum,
 		nullable: false,
 	})
+	@Index('IDX_term_type')
 	type!: TermTypeEnum;
 
 	@Column('char', {
