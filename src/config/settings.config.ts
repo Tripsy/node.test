@@ -21,6 +21,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 			languageNamespaces: [
 				'account',
 				'carrier',
+				'client',
 				'cron_history',
 				'debug',
 				'discount',
@@ -28,6 +29,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 				'log_data',
 				'mail_queue',
 				'permission',
+				'place',
 				'template',
 				'user',
 				'user_permission',

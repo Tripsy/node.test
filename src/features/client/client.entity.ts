@@ -1,9 +1,17 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import {
+	Column,
+	Entity,
+	Index,
+	JoinColumn,
+	ManyToOne,
+	OneToMany,
+} from 'typeorm';
 import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
 import OrderEntity from '@/features/order/order.entity';
+import PlaceEntity from '@/features/place/place.entity';
 
 export enum ClientStatusEnum {
 	ACTIVE = 'active',
@@ -32,7 +40,7 @@ export default class ClientEntity extends EntityAbstract {
 	@Column({
 		type: 'enum',
 		enum: ClientStatusEnum,
-		default: ClientStatusEnum.ACTIVE,
+		default: ClientStatusEnum.PENDING,
 		nullable: false,
 	})
 	status!: ClientStatusEnum;
@@ -73,17 +81,17 @@ export default class ClientEntity extends EntityAbstract {
 	contact_phone!: string | null;
 
 	// ADDRESS
-	@Column('varchar', { default: 'Romania', nullable: false })
-	address_country!: string;
+	@Column('bigint', { nullable: true })
+	address_country!: number | null;
 
-	@Column('varchar', { nullable: true })
-	address_county!: string | null;
+	@Column('bigint', { nullable: true })
+	address_county!: number | null;
 
-	@Column('varchar', { nullable: true })
-	address_city!: string | null;
+	@Column('bigint', { nullable: true })
+	address_city!: number | null;
 
-	@Column('varchar', { nullable: true })
-	address_street!: string | null;
+	@Column('text', { nullable: true })
+	address_info!: string | null;
 
 	@Column('varchar', { nullable: true })
 	address_postal_code!: string | null;
@@ -101,4 +109,16 @@ export default class ClientEntity extends EntityAbstract {
 		(order) => order.client,
 	)
 	orders?: OrderEntity[];
+
+	@ManyToOne(() => PlaceEntity, { onDelete: 'SET NULL' })
+	@JoinColumn({ name: 'address_country' })
+	country?: PlaceEntity | null;
+
+	@ManyToOne(() => PlaceEntity, { onDelete: 'SET NULL' })
+	@JoinColumn({ name: 'address_county' })
+	county?: PlaceEntity | null;
+
+	@ManyToOne(() => PlaceEntity, { onDelete: 'SET NULL' })
+	@JoinColumn({ name: 'address_city' })
+	city?: PlaceEntity | null;
 }

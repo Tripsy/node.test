@@ -54,6 +54,29 @@ export function validateString(message: string) {
 }
 
 /**
+ * @description Ensures the value is a positive number (> 0).
+ * @param message Error message
+ * @param onlyPositive Allow only positive numbers (default: true)
+ * @param allowDecimals Allow decimal numbers (default: false)
+ */
+export function validateNumber(
+	message: string,
+	onlyPositive = true,
+	allowDecimals = false,
+) {
+	let schema = z.number({ message });
+
+	if (onlyPositive) {
+		schema = schema.positive({ message });
+	}
+	if (!allowDecimals) {
+		schema = schema.int({ message });
+	}
+
+	return schema;
+}
+
+/**
  * @description Convert string to boolean & validate
  */
 export function validateBoolean(message = lang('error.invalid_boolean')) {

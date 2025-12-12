@@ -26,7 +26,7 @@ export const UserCreateValidator = z
 			}),
 		),
 		email: z
-			.string({ message: lang('user.validation.email_invalid') })
+			.string()
 			.email({ message: lang('user.validation.email_invalid') }),
 		password: z
 			.string({ message: lang('user.validation.password_invalid') })
@@ -113,7 +113,7 @@ export const UserUpdateValidator = z
 			}),
 		).optional(),
 		email: z
-			.string({ message: lang('user.validation.email_invalid') })
+			.string()
 			.email({ message: lang('user.validation.email_invalid') })
 			.optional(),
 		password: z.preprocess(
