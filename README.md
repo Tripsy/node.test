@@ -138,9 +138,10 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. place (99% done) > client ( 50% done) > category ( + route images) > brand ( + route images)
+1. client ( 50% done) 
 2. log history to DB
-2. wip entities:
+3. category ( + route images) > brand ( + route images)
+4. wip entities:
     - article
       - article-category
       - article-content
@@ -163,8 +164,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - term
     - category
       - category-content
-3. create a library / package for my utilities - drop moment !!!
-4. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+5. create a library / package for my utilities - drop moment !!!
+6. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # BUGS & ISSUES
 

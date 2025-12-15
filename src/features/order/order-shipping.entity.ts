@@ -99,7 +99,7 @@ export default class OrderShippingEntity extends EntityAbstract {
 	address_country!: string | null;
 
 	@Column('varchar', { nullable: true })
-	address_county!: string | null;
+	address_region!: string | null;
 
 	@Column('varchar', { nullable: true })
 	address_city!: string | null;

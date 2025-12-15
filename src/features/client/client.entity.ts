@@ -24,10 +24,38 @@ export enum ClientTypeEnum {
 	COMPANY = 'company',
 }
 
+export type ClientIdentityData =
+	| {
+			client_type: ClientTypeEnum.COMPANY;
+			company_name?: string | null;
+			company_cui?: string | null;
+			company_reg_com?: string | null;
+	  }
+	| {
+			client_type: ClientTypeEnum.PERSON;
+			person_cnp?: string | null;
+	  };
+
 @Entity({
 	name: 'client',
 	schema: 'public',
 	comment: 'Stores client information for persons OR companies',
+})
+@Index('IDX_client_company_name_unique', ['company_name'], {
+	unique: true,
+	where: "company_name IS NOT NULL AND client_type = 'company'",
+})
+@Index('IDX_client_cui_unique', ['company_cui'], {
+	unique: true,
+	where: "company_cui IS NOT NULL AND client_type = 'company'",
+})
+@Index('IDX_client_reg_com_unique', ['company_reg_com'], {
+	unique: true,
+	where: "company_reg_com IS NOT NULL AND client_type = 'company'",
+})
+@Index('IDX_client_cnp_unique', ['person_cnp'], {
+	unique: true,
+	where: "person_cnp IS NOT NULL AND client_type = 'person'",
 })
 export default class ClientEntity extends EntityAbstract {
 	@Column({
@@ -50,7 +78,6 @@ export default class ClientEntity extends EntityAbstract {
 	company_name!: string | null;
 
 	@Column('varchar', { nullable: true })
-	@Index('IDX_client_cui', { unique: false })
 	company_cui!: string | null;
 
 	@Column('varchar', { nullable: true })
@@ -85,7 +112,7 @@ export default class ClientEntity extends EntityAbstract {
 	address_country!: number | null;
 
 	@Column('bigint', { nullable: true })
-	address_county!: number | null;
+	address_region!: number | null;
 
 	@Column('bigint', { nullable: true })
 	address_city!: number | null;
@@ -115,7 +142,7 @@ export default class ClientEntity extends EntityAbstract {
 	country?: PlaceEntity | null;
 
 	@ManyToOne(() => PlaceEntity, { onDelete: 'SET NULL' })
-	@JoinColumn({ name: 'address_county' })
+	@JoinColumn({ name: 'address_region' })
 	county?: PlaceEntity | null;
 
 	@ManyToOne(() => PlaceEntity, { onDelete: 'SET NULL' })

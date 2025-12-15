@@ -370,10 +370,10 @@ export class AfterClient1765500308250 implements MigrationInterface {
 			`ALTER TABLE "client" ADD "address_country" bigint`,
 		);
 		await queryRunner.query(
-			`ALTER TABLE "client" DROP COLUMN "address_county"`,
+			`ALTER TABLE "client" DROP COLUMN "address_region"`,
 		);
 		await queryRunner.query(
-			`ALTER TABLE "client" ADD "address_county" bigint`,
+			`ALTER TABLE "client" ADD "address_region" bigint`,
 		);
 		await queryRunner.query(
 			`ALTER TABLE "client" DROP COLUMN "address_city"`,
@@ -472,7 +472,7 @@ export class AfterClient1765500308250 implements MigrationInterface {
 			`ALTER TABLE "client" ADD CONSTRAINT "FK_7f4ede2827df34706cfdba7238b" FOREIGN KEY ("address_country") REFERENCES "place"("id") ON DELETE SET NULL ON UPDATE NO ACTION`,
 		);
 		await queryRunner.query(
-			`ALTER TABLE "client" ADD CONSTRAINT "FK_eb9f31b5c542dc8bf39f2801056" FOREIGN KEY ("address_county") REFERENCES "place"("id") ON DELETE SET NULL ON UPDATE NO ACTION`,
+			`ALTER TABLE "client" ADD CONSTRAINT "FK_eb9f31b5c542dc8bf39f2801056" FOREIGN KEY ("address_region") REFERENCES "place"("id") ON DELETE SET NULL ON UPDATE NO ACTION`,
 		);
 		await queryRunner.query(
 			`ALTER TABLE "client" ADD CONSTRAINT "FK_62d41b573e8a6d5e4a8edddac60" FOREIGN KEY ("address_city") REFERENCES "place"("id") ON DELETE SET NULL ON UPDATE NO ACTION`,
@@ -631,10 +631,10 @@ export class AfterClient1765500308250 implements MigrationInterface {
 			`ALTER TABLE "client" ADD "address_city" character varying`,
 		);
 		await queryRunner.query(
-			`ALTER TABLE "client" DROP COLUMN "address_county"`,
+			`ALTER TABLE "client" DROP COLUMN "address_region"`,
 		);
 		await queryRunner.query(
-			`ALTER TABLE "client" ADD "address_county" character varying`,
+			`ALTER TABLE "client" ADD "address_region" character varying`,
 		);
 		await queryRunner.query(
 			`ALTER TABLE "client" DROP COLUMN "address_country"`,

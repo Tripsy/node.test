@@ -7,7 +7,7 @@
 		"contact_email_invalid": "Invalid contact email",
 		"contact_phone_invalid": "Invalid contact phone number",
 		"address_country_invalid": "Invalid country",
-		"address_county_invalid": "Invalid county",
+		"address_region_invalid": "Invalid county",
 		"address_city_invalid": "Invalid city",
 		"address_info_invalid": "Invalid address info",
 		"address_postal_code_invalid": "Invalid postal code",

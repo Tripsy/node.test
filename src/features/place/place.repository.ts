@@ -1,7 +1,7 @@
 import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
-import PlaceEntity from '@/features/place/place.entity';
+import PlaceEntity, { type PlaceTypeEnum } from '@/features/place/place.entity';
 
 export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 	static entityAlias: string = 'place';
@@ -36,6 +36,18 @@ export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 export const PlaceRepository = dataSource.getRepository(PlaceEntity).extend({
 	createQuery() {
 		return new PlaceQuery(this);
+	},
+
+	async checkPlaceType(
+		place_id: number,
+		type: PlaceTypeEnum,
+	): Promise<boolean> {
+		const result = await this.createQuery()
+			.select(['type'])
+			.filterById(place_id)
+			.firstRaw();
+
+		return result?.place_type === type;
 	},
 });
 

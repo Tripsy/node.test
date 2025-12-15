@@ -3,6 +3,7 @@ import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
 import ClientEntity, {
+	type ClientIdentityData,
 	ClientStatusEnum,
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
@@ -27,7 +28,7 @@ class ClientController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = ClientCreateValidator.safeParse(req.body);
+		const validated = await ClientCreateValidator.safeParseAsync(req.body);
 
 		if (!validated.success) {
 			res.output.errors(validated.error.errors);
@@ -35,47 +36,23 @@ class ClientController {
 			throw new BadRequestError();
 		}
 
-		const existingClientQuery = ClientRepository.createQuery().filterBy(
-			'client_type',
-			validated.data.client_type,
-		);
+		const clientIdentityData: ClientIdentityData =
+			validated.data.client_type === ClientTypeEnum.COMPANY
+				? {
+						client_type: ClientTypeEnum.COMPANY,
+						company_name: validated.data.company_name,
+						company_cui: validated.data.company_cui,
+						company_reg_com: validated.data.company_reg_com,
+					}
+				: {
+						client_type: ClientTypeEnum.PERSON,
+						person_cnp: validated.data.person_cnp,
+					};
 
-		if (validated.data.client_type === ClientTypeEnum.COMPANY) {
-			existingClientQuery.filterAny([
-				{
-					column: 'company_name',
-					value: validated.data.company_name,
-					operator: '=',
-				},
-				{
-					column: 'company_cui',
-					value: validated.data.company_cui,
-					operator: '=',
-				},
-				{
-					column: 'company_reg_com',
-					value: validated.data.company_reg_com,
-					operator: '=',
-				},
-			]);
-		} else {
-			existingClientQuery.filterAny([
-				{
-					column: 'person_name',
-					value: validated.data.person_name,
-					operator: '=',
-				},
-				{
-					column: 'person_cnp',
-					value: validated.data.person_cnp,
-					operator: '=',
-				},
-			]);
-		}
+		const isDuplicate =
+			await ClientRepository.isDuplicateIdentity(clientIdentityData);
 
-		const existingClient = await existingClientQuery.first();
-
-		if (existingClient) {
+		if (isDuplicate) {
 			throw new CustomError(409, lang('client.error.already_exists'));
 		}
 
@@ -129,7 +106,7 @@ class ClientController {
 		policy.update();
 
 		// Validate against the schema
-		const validated = ClientUpdateValidator.safeParse(req.body);
+		const validated = await ClientUpdateValidator.safeParseAsync(req.body);
 
 		if (!validated.success) {
 			res.output.errors(validated.error.errors);
@@ -141,6 +118,28 @@ class ClientController {
 			.select(paramsUpdateList)
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
+
+		const clientIdentityData: ClientIdentityData =
+			validated.data.client_type === ClientTypeEnum.COMPANY
+				? {
+						client_type: ClientTypeEnum.COMPANY,
+						company_name: validated.data.company_name,
+						company_cui: validated.data.company_cui,
+						company_reg_com: validated.data.company_reg_com,
+					}
+				: {
+						client_type: ClientTypeEnum.PERSON,
+						person_cnp: validated.data.person_cnp,
+					};
+
+		const isDuplicate = await ClientRepository.isDuplicateIdentity(
+			clientIdentityData,
+			res.locals.validated.id,
+		);
+
+		if (isDuplicate) {
+			throw new CustomError(409, lang('client.error.already_exists'));
+		}
 
 		const existingClientQuery = ClientRepository.createQuery()
 			.filterBy('id', res.locals.validated.id, '!=')

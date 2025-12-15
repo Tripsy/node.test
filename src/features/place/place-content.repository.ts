@@ -5,7 +5,7 @@ import type { PlaceContentInput } from '@/features/place/place.entity';
 import PlaceContentEntity from '@/features/place/place-content.entity';
 
 export class PlaceContentQuery extends RepositoryAbstract<PlaceContentEntity> {
-	static entityAlias: string = 'place';
+	static entityAlias: string = 'place_content';
 
 	constructor(
 		repository: ReturnType<

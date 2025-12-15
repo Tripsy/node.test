@@ -7,6 +7,7 @@ import {
 } from '@/features/client/client.entity';
 import {
 	makeFindValidator,
+	validateAddressPlaceTypes,
 	validateBoolean,
 	validateDate,
 	validateEnum,
@@ -36,8 +37,8 @@ export const ClientCreateBaseValidator = z.object({
 	address_country: validateNumber(
 		lang('client.validation.address_country_invalid'),
 	).optional(),
-	address_county: validateNumber(
-		lang('client.validation.address_county_invalid'),
+	address_region: validateNumber(
+		lang('client.validation.address_region_invalid'),
 	).optional(),
 	address_city: validateNumber(
 		lang('client.validation.address_city_invalid'),
@@ -55,10 +56,12 @@ export const ClientCreateCompanyValidator = ClientCreateBaseValidator.extend({
 	company_name: validateString(
 		lang('client.validation.company_name_invalid'),
 	),
-	company_cui: validateString(lang('client.validation.company_cui_invalid')),
+	company_cui: validateString(
+		lang('client.validation.company_cui_invalid'),
+	).transform((v) => v.trim().toUpperCase()),
 	company_reg_com: validateString(
 		lang('client.validation.company_reg_com_invalid'),
-	),
+	).transform((v) => v.trim().toUpperCase()),
 });
 
 export const ClientCreatePersonValidator = ClientCreateBaseValidator.extend({
@@ -67,15 +70,11 @@ export const ClientCreatePersonValidator = ClientCreateBaseValidator.extend({
 	person_cnp: validateString(
 		lang('client.validation.person_cnp_invalid'),
 	).optional(),
-	person_phone: validateString(
-		lang('client.validation.person_phone_invalid'),
-	),
 });
 
-export const ClientCreateValidator = z.union([
-	ClientCreateCompanyValidator,
-	ClientCreatePersonValidator,
-]);
+export const ClientCreateValidator = z
+	.union([ClientCreateCompanyValidator, ClientCreatePersonValidator])
+	.superRefine(validateAddressPlaceTypes());
 
 export const paramsUpdateList = [
 	'client_type',
@@ -91,7 +90,7 @@ export const paramsUpdateList = [
 	'contact_email',
 	'contact_phone',
 	'address_country',
-	'address_county',
+	'address_region',
 	'address_city',
 	'address_street',
 	'address_postal_code',
@@ -120,8 +119,8 @@ export const ClientUpdateBaseValidator = z.object({
 	address_country: validateNumber(
 		lang('client.validation.address_country_invalid'),
 	).optional(),
-	address_county: validateNumber(
-		lang('client.validation.address_county_invalid'),
+	address_region: validateNumber(
+		lang('client.validation.address_region_invalid'),
 	).optional(),
 	address_city: validateNumber(
 		lang('client.validation.address_city_invalid'),
@@ -153,7 +152,7 @@ export const ClientUpdatePersonValidator = ClientUpdateBaseValidator.extend({
 	person_name: validateString(
 		lang('client.validation.person_name_invalid'),
 	).optional(),
-	person_cnp: validateNumber(
+	person_cnp: validateString(
 		lang('client.validation.person_cnp_invalid'),
 	).optional(),
 	person_phone: validateString(
@@ -161,10 +160,9 @@ export const ClientUpdatePersonValidator = ClientUpdateBaseValidator.extend({
 	).optional(),
 });
 
-export const ClientUpdateValidator = z.union([
-	ClientUpdateCompanyValidator,
-	ClientUpdatePersonValidator,
-]);
+export const ClientUpdateValidator = z
+	.union([ClientUpdateCompanyValidator, ClientUpdatePersonValidator])
+	.superRefine(validateAddressPlaceTypes());
 
 enum OrderByEnum {
 	ID = 'id',
