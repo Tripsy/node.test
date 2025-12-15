@@ -7,7 +7,6 @@ import {
 export type ImageEntityType = 'product' | 'category' | 'brand';
 
 export enum ImageKindEnum {
-	PRIMARY = 'primary',
 	LOGO = 'logo',
 	GALLERY = 'gallery',
 }
@@ -38,7 +37,7 @@ export default class ImageEntity extends EntityAbstract {
 	@Index('IDX_image_unique_main', ['entity_type', 'entity_id'], {
 		unique: true,
 	})
-	is_primary!: boolean;
+	is_main!: boolean;
 
 	@Column('int', {
 		nullable: false,

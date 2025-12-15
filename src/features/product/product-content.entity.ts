@@ -19,7 +19,7 @@ export default class ProductContentEntity extends EntityAbstract {
 
 	@Column('varchar', {
 		length: 3,
-        nullable: false,
+		nullable: false,
 		default: 'en',
 	})
 	language!: string;

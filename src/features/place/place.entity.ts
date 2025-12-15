@@ -38,11 +38,11 @@ export default class PlaceEntity extends EntityAbstract {
 	type!: PlaceTypeEnum;
 
 	@Column('bigint', { nullable: true })
-    @Index('IDX_place_parent_id')
+	@Index('IDX_place_parent_id')
 	parent_id?: number; // country -> null, region -> country_id, city -> region_id or country_id
 
 	@Column('varchar', { length: 3, nullable: true, comment: 'Abbreviation' })
-    @Index('IDX_place_code')
+	@Index('IDX_place_code')
 	code?: string;
 
 	@ManyToOne(

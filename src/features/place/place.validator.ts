@@ -35,7 +35,7 @@ export const PlaceCreateValidator = z
 		if (
 			data.type &&
 			[PlaceTypeEnum.REGION, PlaceTypeEnum.CITY].includes(data.type) &&
-            !data.parent_id
+			!data.parent_id
 		) {
 			ctx.addIssue({
 				path: ['parent_id'],
@@ -45,11 +45,7 @@ export const PlaceCreateValidator = z
 		}
 	});
 
-export const paramsUpdateList: string[] = [
-	'type',
-	'code',
-	'parent_id',
-];
+export const paramsUpdateList: string[] = ['type', 'code', 'parent_id'];
 
 export const PlaceUpdateValidator = z
 	.object({
@@ -65,27 +61,22 @@ export const PlaceUpdateValidator = z
 	})
 	.refine((data) => hasAtLeastOneValue(data), {
 		message: lang('error.params_at_least_one', {
-			params: [
-                'type',
-                'code',
-                'parent_id',
-                'content',
-            ].join(', '),
+			params: ['type', 'code', 'parent_id', 'content'].join(', '),
 		}),
 		path: ['_global'],
 	})
 	.superRefine((data, ctx) => {
-        if (
-            data.type &&
-            [PlaceTypeEnum.REGION, PlaceTypeEnum.CITY].includes(data.type) &&
-            !data.parent_id
-        ) {
-            ctx.addIssue({
-                path: ['parent_id'],
-                message: lang('place.validation.required_parent_id'),
-                code: z.ZodIssueCode.custom,
-            });
-        }
+		if (
+			data.type &&
+			[PlaceTypeEnum.REGION, PlaceTypeEnum.CITY].includes(data.type) &&
+			!data.parent_id
+		) {
+			ctx.addIssue({
+				path: ['parent_id'],
+				message: lang('place.validation.required_parent_id'),
+				code: z.ZodIssueCode.custom,
+			});
+		}
 	});
 
 enum OrderByEnum {
@@ -102,7 +93,7 @@ export const PlaceFindValidator = makeFindValidator({
 	filterShape: {
 		term: z.string({ message: lang('error.invalid_string') }).optional(),
 		type: z.nativeEnum(PlaceTypeEnum).optional(),
-        language: validateString(lang('error.invalid_string')).optional(),
+		language: validateString(lang('error.invalid_string')).optional(),
 		is_deleted: validateBoolean().default(false),
 	},
 });

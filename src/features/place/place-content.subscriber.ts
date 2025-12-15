@@ -6,8 +6,8 @@ import {
 	type SoftRemoveEvent,
 	type UpdateEvent,
 } from 'typeorm';
-import PlaceEntity from '@/features/place/place.entity';
-import { PlaceQuery } from '@/features/place/place.repository';
+import PlaceContentEntity from '@/features/place/place-content.entity';
+import { PlaceContentQuery } from '@/features/place/place-content.repository';
 import {
 	cacheClean,
 	getAuthIdFromContext,
@@ -18,12 +18,14 @@ import {
 } from '@/helpers';
 
 @EventSubscriber()
-export class PlaceSubscriber implements EntitySubscriberInterface<PlaceEntity> {
+export class PlaceContentSubscriber
+	implements EntitySubscriberInterface<PlaceContentEntity>
+{
 	/**
 	 * Specify which entity this subscriber is for.
 	 */
 	listenTo() {
-		return PlaceEntity;
+		return PlaceContentEntity;
 	}
 
 	/**
@@ -32,12 +34,12 @@ export class PlaceSubscriber implements EntitySubscriberInterface<PlaceEntity> {
 	 *
 	 * @param event
 	 */
-	beforeRemove(event: RemoveEvent<PlaceEntity>) {
+	beforeRemove(event: RemoveEvent<PlaceContentEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
 		removeOperation(
 			{
-				entity: PlaceQuery.entityAlias,
+				entity: PlaceContentQuery.entityAlias,
 				id: id,
 				auth_id: getAuthIdFromContext(event.entity?.contextData),
 			},
@@ -51,12 +53,12 @@ export class PlaceSubscriber implements EntitySubscriberInterface<PlaceEntity> {
 	 *
 	 * @param event
 	 */
-	afterSoftRemove(event: SoftRemoveEvent<PlaceEntity>) {
+	afterSoftRemove(event: SoftRemoveEvent<PlaceContentEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
 		removeOperation(
 			{
-				entity: PlaceQuery.entityAlias,
+				entity: PlaceContentQuery.entityAlias,
 				id: id,
 				auth_id: getAuthIdFromContext(event.entity?.contextData),
 			},
@@ -64,21 +66,21 @@ export class PlaceSubscriber implements EntitySubscriberInterface<PlaceEntity> {
 		);
 	}
 
-	async afterInsert(event: InsertEvent<PlaceEntity>) {
-		logHistory(PlaceQuery.entityAlias, 'created', {
+	async afterInsert(event: InsertEvent<PlaceContentEntity>) {
+		logHistory(PlaceContentQuery.entityAlias, 'created', {
 			id: event.entity.id.toString(),
 			auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
 		});
 	}
 
-	async afterUpdate(event: UpdateEvent<PlaceEntity>) {
+	async afterUpdate(event: UpdateEvent<PlaceContentEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 		const auth_id: number = getAuthIdFromContext(event.entity?.contextData);
 
 		// When entry is restored
 		if (isRestore(event)) {
 			restoreOperation({
-				entity: PlaceQuery.entityAlias,
+				entity: PlaceContentQuery.entityAlias,
 				id: id,
 				auth_id: auth_id,
 			});
@@ -87,9 +89,9 @@ export class PlaceSubscriber implements EntitySubscriberInterface<PlaceEntity> {
 		}
 
 		// When entry is updated
-		cacheClean(PlaceQuery.entityAlias, id);
+		cacheClean(PlaceContentQuery.entityAlias, id);
 
-		logHistory(PlaceQuery.entityAlias, 'updated', {
+		logHistory(PlaceContentQuery.entityAlias, 'updated', {
 			id: id.toString(),
 			auth_id: auth_id.toString(),
 		});

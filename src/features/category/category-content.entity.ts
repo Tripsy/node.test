@@ -6,6 +6,7 @@ import {
 import TermEntity from '@/features/term/term.entity';
 import CategoryEntity from './category.entity';
 
+// TODO drop term from category
 @Entity({
 	name: 'category_content',
 	schema: 'public',

@@ -45,8 +45,6 @@ export class DiscountSubscriber
 			},
 			false,
 		);
-
-		cacheClean(DiscountQuery.entityAlias, id);
 	}
 
 	/**
@@ -66,8 +64,6 @@ export class DiscountSubscriber
 			},
 			true,
 		);
-
-		cacheClean(DiscountQuery.entityAlias, id);
 	}
 
 	async afterInsert(event: InsertEvent<DiscountEntity>) {

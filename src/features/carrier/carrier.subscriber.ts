@@ -45,8 +45,6 @@ export class CarrierSubscriber
 			},
 			false,
 		);
-
-		cacheClean(CarrierQuery.entityAlias, id);
 	}
 
 	/**
@@ -66,8 +64,6 @@ export class CarrierSubscriber
 			},
 			true,
 		);
-
-		cacheClean(CarrierQuery.entityAlias, id);
 	}
 
 	async afterInsert(event: InsertEvent<CarrierEntity>) {

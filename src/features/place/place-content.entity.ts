@@ -10,7 +10,9 @@ import PlaceEntity from './place.entity';
 	schema: 'public',
 	comment: 'Language-specific content for places',
 })
-@Index('IDX_place_content_unique_per_lang', ['place_id', 'language'], { unique: true })
+@Index('IDX_place_content_unique_per_lang', ['place_id', 'language'], {
+	unique: true,
+})
 export default class PlaceContentEntity extends EntityAbstract {
 	@Column('bigint', { nullable: false })
 	place_id!: number;

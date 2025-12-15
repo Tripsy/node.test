@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import PlaceEntity from '@/features/place/place.entity';
@@ -10,9 +11,9 @@ import {
 	PlaceUpdateValidator,
 	paramsUpdateList,
 } from '@/features/place/place.validator';
+import PlaceContentRepository from '@/features/place/place-content.repository';
 import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
-import dataSource from "@/config/data-source.config";
 
 class PlaceController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
@@ -30,26 +31,30 @@ class PlaceController {
 			throw new BadRequestError();
 		}
 
-        const entry = await dataSource.transaction(async (manager) => {
-            const repository = manager.getRepository(PlaceEntity);
+		const entry = await dataSource.transaction(async (manager) => {
+			const repository = manager.getRepository(PlaceEntity);
 
-            const entryEntity = new PlaceEntity();
-            entryEntity.type = validated.data.type;
-            entryEntity.code = validated.data.code;
-            entryEntity.parent_id = validated.data.parent_id;
+			const entryEntity = new PlaceEntity();
+			entryEntity.type = validated.data.type;
+			entryEntity.code = validated.data.code;
+			entryEntity.parent_id = validated.data.parent_id;
 
-            entryEntity.contextData = {
-                auth_id: policy.getUserId(),
-            };
+			entryEntity.contextData = {
+				auth_id: policy.getUserId(),
+			};
 
-            const entrySaved = await repository.save(entryEntity);
+			const entrySaved = await repository.save(entryEntity);
 
-            await PlaceRepository.saveContent(manager, entrySaved.id, validated.data.content);
+			await PlaceContentRepository.saveContent(
+				manager,
+				entrySaved.id,
+				validated.data.content,
+			);
 
-            return entrySaved;
-        });
+			return entrySaved;
+		});
 
-        res.output.data(entry);
+		res.output.data(entry);
 		res.output.message(lang('place.success.create'));
 
 		res.status(201).json(res.output);
@@ -71,51 +76,53 @@ class PlaceController {
 
 		const place = await cacheProvider.get(cacheKey, async () => {
 			const placeData = await PlaceRepository.createQuery()
-                .joinAndSelect(
-                    'place.contents',
-                    'content',
-                    'INNER',
-                    'content.language = :language',
-                    {
-                        language: res.locals.language,
-                    },
-                )
-                .joinAndSelect('place.parent', 'parent', 'LEFT')
-                .joinAndSelect(
-                    'parent.contents',
-                    'parentContent',
-                    'LEFT',
-                    'parentContent.language = :language',
-                    {
-                        language: res.locals.language
-                    }
-                )
+				.joinAndSelect(
+					'place.contents',
+					'content',
+					'INNER',
+					'content.language = :language',
+					{
+						language: res.locals.language,
+					},
+				)
+				.joinAndSelect('place.parent', 'parent', 'LEFT')
+				.joinAndSelect(
+					'parent.contents',
+					'parentContent',
+					'LEFT',
+					'parentContent.language = :language',
+					{
+						language: res.locals.language,
+					},
+				)
 				.filterById(res.locals.validated.id)
 				.withDeleted(policy.allowDeleted())
 				.firstOrFail();
 
-            const content = placeData.contents?.[0];
-            const parent =  placeData.parent ?? null;
-            const parentContent = placeData.parent?.contents?.[0] ?? null;
+			const content = placeData.contents?.[0];
+			const parent = placeData.parent ?? null;
+			const parentContent = placeData.parent?.contents?.[0] ?? null;
 
-            return {
-                language: content.language,
-                id: placeData.id,
-                created_at: placeData.created_at,
-                updated_at: placeData.updated_at,
-                deleted_at: placeData.deleted_at,
-                type: placeData.type,
-                type_label: content.type_label,
-                code: placeData.code,
-                name: content.name,
-                parent: parent ? {
-                    id: parent.id,
-                    type: parent.type,
-                    type_label: parentContent.type_label,
-                    code: parent.code,
-                    name: parentContent.name,
-                } : null,
-            };
+			return {
+				language: content.language,
+				id: placeData.id,
+				created_at: placeData.created_at,
+				updated_at: placeData.updated_at,
+				deleted_at: placeData.deleted_at,
+				type: placeData.type,
+				type_label: content.type_label,
+				code: placeData.code,
+				name: content.name,
+				parent: parent
+					? {
+							id: parent.id,
+							type: parent.type,
+							type_label: parentContent.type_label,
+							code: parent.code,
+							name: parentContent.name,
+						}
+					: null,
+			};
 		});
 
 		res.output.meta(cacheProvider.isCached, 'isCached');
@@ -140,55 +147,55 @@ class PlaceController {
 		}
 
 		const place = await PlaceRepository.createQuery()
-			.select([
-                'type',
-                'code',
-                'parent_id',
-            ])
+			.select(['type', 'code', 'parent_id'])
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
-        const isTypeChange =
-            validated.data.type !== undefined &&
-            validated.data.type !== place.type;
+		const isTypeChange =
+			validated.data.type !== undefined &&
+			validated.data.type !== place.type;
 
-        if (isTypeChange) {
-            const hasChildren = await PlaceRepository.createQuery()
-                .filterBy('parent_id', place.id)
-                .firstRaw();
+		if (isTypeChange) {
+			const hasChildren = await PlaceRepository.createQuery()
+				.filterBy('parent_id', place.id)
+				.firstRaw();
 
-            if (hasChildren) {
-                throw new BadRequestError(
-                    lang('place.error.cannot_change_type_with_children'),
-                );
-            }
-        }
+			if (hasChildren) {
+				throw new BadRequestError(
+					lang('place.error.cannot_change_type_with_children'),
+				);
+			}
+		}
 
-        const entry = await dataSource.transaction(async (manager) => {
-            const repository = manager.getRepository(PlaceEntity);
+		const entry = await dataSource.transaction(async (manager) => {
+			const repository = manager.getRepository(PlaceEntity);
 
-            const updatedEntity: Partial<PlaceEntity> = {
-                id: place.id,
-                ...(Object.fromEntries(
-                    Object.entries(validated.data).filter(([key]) =>
-                        paramsUpdateList.includes(key as keyof PlaceEntity),
-                    ),
-                ) as Partial<PlaceEntity>),
-            };
+			const updatedEntity: Partial<PlaceEntity> = {
+				id: place.id,
+				...(Object.fromEntries(
+					Object.entries(validated.data).filter(([key]) =>
+						paramsUpdateList.includes(key as keyof PlaceEntity),
+					),
+				) as Partial<PlaceEntity>),
+			};
 
-            // Set `contextData` for usage in subscriber
-            updatedEntity.contextData = {
-                auth_id: policy.getUserId(),
-            };
+			// Set `contextData` for usage in subscriber
+			updatedEntity.contextData = {
+				auth_id: policy.getUserId(),
+			};
 
-            await repository.save(updatedEntity);
+			await repository.save(updatedEntity);
 
-            if (validated.data.content) {
-                await PlaceRepository.saveContent(manager, place.id, validated.data.content);
-            }
+			if (validated.data.content) {
+				await PlaceContentRepository.saveContent(
+					manager,
+					place.id,
+					validated.data.content,
+				);
+			}
 
-            return updatedEntity;
-        });
+			return updatedEntity;
+		});
 
 		res.output.message(lang('place.success.update'));
 		res.output.data(entry);
@@ -202,17 +209,17 @@ class PlaceController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-        const hasChildren = await PlaceRepository.createQuery()
-            .filterBy('parent_id', res.locals.validated.id)
-            .firstRaw();
+		const hasChildren = await PlaceRepository.createQuery()
+			.filterBy('parent_id', res.locals.validated.id)
+			.firstRaw();
 
-        if (hasChildren) {
-            throw new BadRequestError(
-                lang('place.error.cannot_delete_type_with_children'),
-            );
-        }
+		if (hasChildren) {
+			throw new BadRequestError(
+				lang('place.error.cannot_delete_type_with_children'),
+			);
+		}
 
-        await PlaceRepository.createQuery()
+		await PlaceRepository.createQuery()
 			.filterById(res.locals.validated.id)
 			.setContextData({
 				auth_id: policy.getUserId(),
@@ -257,47 +264,48 @@ class PlaceController {
 			throw new BadRequestError();
 		}
 
-        const selectedLanguage = validated.data.filter.language ?? res.locals.language;
+		const selectedLanguage =
+			validated.data.filter.language ?? res.locals.language;
 
 		const [entries, total] = await PlaceRepository.createQuery()
-            .join(
-                'place.contents',
-                'content',
-                'INNER',
-                'content.language = :language',
-                {
-                    language: selectedLanguage,
-                },
-            )
-            .join('place.parent', 'parent', 'LEFT')
-            .join(
-                'parent.contents',
-                'parentContent',
-                'LEFT',
-                'parentContent.language = :language',
-                {
-                    language: selectedLanguage
-                }
-            )
-            .select([
-                'place.id',
-                'place.type',
-                'place.code',
-                'place.created_at',
-                'place.deleted_at',
+			.join(
+				'place.contents',
+				'content',
+				'INNER',
+				'content.language = :language',
+				{
+					language: selectedLanguage,
+				},
+			)
+			.join('place.parent', 'parent', 'LEFT')
+			.join(
+				'parent.contents',
+				'parentContent',
+				'LEFT',
+				'parentContent.language = :language',
+				{
+					language: selectedLanguage,
+				},
+			)
+			.select([
+				'place.id',
+				'place.type',
+				'place.code',
+				'place.created_at',
+				'place.deleted_at',
 
-                'content.language',
-                'content.name',
-                'content.type_label',
+				'content.language',
+				'content.name',
+				'content.type_label',
 
-                'parent.id',
-                'parent.type',
-                'parent.code',
+				'parent.id',
+				'parent.type',
+				'parent.code',
 
-                'parentContent.name',
-                'parentContent.type_label',
-            ])
-            .filterBy('content.language', validated.data.filter.language)
+				'parentContent.name',
+				'parentContent.type_label',
+			])
+			.filterBy('content.language', validated.data.filter.language)
 			.filterByTerm(validated.data.filter.term)
 			.filterBy('place.type', validated.data.filter.type)
 			.withDeleted(
@@ -305,7 +313,7 @@ class PlaceController {
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
-            .debug()
+			.debug()
 			.all(true);
 
 		res.output.data({

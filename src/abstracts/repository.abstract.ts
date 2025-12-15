@@ -91,9 +91,9 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		return this;
 	}
 
-    /**
-     * Note: This method automatically selects all related fields (including relations)
-     */
+	/**
+	 * Note: This method automatically selects all related fields (including relations)
+	 */
 	joinAndSelect(
 		entityOrProperty: string,
 		alias: string,
