@@ -259,7 +259,6 @@ class PlaceController {
 
         const selectedLanguage = validated.data.filter.language ?? res.locals.language;
 
-        // TODO work on filters & test
 		const [entries, total] = await PlaceRepository.createQuery()
             .join(
                 'place.contents',
@@ -298,13 +297,15 @@ class PlaceController {
                 'parentContent.name',
                 'parentContent.type_label',
             ])
+            .filterBy('content.language', validated.data.filter.language)
 			.filterByTerm(validated.data.filter.term)
-			.filterBy('type', validated.data.filter.type)
+			.filterBy('place.type', validated.data.filter.type)
 			.withDeleted(
 				policy.allowDeleted() && validated.data.filter.is_deleted,
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
+            .debug()
 			.all(true);
 
 		res.output.data({

@@ -20,17 +20,12 @@ export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 	filterByTerm(term?: string): this {
 		if (term) {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
-				this.filterBy('id', Number(term));
+				this.filterBy('place.id', Number(term));
 			} else {
 				if (term.length > (cfg('filter.termMinLength') as number)) {
 					this.filterAny([
 						{
-							column: 'label',
-							value: term,
-							operator: 'ILIKE',
-						},
-						{
-							column: 'reference',
+							column: 'content.name',
 							value: term,
 							operator: 'ILIKE',
 						},

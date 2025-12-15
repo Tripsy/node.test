@@ -138,7 +138,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. client & place (99% done)
+1. place (99% done) > client ( 50% done) > category ( + route images) > brand ( + route images)
+2. log history to DB
 2. wip entities:
     - article
       - article-category
