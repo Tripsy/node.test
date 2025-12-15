@@ -91,7 +91,7 @@ CREATE SCHEMA IF NOT EXISTS logs
 
 ```
 // Generate migration file for schemas - DEPRECATED
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/migrations/CreateSchemas
+$ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/database/migrations/CreateSchemas
 
 // Generate migration file
 $ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/database/migrations/init
@@ -138,7 +138,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. client & place
+1. client & place (99% done)
 2. wip entities:
     - article
       - article-category

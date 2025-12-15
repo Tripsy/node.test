@@ -24,7 +24,7 @@ export default class ArticleContentEntity extends EntityAbstract {
 	@Column('bigint', { nullable: false })
 	article_id!: number;
 
-	@Column('char', {
+	@Column('varchar', {
 		length: 3,
 		default: 'en',
 		comment:

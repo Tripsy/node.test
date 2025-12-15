@@ -16,8 +16,8 @@ export default class CategoryContentEntity extends EntityAbstract {
 	@Column('bigint', { nullable: false })
 	category_id!: number;
 
-	@Column('char', {
-		length: 3,
+	@Column('varchar', {
+		length: 2,
 		default: 'en',
 		comment:
 			'Using explicit column avoids overloading `term` for language lookups.',

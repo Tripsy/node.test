@@ -1,5 +1,8 @@
 import PlaceController from '@/features/place/place.controller';
-import {validateParamsWhenId, validateParamsWhenString} from '@/middleware/validate-params.middleware';
+import {
+	validateParamsWhenId,
+	validateParamsWhenString,
+} from '@/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/types/routing.type';
 
 export default {
@@ -16,7 +19,10 @@ export default {
 			path: '/:id/:language',
 			method: 'get',
 			action: 'read',
-			handlers: [validateParamsWhenId('id'), validateParamsWhenString('language')],
+			handlers: [
+				validateParamsWhenId('id'),
+				validateParamsWhenString('language'),
+			],
 		},
 		update: {
 			path: '/:id',

@@ -30,7 +30,7 @@ export const MailQueueFindValidator = makeFindValidator({
 			.optional(),
 		template: z.union([z.string(), z.number()]).optional(),
 		language: z
-			.string({ message: lang('error.invalid_string') })
+			.string()
 			.length(2, {
 				message: lang('mail_queue.validation.language_invalid'),
 			})

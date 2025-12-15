@@ -62,30 +62,61 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		return this.contextData;
 	}
 
-	/**
-	 * entityOrProperty:
-	 *       Entity name = user_permission.permission
-	 *       Property name = permission (condition is required)
-	 *       Entity class = UserPermission
-	 *       Callback function that returns a query builder for subqueries (condition is required)
-	 *
-	 * @param entityOrProperty
-	 * @param alias
-	 * @param type
-	 * @param condition
-	 */
 	join(
 		entityOrProperty: string,
 		alias: string,
 		type: 'INNER' | 'LEFT' = 'INNER',
 		condition?: string,
+		parameters?: ObjectLiteral,
 	): this {
 		switch (type) {
 			case 'INNER':
-				this.query.innerJoin(entityOrProperty, alias, condition);
+				this.query.innerJoin(
+					entityOrProperty,
+					alias,
+					condition,
+					parameters,
+				);
 				break;
 			case 'LEFT':
-				this.query.leftJoin(entityOrProperty, alias, condition);
+				this.query.leftJoin(
+					entityOrProperty,
+					alias,
+					condition,
+					parameters,
+				);
+				break;
+		}
+
+		return this;
+	}
+
+    /**
+     * Note: This method automatically selects all related fields (including relations)
+     */
+	joinAndSelect(
+		entityOrProperty: string,
+		alias: string,
+		type: 'INNER' | 'LEFT' = 'INNER',
+		condition?: string,
+		parameters?: ObjectLiteral,
+	): this {
+		switch (type) {
+			case 'INNER':
+				this.query.innerJoinAndSelect(
+					entityOrProperty,
+					alias,
+					condition,
+					parameters,
+				);
+				break;
+			case 'LEFT':
+				this.query.leftJoinAndSelect(
+					entityOrProperty,
+					alias,
+					condition,
+					parameters,
+				);
 				break;
 		}
 

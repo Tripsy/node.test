@@ -21,7 +21,7 @@ export default class TemplateEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	label!: string;
 
-	@Column('char', { length: 2, nullable: false })
+	@Column('varchar', { length: 3, nullable: false })
 	language!: string;
 
 	@Column({

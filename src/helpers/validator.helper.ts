@@ -42,7 +42,7 @@ export function makeJsonFilterSchema<T extends z.ZodRawShape>(shape: T) {
 export function nullableString(msg: string) {
 	return z.preprocess(
 		(v) => (v === '' ? null : v),
-		z.string({ message: msg }).nullable().optional(),
+		z.string({ message: msg }).trim().nullable().optional(),
 	);
 }
 
@@ -50,7 +50,7 @@ export function nullableString(msg: string) {
  * @description Used in validators to make string required
  */
 export function validateString(message: string) {
-	return z.string({ message }).nonempty({ message });
+	return z.string().trim().nonempty({ message });
 }
 
 /**

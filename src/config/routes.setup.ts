@@ -7,11 +7,11 @@ import discountRoutes from '@/features/discount/discount.routes';
 import logDataRoutes from '@/features/log-data/log-data.routes';
 import mailQueueRoutes from '@/features/mail-queue/mail-queue.routes';
 import permissionRoutes from '@/features/permission/permission.routes';
+import placeRoutes from '@/features/place/place.routes';
 import templateRoutes from '@/features/template/template.routes';
 import userRoutes from '@/features/user/user.routes';
 import userPermissionRoutes from '@/features/user-permission/user-permission.routes';
 import { buildRoutes, extractRoutesPath } from '@/helpers/routing.helper';
-import placeRoutes from "@/features/place/place.routes";
 
 export const initRoutes = (): Router => {
 	const router = Router();

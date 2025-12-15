@@ -39,7 +39,7 @@ export const AccountRegisterValidator = z
 			message: lang('account.validation.password_confirm_required'),
 		}),
 		language: z
-			.string({ message: lang('account.validation.language_invalid') })
+			.string()
 			.length(2, { message: lang('account.validation.language_invalid') })
 			.optional(),
 	})
@@ -169,7 +169,7 @@ export const AccountEditValidator = z.object({
 		}),
 	),
 	language: z
-		.string({ message: lang('account.validation.language_invalid') })
+		.string()
 		.length(2, { message: lang('account.validation.language_invalid') }),
 });
 

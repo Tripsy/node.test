@@ -14,13 +14,9 @@ export const TemplateCreateBaseValidator = z.object({
 	label: z.string().nonempty({
 		message: lang('template.validation.label_invalid'),
 	}),
-	language: z
-		.string({
-			message: lang('template.validation.language_invalid'),
-		})
-		.length(2, {
-			message: lang('template.validation.language_invalid'),
-		}),
+	language: z.string().length(2, {
+		message: lang('template.validation.language_invalid'),
+	}),
 	type: validateEnum(
 		TemplateTypeEnum,
 		lang('template.validation.type_invalid'),
@@ -92,7 +88,7 @@ const TemplateUpdateBaseValidator = z.object({
 		})
 		.optional(),
 	language: z
-		.string({ message: lang('template.validation.language_invalid') })
+		.string()
 		.length(2, {
 			message: lang('template.validation.language_invalid'),
 		})
@@ -181,7 +177,7 @@ export const TemplateFindValidator = makeFindValidator({
 			.optional(),
 		term: z.string({ message: lang('error.invalid_string') }).optional(),
 		language: z
-			.string({ message: lang('error.invalid_string') })
+			.string()
 			.length(2, {
 				message: lang('template.validation.language_invalid'),
 			})

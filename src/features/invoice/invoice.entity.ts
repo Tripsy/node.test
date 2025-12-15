@@ -86,7 +86,7 @@ export default class InvoiceEntity extends EntityAbstract {
 	@Index('IDX_invoice_order_id')
 	order_id!: number;
 
-	@Column('char', {
+	@Column('varchar', {
 		length: 3,
 		nullable: false,
 		comment: 'Invoice series/code, e.g., ABC',

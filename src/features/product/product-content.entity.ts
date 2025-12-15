@@ -17,11 +17,10 @@ export default class ProductContentEntity extends EntityAbstract {
 	@Column('bigint', { nullable: false })
 	product_id!: number;
 
-	@Column('char', {
+	@Column('varchar', {
 		length: 3,
+        nullable: false,
 		default: 'en',
-		comment:
-			'Using explicit column avoids overloading `term` for language lookups.',
 	})
 	language!: string;
 

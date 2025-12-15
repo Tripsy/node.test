@@ -1,41 +1,29 @@
 {
 	"validation": {
-		"client_invalid": "Client type is invalid",
-		"iban_invalid": "Invalid iban number",
-		"bank_name_invalid": "Invalid bank name",
-		"contact_name_invalid": "Invalid contact name",
-		"contact_email_invalid": "Invalid contact email",
-		"contact_phone_invalid": "Invalid contact phone number",
-		"address_country_invalid": "Invalid country",
-		"address_county_invalid": "Invalid county",
-		"address_city_invalid": "Invalid city",
-		"address_info_invalid": "Invalid address info",
-		"address_postal_code_invalid": "Invalid postal code",
-		"company_name_invalid": "Invalid company name",
-		"company_cui_invalid": "Invalid company CUI",
-		"company_reg_com_invalid": "Invalid company registration number",
-		"person_name_invalid": "Invalid person name",
-		"person_cnp_invalid": "Invalid person CNP",
-		"person_phone_invalid": "Invalid person phone number"
+		"type_invalid": "Invalid type",
+		"code_invalid": "Invalid code",
+		"invalid_parent_id": "Invalid parent ID",
+		"required_parent_id": "Parent ID required for region & city types",
+		"language_invalid": "Invalid language",
+		"name_invalid": "Invalid place name",
+		"type_label_invalid": "Invalid type label"
 	},
 	"error": {
-		"not_found": "Client not found",
-		"already_exists": "Client already exists",
-		"status_unchanged": "Status unchanged (eg: {{status}})"
+		"not_found": "Place not found",
+		"cannot_change_type_with_children": "Type cannot be changed. This place has children(s).",
+		"cannot_delete_type_with_children": "Type cannot be deleted. This place has children(s)."
 	},
 	"success": {
-		"create": "Client created successfully",
-		"update": "Client updated successfully",
-		"delete": "Client deleted successfully",
-		"restore": "Client restored successfully",
-		"status_update": "Client status updated successfully"
+		"create": "Place created successfully",
+		"update": "Place updated successfully",
+		"delete": "Place deleted successfully",
+		"restore": "Place restored successfully"
 	},
 	"history": {
-		"created": "Client #{{id}} created by user #{{auth_id}}",
-		"updated": "Client #{{id}} updated by user #{{auth_id}}",
-		"deleted": "Client #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Client #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "Client #{{id}} has been restored by user #{{auth_id}}",
-		"status": "Client #{{id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}"
+		"created": "Place #{{id}} created by user #{{auth_id}}",
+		"updated": "Place #{{id}} updated by user #{{auth_id}}",
+		"deleted": "Place #{{id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Place #{{id}} has been removed by user #{{auth_id}}",
+		"restored": "Place #{{id}} has been restored by user #{{auth_id}}"
 	}
 }

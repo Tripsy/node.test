@@ -52,7 +52,7 @@ export const UserCreateValidator = z
 			message: lang('user.validation.password_confirm_required'),
 		}),
 		language: z
-			.string({ message: lang('user.validation.language_invalid') })
+			.string()
 			.length(2, { message: lang('user.validation.language_invalid') })
 			.optional(),
 		status: z
@@ -147,7 +147,7 @@ export const UserUpdateValidator = z
 			lang('user.validation.password_confirm_required'),
 		),
 		language: z
-			.string({ message: lang('user.validation.language_invalid') })
+			.string()
 			.length(2, { message: lang('user.validation.language_invalid') })
 			.optional(),
 		role: z.nativeEnum(UserRoleEnum).optional(),

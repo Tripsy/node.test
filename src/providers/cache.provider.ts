@@ -3,7 +3,8 @@ import { getRedisClient } from '@/config/init-redis.config';
 import { cfg } from '@/config/settings.config';
 import { systemLogger } from '@/providers/logger.provider';
 
-type CacheData = string | string[] | number | boolean | null;
+type CacheData = unknown;
+// type CacheData = string | string[] | number | boolean | null;
 
 class CacheProvider {
 	private static instance: CacheProvider;

@@ -18,9 +18,7 @@ import {
 } from '@/helpers';
 
 @EventSubscriber()
-export class PlaceSubscriber
-	implements EntitySubscriberInterface<PlaceEntity>
-{
+export class PlaceSubscriber implements EntitySubscriberInterface<PlaceEntity> {
 	/**
 	 * Specify which entity this subscriber is for.
 	 */

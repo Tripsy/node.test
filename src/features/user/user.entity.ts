@@ -46,7 +46,7 @@ export default class UserEntity extends EntityAbstract {
 	@Column({ type: 'timestamp', nullable: false })
 	password_updated_at!: Date;
 
-	@Column('char', { length: 2, nullable: false })
+	@Column('varchar', { length: 3, nullable: false })
 	language!: string;
 
 	@Column({

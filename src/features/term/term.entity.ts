@@ -28,7 +28,7 @@ export default class TermEntity extends EntityAbstract {
 	@Index('IDX_term_type')
 	type!: TermTypeEnum;
 
-	@Column('char', {
+	@Column('varchar', {
 		length: 3,
 		default: 'en',
 		comment: 'ISO language code (en will the fallback for universal terms)',

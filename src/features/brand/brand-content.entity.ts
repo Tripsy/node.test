@@ -15,7 +15,7 @@ export default class BrandContentEntity extends EntityAbstract {
 	@Column('bigint', { nullable: false })
 	brand_id!: number;
 
-	@Column('char', {
+	@Column('varchar', {
 		length: 3,
 		default: 'en',
 		comment:

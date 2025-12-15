@@ -36,7 +36,7 @@ export default class ImageContentEntity extends EntityAbstract {
 	@Column('bigint', { nullable: false })
 	image_id!: number;
 
-	@Column('char', {
+	@Column('varchar', {
 		length: 3,
 		default: 'en',
 	})

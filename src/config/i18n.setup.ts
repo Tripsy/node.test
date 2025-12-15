@@ -94,6 +94,10 @@ export const lang = (
 
 	const availableNamespaces = cfg('app.languageNamespaces') as string[];
 
+    // console.log('i18next.language =', i18next.language);
+    // console.log('availableNamespaces', availableNamespaces);
+    // console.log('ns', ns);
+
 	// Ensure the namespace exists
 	if (!availableNamespaces.includes(ns)) {
 		if (fallback) {
