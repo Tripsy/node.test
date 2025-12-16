@@ -1,8 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 
 export type ImageEntityType = 'product' | 'category' | 'brand';
 
@@ -51,7 +48,4 @@ export default class ImageEntity extends EntityAbstract {
 		comment: 'Reserved column for future use',
 	})
 	details!: Record<string, string | number | boolean>;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 }

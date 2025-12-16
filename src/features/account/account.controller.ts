@@ -736,12 +736,7 @@ class AccountController {
 			throw new UnauthorizedError();
 		}
 
-		await UserRepository.createQuery()
-			.filterById(user_id)
-			.setContextData({
-				auth_id: user_id,
-			})
-			.delete();
+		await UserRepository.createQuery().filterById(user_id).delete();
 
 		res.locals.output.message(lang('account.success.delete'));
 

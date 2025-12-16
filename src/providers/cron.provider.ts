@@ -1,5 +1,7 @@
 import cron from 'node-cron';
 import type { Logger } from 'pino';
+import { v4 as uuidv4 } from 'uuid';
+import { requestContext } from '@/config/request.context';
 import { cleanAccountRecovery } from '@/cron-jobs/clean-account-recovery.cron';
 import { cleanAccountToken } from '@/cron-jobs/clean-account-token.cron';
 import { cronErrorCount } from '@/cron-jobs/cron-error-count.cron';
@@ -18,59 +20,71 @@ import logger, { childLogger } from '@/providers/logger.provider';
 const cronLogger: Logger = childLogger(logger, LogDataCategoryEnum.CRON);
 
 /**
- * Execute cron job and save history
+ * Execute a cron job and save history
  *
  * @param action - Should return cron_history `content`
  * @param expectedRunTime - Expected run time in seconds
  */
+
 async function executeCron<R extends Record<string, unknown>>(
 	action: () => Promise<R>,
 	expectedRunTime: number,
 ) {
-	const cronHistoryEntity = new CronHistoryEntity();
-	cronHistoryEntity.label = action.name;
-	cronHistoryEntity.start_at = new Date();
+	return requestContext.run(
+		{
+			auth_id: 0,
+			performed_by: action.name,
+			source: 'cron',
+			request_id: uuidv4(),
+			language: 'en',
+		},
+		async () => {
+			const cronHistoryEntity = new CronHistoryEntity();
+			cronHistoryEntity.label = action.name;
+			cronHistoryEntity.start_at = new Date();
 
-	try {
-		cronHistoryEntity.content = await action();
-		cronHistoryEntity.status = CronHistoryStatusEnum.OK;
-	} catch (error) {
-		if (error instanceof NotFoundError) {
-			cronHistoryEntity.status = CronHistoryStatusEnum.OK;
-			cronHistoryEntity.content = {
-				removed: 0,
-			};
-		} else if (error instanceof Error) {
-			cronHistoryEntity.status = CronHistoryStatusEnum.ERROR;
-			cronHistoryEntity.content = {
-				message: error.message,
-			};
+			try {
+				cronHistoryEntity.content = await action();
+				cronHistoryEntity.status = CronHistoryStatusEnum.OK;
+			} catch (error) {
+				if (error instanceof NotFoundError) {
+					cronHistoryEntity.status = CronHistoryStatusEnum.OK;
+					cronHistoryEntity.content = {
+						removed: 0,
+					};
+				} else if (error instanceof Error) {
+					cronHistoryEntity.status = CronHistoryStatusEnum.ERROR;
+					cronHistoryEntity.content = {
+						message: error.message,
+					};
 
-			cronLogger.error(error, error.message);
-		} else {
-			cronHistoryEntity.status = CronHistoryStatusEnum.ERROR;
-			cronHistoryEntity.content = {
-				message: 'Unknown error',
-			};
+					cronLogger.error(error, error.message);
+				} else {
+					cronHistoryEntity.status = CronHistoryStatusEnum.ERROR;
+					cronHistoryEntity.content = {
+						message: 'Unknown error',
+					};
 
-			cronLogger.error(error, 'Unknown error');
-		}
-	} finally {
-		cronHistoryEntity.end_at = new Date();
-		cronHistoryEntity.run_time = dateDiffInSeconds(
-			cronHistoryEntity.end_at,
-			cronHistoryEntity.start_at,
-		);
+					cronLogger.error(error, 'Unknown error');
+				}
+			} finally {
+				cronHistoryEntity.end_at = new Date();
+				cronHistoryEntity.run_time = dateDiffInSeconds(
+					cronHistoryEntity.end_at,
+					cronHistoryEntity.start_at,
+				);
 
-		if (
-			cronHistoryEntity.run_time > expectedRunTime &&
-			cronHistoryEntity.status !== CronHistoryStatusEnum.ERROR
-		) {
-			cronHistoryEntity.status = CronHistoryStatusEnum.WARNING;
-		}
+				if (
+					cronHistoryEntity.run_time > expectedRunTime &&
+					cronHistoryEntity.status !== CronHistoryStatusEnum.ERROR
+				) {
+					cronHistoryEntity.status = CronHistoryStatusEnum.WARNING;
+				}
 
-		await CronHistoryRepository.save(cronHistoryEntity);
-	}
+				await CronHistoryRepository.save(cronHistoryEntity);
+			}
+		},
+	);
 }
 
 const startCronJobs = () => {

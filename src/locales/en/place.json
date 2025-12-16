@@ -23,10 +23,10 @@
 		"restore": "Place restored successfully"
 	},
 	"history": {
-		"created": "Place #{{id}} created by user #{{auth_id}}",
-		"updated": "Place #{{id}} updated by user #{{auth_id}}",
-		"deleted": "Place #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Place #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "Place #{{id}} has been restored by user #{{auth_id}}"
+		"created": "Place #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Place #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Place #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Place #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Place #{{entity_id}} has been restored by user #{{auth_id}}"
 	}
 }

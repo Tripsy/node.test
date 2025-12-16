@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import UserEntity from '@/features/user/user.entity';
 
+// TODO add performed by & source
+
 @Entity({
 	name: 'log_history',
 	schema: 'logs',

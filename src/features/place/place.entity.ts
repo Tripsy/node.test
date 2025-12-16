@@ -6,10 +6,7 @@ import {
 	ManyToOne,
 	OneToMany,
 } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import PlaceContentEntity from '@/features/place/place-content.entity';
 
 export enum PlaceTypeEnum {
@@ -52,9 +49,6 @@ export default class PlaceEntity extends EntityAbstract {
 	)
 	@JoinColumn({ name: 'parent_id' })
 	parent?: PlaceEntity;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	@OneToMany(
 		() => PlaceEntity,

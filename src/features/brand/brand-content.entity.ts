@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import BrandEntity from './brand.entity';
 
 @Entity({
@@ -31,9 +28,6 @@ export default class BrandContentEntity extends EntityAbstract {
 		comment: 'SEO metadata for brand pages.',
 	})
 	meta!: Record<string, number> | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => BrandEntity, {

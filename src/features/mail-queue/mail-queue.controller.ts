@@ -61,9 +61,11 @@ class MailQueueController {
 		if (countDelete === 0) {
 			res.status(204).locals.output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
 		} else {
-			logHistory(MailQueueQuery.entityAlias, 'deleted', {
-				auth_id: policy.getUserId()?.toString() || '0',
-			});
+			logHistory(
+				MailQueueQuery.entityAlias,
+				validated.data.ids,
+				'deleted',
+			);
 
 			res.locals.output.message(lang('mail_queue.success.delete'));
 		}

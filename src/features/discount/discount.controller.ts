@@ -43,11 +43,6 @@ class DiscountController {
 		discount.end_at = validated.data.end_at ?? null;
 		discount.notes = validated.data.notes ?? null;
 
-		// Set `contextData` for usage in subscriber
-		discount.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		const entry: DiscountEntity = await DiscountRepository.save(discount);
 
 		res.locals.output.data(entry);
@@ -112,11 +107,6 @@ class DiscountController {
 			) as Partial<DiscountEntity>),
 		};
 
-		// Set `contextData` for usage in subscriber
-		updatedEntity.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		await DiscountRepository.save(updatedEntity);
 
 		res.locals.output.message(lang('discount.success.update'));
@@ -133,9 +123,6 @@ class DiscountController {
 
 		await DiscountRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete();
 
 		res.locals.output.message(lang('discount.success.delete'));
@@ -151,9 +138,6 @@ class DiscountController {
 
 		await DiscountRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
 		res.locals.output.message(lang('discount.success.restore'));

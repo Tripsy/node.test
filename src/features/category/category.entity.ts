@@ -7,10 +7,7 @@ import {
 	TreeChildren,
 	TreeParent,
 } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import CategoryContentEntity from '@/features/category/category-content.entity';
 import ProductCategoryEntity from '@/features/product/product-category.entity';
 
@@ -70,9 +67,6 @@ export default class CategoryEntity extends EntityAbstract {
 		comment: 'Reserved column for future use',
 	})
 	details!: Record<string, string | number | boolean>;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@OneToMany(

@@ -23,10 +23,10 @@
 		"restore": "Discount restored successfully"
 	},
 	"history": {
-		"created": "Discount #{{id}} created by user #{{auth_id}}",
-		"updated": "Discount #{{id}} updated by user #{{auth_id}}",
-		"deleted": "Discount #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Discount #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "Discount #{{id}} has been restored by user #{{auth_id}}"
+		"created": "Discount #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Discount #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Discount #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Discount #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Discount #{{entity_id}} has been restored by user #{{auth_id}}"
 	}
 }

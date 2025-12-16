@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type { ClientTypeEnum } from '@/features/client/client.entity';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
 import OrderEntity from '@/features/order/order.entity';
@@ -155,9 +152,6 @@ export default class InvoiceEntity extends EntityAbstract {
 
 	@Column('text', { nullable: true })
 	notes!: string | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => OrderEntity, {

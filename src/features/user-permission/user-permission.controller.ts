@@ -43,11 +43,6 @@ class UserPermissionController {
 
 				if (existingUserPermission) {
 					if (existingUserPermission.deleted_at) {
-						// Set `contextData` for usage in subscriber
-						existingUserPermission.contextData = {
-							auth_id: policy.getUserId(),
-						};
-
 						await UserPermissionRepository.restore(
 							existingUserPermission.id,
 						);
@@ -68,11 +63,6 @@ class UserPermissionController {
 					const userPermission = new UserPermissionEntity();
 					userPermission.user_id = res.locals.validated.user_id;
 					userPermission.permission_id = permission_id;
-
-					// Set `contextData` for usage in subscriber
-					userPermission.contextData = {
-						auth_id: policy.getUserId(),
-					};
 
 					await UserPermissionRepository.save(userPermission);
 
@@ -99,9 +89,6 @@ class UserPermissionController {
 		await UserPermissionRepository.createQuery()
 			.filterBy('user_id', res.locals.validated.user_id)
 			.filterBy('permission_id', res.locals.validated.permission_id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete(true, false, true);
 
 		res.locals.output.message(lang('user_permission.success.delete'));
@@ -118,9 +105,6 @@ class UserPermissionController {
 		await UserPermissionRepository.createQuery()
 			.filterById(res.locals.validated.id)
 			.filterBy('user_id', res.locals.validated.user_id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
 		res.locals.output.message(lang('user_permission.success.restore'));

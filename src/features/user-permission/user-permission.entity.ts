@@ -8,7 +8,6 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import type { EntityContextData } from '@/abstracts/entity.abstract';
 import PermissionEntity from '@/features/permission/permission.entity';
 import UserEntity from '@/features/user/user.entity';
 
@@ -35,9 +34,6 @@ export default class UserPermissionEntity {
 
 	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: false })
 	deleted_at!: Date | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => UserEntity, {

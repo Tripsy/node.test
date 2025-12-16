@@ -6,10 +6,7 @@ import {
 	ManyToOne,
 	OneToMany,
 } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import ClientEntity from '@/features/client/client.entity';
 import InvoiceEntity from '@/features/invoice/invoice.entity';
 import OrderProductEntity from '@/features/order/order-product.entity';
@@ -65,9 +62,6 @@ export default class OrderEntity extends EntityAbstract {
 
 	@Column('text', { nullable: true })
 	notes!: string | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => ClientEntity, {

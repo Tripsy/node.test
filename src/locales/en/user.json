@@ -28,12 +28,12 @@
 		"status_update": "User status updated successfully"
 	},
 	"history": {
-		"created": "User #{{id}} created by user #{{auth_id}}",
-		"updated": "User #{{id}} updated by user #{{auth_id}}",
-		"deleted": "User #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "User #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "User #{{id}} has been restored by user #{{auth_id}}",
-		"status": "User #{{id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}",
-		"password_change": "Password changed for user #{{id}} by user #{{auth_id}}"
+		"created": "User #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "User #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "User #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "User #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "User #{{entity_id}} has been restored by user #{{auth_id}}",
+		"status": "User #{{entity_id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}",
+		"password_change": "Password changed for user #{{entity_id}} by user #{{auth_id}}"
 	}
 }

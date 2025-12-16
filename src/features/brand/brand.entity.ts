@@ -1,8 +1,5 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import ProductEntity from '@/features/product/product.entity';
 
 export enum BrandStatusEnum {
@@ -42,9 +39,6 @@ export default class BrandEntity extends EntityAbstract {
 		comment: 'Reserved column for future use',
 	})
 	details!: Record<string, string | number | boolean>;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@OneToMany(

@@ -10,7 +10,6 @@ import CarrierEntity from '@/features/carrier/carrier.entity';
 import { CarrierQuery } from '@/features/carrier/carrier.repository';
 import {
 	cacheClean,
-	getAuthIdFromContext,
 	isRestore,
 	logHistory,
 	removeOperation,
@@ -29,71 +28,43 @@ export class CarrierSubscriber
 	}
 
 	/**
-	 * When entry is removed from the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When entry is removed from the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	beforeRemove(event: RemoveEvent<CarrierEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: CarrierQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			false,
-		);
+		removeOperation(CarrierQuery.entityAlias, id, false);
 	}
 
 	/**
-	 * When entry is marked as deleted in the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When the entry is marked as deleted in the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	afterSoftRemove(event: SoftRemoveEvent<CarrierEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: CarrierQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			true,
-		);
+		removeOperation(CarrierQuery.entityAlias, id, true);
 	}
 
 	async afterInsert(event: InsertEvent<CarrierEntity>) {
-		logHistory(CarrierQuery.entityAlias, 'created', {
-			id: event.entity.id.toString(),
-			auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
-		});
+		logHistory(CarrierQuery.entityAlias, event.entity.id, 'created');
 	}
 
 	async afterUpdate(event: UpdateEvent<CarrierEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
-		const auth_id: number = getAuthIdFromContext(event.entity?.contextData);
 
-		// When entry is restored
 		if (isRestore(event)) {
-			restoreOperation({
-				entity: CarrierQuery.entityAlias,
-				id: id,
-				auth_id: auth_id,
-			});
+			restoreOperation(CarrierQuery.entityAlias, id);
 
 			return;
 		}
 
-		// When entry is updated
 		cacheClean(CarrierQuery.entityAlias, id);
-
-		logHistory(CarrierQuery.entityAlias, 'updated', {
-			id: id.toString(),
-			auth_id: auth_id.toString(),
-		});
+		logHistory(CarrierQuery.entityAlias, id, 'updated');
 	}
 }

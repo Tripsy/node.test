@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import CarrierEntity from '@/features/carrier/carrier.entity';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
 import OrderEntity from '@/features/order/order.entity';
@@ -123,9 +120,6 @@ export default class OrderShippingEntity extends EntityAbstract {
 	// OTHER
 	@Column('text', { nullable: true })
 	notes!: string | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => OrderEntity, {

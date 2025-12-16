@@ -317,7 +317,6 @@ describe('UserController - delete', () => {
 	it('should return success', async () => {
 		const mockQueryBuilderUser = {
 			filterById: jest.fn().mockReturnThis(),
-			setContextData: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
 		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
 
@@ -356,7 +355,6 @@ describe('UserController - restore', () => {
 	it('should return success', async () => {
 		const mockQueryBuilderUser = {
 			filterById: jest.fn().mockReturnThis(),
-			setContextData: jest.fn().mockReturnThis(),
 			restore: jest.fn().mockResolvedValue(1),
 		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
 

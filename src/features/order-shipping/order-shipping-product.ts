@@ -6,7 +6,6 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import type { EntityContextData } from '@/abstracts/entity.abstract';
 import OrderProductEntity from '@/features/order/order-product.entity';
 import OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 
@@ -39,9 +38,6 @@ export default class OrderShippingProductEntity {
 	// OTHER
 	@Column('text', { nullable: true })
 	notes!: string | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => OrderProductEntity, {

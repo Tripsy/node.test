@@ -14,10 +14,10 @@
 		"operation_invalid": "Invalid operation"
 	},
 	"history": {
-		"created": "Permission #{{id}} created by user #{{auth_id}}",
-		"updated": "Permission #{{id}} updated by user #{{auth_id}}",
-		"deleted": "Permission #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Permission #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "Permission #{{id}} has been restored by user #{{auth_id}}"
+		"created": "Permission #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Permission #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Permission #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Permission #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Permission #{{entity_id}} has been restored by user #{{auth_id}}"
 	}
 }

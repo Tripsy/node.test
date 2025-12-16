@@ -39,10 +39,6 @@ class PlaceController {
 			entryEntity.code = validated.data.code;
 			entryEntity.parent_id = validated.data.parent_id;
 
-			entryEntity.contextData = {
-				auth_id: policy.getUserId(),
-			};
-
 			const entrySaved = await repository.save(entryEntity);
 
 			await PlaceContentRepository.saveContent(
@@ -179,11 +175,6 @@ class PlaceController {
 				) as Partial<PlaceEntity>),
 			};
 
-			// Set `contextData` for usage in subscriber
-			updatedEntity.contextData = {
-				auth_id: policy.getUserId(),
-			};
-
 			await repository.save(updatedEntity);
 
 			if (validated.data.content) {
@@ -221,9 +212,6 @@ class PlaceController {
 
 		await PlaceRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete();
 
 		res.locals.output.message(lang('place.success.delete'));
@@ -239,9 +227,6 @@ class PlaceController {
 
 		await PlaceRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
 		res.locals.output.message(lang('place.success.restore'));

@@ -1,8 +1,5 @@
 import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import ArticleCategoryEntity from '@/features/article/article-category.entity';
 import ArticleTagEntity from '@/features/article/article-tag.entity';
 import ArticleTrackEntity from '@/features/article/article-track.entity';
@@ -74,9 +71,6 @@ export default class ArticleEntity extends EntityAbstract {
 		nullable: false,
 	})
 	featuredStatus!: ArticleFeaturedStatusEnum;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@OneToMany(

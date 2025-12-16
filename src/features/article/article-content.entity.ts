@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import ArticleEntity from './article.entity';
 
 export type ArticleAuthorType = {
@@ -61,9 +58,6 @@ export default class ArticleContentEntity extends EntityAbstract {
 		comment: 'SEO metadata for article pages.',
 	})
 	meta!: Record<string, number> | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => ArticleEntity, {

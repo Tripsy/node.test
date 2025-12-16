@@ -6,7 +6,6 @@ import {
 	OneToMany,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import type { EntityContextData } from '@/abstracts/entity.abstract';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 
 @Entity({
@@ -27,9 +26,6 @@ export default class PermissionEntity {
 
 	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: true })
 	deleted_at!: Date | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@OneToMany(

@@ -1,8 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 
 export enum DiscountScopeEnum {
 	CLIENT = 'client',
@@ -106,7 +103,4 @@ export default class DiscountEntity extends EntityAbstract {
 	// OTHER
 	@Column('text', { nullable: true })
 	notes!: string | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 }

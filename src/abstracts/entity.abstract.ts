@@ -11,11 +11,6 @@ export enum OrderDirectionEnum {
 	DESC = 'DESC',
 }
 
-export type EntityContextData = Record<
-	string,
-	string | number | boolean | null
->;
-
 @Entity()
 export class EntityAbstract {
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })

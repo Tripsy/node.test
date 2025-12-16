@@ -1,8 +1,5 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import AccountTokenEntity from '@/features/account/account-token.entity';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
@@ -91,7 +88,4 @@ export default class UserEntity extends EntityAbstract {
 		(userPermission) => userPermission.user,
 	)
 	permissions?: UserPermissionEntity[];
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 }

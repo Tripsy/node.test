@@ -8,8 +8,10 @@ export function requestContextMiddleware(
 ) {
 	requestContext.run(
 		{
-			auth_id: res.locals.auth?.id,
+			auth_id: res.locals.auth?.id || 0,
+			performed_by: res.locals.auth?.name || 'unknown',
 			request_id: res.locals.request_id,
+			source: 'api',
 			language: res.locals.lang,
 		},
 		() => next(),

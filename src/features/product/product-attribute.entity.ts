@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import ProductEntity from '@/features/product/product.entity';
 import TermEntity from '@/features/term/term.entity';
 
@@ -28,9 +25,6 @@ export default class ProductAttributeEntity extends EntityAbstract {
 
 	@Column('bigint', { nullable: false })
 	attribute_value_id!: number;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => ProductEntity, {

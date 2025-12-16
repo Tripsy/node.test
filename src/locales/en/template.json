@@ -23,10 +23,10 @@
 		"restore": "Template restored successfully"
 	},
 	"history": {
-		"created": "Template #{{id}} created by user #{{auth_id}}",
-		"updated": "Template #{{id}} updated by user #{{auth_id}}",
-		"deleted": "Template #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Template #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "Template #{{id}} has been restored by user #{{auth_id}}"
+		"created": "Template #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Template #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Template #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Template #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Template #{{entity_id}} has been restored by user #{{auth_id}}"
 	}
 }

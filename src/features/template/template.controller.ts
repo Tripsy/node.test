@@ -51,11 +51,6 @@ class TemplateController {
 		template.type = validated.data.type;
 		template.content = validated.data.content;
 
-		// Set `contextData` for usage in subscriber
-		template.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		const entry: TemplateEntity = await TemplateRepository.save(template);
 
 		res.locals.output.data(entry);
@@ -133,11 +128,6 @@ class TemplateController {
 			) as Partial<TemplateEntity>),
 		};
 
-		// Set `contextData` for usage in subscriber
-		updatedEntity.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		await TemplateRepository.save(updatedEntity);
 
 		res.locals.output.message(lang('template.success.update'));
@@ -154,9 +144,6 @@ class TemplateController {
 
 		await TemplateRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete();
 
 		res.locals.output.message(lang('template.success.delete'));
@@ -172,9 +159,6 @@ class TemplateController {
 
 		await TemplateRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
 		res.locals.output.message(lang('template.success.restore'));

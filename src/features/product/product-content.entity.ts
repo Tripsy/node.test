@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import ProductEntity from './product.entity';
 
 @Entity({
@@ -38,9 +35,6 @@ export default class ProductContentEntity extends EntityAbstract {
 		comment: 'SEO metadata for product pages.',
 	})
 	meta!: Record<string, number> | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => ProductEntity, {

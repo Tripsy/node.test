@@ -10,7 +10,6 @@ import DiscountEntity from '@/features/discount/discount.entity';
 import { DiscountQuery } from '@/features/discount/discount.repository';
 import {
 	cacheClean,
-	getAuthIdFromContext,
 	isRestore,
 	logHistory,
 	removeOperation,
@@ -29,71 +28,43 @@ export class DiscountSubscriber
 	}
 
 	/**
-	 * When entry is removed from the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When entry is removed from the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	beforeRemove(event: RemoveEvent<DiscountEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: DiscountQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			false,
-		);
+		removeOperation(DiscountQuery.entityAlias, id, false);
 	}
 
 	/**
-	 * When entry is marked as deleted in the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When the entry is marked as deleted in the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	afterSoftRemove(event: SoftRemoveEvent<DiscountEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: DiscountQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			true,
-		);
+		removeOperation(DiscountQuery.entityAlias, id, true);
 	}
 
 	async afterInsert(event: InsertEvent<DiscountEntity>) {
-		logHistory(DiscountQuery.entityAlias, 'created', {
-			id: event.entity.id.toString(),
-			auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
-		});
+		logHistory(DiscountQuery.entityAlias, event.entity.id, 'created');
 	}
 
 	async afterUpdate(event: UpdateEvent<DiscountEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
-		const auth_id: number = getAuthIdFromContext(event.entity?.contextData);
 
-		// When entry is restored
 		if (isRestore(event)) {
-			restoreOperation({
-				entity: DiscountQuery.entityAlias,
-				id: id,
-				auth_id: auth_id,
-			});
+			restoreOperation(DiscountQuery.entityAlias, id);
 
 			return;
 		}
 
-		// When entry is updated
 		cacheClean(DiscountQuery.entityAlias, id);
-
-		logHistory(DiscountQuery.entityAlias, 'updated', {
-			id: id.toString(),
-			auth_id: auth_id.toString(),
-		});
+		logHistory(DiscountQuery.entityAlias, id, 'updated');
 	}
 }

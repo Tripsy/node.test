@@ -6,7 +6,6 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm';
-import type { EntityContextData } from '@/abstracts/entity.abstract';
 
 export enum PaymentStatusEnum {
 	PENDING = 'pending', // Created, waiting for gateway or user redirect
@@ -89,7 +88,4 @@ export default class PaymentEntity {
 
 	@Column('text', { nullable: true })
 	fail_reason!: string | null;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 }

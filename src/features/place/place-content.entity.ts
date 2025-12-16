@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import PlaceEntity from './place.entity';
 
 @Entity({
@@ -37,9 +34,6 @@ export default class PlaceContentEntity extends EntityAbstract {
 		comment: 'Reserved column for future use',
 	})
 	details!: Record<string, string | number | boolean>;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => PlaceEntity, {

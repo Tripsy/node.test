@@ -31,11 +31,11 @@
 		"status_update": "Client status updated successfully"
 	},
 	"history": {
-		"created": "Client #{{id}} created by user #{{auth_id}}",
-		"updated": "Client #{{id}} updated by user #{{auth_id}}",
-		"deleted": "Client #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Client #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "Client #{{id}} has been restored by user #{{auth_id}}",
-		"status": "Client #{{id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}"
+		"created": "Client #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Client #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Client #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Client #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Client #{{entity_id}} has been restored by user #{{auth_id}}",
+		"status": "Client #{{entity_id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}"
 	}
 }

@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import ImageEntity from './image.entity';
 
 export type ImageFilePropsType = {
@@ -53,9 +50,6 @@ export default class ImageContentEntity extends EntityAbstract {
 		comment: 'HTML element attributes (alt, title, etc.)',
 	})
 	elementAttrs!: ImageElementAttrsType;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => ImageEntity, {

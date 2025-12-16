@@ -17,10 +17,10 @@
 		"restore": "Carrier restored successfully"
 	},
 	"history": {
-		"created": "Carrier #{{id}} created by user #{{auth_id}}",
-		"updated": "Carrier #{{id}} updated by user #{{auth_id}}",
-		"deleted": "Carrier #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Carrier #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "Carrier #{{id}} has been restored by user #{{auth_id}}"
+		"created": "Carrier #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Carrier #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Carrier #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Carrier #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Carrier #{{entity_id}} has been restored by user #{{auth_id}}"
 	}
 }

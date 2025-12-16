@@ -48,11 +48,6 @@ class CarrierController {
 		carrier.email = validated.data.email ?? null;
 		carrier.notes = validated.data.notes ?? null;
 
-		// Set `contextData` for usage in subscriber
-		carrier.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		const entry: CarrierEntity = await CarrierRepository.save(carrier);
 
 		res.locals.output.data(entry);
@@ -134,11 +129,6 @@ class CarrierController {
 			) as Partial<CarrierEntity>),
 		};
 
-		// Set `contextData` for usage in subscriber
-		updatedEntity.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		await CarrierRepository.save(updatedEntity);
 
 		res.locals.output.message(lang('carrier.success.update'));
@@ -155,9 +145,6 @@ class CarrierController {
 
 		await CarrierRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete();
 
 		res.locals.output.message(lang('carrier.success.delete'));
@@ -173,9 +160,6 @@ class CarrierController {
 
 		await CarrierRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
 		res.locals.output.message(lang('carrier.success.restore'));

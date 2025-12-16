@@ -62,11 +62,6 @@ class ClientController {
 		Object.assign(client, validated.data);
 		client.status = ClientStatusEnum.ACTIVE;
 
-		// Set `contextData` for usage in subscriber
-		client.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		const entry: ClientEntity = await ClientRepository.save(client);
 
 		res.locals.output.data(entry);
@@ -204,11 +199,6 @@ class ClientController {
 			) as Partial<ClientEntity>),
 		};
 
-		// Set `contextData` for usage in subscriber
-		updatedEntity.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		await ClientRepository.save(updatedEntity);
 
 		res.locals.output.message(lang('client.success.update'));
@@ -225,9 +215,6 @@ class ClientController {
 
 		await ClientRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete();
 
 		res.locals.output.message(lang('client.success.delete'));
@@ -243,9 +230,6 @@ class ClientController {
 
 		await ClientRepository.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
 		res.locals.output.message(lang('client.success.restore'));

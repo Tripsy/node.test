@@ -1,8 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import ArticleEntity from '@/features/article/article.entity';
 import TermEntity from '@/features/term/term.entity';
 
@@ -27,9 +24,6 @@ export default class ArticleTagEntity extends EntityAbstract {
 		comment: 'Reserved column for future use',
 	})
 	details!: Record<string, string | number | boolean>;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(() => ArticleEntity, {

@@ -6,10 +6,7 @@ import {
 	ManyToOne,
 	OneToMany,
 } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import BrandEntity from '@/features/brand/brand.entity';
 import OrderProductEntity from '@/features/order/order-product.entity';
 import ProductAttributeEntity from '@/features/product/product-attribute.entity';
@@ -135,9 +132,6 @@ export default class ProductEntity extends EntityAbstract {
 		comment: 'Reserved column for future use',
 	})
 	details!: Record<string, string | number | boolean>;
-
-	// VIRTUAL
-	contextData?: EntityContextData;
 
 	// RELATIONS
 	@ManyToOne(

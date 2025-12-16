@@ -10,7 +10,6 @@ import PlaceEntity from '@/features/place/place.entity';
 import { PlaceQuery } from '@/features/place/place.repository';
 import {
 	cacheClean,
-	getAuthIdFromContext,
 	isRestore,
 	logHistory,
 	removeOperation,
@@ -27,71 +26,43 @@ export class PlaceSubscriber implements EntitySubscriberInterface<PlaceEntity> {
 	}
 
 	/**
-	 * When entry is removed from the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When entry is removed from the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	beforeRemove(event: RemoveEvent<PlaceEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: PlaceQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			false,
-		);
+		removeOperation(PlaceQuery.entityAlias, id, false);
 	}
 
 	/**
-	 * When entry is marked as deleted in the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When the entry is marked as deleted in the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	afterSoftRemove(event: SoftRemoveEvent<PlaceEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: PlaceQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			true,
-		);
+		removeOperation(PlaceQuery.entityAlias, id, true);
 	}
 
 	async afterInsert(event: InsertEvent<PlaceEntity>) {
-		logHistory(PlaceQuery.entityAlias, 'created', {
-			id: event.entity.id.toString(),
-			auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
-		});
+		logHistory(PlaceQuery.entityAlias, event.entity.id, 'created');
 	}
 
 	async afterUpdate(event: UpdateEvent<PlaceEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
-		const auth_id: number = getAuthIdFromContext(event.entity?.contextData);
 
-		// When entry is restored
 		if (isRestore(event)) {
-			restoreOperation({
-				entity: PlaceQuery.entityAlias,
-				id: id,
-				auth_id: auth_id,
-			});
+			restoreOperation(PlaceQuery.entityAlias, id);
 
 			return;
 		}
 
-		// When entry is updated
 		cacheClean(PlaceQuery.entityAlias, id);
-
-		logHistory(PlaceQuery.entityAlias, 'updated', {
-			id: id.toString(),
-			auth_id: auth_id.toString(),
-		});
+		logHistory(PlaceQuery.entityAlias, id, 'updated');
 	}
 }
