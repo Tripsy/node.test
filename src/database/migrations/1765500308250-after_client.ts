@@ -244,7 +244,7 @@ export class AfterClient1765500308250 implements MigrationInterface {
 		);
 		await queryRunner.query(`ALTER TABLE "order" DROP COLUMN "clientId"`);
 		await queryRunner.query(
-			`ALTER TABLE "client" DROP COLUMN "address_street"`,
+			`ALTER TABLE "client" DROP COLUMN "address_info"`,
 		);
 		await queryRunner.query(
 			`ALTER TABLE "product_content" DROP COLUMN "label_id"`,
@@ -762,7 +762,7 @@ export class AfterClient1765500308250 implements MigrationInterface {
 			`ALTER TABLE "product_content" ADD "label_id" bigint NOT NULL`,
 		);
 		await queryRunner.query(
-			`ALTER TABLE "client" ADD "address_street" character varying`,
+			`ALTER TABLE "client" ADD "address_info" character varying`,
 		);
 		await queryRunner.query(`ALTER TABLE "order" ADD "clientId" bigint`);
 		await queryRunner.query(

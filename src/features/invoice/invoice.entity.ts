@@ -37,7 +37,7 @@ export type BillingDetailsPerson = {
 	address_country: string;
 	address_region?: string | null;
 	address_city?: string | null;
-	address_street?: string | null;
+	address_info?: string | null;
 	address_postal_code?: string | null;
 
 	// Contact
@@ -62,7 +62,7 @@ export type BillingDetailsCompany = {
 	address_country: string;
 	address_region?: string | null;
 	address_city?: string | null;
-	address_street?: string | null;
+	address_info?: string | null;
 	address_postal_code?: string | null;
 
 	// Contact

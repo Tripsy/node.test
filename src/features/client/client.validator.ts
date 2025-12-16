@@ -7,6 +7,7 @@ import {
 } from '@/features/client/client.entity';
 import {
 	makeFindValidator,
+	nullableString,
 	validateAddressPlaceTypes,
 	validateBoolean,
 	validateDate,
@@ -49,6 +50,7 @@ export const ClientCreateBaseValidator = z.object({
 	address_postal_code: validateNumber(
 		lang('client.validation.address_postal_code_invalid'),
 	).optional(),
+	notes: nullableString(lang('carrier.validation.notes_invalid')),
 });
 
 export const ClientCreateCompanyValidator = ClientCreateBaseValidator.extend({
@@ -92,7 +94,7 @@ export const paramsUpdateList = [
 	'address_country',
 	'address_region',
 	'address_city',
-	'address_street',
+	'address_info',
 	'address_postal_code',
 	'notes',
 ];
@@ -101,7 +103,7 @@ export const ClientUpdateBaseValidator = z.object({
 	client_type: validateEnum(
 		ClientTypeEnum,
 		lang('client.validation.client_type_invalid'),
-	).optional(),
+	),
 	iban: validateString(lang('client.validation.iban_invalid')).optional(),
 	bank_name: validateString(
 		lang('client.validation.bank_name_invalid'),
@@ -131,7 +133,7 @@ export const ClientUpdateBaseValidator = z.object({
 	address_postal_code: validateNumber(
 		lang('client.validation.address_postal_code_invalid'),
 	).optional(),
-	notes: validateString(lang('client.validation.notes_invalid')).optional(),
+	notes: nullableString(lang('client.validation.notes_invalid')),
 });
 
 export const ClientUpdateCompanyValidator = ClientUpdateBaseValidator.extend({
@@ -155,14 +157,11 @@ export const ClientUpdatePersonValidator = ClientUpdateBaseValidator.extend({
 	person_cnp: validateString(
 		lang('client.validation.person_cnp_invalid'),
 	).optional(),
-	person_phone: validateString(
-		lang('client.validation.person_phone_invalid'),
-	).optional(),
 });
 
 export const ClientUpdateValidator = z
 	.union([ClientUpdateCompanyValidator, ClientUpdatePersonValidator])
-	.superRefine(validateAddressPlaceTypes());
+	// .superRefine(validateAddressPlaceTypes());
 
 enum OrderByEnum {
 	ID = 'id',

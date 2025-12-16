@@ -32,10 +32,7 @@ export const CarrierCreateValidator = z.object({
 			.nullable()
 			.optional(),
 	),
-	notes: z
-		.string({ message: lang('carrier.validation.notes_invalid') })
-		.optional()
-		.nullable(),
+	notes: nullableString(lang('carrier.validation.notes_invalid')),
 });
 
 export const paramsUpdateList: string[] = [
@@ -71,10 +68,7 @@ export const CarrierUpdateValidator = z
 				.nullable()
 				.optional(),
 		),
-		notes: z
-			.string({ message: lang('carrier.validation.notes_invalid') })
-			.optional()
-			.nullable(),
+		notes: nullableString(lang('carrier.validation.notes_invalid')),
 	})
 	.refine((data) => hasAtLeastOneValue(data), {
 		message: lang('error.params_at_least_one', {

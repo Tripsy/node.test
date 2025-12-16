@@ -105,7 +105,7 @@ export default class OrderShippingEntity extends EntityAbstract {
 	address_city!: string | null;
 
 	@Column('varchar', { nullable: true })
-	address_street!: string | null;
+	address_info!: string | null;
 
 	@Column('varchar', { nullable: true })
 	address_postal_code!: string | null;

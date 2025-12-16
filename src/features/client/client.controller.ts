@@ -1,7 +1,9 @@
 import type { Request, Response } from 'express';
+import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
+import NotFoundError from '@/exceptions/not-found.error';
 import ClientEntity, {
 	type ClientIdentityData,
 	ClientStatusEnum,
@@ -86,15 +88,64 @@ class ClientController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const client = await cacheProvider.get(cacheKey, async () => {
-			return ClientRepository.createQuery()
-				.filterById(res.locals.validated.id)
-				.withDeleted(policy.allowDeleted())
-				.firstOrFail();
+			const result = await dataSource
+				.createQueryBuilder()
+				.select([
+					'c.*',
+					'pcoCountry.name AS address_country',
+					'preRegion.name AS address_region',
+					'pciCity.name AS address_city',
+				])
+				.from('client', 'c')
+				// Address country
+				.leftJoin('place', 'pco', 'pco.id = c.address_country')
+				.leftJoin(
+					'place_content',
+					'pcoCountry',
+					'pcoCountry.place_id = pco.id AND pcoCountry.language = :language',
+					{ language: req.lang },
+				)
+				// Address region
+				.leftJoin('place', 'pre', 'pre.id = c.address_region')
+				.leftJoin(
+					'place_content',
+					'preRegion',
+					'preRegion.place_id = pre.id AND preRegion.language = :language',
+					{ language: req.lang },
+				)
+				// Address city
+				.leftJoin('place', 'pci', 'pci.id = c.address_city')
+				.leftJoin(
+					'place_content',
+					'pciCity',
+					'pciCity.place_id = pci.id AND pciCity.language = :language',
+					{ language: req.lang },
+				)
+				.where('c.id = :id', { id: res.locals.validated.id })
+				.getRawOne();
+
+			if (!result) {
+				throw new NotFoundError(lang('client.error.not_found'));
+			}
+
+			if (result.client_type === ClientTypeEnum.COMPANY) {
+                delete result.person_name;
+                delete result.person_cnp;
+
+				return result;
+			} else {
+                delete result.company_name;
+                delete result.company_cui;
+                delete result.company_reg_com;
+
+				return result;
+			}
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
 		res.output.data(client);
+		res.output.meta(cacheProvider.isCached, 'isCached');
 
 		res.json(res.output);
 	});
@@ -105,19 +156,22 @@ class ClientController {
 		// Check permission (admin or operator with permission)
 		policy.update();
 
+        const client = await ClientRepository.createQuery()
+            .select(paramsUpdateList)
+            .filterById(res.locals.validated.id)
+            .firstOrFail();
+
 		// Validate against the schema
-		const validated = await ClientUpdateValidator.safeParseAsync(req.body);
+        const validated = await ClientUpdateValidator.safeParseAsync({
+            client_type: req.body.client_type ?? client.client_type,
+            ...req.body, // client_type (DB value will be overwritten by the one in the body if it exists)
+        });
 
 		if (!validated.success) {
 			res.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
-
-		const client = await ClientRepository.createQuery()
-			.select(paramsUpdateList)
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
 
 		const clientIdentityData: ClientIdentityData =
 			validated.data.client_type === ClientTypeEnum.COMPANY
@@ -138,49 +192,6 @@ class ClientController {
 		);
 
 		if (isDuplicate) {
-			throw new CustomError(409, lang('client.error.already_exists'));
-		}
-
-		const existingClientQuery = ClientRepository.createQuery()
-			.filterBy('id', res.locals.validated.id, '!=')
-			.filterBy('client_type', validated.data.client_type);
-
-		if (validated.data.client_type === ClientTypeEnum.COMPANY) {
-			existingClientQuery.filterAny([
-				{
-					column: 'company_name',
-					value: validated.data.company_name,
-					operator: '=',
-				},
-				{
-					column: 'company_cui',
-					value: validated.data.company_cui,
-					operator: '=',
-				},
-				{
-					column: 'company_reg_com',
-					value: validated.data.company_reg_com,
-					operator: '=',
-				},
-			]);
-		} else {
-			existingClientQuery.filterAny([
-				{
-					column: 'person_name',
-					value: validated.data.person_name,
-					operator: '=',
-				},
-				{
-					column: 'person_cnp',
-					value: validated.data.person_cnp,
-					operator: '=',
-				},
-			]);
-		}
-
-		const existingClient = await existingClientQuery.first();
-
-		if (existingClient) {
 			throw new CustomError(409, lang('client.error.already_exists'));
 		}
 
@@ -261,7 +272,6 @@ class ClientController {
 			.filterById(validated.data.filter.id)
 			.filterBy('client_type', validated.data.filter.client_type)
 			.filterByStatus(validated.data.filter.status)
-
 			.filterByRange(
 				'created_at',
 				validated.data.filter.create_date_start,

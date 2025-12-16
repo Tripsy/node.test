@@ -79,7 +79,7 @@ export function validateNumber(
 }
 
 /**
- * @description Convert string to boolean & validate
+ * @description Convert string to boolean and validate
  */
 export function validateBoolean(message = lang('error.invalid_boolean')) {
 	return z.preprocess((val) => {
@@ -96,7 +96,7 @@ export function validateBoolean(message = lang('error.invalid_boolean')) {
 }
 
 /**
- * @description Validate date string & convert to Date object
+ * @description Validate date string and convert to `Date` object
  */
 export function validateDate(
 	message = lang('error.invalid_date'),
