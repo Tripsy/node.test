@@ -16,7 +16,7 @@ export const notFoundHandler = (
 		'Not Found',
 	);
 
-	res.output.success(false).message('Not Found');
+	res.locals.output.success(false).message('Not Found');
 
-	res.status(404).json(res.output);
+	res.status(404).json(res.locals.output);
 };

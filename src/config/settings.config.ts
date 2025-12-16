@@ -27,6 +27,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 				'discount',
 				'error',
 				'log_data',
+				'log_history',
 				'mail_queue',
 				'permission',
 				'place',

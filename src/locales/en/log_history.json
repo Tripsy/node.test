@@ -1,9 +1,9 @@
 {
 	"error": {
-		"not_found": "Log data not found"
+		"not_found": "Log history entry not found"
 	},
 	"success": {
-		"delete": "Log data(s) deleted"
+		"delete": "Log(s) history deleted"
 	},
 	"validation": {
 		"ids_invalid": "Invalid ids"

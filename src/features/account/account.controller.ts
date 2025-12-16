@@ -50,7 +50,7 @@ import type {
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (should not be authenticated)
 		policy.register();
@@ -59,7 +59,7 @@ class AccountController {
 		const validated = AccountRegisterValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -85,18 +85,18 @@ class AccountController {
 		user.name = validated.data.name;
 		user.email = validated.data.email;
 		user.password = validated.data.password;
-		user.language = validated.data.language || req.lang;
+		user.language = validated.data.language || res.locals.lang;
 
 		const entry: UserEntity = await UserRepository.save(user);
 
-		res.output.data(entry);
-		res.output.message(lang('account.success.register'));
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('account.success.register'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public login = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (should not be authenticated)
 		policy.login();
@@ -105,7 +105,7 @@ class AccountController {
 		const validated = AccountLoginValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -154,37 +154,39 @@ class AccountController {
 			authValidTokens.length >= (cfg('user.maxActiveSessions') as number)
 		) {
 			res.status(403); // Forbidden - client's identity is known to the server
-			res.output.message(lang('account.error.max_active_sessions'));
-			res.output.data({
+			res.locals.output.message(
+				lang('account.error.max_active_sessions'),
+			);
+			res.locals.output.data({
 				authValidTokens: authValidTokens,
 			});
 		} else {
 			const token = await setupToken(user, req);
 
-			res.output.message(lang('account.success.login'));
-			res.output.data({
+			res.locals.output.message(lang('account.success.login'));
+			res.locals.output.data({
 				token: token,
 			});
 		}
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	/**
 	 * With this endpoint account tokens can be removed
-	 * It is allowed to be used authenticated or not; "safety" is only guaranteed by the ident parameter which is hard to guess
+	 * It is allowed to be used authenticated or not
 	 *
 	 * Practical aspects:
-	 *      - On login (with valid credentials) if too many sessions are active a list of tokens will be returned
+	 *      - On login (with valid credentials), if too many sessions are active, a list of tokens will be returned
 	 *        in the response -> front-end implementation can allow token(s) to be removed before login retry
-	 *      - From his account page user could see all active tokens and allow removal
+	 *      - From his account page the user could see all active tokens and allow removal
 	 */
 	public removeToken = asyncHandler(async (req: Request, res: Response) => {
 		// Validate against the schema
 		const validated = AccountRemoveTokenValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -193,13 +195,13 @@ class AccountController {
 			.filterByIdent(validated.data.ident)
 			.delete(false);
 
-		res.output.message(lang('account.success.token_deleted'));
+		res.locals.output.message(lang('account.success.token_deleted'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public logout = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (should be authenticated)
 		policy.logout();
@@ -223,14 +225,14 @@ class AccountController {
 			}
 		}
 
-		res.output.message(lang('account.success.logout'));
+		res.locals.output.message(lang('account.success.logout'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public passwordRecover = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(req);
+			const policy = new AccountPolicy(res.locals.auth);
 
 			// Check permission (should not be authenticated)
 			policy.passwordRecover();
@@ -241,7 +243,7 @@ class AccountController {
 			);
 
 			if (!validated.success) {
-				res.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.errors);
 
 				throw new BadRequestError();
 			}
@@ -277,7 +279,7 @@ class AccountController {
 
 			const emailTemplate: EmailTemplate = await loadEmailTemplate(
 				'password-recover',
-				user.language || req.lang,
+				user.language || res.locals.lang,
 			);
 
 			emailTemplate.content.vars = {
@@ -291,15 +293,15 @@ class AccountController {
 				address: user.email,
 			});
 
-			res.output.message(lang('account.success.password_recover'));
+			res.locals.output.message(lang('account.success.password_recover'));
 
-			res.json(res.output);
+			res.json(res.locals.output);
 		},
 	);
 
 	public passwordRecoverChange = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(req);
+			const policy = new AccountPolicy(res.locals.auth);
 
 			// Check permission (should not be authenticated)
 			policy.passwordRecoverChange();
@@ -312,7 +314,7 @@ class AccountController {
 			);
 
 			if (!validated.success) {
-				res.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.errors);
 
 				throw new BadRequestError();
 			}
@@ -354,22 +356,22 @@ class AccountController {
 				.filterById(recovery.user_id)
 				.first();
 
-			// User not found or inactive
+			// User was not found or inactive
 			if (!user || user.status !== UserStatusEnum.ACTIVE) {
 				throw new NotFoundError(lang('account.error.not_found'));
 			}
 
-			// Update user password & remove all account tokens
+			// Update user password and remove all account tokens
 			await updateUserPassword(user, validated.data.password);
 
-			// Mark recovery token as used
+			// Mark the recovery token as used
 			await AccountRecoveryRepository.update(recovery.id, {
 				used_at: new Date(),
 			});
 
 			const emailTemplate: EmailTemplate = await loadEmailTemplate(
 				'password-change',
-				user.language || req.lang,
+				user.language || res.locals.lang,
 			);
 
 			emailTemplate.content.vars = {
@@ -381,15 +383,15 @@ class AccountController {
 				address: user.email,
 			});
 
-			res.output.message(lang('account.success.password_changed'));
+			res.locals.output.message(lang('account.success.password_changed'));
 
-			res.json(res.output);
+			res.json(res.locals.output);
 		},
 	);
 
 	public passwordUpdate = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(req);
+			const policy = new AccountPolicy(res.locals.auth);
 
 			// Check permission (needs to be authenticated)
 			policy.me();
@@ -400,7 +402,7 @@ class AccountController {
 			);
 
 			if (!validated.success) {
-				res.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.errors);
 
 				throw new BadRequestError();
 			}
@@ -416,7 +418,7 @@ class AccountController {
 			);
 
 			if (!isValidPassword) {
-				res.output.errors([
+				res.locals.output.errors([
 					{
 						password_current: lang(
 							'account.validation.password_invalid',
@@ -427,25 +429,25 @@ class AccountController {
 				throw new UnauthorizedError();
 			}
 
-			// Update user password & remove all account tokens
+			// Update user password and remove all account tokens
 			await updateUserPassword(user, validated.data.password_new);
 
 			// Generate new token
 			const token = await setupToken(user, req);
 
-			res.output.message(lang('account.success.password_updated'));
-			res.output.data({
+			res.locals.output.message(lang('account.success.password_updated'));
+			res.locals.output.data({
 				token: token,
 			});
 
-			res.json(res.output);
+			res.json(res.locals.output);
 		},
 	);
 
 	/**
 	 * This endpoint is used to confirm user email after account registration or email update
-	 * It is allowed to be used authenticated or not; "safety" is guaranteed by the token parameter which is pretty much impossible to guess
-	 * & "Yes" - based on implementation (maybe auto-login after registration) - confirmation can take place even if logged in
+	 * It is allowed to be used authenticated or not
+	 * ...and "Yes" - based on implementation (maybe auto-login after registration) - confirmation can take place even if logged in
 	 */
 	public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
 		const token = decodeURIComponent(req.params.token);
@@ -482,7 +484,7 @@ class AccountController {
 
 			await UserRepository.save(user);
 
-			res.output.message(lang('account.success.email_updated'));
+			res.locals.output.message(lang('account.success.email_updated'));
 		} else {
 			// Confirm procedure for email confirmation
 			switch (user.status) {
@@ -500,10 +502,10 @@ class AccountController {
 
 			await UserRepository.save(user);
 
-			res.output.message(lang('account.success.email_confirmed'));
+			res.locals.output.message(lang('account.success.email_confirmed'));
 		}
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	/**
@@ -511,7 +513,7 @@ class AccountController {
 	 */
 	public emailConfirmSend = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(req);
+			const policy = new AccountPolicy(res.locals.auth);
 
 			// Check permission (should not be authenticated)
 			policy.emailConfirmSend();
@@ -522,7 +524,7 @@ class AccountController {
 			);
 
 			if (!validated.success) {
-				res.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.errors);
 
 				throw new BadRequestError();
 			}
@@ -543,14 +545,16 @@ class AccountController {
 
 			await sendEmailConfirmCreate(user);
 
-			res.output.message(lang('account.success.email_confirmation_sent'));
+			res.locals.output.message(
+				lang('account.success.email_confirmation_sent'),
+			);
 
-			res.json(res.output);
+			res.json(res.locals.output);
 		},
 	);
 
 	public emailUpdate = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -559,7 +563,7 @@ class AccountController {
 		const validated = AccountEmailUpdateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -584,13 +588,13 @@ class AccountController {
 		// Send confirmation email
 		await sendEmailConfirmUpdate(user, validated.data.email_new);
 
-		res.output.message(lang('account.success.email_update_request'));
+		res.locals.output.message(lang('account.success.email_update_request'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public me = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+	public me = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -612,17 +616,17 @@ class AccountController {
 		//     return userData;
 		// });
 
-		// res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(req.user);
+		// res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(res.locals.auth);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	/**
 	 * Returns a list of all active sessions for the current user
 	 */
-	public sessions = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+	public sessions = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -639,17 +643,17 @@ class AccountController {
 		const tokens = authValidTokens.map((token) => {
 			return {
 				...token,
-				used_now: token.ident === req.user?.activeToken,
+				used_now: token.ident === res.locals.auth?.activeToken,
 			};
 		});
 
-		res.output.data(tokens);
+		res.locals.output.data(tokens);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public edit = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -664,7 +668,7 @@ class AccountController {
 		const validated = AccountEditValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -684,13 +688,13 @@ class AccountController {
 
 		await UserRepository.save(user);
 
-		res.output.message(lang('account.success.edit'));
+		res.locals.output.message(lang('account.success.edit'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -705,7 +709,7 @@ class AccountController {
 		const validated = AccountDeleteValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -721,7 +725,7 @@ class AccountController {
 		);
 
 		if (!isValidPassword) {
-			res.output.errors([
+			res.locals.output.errors([
 				{
 					password_current: lang(
 						'account.validation.password_invalid',
@@ -739,9 +743,9 @@ class AccountController {
 			})
 			.delete();
 
-		res.output.message(lang('account.success.delete'));
+		res.locals.output.message(lang('account.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

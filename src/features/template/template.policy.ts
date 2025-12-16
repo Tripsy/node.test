@@ -1,12 +1,12 @@
-import type { Request } from 'express';
 import PolicyAbstract from '@/abstracts/policy.abstract';
 import { TemplateQuery } from '@/features/template/template.repository';
+import type { AuthContext } from '@/types/express';
 
 class TemplatePolicy extends PolicyAbstract {
-	constructor(req: Request) {
+	constructor(auth: AuthContext | undefined) {
 		const entity = TemplateQuery.entityAlias;
 
-		super(req, entity);
+		super(auth, entity);
 	}
 }
 

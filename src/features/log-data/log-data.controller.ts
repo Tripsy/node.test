@@ -9,13 +9,12 @@ import {
 	LogDataDeleteValidator,
 	LogDataFindValidator,
 } from '@/features/log-data/log-data.validator';
-import { logHistory } from '@/helpers';
 import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
 
 class LogDataController {
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogDataPolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new LogDataPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.read();
@@ -27,6 +26,7 @@ class LogDataController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const logData = await cacheProvider.get(cacheKey, async () => {
 			return LogDataRepository.createQuery()
 				.filterById(res.locals.validated.id)
@@ -34,14 +34,14 @@ class LogDataController {
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(logData);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(logData);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogDataPolicy(req);
+		const policy = new LogDataPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -49,7 +49,7 @@ class LogDataController {
 		const validated = LogDataDeleteValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -59,20 +59,16 @@ class LogDataController {
 			.delete(false, true);
 
 		if (countDelete === 0) {
-			res.status(204).output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
+			res.status(204).locals.output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
 		} else {
-			logHistory(LogDataQuery.entityAlias, 'deleted', {
-				auth_id: policy.getUserId()?.toString() || '0',
-			});
-
-			res.output.message(lang('log_data.success.delete'));
+			res.locals.output.message(lang('log_data.success.delete'));
 		}
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogDataPolicy(req);
+		const policy = new LogDataPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -81,7 +77,7 @@ class LogDataController {
 		const validated = LogDataFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -100,7 +96,7 @@ class LogDataController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -110,7 +106,7 @@ class LogDataController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

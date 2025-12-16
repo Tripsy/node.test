@@ -11,6 +11,8 @@ import {
 	dateDiffInSeconds,
 } from '@/helpers';
 import authMiddleware from '@/middleware/auth.middleware';
+import type { OutputWrapper } from '@/middleware/output-handler.middleware';
+import { createAuthContext } from '@/tests/jest-functional.setup';
 
 jest.mock('@/features/account/account.service');
 jest.mock('jsonwebtoken');
@@ -27,18 +29,17 @@ describe('authMiddleware', () => {
 	beforeEach(() => {
 		req = {
 			headers: {},
-			user: {
-				id: 0,
-				email: '',
-				name: '',
-				language: '',
-				role: UserRoleEnum.ADMIN,
-				operator_type: null,
-				permissions: [],
-				activeToken: '',
+		};
+		res = {
+			locals: {
+				request_id: '',
+				output: {} as unknown as OutputWrapper,
+				lang: 'en',
+				auth: createAuthContext({
+					role: UserRoleEnum.ADMIN,
+				}),
 			},
 		};
-		res = {};
 		next = jest.fn();
 	});
 

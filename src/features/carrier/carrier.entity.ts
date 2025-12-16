@@ -3,7 +3,7 @@ import {
 	EntityAbstract,
 	type EntityContextData,
 } from '@/abstracts/entity.abstract';
-import OrderShippingEntity from '@/features/order/order-shipping.entity';
+import OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 
 @Entity({
 	name: 'carrier',

@@ -12,7 +12,7 @@ import asyncHandler from '@/helpers/async.handler';
 
 class UserPermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(req);
+		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
@@ -21,7 +21,7 @@ class UserPermissionController {
 		const validated = UserPermissionCreateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -84,14 +84,14 @@ class UserPermissionController {
 			}),
 		);
 
-		res.output.data(results);
-		res.output.message(lang('user_permission.success.update'));
+		res.locals.output.data(results);
+		res.locals.output.message(lang('user_permission.success.update'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -104,13 +104,13 @@ class UserPermissionController {
 			})
 			.delete(true, false, true);
 
-		res.output.message(lang('user_permission.success.delete'));
+		res.locals.output.message(lang('user_permission.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
@@ -123,13 +123,13 @@ class UserPermissionController {
 			})
 			.restore();
 
-		res.output.message(lang('user_permission.success.restore'));
+		res.locals.output.message(lang('user_permission.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(req);
+		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -138,7 +138,7 @@ class UserPermissionController {
 		const validated = UserPermissionFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -168,7 +168,7 @@ class UserPermissionController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -178,7 +178,7 @@ class UserPermissionController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

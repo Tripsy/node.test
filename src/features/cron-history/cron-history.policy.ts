@@ -1,12 +1,12 @@
-import type { Request } from 'express';
 import PolicyAbstract from '@/abstracts/policy.abstract';
 import { CronHistoryQuery } from '@/features/cron-history/cron-history.repository';
+import type { AuthContext } from '@/types/express';
 
 class CronHistoryPolicy extends PolicyAbstract {
-	constructor(req: Request) {
+	constructor(auth: AuthContext | undefined) {
 		const entity = CronHistoryQuery.entityAlias;
 
-		super(req, entity);
+		super(auth, entity);
 	}
 }
 

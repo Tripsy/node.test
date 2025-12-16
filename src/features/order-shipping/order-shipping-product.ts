@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import type { EntityContextData } from '@/abstracts/entity.abstract';
 import OrderProductEntity from '@/features/order/order-product.entity';
-import OrderShippingEntity from '@/features/order/order-shipping.entity';
+import OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 
 @Entity({
 	name: 'order_shipping_product',

@@ -13,14 +13,10 @@ import {
 	tokenMetaData,
 } from '@/helpers';
 
-async function authMiddleware(
-	req: Request,
-	_res: Response,
-	next: NextFunction,
-) {
+async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 	try {
 		// Initialize the user as a visitor
-		req.user = {
+		res.locals.auth = {
 			id: 0,
 			email: '',
 			name: '',
@@ -39,7 +35,7 @@ async function authMiddleware(
 			return next();
 		}
 
-		// Check if token is expired
+		// Check if the token is expired
 		if (activeToken.expire_at < new Date()) {
 			AccountTokenRepository.removeTokenById(activeToken.id);
 
@@ -75,7 +71,7 @@ async function authMiddleware(
 			.filterById(activeToken.user_id)
 			.first();
 
-		// User not found or inactive
+		// User was not found or inactive
 		if (!user || user.status !== UserStatusEnum.ACTIVE) {
 			AccountTokenRepository.removeTokenById(activeToken.id);
 
@@ -102,7 +98,7 @@ async function authMiddleware(
 		}
 
 		// Attach user information to the request object
-		req.user = {
+		res.locals.auth = {
 			...user,
 			permissions:
 				user.role === UserRoleEnum.OPERATOR

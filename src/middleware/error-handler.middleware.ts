@@ -52,7 +52,7 @@ export const errorHandler = (
 	// }
 
 	res.status(status);
-	res.output.message(err.message);
+	res.locals.output.message(err.message);
 
-	res.json(res.output);
+	res.json(res.locals.output);
 };

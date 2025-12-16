@@ -18,7 +18,7 @@ import { getCacheProvider } from '@/providers/cache.provider';
 
 class CarrierController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(req);
+		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
@@ -27,7 +27,7 @@ class CarrierController {
 		const validated = CarrierCreateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -55,14 +55,14 @@ class CarrierController {
 
 		const entry: CarrierEntity = await CarrierRepository.save(carrier);
 
-		res.output.data(entry);
-		res.output.message(lang('carrier.success.create'));
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('carrier.success.create'));
 
-		res.status(201).json(res.output);
+		res.status(201).json(res.locals.output);
 	});
 
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.read();
@@ -74,6 +74,7 @@ class CarrierController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const carrier = await cacheProvider.get(cacheKey, async () => {
 			return CarrierRepository.createQuery()
 				.filterById(res.locals.validated.id)
@@ -81,14 +82,14 @@ class CarrierController {
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(carrier);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(carrier);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(req);
+		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
@@ -97,7 +98,7 @@ class CarrierController {
 		const validated = CarrierUpdateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -107,7 +108,7 @@ class CarrierController {
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
-		// Check name uniqueness only if name is being updated
+		// Check name uniqueness only if the name is being updated
 		if (validated.data.name) {
 			const existingCarrier = await CarrierRepository.createQuery()
 				.filterBy('id', res.locals.validated.id, '!=')
@@ -140,14 +141,14 @@ class CarrierController {
 
 		await CarrierRepository.save(updatedEntity);
 
-		res.output.message(lang('carrier.success.update'));
-		res.output.data(updatedEntity);
+		res.locals.output.message(lang('carrier.success.update'));
+		res.locals.output.data(updatedEntity);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -159,13 +160,13 @@ class CarrierController {
 			})
 			.delete();
 
-		res.output.message(lang('carrier.success.delete'));
+		res.locals.output.message(lang('carrier.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
@@ -177,13 +178,13 @@ class CarrierController {
 			})
 			.restore();
 
-		res.output.message(lang('carrier.success.restore'));
+		res.locals.output.message(lang('carrier.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(req);
+		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -192,7 +193,7 @@ class CarrierController {
 		const validated = CarrierFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -207,7 +208,7 @@ class CarrierController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -217,7 +218,7 @@ class CarrierController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

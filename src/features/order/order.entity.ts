@@ -13,7 +13,7 @@ import {
 import ClientEntity from '@/features/client/client.entity';
 import InvoiceEntity from '@/features/invoice/invoice.entity';
 import OrderProductEntity from '@/features/order/order-product.entity';
-import OrderShippingEntity from '@/features/order/order-shipping.entity';
+import OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 
 export enum OrderStatusEnum {
 	DRAFT = 'draft',

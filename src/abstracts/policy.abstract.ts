@@ -1,7 +1,7 @@
-import type { Request } from 'express';
 import NotAllowedError from '@/exceptions/not-allowed.error';
 import UnauthorizedError from '@/exceptions/unauthorized.error';
 import { UserRoleEnum } from '@/features/user/user.entity';
+import type { AuthContext } from '@/types/express';
 
 class PolicyAbstract {
 	protected entity: string;
@@ -10,11 +10,11 @@ class PolicyAbstract {
 	readonly userRole: UserRoleEnum | 'visitor';
 	readonly userPermissions: string[];
 
-	constructor(req: Request, entity: string) {
+	constructor(auth: AuthContext | undefined, entity: string) {
 		this.entity = entity;
-		this.userId = req.user?.id || null;
-		this.userRole = req.user?.role || 'visitor';
-		this.userPermissions = req.user?.permissions || [];
+		this.userId = auth?.id || null;
+		this.userRole = auth?.role || 'visitor';
+		this.userPermissions = auth?.permissions || [];
 	}
 
 	public getUserId(): number | null {
@@ -44,7 +44,7 @@ class PolicyAbstract {
 	/**
 	 * Returns `true` if is operator and owns the permission
 	 *
-	 * @param permission (eg: `user.delete`, `user.update`, etc...)
+	 * @param permission (e.g.: `user.delete`, `user.update`, etc...)
 	 */
 	public hasPermission(permission: string): boolean {
 		if (!/^[^.]+\.[^.]+$/.test(permission)) {
@@ -62,8 +62,8 @@ class PolicyAbstract {
 	}
 
 	/**
-	 * Returns `true` if the user is admin or has the `delete` permission on selected entity
-	 * This method is used to allow view of soft deleted resources
+	 * Returns `true` if the user is admin or has the `delete` permission on the selected entity.
+	 * This method is used to allow permission `view` of soft deleted resources
 	 */
 	public allowDeleted(): boolean {
 		return (
@@ -73,7 +73,7 @@ class PolicyAbstract {
 	}
 
 	/**
-	 * Check if user is allowed to perform the operation
+	 * Check if the user is allowed to perform the operation
 	 * Returns `true` if the user is admin or the user is the owner of the resource or owns the permission
 	 */
 	public isAllowed(permission: string, user_id?: number): boolean {

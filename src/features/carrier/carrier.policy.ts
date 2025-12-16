@@ -1,12 +1,12 @@
-import type { Request } from 'express';
 import PolicyAbstract from '@/abstracts/policy.abstract';
 import { CarrierQuery } from '@/features/carrier/carrier.repository';
+import type { AuthContext } from '@/types/express';
 
 class CarrierPolicy extends PolicyAbstract {
-	constructor(req: Request) {
+	constructor(auth: AuthContext | undefined) {
 		const entity = CarrierQuery.entityAlias;
 
-		super(req, entity);
+		super(auth, entity);
 	}
 }
 

@@ -17,7 +17,7 @@ import { getCacheProvider } from '@/providers/cache.provider';
 
 class PlaceController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(req);
+		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
@@ -26,7 +26,7 @@ class PlaceController {
 		const validated = PlaceCreateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -54,14 +54,14 @@ class PlaceController {
 			return entrySaved;
 		});
 
-		res.output.data(entry);
-		res.output.message(lang('place.success.create'));
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('place.success.create'));
 
-		res.status(201).json(res.output);
+		res.status(201).json(res.locals.output);
 	});
 
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.read();
@@ -125,14 +125,14 @@ class PlaceController {
 			};
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(place);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(place);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(req);
+		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
@@ -141,7 +141,7 @@ class PlaceController {
 		const validated = PlaceUpdateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -197,14 +197,14 @@ class PlaceController {
 			return updatedEntity;
 		});
 
-		res.output.message(lang('place.success.update'));
-		res.output.data(entry);
+		res.locals.output.message(lang('place.success.update'));
+		res.locals.output.data(entry);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -226,13 +226,13 @@ class PlaceController {
 			})
 			.delete();
 
-		res.output.message(lang('place.success.delete'));
+		res.locals.output.message(lang('place.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
@@ -244,13 +244,13 @@ class PlaceController {
 			})
 			.restore();
 
-		res.output.message(lang('place.success.restore'));
+		res.locals.output.message(lang('place.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(req);
+		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -259,7 +259,7 @@ class PlaceController {
 		const validated = PlaceFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -316,7 +316,7 @@ class PlaceController {
 			.debug()
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -326,7 +326,7 @@ class PlaceController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

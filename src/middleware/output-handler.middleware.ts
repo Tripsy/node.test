@@ -6,9 +6,9 @@ type OutputData = Record<string, unknown>;
 interface OutputWrapperInterface {
 	success: boolean;
 	message: string;
-	errors: Array<ZodIssue | Record<string, unknown>>;
-	data: Record<string, unknown>;
-	meta: Record<string, unknown>;
+	errors: Array<ZodIssue | OutputData>;
+	data: OutputData;
+	meta: OutputData;
 	request: {
 		url: string;
 		headers: OutputData;
@@ -24,7 +24,7 @@ export const outputHandler = (
 	res: Response,
 	next: NextFunction,
 ): void => {
-	res.output = new OutputWrapper(req, res);
+	res.locals.output = new OutputWrapper(req, res);
 
 	next();
 };

@@ -14,8 +14,8 @@ import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
 
 class MailQueueController {
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new MailQueuePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.read();
@@ -27,20 +27,21 @@ class MailQueueController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const mailQueue = await cacheProvider.get(cacheKey, async () => {
 			return MailQueueRepository.createQuery()
 				.filterById(res.locals.validated.id)
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(mailQueue);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(mailQueue);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(req);
+		const policy = new MailQueuePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -48,7 +49,7 @@ class MailQueueController {
 		const validated = MailQueueDeleteValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -58,20 +59,20 @@ class MailQueueController {
 			.delete(false, true);
 
 		if (countDelete === 0) {
-			res.status(204).output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
+			res.status(204).locals.output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
 		} else {
 			logHistory(MailQueueQuery.entityAlias, 'deleted', {
 				auth_id: policy.getUserId()?.toString() || '0',
 			});
 
-			res.output.message(lang('mail_queue.success.delete'));
+			res.locals.output.message(lang('mail_queue.success.delete'));
 		}
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(req);
+		const policy = new MailQueuePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -80,7 +81,7 @@ class MailQueueController {
 		const validated = MailQueueFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -117,7 +118,7 @@ class MailQueueController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -127,7 +128,7 @@ class MailQueueController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

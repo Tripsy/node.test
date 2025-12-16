@@ -5,6 +5,7 @@ import clientRoutes from '@/features/client/client.routes';
 import cronHistoryRoutes from '@/features/cron-history/cron-history.routes';
 import discountRoutes from '@/features/discount/discount.routes';
 import logDataRoutes from '@/features/log-data/log-data.routes';
+import logHistoryRoutes from '@/features/log-history/log-history.routes';
 import mailQueueRoutes from '@/features/mail-queue/mail-queue.routes';
 import permissionRoutes from '@/features/permission/permission.routes';
 import placeRoutes from '@/features/place/place.routes';
@@ -23,6 +24,7 @@ export const initRoutes = (): Router => {
 	router.use(buildRoutes(discountRoutes));
 	router.use(buildRoutes(mailQueueRoutes));
 	router.use(buildRoutes(logDataRoutes));
+	router.use(buildRoutes(logHistoryRoutes));
 	router.use(buildRoutes(permissionRoutes));
 	router.use(buildRoutes(placeRoutes));
 	router.use(buildRoutes(templateRoutes));
@@ -60,6 +62,10 @@ export function getRoutesPath() {
 			logData: extractRoutesPath(
 				logDataRoutes.routesConfig,
 				logDataRoutes.basePath,
+			),
+			logHistory: extractRoutesPath(
+				logHistoryRoutes.routesConfig,
+				logHistoryRoutes.basePath,
 			),
 			mailQueue: extractRoutesPath(
 				mailQueueRoutes.routesConfig,

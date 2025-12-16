@@ -9,13 +9,12 @@ import {
 	CronHistoryDeleteValidator,
 	CronHistoryFindValidator,
 } from '@/features/cron-history/cron-history.validator';
-import { logHistory } from '@/helpers';
 import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
 
 class CronHistoryController {
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CronHistoryPolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new CronHistoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.read();
@@ -27,6 +26,7 @@ class CronHistoryController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const cronHistory = await cacheProvider.get(cacheKey, async () => {
 			return CronHistoryRepository.createQuery()
 				.filterById(res.locals.validated.id)
@@ -34,14 +34,14 @@ class CronHistoryController {
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(cronHistory);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(cronHistory);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CronHistoryPolicy(req);
+		const policy = new CronHistoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -49,7 +49,7 @@ class CronHistoryController {
 		const validated = CronHistoryDeleteValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -59,20 +59,16 @@ class CronHistoryController {
 			.delete(false, true);
 
 		if (countDelete === 0) {
-			res.status(204).output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
+			res.status(204).locals.output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
 		} else {
-			logHistory(CronHistoryQuery.entityAlias, 'deleted', {
-				auth_id: policy.getUserId()?.toString() || '0',
-			});
-
-			res.output.message(lang('cron_history.success.delete'));
+			res.locals.output.message(lang('cron_history.success.delete'));
 		}
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CronHistoryPolicy(req);
+		const policy = new CronHistoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -81,7 +77,7 @@ class CronHistoryController {
 		const validated = CronHistoryFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -99,7 +95,7 @@ class CronHistoryController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -109,7 +105,7 @@ class CronHistoryController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

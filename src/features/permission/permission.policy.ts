@@ -1,12 +1,12 @@
-import type { Request } from 'express';
 import PolicyAbstract from '@/abstracts/policy.abstract';
 import { PermissionQuery } from '@/features/permission/permission.repository';
+import type { AuthContext } from '@/types/express';
 
 class PermissionPolicy extends PolicyAbstract {
-	constructor(req: Request) {
+	constructor(auth: AuthContext | undefined) {
 		const entity = PermissionQuery.entityAlias;
 
-		super(req, entity);
+		super(auth, entity);
 	}
 }
 

@@ -20,7 +20,7 @@ import { getCacheProvider } from '@/providers/cache.provider';
 
 class TemplateController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
@@ -29,7 +29,7 @@ class TemplateController {
 		const validated = TemplateCreateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -58,14 +58,14 @@ class TemplateController {
 
 		const entry: TemplateEntity = await TemplateRepository.save(template);
 
-		res.output.data(entry);
-		res.output.message(lang('template.success.create'));
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('template.success.create'));
 
-		res.status(201).json(res.output);
+		res.status(201).json(res.locals.output);
 	});
 
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.read();
@@ -77,6 +77,7 @@ class TemplateController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const template = await cacheProvider.get(cacheKey, async () => {
 			return TemplateRepository.createQuery()
 				.filterById(res.locals.validated.id)
@@ -84,14 +85,14 @@ class TemplateController {
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(template);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(template);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
@@ -100,7 +101,7 @@ class TemplateController {
 		const validated = TemplateUpdateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -118,7 +119,7 @@ class TemplateController {
 			.withDeleted(policy.allowDeleted())
 			.first();
 
-		// Return error if template already exist
+		// Return error if the template already exists
 		if (existingTemplate) {
 			throw new CustomError(409, lang('template.error.already_exists'));
 		}
@@ -139,14 +140,14 @@ class TemplateController {
 
 		await TemplateRepository.save(updatedEntity);
 
-		res.output.message(lang('template.success.update'));
-		res.output.data(updatedEntity);
+		res.locals.output.message(lang('template.success.update'));
+		res.locals.output.data(updatedEntity);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -158,13 +159,13 @@ class TemplateController {
 			})
 			.delete();
 
-		res.output.message(lang('template.success.delete'));
+		res.locals.output.message(lang('template.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
@@ -176,13 +177,13 @@ class TemplateController {
 			})
 			.restore();
 
-		res.output.message(lang('template.success.restore'));
+		res.locals.output.message(lang('template.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -191,7 +192,7 @@ class TemplateController {
 		const validated = TemplateFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -208,7 +209,7 @@ class TemplateController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -218,10 +219,10 @@ class TemplateController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public readPage = asyncHandler(async (req: Request, res: Response) => {
+	public readPage = asyncHandler(async (_req: Request, res: Response) => {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
@@ -229,18 +230,19 @@ class TemplateController {
 			res.locals.validated.label,
 			'read',
 		);
+
 		const template = await cacheProvider.get(cacheKey, async () => {
 			return TemplateRepository.createQuery()
 				.filterBy('label', res.locals.validated.label)
-				.filterBy('language', req.lang)
+				.filterBy('language', res.locals.lang)
 				.filterBy('type', TemplateTypeEnum.PAGE)
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(template);
+		res.locals.output.meta(res.locals.outputder.isCached, 'isCached');
+		res.locals.output.data(template);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

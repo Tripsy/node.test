@@ -18,6 +18,7 @@ import { errorHandler } from '@/middleware/error-handler.middleware';
 import languageMiddleware from '@/middleware/language.middleware';
 import { notFoundHandler } from '@/middleware/not-found-handler.middleware';
 import { outputHandler } from '@/middleware/output-handler.middleware';
+import { requestContextMiddleware } from '@/middleware/request-context.middleware';
 import startCronJobs from '@/providers/cron.provider';
 import { destroyDatabase, initDatabase } from '@/providers/database.provider';
 import { LogStream, systemLogger } from '@/providers/logger.provider';
@@ -215,27 +216,24 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Request ID middleware
+app.use((_req, res, next) => {
+	res.locals.request_id = uuidv4();
+	res.setHeader('X-Request-ID', res.locals.request_id);
+
+	next();
+});
+
 // Request timeout
-app.use((req, _res, next) => {
+app.use((req, res, next) => {
 	req.setTimeout(REQUEST_TIMEOUT, () => {
 		systemLogger.warn(
-			`Request timeout: ${req.method} ${req.url} (${req.id})`,
+			`Request timeout: ${req.method} ${req.url} (${res.locals.request_id})`,
 		);
 	});
 
 	next();
 });
-
-// Request ID middleware
-app.use((req, res, next) => {
-	req.id = uuidv4();
-	res.setHeader('X-Request-ID', req.id);
-
-	next();
-});
-
-// Custom middleware
-app.use(languageMiddleware); // Set `req.lang`
 
 // ========== ROUTES ==========
 
@@ -270,9 +268,11 @@ async function initializeApp(): Promise<void> {
 		// Initialize database
 		await initDatabase();
 
-		// Output wrapper and auth
-		app.use(outputHandler);
-		app.use(authMiddleware);
+		// Middleware
+		app.use(languageMiddleware); // Set `res.locals.lang`
+		app.use(authMiddleware); // Set `res.locals.auth`
+		app.use(requestContextMiddleware); // Prepare `requestContext`
+		app.use(outputHandler); // Set `res.locals.output`
 
 		// Routes
 		const router = initRoutes();

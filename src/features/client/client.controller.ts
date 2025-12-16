@@ -24,7 +24,7 @@ import { getCacheProvider } from '@/providers/cache.provider';
 
 class ClientController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(req);
+		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
@@ -33,7 +33,7 @@ class ClientController {
 		const validated = await ClientCreateValidator.safeParseAsync(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -69,14 +69,14 @@ class ClientController {
 
 		const entry: ClientEntity = await ClientRepository.save(client);
 
-		res.output.data(entry);
-		res.output.message(lang('client.success.create'));
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('client.success.create'));
 
-		res.status(201).json(res.output);
+		res.status(201).json(res.locals.output);
 	});
 
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin, operator with permission)
 		policy.read('client');
@@ -105,7 +105,7 @@ class ClientController {
 					'place_content',
 					'pcoCountry',
 					'pcoCountry.place_id = pco.id AND pcoCountry.language = :language',
-					{ language: req.lang },
+					{ language: res.locals.lang },
 				)
 				// Address region
 				.leftJoin('place', 'pre', 'pre.id = c.address_region')
@@ -113,7 +113,7 @@ class ClientController {
 					'place_content',
 					'preRegion',
 					'preRegion.place_id = pre.id AND preRegion.language = :language',
-					{ language: req.lang },
+					{ language: res.locals.lang },
 				)
 				// Address city
 				.leftJoin('place', 'pci', 'pci.id = c.address_city')
@@ -121,7 +121,7 @@ class ClientController {
 					'place_content',
 					'pciCity',
 					'pciCity.place_id = pci.id AND pciCity.language = :language',
-					{ language: req.lang },
+					{ language: res.locals.lang },
 				)
 				.where('c.id = :id', { id: res.locals.validated.id })
 				.getRawOne();
@@ -131,44 +131,44 @@ class ClientController {
 			}
 
 			if (result.client_type === ClientTypeEnum.COMPANY) {
-                delete result.person_name;
-                delete result.person_cnp;
+				delete result.person_name;
+				delete result.person_cnp;
 
 				return result;
 			} else {
-                delete result.company_name;
-                delete result.company_cui;
-                delete result.company_reg_com;
+				delete result.company_name;
+				delete result.company_cui;
+				delete result.company_reg_com;
 
 				return result;
 			}
 		});
 
-		res.output.data(client);
-		res.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(client);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(req);
+		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
 
-        const client = await ClientRepository.createQuery()
-            .select(paramsUpdateList)
-            .filterById(res.locals.validated.id)
-            .firstOrFail();
+		const client = await ClientRepository.createQuery()
+			.select(paramsUpdateList)
+			.filterById(res.locals.validated.id)
+			.firstOrFail();
 
 		// Validate against the schema
-        const validated = await ClientUpdateValidator.safeParseAsync({
-            client_type: req.body.client_type ?? client.client_type,
-            ...req.body, // client_type (DB value will be overwritten by the one in the body if it exists)
-        });
+		const validated = await ClientUpdateValidator.safeParseAsync({
+			client_type: req.body.client_type ?? client.client_type,
+			...req.body, // client_type (DB value will be overwritten by the one in the body if it exists)
+		});
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -211,14 +211,14 @@ class ClientController {
 
 		await ClientRepository.save(updatedEntity);
 
-		res.output.message(lang('client.success.update'));
-		res.output.data(updatedEntity);
+		res.locals.output.message(lang('client.success.update'));
+		res.locals.output.data(updatedEntity);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -230,13 +230,13 @@ class ClientController {
 			})
 			.delete();
 
-		res.output.message(lang('client.success.delete'));
+		res.locals.output.message(lang('client.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
@@ -248,13 +248,13 @@ class ClientController {
 			})
 			.restore();
 
-		res.output.message(lang('client.success.restore'));
+		res.locals.output.message(lang('client.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(req);
+		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -263,7 +263,7 @@ class ClientController {
 		const validated = ClientFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -285,7 +285,7 @@ class ClientController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -295,11 +295,11 @@ class ClientController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public statusUpdate = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(req);
+	public statusUpdate = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
@@ -326,9 +326,9 @@ class ClientController {
 
 		await ClientRepository.save(client);
 
-		res.output.message(lang('client.success.status_update'));
+		res.locals.output.message(lang('client.success.status_update'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

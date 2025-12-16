@@ -17,7 +17,7 @@ import { getCacheProvider } from '@/providers/cache.provider';
 
 class DiscountController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(req);
+		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
@@ -26,7 +26,7 @@ class DiscountController {
 		const validated = DiscountCreateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -50,14 +50,14 @@ class DiscountController {
 
 		const entry: DiscountEntity = await DiscountRepository.save(discount);
 
-		res.output.data(entry);
-		res.output.message(lang('discount.success.create'));
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('discount.success.create'));
 
-		res.status(201).json(res.output);
+		res.status(201).json(res.locals.output);
 	});
 
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.read();
@@ -69,6 +69,7 @@ class DiscountController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const discount = await cacheProvider.get(cacheKey, async () => {
 			return DiscountRepository.createQuery()
 				.filterById(res.locals.validated.id)
@@ -76,14 +77,14 @@ class DiscountController {
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(discount);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(discount);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(req);
+		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
@@ -92,7 +93,7 @@ class DiscountController {
 		const validated = DiscountUpdateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -118,14 +119,14 @@ class DiscountController {
 
 		await DiscountRepository.save(updatedEntity);
 
-		res.output.message(lang('discount.success.update'));
-		res.output.data(updatedEntity);
+		res.locals.output.message(lang('discount.success.update'));
+		res.locals.output.data(updatedEntity);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -137,13 +138,13 @@ class DiscountController {
 			})
 			.delete();
 
-		res.output.message(lang('discount.success.delete'));
+		res.locals.output.message(lang('discount.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
@@ -155,13 +156,13 @@ class DiscountController {
 			})
 			.restore();
 
-		res.output.message(lang('discount.success.restore'));
+		res.locals.output.message(lang('discount.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(req);
+		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -170,7 +171,7 @@ class DiscountController {
 		const validated = DiscountFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -193,7 +194,7 @@ class DiscountController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -203,7 +204,7 @@ class DiscountController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

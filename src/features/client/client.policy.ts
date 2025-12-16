@@ -1,12 +1,12 @@
-import type { Request } from 'express';
 import PolicyAbstract from '@/abstracts/policy.abstract';
 import { ClientQuery } from '@/features/client/client.repository';
+import type { AuthContext } from '@/types/express';
 
 class ClientPolicy extends PolicyAbstract {
-	constructor(req: Request) {
+	constructor(auth: AuthContext | undefined) {
 		const entity = ClientQuery.entityAlias;
 
-		super(req, entity);
+		super(auth, entity);
 	}
 }
 

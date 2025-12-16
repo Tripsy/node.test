@@ -17,7 +17,7 @@ import { getCacheProvider } from '@/providers/cache.provider';
 
 class UserController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
@@ -26,7 +26,7 @@ class UserController {
 		const validated = UserCreateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -64,17 +64,17 @@ class UserController {
 
 		const entry: UserEntity = await UserRepository.save(user);
 
-		res.output.data(entry);
-		res.output.message(lang('user.success.create'));
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('user.success.create'));
 
-		res.status(201).json(res.output);
+		res.status(201).json(res.locals.output);
 	});
 
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin, operator with permission or owner)
-		policy.read('user', req.user?.id);
+		policy.read('user', res.locals.auth?.id);
 
 		const cacheProvider = getCacheProvider();
 
@@ -83,6 +83,7 @@ class UserController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const user = await cacheProvider.get(cacheKey, async () => {
 			return (
 				UserRepository.createQuery()
@@ -94,14 +95,14 @@ class UserController {
 			);
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(user);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(user);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
@@ -110,7 +111,7 @@ class UserController {
 		const validated = UserUpdateValidator.safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -153,14 +154,14 @@ class UserController {
 
 		await UserRepository.save(updatedEntity);
 
-		res.output.message(lang('user.success.update'));
-		res.output.data(updatedEntity);
+		res.locals.output.message(lang('user.success.update'));
+		res.locals.output.data(updatedEntity);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -172,13 +173,13 @@ class UserController {
 			})
 			.delete();
 
-		res.output.message(lang('user.success.delete'));
+		res.locals.output.message(lang('user.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
@@ -190,13 +191,13 @@ class UserController {
 			})
 			.restore();
 
-		res.output.message(lang('user.success.restore'));
+		res.locals.output.message(lang('user.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
@@ -205,7 +206,7 @@ class UserController {
 		const validated = UserFindValidator.safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.errors);
 
 			throw new BadRequestError();
 		}
@@ -227,7 +228,7 @@ class UserController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -237,11 +238,11 @@ class UserController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public statusUpdate = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+	public statusUpdate = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
@@ -268,9 +269,9 @@ class UserController {
 
 		await UserRepository.save(user);
 
-		res.output.message(lang('user.success.status_update'));
+		res.locals.output.message(lang('user.success.status_update'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

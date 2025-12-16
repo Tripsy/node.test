@@ -29,8 +29,8 @@ export class TemplateSubscriber
 	}
 
 	/**
-	 * When entry is removed from the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When entry is removed from the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
@@ -50,8 +50,8 @@ export class TemplateSubscriber
 	}
 
 	/**
-	 * When entry is marked as deleted in the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When the entry is marked as deleted in the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */

@@ -159,9 +159,11 @@ export const ClientUpdatePersonValidator = ClientUpdateBaseValidator.extend({
 	).optional(),
 });
 
-export const ClientUpdateValidator = z
-	.union([ClientUpdateCompanyValidator, ClientUpdatePersonValidator])
-	// .superRefine(validateAddressPlaceTypes());
+export const ClientUpdateValidator = z.union([
+	ClientUpdateCompanyValidator,
+	ClientUpdatePersonValidator,
+]);
+// .superRefine(validateAddressPlaceTypes());
 
 enum OrderByEnum {
 	ID = 'id',

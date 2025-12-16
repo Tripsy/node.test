@@ -1,4 +1,3 @@
-import type { Request } from 'express';
 import PolicyAbstract from '@/abstracts/policy.abstract';
 import { lang } from '@/config/i18n.setup';
 import { getRedisClient } from '@/config/init-redis.config';
@@ -6,12 +5,13 @@ import { cfg } from '@/config/settings.config';
 import CustomError from '@/exceptions/custom.error';
 import UnauthorizedError from '@/exceptions/unauthorized.error';
 import logger from '@/providers/logger.provider';
+import type { AuthContext } from '@/types/express';
 
 class AccountPolicy extends PolicyAbstract {
-	constructor(req: Request) {
+	constructor(auth: AuthContext | undefined) {
 		const entity = 'account';
 
-		super(req, entity);
+		super(auth, entity);
 	}
 
 	public register(): void {

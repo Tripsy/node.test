@@ -1,20 +1,18 @@
-import type { Request } from 'express';
 import PolicyAbstract from '@/abstracts/policy.abstract';
 import NotAllowedError from '@/exceptions/not-allowed.error';
 import UnauthorizedError from '@/exceptions/unauthorized.error';
 import { UserRoleEnum } from '@/features/user/user.entity';
+import { createAuthContext } from '@/tests/jest-functional.setup';
 
 describe('PolicyAbstract', () => {
 	describe('checks around admin role', () => {
-		const req = {
-			user: {
-				id: 1,
-				role: UserRoleEnum.ADMIN,
-				permissions: ['entity.create', 'entity.read'],
-			},
-		} as unknown as Request;
+		const authContext = createAuthContext({
+			id: 1,
+			role: UserRoleEnum.ADMIN,
+			permissions: ['entity.create', 'entity.read'],
+		});
 
-		const policy = new PolicyAbstract(req, 'entity');
+		const policy = new PolicyAbstract(authContext, 'entity');
 
 		it('should initialize properties correctly', () => {
 			expect(policy.getUserId()).toBe(1); // Check userId
@@ -38,13 +36,9 @@ describe('PolicyAbstract', () => {
 	});
 
 	describe('checks when not authenticated', () => {
-		const req = {
-			user: {
-				id: null,
-			},
-		} as unknown as Request;
+		const authContext = createAuthContext();
 
-		const policy = new PolicyAbstract(req, 'entity');
+		const policy = new PolicyAbstract(authContext, 'entity');
 
 		it('should not be authenticated', () => {
 			expect(policy.isAuthenticated()).toBe(false);
@@ -61,14 +55,12 @@ describe('PolicyAbstract', () => {
 	});
 
 	describe('checks around user role', () => {
-		const req = {
-			user: {
-				id: 1,
-				role: UserRoleEnum.MEMBER,
-			},
-		} as unknown as Request;
+		const authContext = createAuthContext({
+			id: 1,
+			role: UserRoleEnum.MEMBER,
+		});
 
-		const policy = new PolicyAbstract(req, 'entity');
+		const policy = new PolicyAbstract(authContext, 'entity');
 
 		test('isAllowed', () => {
 			expect(policy.isAllowed('entity.read', 1)).toBe(true);
@@ -86,15 +78,13 @@ describe('PolicyAbstract', () => {
 	});
 
 	describe('checks around user permissions', () => {
-		const req = {
-			user: {
-				id: 1,
-				role: UserRoleEnum.MEMBER,
-				permissions: ['entity.create', 'entity.read'],
-			},
-		} as unknown as Request;
+		const authContext = createAuthContext({
+			id: 1,
+			role: UserRoleEnum.MEMBER,
+			permissions: ['entity.create', 'entity.read'],
+		});
 
-		const policy = new PolicyAbstract(req, 'entity');
+		const policy = new PolicyAbstract(authContext, 'entity');
 
 		test('isAllowed', () => {
 			expect(policy.isAllowed('entity.read')).toBe(true);
