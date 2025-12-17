@@ -9,9 +9,8 @@ import {
 	PermissionQuery,
 } from '@/features/permission/permission.repository';
 import {
-	PermissionCreateValidator,
 	PermissionFindValidator,
-	PermissionUpdateValidator,
+	PermissionManageValidator,
 } from '@/features/permission/permission.validator';
 import asyncHandler from '@/helpers/async.handler';
 import { getCacheProvider } from '@/providers/cache.provider';
@@ -24,7 +23,7 @@ class PermissionController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = PermissionCreateValidator.safeParse(req.body);
+		const validated = PermissionManageValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -102,7 +101,7 @@ class PermissionController {
 		policy.update();
 
 		// Validate against the schema
-		const validated = PermissionUpdateValidator.safeParse(req.body);
+		const validated = PermissionManageValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -182,7 +181,7 @@ class PermissionController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = PermissionFindValidator.safeParse(req.query);
+		const validated = PermissionFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

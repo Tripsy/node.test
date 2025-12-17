@@ -25,7 +25,7 @@ class CarrierController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = CarrierCreateValidator.safeParse(req.body);
+		const validated = CarrierCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -93,7 +93,7 @@ class CarrierController {
 		policy.update();
 
 		// Validate against the schema
-		const validated = CarrierUpdateValidator.safeParse(req.body);
+		const validated = CarrierUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -181,7 +181,7 @@ class CarrierController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = CarrierFindValidator.safeParse(req.query);
+		const validated = CarrierFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

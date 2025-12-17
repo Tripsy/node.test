@@ -48,7 +48,7 @@ class CronHistoryController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		const validated = CronHistoryDeleteValidator.safeParse(req.body);
+		const validated = CronHistoryDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -77,7 +77,7 @@ class CronHistoryController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = CronHistoryFindValidator.safeParse(req.query);
+		const validated = CronHistoryFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

@@ -18,7 +18,7 @@ class UserPermissionController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = UserPermissionCreateValidator.safeParse(req.body);
+		const validated = UserPermissionCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -119,7 +119,7 @@ class UserPermissionController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = UserPermissionFindValidator.safeParse(req.query);
+		const validated = UserPermissionFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

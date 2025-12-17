@@ -10,69 +10,6 @@ import {
 	validateEnum,
 } from '@/helpers';
 
-export const TemplateCreateBaseValidator = z.object({
-	label: z.string().nonempty({
-		message: lang('template.validation.label_invalid'),
-	}),
-	language: z.string().length(2, {
-		message: lang('template.validation.language_invalid'),
-	}),
-	type: validateEnum(
-		TemplateTypeEnum,
-		lang('template.validation.type_invalid'),
-	),
-});
-
-const TemplateCreateEmailValidator = TemplateCreateBaseValidator.extend({
-	type: z.literal(TemplateTypeEnum.EMAIL),
-	content: z.object({
-		subject: z.string().nonempty({
-			message: lang('template.validation.email_subject_invalid'),
-		}),
-		text: z
-			.string({
-				message: lang('template.validation.email_text_invalid'),
-			})
-			.optional(),
-		html: z
-			.string()
-			.nonempty({
-				message: lang('template.validation.email_html_invalid'),
-			})
-			.transform((val) => safeHtml(val)),
-		layout: z
-			.string({
-				message: lang('template.validation.email_layout_invalid'),
-			})
-			.optional(),
-	}),
-});
-
-const TemplateCreatePageValidator = TemplateCreateBaseValidator.extend({
-	type: z.literal(TemplateTypeEnum.PAGE),
-	content: z.object({
-		title: z.string().nonempty({
-			message: lang('template.validation.page_title_invalid'),
-		}),
-		html: z
-			.string()
-			.nonempty({
-				message: lang('template.validation.page_html_invalid'),
-			})
-			.transform((val) => safeHtml(val)),
-		layout: z
-			.string({
-				message: lang('template.validation.page_layout_invalid'),
-			})
-			.optional(),
-	}),
-});
-
-export const TemplateCreateValidator = z.union([
-	TemplateCreateEmailValidator,
-	TemplateCreatePageValidator,
-]);
-
 export const paramsUpdateList: string[] = [
 	'label',
 	'language',
@@ -80,29 +17,23 @@ export const paramsUpdateList: string[] = [
 	'content',
 ];
 
-const TemplateUpdateBaseValidator = z.object({
-	label: z
-		.string()
-		.nonempty({
+export function TemplateCreateValidator() {
+	const TemplateCreateBaseValidator = z.object({
+		label: z.string().nonempty({
 			message: lang('template.validation.label_invalid'),
-		})
-		.optional(),
-	language: z
-		.string()
-		.length(2, {
+		}),
+		language: z.string().length(2, {
 			message: lang('template.validation.language_invalid'),
-		})
-		.optional(),
-	type: validateEnum(
-		TemplateTypeEnum,
-		lang('template.validation.type_invalid'),
-	).optional(),
-});
+		}),
+		type: validateEnum(
+			TemplateTypeEnum,
+			lang('template.validation.type_invalid'),
+		),
+	});
 
-const TemplateUpdateEmailValidator = TemplateUpdateBaseValidator.extend({
-	type: z.literal(TemplateTypeEnum.EMAIL),
-	content: z
-		.object({
+	const TemplateCreateEmailValidator = TemplateCreateBaseValidator.extend({
+		type: z.literal(TemplateTypeEnum.EMAIL),
+		content: z.object({
 			subject: z.string().nonempty({
 				message: lang('template.validation.email_subject_invalid'),
 			}),
@@ -122,14 +53,12 @@ const TemplateUpdateEmailValidator = TemplateUpdateBaseValidator.extend({
 					message: lang('template.validation.email_layout_invalid'),
 				})
 				.optional(),
-		})
-		.optional(),
-});
+		}),
+	});
 
-const TemplateUpdatePageValidator = TemplateUpdateBaseValidator.extend({
-	type: z.literal(TemplateTypeEnum.PAGE),
-	content: z
-		.object({
+	const TemplateCreatePageValidator = TemplateCreateBaseValidator.extend({
+		type: z.literal(TemplateTypeEnum.PAGE),
+		content: z.object({
 			title: z.string().nonempty({
 				message: lang('template.validation.page_title_invalid'),
 			}),
@@ -144,18 +73,94 @@ const TemplateUpdatePageValidator = TemplateUpdateBaseValidator.extend({
 					message: lang('template.validation.page_layout_invalid'),
 				})
 				.optional(),
-		})
-		.optional(),
-});
-
-export const TemplateUpdateValidator = z
-	.union([TemplateUpdateEmailValidator, TemplateUpdatePageValidator])
-	.refine((data) => hasAtLeastOneValue(data), {
-		message: lang('error.params_at_least_one', {
-			params: paramsUpdateList.join(', '),
 		}),
-		path: ['_global'],
 	});
+
+	return z.union([TemplateCreateEmailValidator, TemplateCreatePageValidator]);
+}
+
+export function TemplateUpdateValidator() {
+	const TemplateUpdateBaseValidator = z.object({
+		label: z
+			.string()
+			.nonempty({
+				message: lang('template.validation.label_invalid'),
+			})
+			.optional(),
+		language: z
+			.string()
+			.length(2, {
+				message: lang('template.validation.language_invalid'),
+			})
+			.optional(),
+		type: validateEnum(
+			TemplateTypeEnum,
+			lang('template.validation.type_invalid'),
+		).optional(),
+	});
+
+	const TemplateUpdateEmailValidator = TemplateUpdateBaseValidator.extend({
+		type: z.literal(TemplateTypeEnum.EMAIL),
+		content: z
+			.object({
+				subject: z.string().nonempty({
+					message: lang('template.validation.email_subject_invalid'),
+				}),
+				text: z
+					.string({
+						message: lang('template.validation.email_text_invalid'),
+					})
+					.optional(),
+				html: z
+					.string()
+					.nonempty({
+						message: lang('template.validation.email_html_invalid'),
+					})
+					.transform((val) => safeHtml(val)),
+				layout: z
+					.string({
+						message: lang(
+							'template.validation.email_layout_invalid',
+						),
+					})
+					.optional(),
+			})
+			.optional(),
+	});
+
+	const TemplateUpdatePageValidator = TemplateUpdateBaseValidator.extend({
+		type: z.literal(TemplateTypeEnum.PAGE),
+		content: z
+			.object({
+				title: z.string().nonempty({
+					message: lang('template.validation.page_title_invalid'),
+				}),
+				html: z
+					.string()
+					.nonempty({
+						message: lang('template.validation.page_html_invalid'),
+					})
+					.transform((val) => safeHtml(val)),
+				layout: z
+					.string({
+						message: lang(
+							'template.validation.page_layout_invalid',
+						),
+					})
+					.optional(),
+			})
+			.optional(),
+	});
+
+	return z
+		.union([TemplateUpdateEmailValidator, TemplateUpdatePageValidator])
+		.refine((data) => hasAtLeastOneValue(data), {
+			message: lang('error.params_at_least_one', {
+				params: paramsUpdateList.join(', '),
+			}),
+			path: ['_global'],
+		});
+}
 
 enum OrderByEnum {
 	ID = 'id',
@@ -164,29 +169,33 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export const TemplateFindValidator = makeFindValidator({
-	orderByEnum: OrderByEnum,
-	defaultOrderBy: OrderByEnum.ID,
+export function TemplateFindValidator() {
+	return makeFindValidator({
+		orderByEnum: OrderByEnum,
+		defaultOrderBy: OrderByEnum.ID,
 
-	directionEnum: OrderDirectionEnum,
-	defaultDirection: OrderDirectionEnum.ASC,
+		directionEnum: OrderDirectionEnum,
+		defaultDirection: OrderDirectionEnum.ASC,
 
-	filterShape: {
-		id: z.coerce
-			.number({ message: lang('error.invalid_number') })
-			.optional(),
-		term: z.string({ message: lang('error.invalid_string') }).optional(),
-		language: z
-			.string()
-			.length(2, {
-				message: lang('template.validation.language_invalid'),
-			})
-			.optional(),
-		type: z
-			.nativeEnum(TemplateTypeEnum, {
-				message: lang('template.validation.type_invalid'),
-			})
-			.optional(),
-		is_deleted: validateBoolean().default(false),
-	},
-});
+		filterShape: {
+			id: z.coerce
+				.number({ message: lang('error.invalid_number') })
+				.optional(),
+			term: z
+				.string({ message: lang('error.invalid_string') })
+				.optional(),
+			language: z
+				.string()
+				.length(2, {
+					message: lang('template.validation.language_invalid'),
+				})
+				.optional(),
+			type: z
+				.nativeEnum(TemplateTypeEnum, {
+					message: lang('template.validation.type_invalid'),
+				})
+				.optional(),
+			is_deleted: validateBoolean().default(false),
+		},
+	});
+}

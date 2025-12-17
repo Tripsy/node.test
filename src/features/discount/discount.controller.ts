@@ -24,7 +24,7 @@ class DiscountController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = DiscountCreateValidator.safeParse(req.body);
+		const validated = DiscountCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -88,7 +88,7 @@ class DiscountController {
 		policy.update();
 
 		// Validate against the schema
-		const validated = DiscountUpdateValidator.safeParse(req.body);
+		const validated = DiscountUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -158,7 +158,7 @@ class DiscountController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = DiscountFindValidator.safeParse(req.query);
+		const validated = DiscountFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

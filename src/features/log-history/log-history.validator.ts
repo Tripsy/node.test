@@ -8,11 +8,13 @@ import {
 	validateString,
 } from '@/helpers';
 
-export const LogHistoryDeleteValidator = z.object({
-	ids: z.array(z.number(), {
-		message: lang('log_history.validation.ids_invalid'),
-	}),
-});
+export function LogHistoryDeleteValidator() {
+	return z.object({
+		ids: z.array(z.number(), {
+			message: lang('log_history.validation.ids_invalid'),
+		}),
+	});
+}
 
 enum OrderByEnum {
 	ID = 'id',
@@ -21,31 +23,33 @@ enum OrderByEnum {
 	RECORDED_AT = 'recorded_at',
 }
 
-export const LogHistoryFindValidator = makeFindValidator({
-	orderByEnum: OrderByEnum,
-	defaultOrderBy: OrderByEnum.ID,
+export function LogHistoryFindValidator() {
+	return makeFindValidator({
+		orderByEnum: OrderByEnum,
+		defaultOrderBy: OrderByEnum.ID,
 
-	directionEnum: OrderDirectionEnum,
-	defaultDirection: OrderDirectionEnum.ASC,
+		directionEnum: OrderDirectionEnum,
+		defaultDirection: OrderDirectionEnum.ASC,
 
-	filterShape: {
-		entity: validateString(lang('error.invalid_string')).optional(),
-		entity_id: validateNumber(lang('error.invalid_number')).optional(),
-		action: validateString(lang('error.invalid_string')).optional(),
-		request_id: validateNumber(lang('error.invalid_string')).optional(),
-		recorded_at_start: validateDate(),
-		recorded_at_end: validateDate(),
-	},
-}).superRefine((data, ctx) => {
-	if (
-		data.filter.recorded_at_start &&
-		data.filter.recorded_at_end &&
-		data.filter.recorded_at_start > data.filter.recorded_at_end
-	) {
-		ctx.addIssue({
-			path: ['filter', 'recorded_at_start'],
-			message: lang('error.invalid_date_range'),
-			code: z.ZodIssueCode.custom,
-		});
-	}
-});
+		filterShape: {
+			entity: validateString(lang('error.invalid_string')).optional(),
+			entity_id: validateNumber(lang('error.invalid_number')).optional(),
+			action: validateString(lang('error.invalid_string')).optional(),
+			request_id: validateNumber(lang('error.invalid_string')).optional(),
+			recorded_at_start: validateDate(),
+			recorded_at_end: validateDate(),
+		},
+	}).superRefine((data, ctx) => {
+		if (
+			data.filter.recorded_at_start &&
+			data.filter.recorded_at_end &&
+			data.filter.recorded_at_start > data.filter.recorded_at_end
+		) {
+			ctx.addIssue({
+				path: ['filter', 'recorded_at_start'],
+				message: lang('error.invalid_date_range'),
+				code: z.ZodIssueCode.custom,
+			});
+		}
+	});
+}

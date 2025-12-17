@@ -33,7 +33,7 @@ class LogHistoryController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		const validated = LogHistoryDeleteValidator.safeParse(req.body);
+		const validated = LogHistoryDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -62,7 +62,7 @@ class LogHistoryController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = LogHistoryFindValidator.safeParse(req.query);
+		const validated = LogHistoryFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

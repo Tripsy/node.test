@@ -56,7 +56,7 @@ class AccountController {
 		policy.register();
 
 		// Validate against the schema
-		const validated = AccountRegisterValidator.safeParse(req.body);
+		const validated = AccountRegisterValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -103,7 +103,7 @@ class AccountController {
 		policy.login();
 
 		// Validate against the schema
-		const validated = AccountLoginValidator.safeParse(req.body);
+		const validated = AccountLoginValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -185,7 +185,7 @@ class AccountController {
 	 */
 	public removeToken = asyncHandler(async (req: Request, res: Response) => {
 		// Validate against the schema
-		const validated = AccountRemoveTokenValidator.safeParse(req.body);
+		const validated = AccountRemoveTokenValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -240,7 +240,7 @@ class AccountController {
 			policy.passwordRecover();
 
 			// Validate against the schema
-			const validated = AccountPasswordRecoverValidator.safeParse(
+			const validated = AccountPasswordRecoverValidator().safeParse(
 				req.body,
 			);
 
@@ -312,7 +312,7 @@ class AccountController {
 			const ident = req.params.ident;
 
 			// Validate against the schema
-			const validated = AccountPasswordRecoverChangeValidator.safeParse(
+			const validated = AccountPasswordRecoverChangeValidator().safeParse(
 				req.body,
 			);
 
@@ -401,7 +401,7 @@ class AccountController {
 			policy.me();
 
 			// Validate against the schema
-			const validated = AccountPasswordUpdateValidator.safeParse(
+			const validated = AccountPasswordUpdateValidator().safeParse(
 				req.body,
 			);
 
@@ -525,7 +525,7 @@ class AccountController {
 			policy.emailConfirmSend();
 
 			// Validate against the schema
-			const validated = AccountEmailConfirmSendValidator.safeParse(
+			const validated = AccountEmailConfirmSendValidator().safeParse(
 				req.body,
 			);
 
@@ -567,7 +567,7 @@ class AccountController {
 		policy.me();
 
 		// Validate against the schema
-		const validated = AccountEmailUpdateValidator.safeParse(req.body);
+		const validated = AccountEmailUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -674,7 +674,7 @@ class AccountController {
 		}
 
 		// Validate against the schema
-		const validated = AccountEditValidator.safeParse(req.body);
+		const validated = AccountEditValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -716,7 +716,7 @@ class AccountController {
 		}
 
 		// Validate against the schema
-		const validated = AccountDeleteValidator.safeParse(req.body);
+		const validated = AccountDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

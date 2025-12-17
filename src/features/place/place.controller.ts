@@ -26,7 +26,7 @@ class PlaceController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = PlaceCreateValidator.safeParse(req.body);
+		const validated = PlaceCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -138,7 +138,7 @@ class PlaceController {
 		policy.update();
 
 		// Validate against the schema
-		const validated = PlaceUpdateValidator.safeParse(req.body);
+		const validated = PlaceUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -250,7 +250,7 @@ class PlaceController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = PlaceFindValidator.safeParse(req.query);
+		const validated = PlaceFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

@@ -48,7 +48,7 @@ class MailQueueController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		const validated = MailQueueDeleteValidator.safeParse(req.body);
+		const validated = MailQueueDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -83,7 +83,7 @@ class MailQueueController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = MailQueueFindValidator.safeParse(req.query);
+		const validated = MailQueueFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

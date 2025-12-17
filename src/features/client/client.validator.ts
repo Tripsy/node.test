@@ -6,6 +6,7 @@ import {
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
 import {
+	hasAtLeastOneValue,
 	makeFindValidator,
 	nullableString,
 	validateAddressPlaceTypes,
@@ -15,68 +16,6 @@ import {
 	validateNumber,
 	validateString,
 } from '@/helpers';
-
-export const ClientCreateBaseValidator = z.object({
-	client_type: validateEnum(
-		ClientTypeEnum,
-		lang('client.validation.client_type_invalid'),
-	),
-	iban: validateString(lang('client.validation.iban_invalid')).optional(),
-	bank_name: validateString(
-		lang('client.validation.bank_name_invalid'),
-	).optional(),
-	contact_name: validateString(
-		lang('client.validation.contact_name_invalid'),
-	).optional(),
-	contact_email: z
-		.string()
-		.email({ message: lang('client.validation.contact_email_invalid') })
-		.optional(),
-	contact_phone: validateString(
-		lang('client.validation.contact_phone_invalid'),
-	).optional(),
-	address_country: validateNumber(
-		lang('client.validation.address_country_invalid'),
-	).optional(),
-	address_region: validateNumber(
-		lang('client.validation.address_region_invalid'),
-	).optional(),
-	address_city: validateNumber(
-		lang('client.validation.address_city_invalid'),
-	).optional(),
-	address_info: validateString(
-		lang('client.validation.address_info_invalid'),
-	).optional(),
-	address_postal_code: validateNumber(
-		lang('client.validation.address_postal_code_invalid'),
-	).optional(),
-	notes: nullableString(lang('carrier.validation.notes_invalid')),
-});
-
-export const ClientCreateCompanyValidator = ClientCreateBaseValidator.extend({
-	client_type: z.literal(ClientTypeEnum.COMPANY),
-	company_name: validateString(
-		lang('client.validation.company_name_invalid'),
-	),
-	company_cui: validateString(
-		lang('client.validation.company_cui_invalid'),
-	).transform((v) => v.trim().toUpperCase()),
-	company_reg_com: validateString(
-		lang('client.validation.company_reg_com_invalid'),
-	).transform((v) => v.trim().toUpperCase()),
-});
-
-export const ClientCreatePersonValidator = ClientCreateBaseValidator.extend({
-	client_type: z.literal(ClientTypeEnum.PERSON),
-	person_name: validateString(lang('client.validation.person_name_invalid')),
-	person_cnp: validateString(
-		lang('client.validation.person_cnp_invalid'),
-	).optional(),
-});
-
-export const ClientCreateValidator = z
-	.union([ClientCreateCompanyValidator, ClientCreatePersonValidator])
-	.superRefine(validateAddressPlaceTypes());
 
 export const paramsUpdateList = [
 	'client_type',
@@ -99,105 +38,181 @@ export const paramsUpdateList = [
 	'notes',
 ];
 
-export const ClientUpdateBaseValidator = z.object({
-	client_type: validateEnum(
-		ClientTypeEnum,
-		lang('client.validation.client_type_invalid'),
-	),
-	iban: validateString(lang('client.validation.iban_invalid')).optional(),
-	bank_name: validateString(
-		lang('client.validation.bank_name_invalid'),
-	).optional(),
-	contact_name: validateString(
-		lang('client.validation.contact_name_invalid'),
-	).optional(),
-	contact_email: z
-		.string()
-		.email({ message: lang('client.validation.contact_email_invalid') })
-		.optional(),
-	contact_phone: validateString(
-		lang('client.validation.contact_phone_invalid'),
-	).optional(),
-	address_country: validateNumber(
-		lang('client.validation.address_country_invalid'),
-	).optional(),
-	address_region: validateNumber(
-		lang('client.validation.address_region_invalid'),
-	).optional(),
-	address_city: validateNumber(
-		lang('client.validation.address_city_invalid'),
-	).optional(),
-	address_info: validateString(
-		lang('client.validation.address_info_invalid'),
-	).optional(),
-	address_postal_code: validateNumber(
-		lang('client.validation.address_postal_code_invalid'),
-	).optional(),
-	notes: nullableString(lang('client.validation.notes_invalid')),
-});
+export function ClientCreateValidator() {
+	const ClientCreateBaseValidator = z.object({
+		client_type: validateEnum(
+			ClientTypeEnum,
+			lang('client.validation.client_type_invalid'),
+		),
+		iban: validateString(lang('client.validation.iban_invalid')).optional(),
+		bank_name: validateString(
+			lang('client.validation.bank_name_invalid'),
+		).optional(),
+		contact_name: validateString(
+			lang('client.validation.contact_name_invalid'),
+		).optional(),
+		contact_email: z
+			.string()
+			.email({ message: lang('client.validation.contact_email_invalid') })
+			.optional(),
+		contact_phone: validateString(
+			lang('client.validation.contact_phone_invalid'),
+		).optional(),
+		address_country: validateNumber(
+			lang('client.validation.address_country_invalid'),
+		).optional(),
+		address_region: validateNumber(
+			lang('client.validation.address_region_invalid'),
+		).optional(),
+		address_city: validateNumber(
+			lang('client.validation.address_city_invalid'),
+		).optional(),
+		address_info: validateString(
+			lang('client.validation.address_info_invalid'),
+		).optional(),
+		address_postal_code: validateNumber(
+			lang('client.validation.address_postal_code_invalid'),
+		).optional(),
+		notes: nullableString(lang('carrier.validation.notes_invalid')),
+	});
 
-export const ClientUpdateCompanyValidator = ClientUpdateBaseValidator.extend({
-	client_type: z.literal(ClientTypeEnum.COMPANY),
-	company_name: validateString(
-		lang('client.validation.company_name_invalid'),
-	).optional(),
-	company_cui: validateString(
-		lang('client.validation.company_cui_invalid'),
-	).optional(),
-	company_reg_com: validateString(
-		lang('client.validation.company_reg_com_invalid'),
-	).optional(),
-});
+	const ClientCreateCompanyValidator = ClientCreateBaseValidator.extend({
+		client_type: z.literal(ClientTypeEnum.COMPANY),
+		company_name: validateString(
+			lang('client.validation.company_name_invalid'),
+		),
+		company_cui: validateString(
+			lang('client.validation.company_cui_invalid'),
+		).transform((v) => v.trim().toUpperCase()),
+		company_reg_com: validateString(
+			lang('client.validation.company_reg_com_invalid'),
+		).transform((v) => v.trim().toUpperCase()),
+	});
 
-export const ClientUpdatePersonValidator = ClientUpdateBaseValidator.extend({
-	client_type: z.literal(ClientTypeEnum.PERSON),
-	person_name: validateString(
-		lang('client.validation.person_name_invalid'),
-	).optional(),
-	person_cnp: validateString(
-		lang('client.validation.person_cnp_invalid'),
-	).optional(),
-});
+	const ClientCreatePersonValidator = ClientCreateBaseValidator.extend({
+		client_type: z.literal(ClientTypeEnum.PERSON),
+		person_name: validateString(
+			lang('client.validation.person_name_invalid'),
+		),
+		person_cnp: validateString(
+			lang('client.validation.person_cnp_invalid'),
+		).optional(),
+	});
 
-export const ClientUpdateValidator = z.union([
-	ClientUpdateCompanyValidator,
-	ClientUpdatePersonValidator,
-]);
-// .superRefine(validateAddressPlaceTypes());
+	return z
+		.union([ClientCreateCompanyValidator, ClientCreatePersonValidator])
+		.superRefine(validateAddressPlaceTypes());
+}
+
+export function ClientUpdateValidator() {
+	const ClientUpdateBaseValidator = z.object({
+		client_type: validateEnum(
+			ClientTypeEnum,
+			lang('client.validation.client_type_invalid'),
+		),
+		iban: validateString(lang('client.validation.iban_invalid')).optional(),
+		bank_name: validateString(
+			lang('client.validation.bank_name_invalid'),
+		).optional(),
+		contact_name: validateString(
+			lang('client.validation.contact_name_invalid'),
+		).optional(),
+		contact_email: z
+			.string()
+			.email({ message: lang('client.validation.contact_email_invalid') })
+			.optional(),
+		contact_phone: validateString(
+			lang('client.validation.contact_phone_invalid'),
+		).optional(),
+		address_country: validateNumber(
+			lang('client.validation.address_country_invalid'),
+		).optional(),
+		address_region: validateNumber(
+			lang('client.validation.address_region_invalid'),
+		).optional(),
+		address_city: validateNumber(
+			lang('client.validation.address_city_invalid'),
+		).optional(),
+		address_info: validateString(
+			lang('client.validation.address_info_invalid'),
+		).optional(),
+		address_postal_code: validateNumber(
+			lang('client.validation.address_postal_code_invalid'),
+		).optional(),
+		notes: nullableString(lang('client.validation.notes_invalid')),
+	});
+
+	const ClientUpdateCompanyValidator = ClientUpdateBaseValidator.extend({
+		client_type: z.literal(ClientTypeEnum.COMPANY),
+		company_name: validateString(
+			lang('client.validation.company_name_invalid'),
+		).optional(),
+		company_cui: validateString(
+			lang('client.validation.company_cui_invalid'),
+		).optional(),
+		company_reg_com: validateString(
+			lang('client.validation.company_reg_com_invalid'),
+		).optional(),
+	});
+
+	const ClientUpdatePersonValidator = ClientUpdateBaseValidator.extend({
+		client_type: z.literal(ClientTypeEnum.PERSON),
+		person_name: validateString(
+			lang('client.validation.person_name_invalid'),
+		).optional(),
+		person_cnp: validateString(
+			lang('client.validation.person_cnp_invalid'),
+		).optional(),
+	});
+
+	return z
+		.union([ClientUpdateCompanyValidator, ClientUpdatePersonValidator])
+		.refine((data) => hasAtLeastOneValue(data), {
+			message: lang('error.params_at_least_one', {
+				params: paramsUpdateList.join(', '),
+			}),
+			path: ['_global'],
+		})
+		.superRefine(validateAddressPlaceTypes());
+}
 
 enum OrderByEnum {
 	ID = 'id',
 	CREATED_AT = 'created_at',
 }
 
-export const ClientFindValidator = makeFindValidator({
-	orderByEnum: OrderByEnum,
-	defaultOrderBy: OrderByEnum.ID,
+export function ClientFindValidator() {
+	return makeFindValidator({
+		orderByEnum: OrderByEnum,
+		defaultOrderBy: OrderByEnum.ID,
 
-	directionEnum: OrderDirectionEnum,
-	defaultDirection: OrderDirectionEnum.ASC,
+		directionEnum: OrderDirectionEnum,
+		defaultDirection: OrderDirectionEnum.ASC,
 
-	filterShape: {
-		id: z.coerce
-			.number({ message: lang('error.invalid_number') })
-			.optional(),
-		term: z.string({ message: lang('error.invalid_string') }).optional(),
-		client_type: z.nativeEnum(ClientTypeEnum).optional(),
-		status: z.nativeEnum(ClientStatusEnum).optional(),
-		create_date_start: validateDate(),
-		create_date_end: validateDate(),
-		is_deleted: validateBoolean().default(false),
-	},
-}).superRefine((data, ctx) => {
-	if (
-		data.filter.create_date_start &&
-		data.filter.create_date_end &&
-		data.filter.create_date_start > data.filter.create_date_end
-	) {
-		ctx.addIssue({
-			path: ['filter', 'create_date_start'],
-			message: lang('error.invalid_date_range'),
-			code: z.ZodIssueCode.custom,
-		});
-	}
-});
+		filterShape: {
+			id: z.coerce
+				.number({ message: lang('error.invalid_number') })
+				.optional(),
+			term: z
+				.string({ message: lang('error.invalid_string') })
+				.optional(),
+			client_type: z.nativeEnum(ClientTypeEnum).optional(),
+			status: z.nativeEnum(ClientStatusEnum).optional(),
+			create_date_start: validateDate(),
+			create_date_end: validateDate(),
+			is_deleted: validateBoolean().default(false),
+		},
+	}).superRefine((data, ctx) => {
+		if (
+			data.filter.create_date_start &&
+			data.filter.create_date_end &&
+			data.filter.create_date_start > data.filter.create_date_end
+		) {
+			ctx.addIssue({
+				path: ['filter', 'create_date_start'],
+				message: lang('error.invalid_date_range'),
+				code: z.ZodIssueCode.custom,
+			});
+		}
+	});
+}

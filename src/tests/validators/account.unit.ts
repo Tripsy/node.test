@@ -10,13 +10,13 @@ const testData = {
 
 describe('AccountRegisterValidator', () => {
 	it('should validate a correct input', () => {
-		expect(() => AccountRegisterValidator.parse(testData)).not.toThrow();
+		expect(() => AccountRegisterValidator().parse(testData)).not.toThrow();
 	});
 
 	it('should fail if name is too short', () => {
 		jest.replaceProperty(testData, 'name', 'J');
 
-		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+		expect(() => AccountRegisterValidator().parse(testData)).toThrow(
 			/account.validation.name_min/,
 		);
 	});
@@ -24,7 +24,7 @@ describe('AccountRegisterValidator', () => {
 	it('should fail if email is invalid', () => {
 		jest.replaceProperty(testData, 'email', 'invalid-email');
 
-		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+		expect(() => AccountRegisterValidator().parse(testData)).toThrow(
 			/account.validation.email_invalid/,
 		);
 	});
@@ -32,7 +32,7 @@ describe('AccountRegisterValidator', () => {
 	it('should fail if password is too short', () => {
 		jest.replaceProperty(testData, 'password', 'Ab!');
 
-		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+		expect(() => AccountRegisterValidator().parse(testData)).toThrow(
 			/account.validation.password_min/,
 		);
 	});
@@ -40,7 +40,7 @@ describe('AccountRegisterValidator', () => {
 	it('should fail if password lacks a capital letter', () => {
 		jest.replaceProperty(testData, 'password', 'weakpassword1!');
 
-		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+		expect(() => AccountRegisterValidator().parse(testData)).toThrow(
 			/account.validation.password_condition_capital_letter/,
 		);
 	});
@@ -48,7 +48,7 @@ describe('AccountRegisterValidator', () => {
 	it('should fail if password lacks a number', () => {
 		jest.replaceProperty(testData, 'password', 'StrongPassword!');
 
-		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+		expect(() => AccountRegisterValidator().parse(testData)).toThrow(
 			/account.validation.password_condition_number/,
 		);
 	});
@@ -56,7 +56,7 @@ describe('AccountRegisterValidator', () => {
 	it('should fail if password lacks a special character', () => {
 		jest.replaceProperty(testData, 'password', 'StrongPassword1');
 
-		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+		expect(() => AccountRegisterValidator().parse(testData)).toThrow(
 			/account.validation.password_condition_special_character/,
 		);
 	});
@@ -64,7 +64,7 @@ describe('AccountRegisterValidator', () => {
 	it('should fail if password confirmation does not match', () => {
 		jest.replaceProperty(testData, 'password_confirm', 'WrongP@ssw0rd');
 
-		expect(() => AccountRegisterValidator.parse(testData)).toThrow(
+		expect(() => AccountRegisterValidator().parse(testData)).toThrow(
 			/account.validation.password_confirm_mismatch/,
 		);
 	});

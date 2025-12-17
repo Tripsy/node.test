@@ -8,11 +8,13 @@ import {
 	validateStringMin,
 } from '@/helpers';
 
-export const UserPermissionCreateValidator = z.object({
-	permission_ids: z.array(z.number(), {
-		message: lang('permission.validation.permission_ids_invalid'),
-	}),
-});
+export function UserPermissionCreateValidator() {
+	return z.object({
+		permission_ids: z.array(z.number(), {
+			message: lang('permission.validation.permission_ids_invalid'),
+		}),
+	});
+}
 
 enum UserPermissionOrderByEnum {
 	ID = 'id',
@@ -21,31 +23,33 @@ enum UserPermissionOrderByEnum {
 	OPERATION = 'permission.operation',
 }
 
-export const UserPermissionFindValidator = makeFindValidator({
-	orderByEnum: UserPermissionOrderByEnum,
-	defaultOrderBy: UserPermissionOrderByEnum.ID,
+export function UserPermissionFindValidator() {
+	return makeFindValidator({
+		orderByEnum: UserPermissionOrderByEnum,
+		defaultOrderBy: UserPermissionOrderByEnum.ID,
 
-	directionEnum: OrderDirectionEnum,
-	defaultDirection: OrderDirectionEnum.ASC,
+		directionEnum: OrderDirectionEnum,
+		defaultDirection: OrderDirectionEnum.ASC,
 
-	filterShape: {
-		user_id: z.coerce
-			.number({ message: lang('error.invalid_number') })
-			.optional(),
-		entity: validateStringMin(
-			lang('error.invalid_string'),
-			cfg('filter.termMinLength') as number,
-			lang('error.string_min', {
-				min: cfg('filter.termMinLength') as string,
-			}),
-		).optional(),
-		operation: validateStringMin(
-			lang('error.invalid_string'),
-			cfg('filter.termMinLength') as number,
-			lang('error.string_min', {
-				min: cfg('filter.termMinLength') as string,
-			}),
-		).optional(),
-		is_deleted: validateBoolean().default(false),
-	},
-});
+		filterShape: {
+			user_id: z.coerce
+				.number({ message: lang('error.invalid_number') })
+				.optional(),
+			entity: validateStringMin(
+				lang('error.invalid_string'),
+				cfg('filter.termMinLength') as number,
+				lang('error.string_min', {
+					min: cfg('filter.termMinLength') as string,
+				}),
+			).optional(),
+			operation: validateStringMin(
+				lang('error.invalid_string'),
+				cfg('filter.termMinLength') as number,
+				lang('error.string_min', {
+					min: cfg('filter.termMinLength') as string,
+				}),
+			).optional(),
+			is_deleted: validateBoolean().default(false),
+		},
+	});
+}

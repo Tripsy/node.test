@@ -27,7 +27,7 @@ class TemplateController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = TemplateCreateValidator.safeParse(req.body);
+		const validated = TemplateCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -97,7 +97,7 @@ class TemplateController {
 		policy.update();
 
 		// Validate against the schema
-		const validated = TemplateUpdateValidator.safeParse(req.body);
+		const validated = TemplateUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -181,7 +181,7 @@ class TemplateController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = TemplateFindValidator.safeParse(req.query);
+		const validated = TemplateFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

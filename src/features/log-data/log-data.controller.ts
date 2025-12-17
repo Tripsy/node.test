@@ -48,7 +48,7 @@ class LogDataController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		const validated = LogDataDeleteValidator.safeParse(req.body);
+		const validated = LogDataDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -77,7 +77,7 @@ class LogDataController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = LogDataFindValidator.safeParse(req.query);
+		const validated = LogDataFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);

@@ -31,7 +31,9 @@ class ClientController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = await ClientCreateValidator.safeParseAsync(req.body);
+		const validated = await ClientCreateValidator().safeParseAsync(
+			req.body,
+		);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -159,7 +161,7 @@ class ClientController {
 			.firstOrFail();
 
 		// Validate against the schema
-		const validated = await ClientUpdateValidator.safeParseAsync({
+		const validated = await ClientUpdateValidator().safeParseAsync({
 			client_type: req.body.client_type ?? client.client_type,
 			...req.body, // client_type (DB value will be overwritten by the one in the body if it exists)
 		});
@@ -248,7 +250,7 @@ class ClientController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = ClientFindValidator.safeParse(req.query);
+		const validated = ClientFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
