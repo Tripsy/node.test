@@ -2,12 +2,8 @@ import { Worker } from 'bullmq';
 import { cfg } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
 import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
-import {
-	type EmailQueueData,
-	sendEmail,
-	systemFrom,
-} from '@/providers/email.provider';
-import logger from '@/providers/logger.provider';
+import { type EmailQueueData, sendEmail } from '@/providers/email.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
 
 const emailWorker = new Worker(
 	'emailQueue',
@@ -16,11 +12,11 @@ const emailWorker = new Worker(
 			job.data as EmailQueueData;
 
 		try {
-			logger.info(
+			getSystemLogger().info(
 				`Processing email job ${job.id} for mailQueueId: ${mailQueueId}`,
 			);
 
-			await sendEmail(emailContent, to, from ?? systemFrom);
+			await sendEmail(emailContent, to, from);
 
 			await MailQueueRepository.update(mailQueueId, {
 				status: MailQueueStatusEnum.SENT,
@@ -28,12 +24,14 @@ const emailWorker = new Worker(
 				sent_at: new Date(),
 			});
 
-			logger.info(`Successfully processed email job ${job.id}`);
+			getSystemLogger().info(
+				`Successfully processed email job ${job.id}`,
+			);
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Unknown error';
 
-			logger.error(
+			getSystemLogger().error(
 				`Failed to process email job ${job.id}: ${errorMessage}`,
 			);
 
@@ -55,7 +53,7 @@ const emailWorker = new Worker(
 
 // Error handler for worker-level errors (Redis connection issues, etc.)
 emailWorker.on('error', (err: Error) => {
-	logger.error(
+	getSystemLogger().error(
 		{
 			err: {
 				message: err.message,
@@ -69,16 +67,16 @@ emailWorker.on('error', (err: Error) => {
 
 // Graceful shutdown
 const shutdown = async () => {
-	logger.warn('Shutting down emailQueue worker...');
+	getSystemLogger().warn('Shutting down emailQueue worker...');
 
 	try {
 		await emailWorker.close();
 
-		logger.info('Worker closed successfully');
+		getSystemLogger().info('Worker closed successfully');
 
 		process.exit(0);
 	} catch (error) {
-		logger.error({ err: error }, `Error during worker shutdown`);
+		getSystemLogger().error({ err: error }, `Error during worker shutdown`);
 
 		process.exit(1);
 	}
@@ -89,19 +87,19 @@ process.on('SIGINT', shutdown);
 
 // Add event listeners for worker status
 emailWorker.on('ready', () => {
-	logger.debug('Email worker is ready and listening for jobs');
+	getSystemLogger().debug('Email worker is ready and listening for jobs');
 });
 
 // emailWorker.on('active', (job) => {
-//     logger.info(`Job ${job.id} is now active`);
+//     getSystemLogger().info(`Job ${job.id} is now active`);
 // });
 //
 // emailWorker.on('completed', (job) => {
-//     logger.info(`Job ${job.id} completed successfully`);
+//     getSystemLogger().info(`Job ${job.id} completed successfully`);
 // });
 //
 // emailWorker.on('failed', (job, err) => {
-//     logger.error(err, `Job ${job?.id || 'n/a'} failed with error:`);
+//     getSystemLogger().error(err, `Job ${job?.id || 'n/a'} failed with error:`);
 // });
 
 export default emailWorker;

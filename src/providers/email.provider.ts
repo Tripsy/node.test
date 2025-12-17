@@ -9,7 +9,7 @@ import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
 import TemplateRepository from '@/features/template/template.repository';
 import { getErrorMessage } from '@/helpers';
-import { systemLogger } from '@/providers/logger.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
 import type { EmailContent, EmailTemplate } from '@/types/template.type';
 
 let emailTransporter: Transporter<SMTPTransport.SentMessageInfo> | null = null;
@@ -29,11 +29,6 @@ export function getEmailTransporter(): Transporter<SMTPTransport.SentMessageInfo
 
 	return emailTransporter;
 }
-
-export const systemFrom: Mail.Address = {
-	name: cfg('mail.fromName') as string,
-	address: cfg('mail.fromAddress') as string,
-};
 
 export type EmailQueueData = {
 	mailQueueId: number;
@@ -98,7 +93,7 @@ export function prepareEmailContent(template: EmailTemplate): EmailContent {
 				: emailContent,
 		};
 	} catch (error: unknown) {
-		systemLogger.fatal(error, getErrorMessage(error));
+		getSystemLogger().fatal(error, getErrorMessage(error));
 
 		throw new Error('Template render error');
 	}
@@ -122,9 +117,17 @@ export async function queueEmail(
 export async function sendEmail(
 	content: EmailContent,
 	to: Mail.Address,
-	from: Mail.Address,
+	from: Mail.Address | null,
 ): Promise<void> {
 	try {
+		// Fallback to default from address
+		if (!from) {
+			from = {
+				name: cfg('mail.fromName') as string,
+				address: cfg('mail.fromAddress') as string,
+			};
+		}
+
 		await getEmailTransporter().sendMail({
 			to: to,
 			from: from,
@@ -133,14 +136,14 @@ export async function sendEmail(
 			html: content.html,
 		});
 
-		systemLogger.debug(
+		getSystemLogger().debug(
 			lang('debug.email_sent', {
 				subject: content.subject,
 				to: to.address,
 			}),
 		);
 	} catch (error: unknown) {
-		systemLogger.error(
+		getSystemLogger().error(
 			error,
 			lang('debug.email_error', {
 				subject: content.subject,

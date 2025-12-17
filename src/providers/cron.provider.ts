@@ -1,5 +1,4 @@
 import cron from 'node-cron';
-import type { Logger } from 'pino';
 import { v4 as uuidv4 } from 'uuid';
 import { requestContext } from '@/config/request.context';
 import { cleanAccountRecovery } from '@/cron-jobs/clean-account-recovery.cron';
@@ -13,11 +12,8 @@ import CronHistoryEntity, {
 	CronHistoryStatusEnum,
 } from '@/features/cron-history/cron-history.entity';
 import CronHistoryRepository from '@/features/cron-history/cron-history.repository';
-import { LogDataCategoryEnum } from '@/features/log-data/log-data.entity';
 import { dateDiffInSeconds } from '@/helpers';
-import logger, { childLogger } from '@/providers/logger.provider';
-
-const cronLogger: Logger = childLogger(logger, LogDataCategoryEnum.CRON);
+import { getCronLogger, getSystemLogger } from '@/providers/logger.provider';
 
 /**
  * Execute a cron job and save history
@@ -58,14 +54,14 @@ async function executeCron<R extends Record<string, unknown>>(
 						message: error.message,
 					};
 
-					cronLogger.error(error, error.message);
+					getCronLogger().error(error, error.message);
 				} else {
 					cronHistoryEntity.status = CronHistoryStatusEnum.ERROR;
 					cronHistoryEntity.content = {
 						message: 'Unknown error',
 					};
 
-					cronLogger.error(error, 'Unknown error');
+					getCronLogger().error(error, 'Unknown error');
 				}
 			} finally {
 				cronHistoryEntity.end_at = new Date();
@@ -118,7 +114,7 @@ const startCronJobs = () => {
 		await executeCron(cleanAccountRecovery, 1);
 	});
 
-	logger.debug('Cron jobs started');
+	getSystemLogger().debug('Cron jobs started');
 };
 
 export default startCronJobs;

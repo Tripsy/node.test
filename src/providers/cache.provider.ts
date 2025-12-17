@@ -1,7 +1,7 @@
 import type Redis from 'ioredis';
 import { getRedisClient } from '@/config/init-redis.config';
 import { cfg } from '@/config/settings.config';
-import { systemLogger } from '@/providers/logger.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
 
 type CacheData = unknown;
 // type CacheData = string | string[] | number | boolean | null;
@@ -82,7 +82,7 @@ class CacheProvider {
 			const exists = await this.cache.exists(key);
 			return exists === 1; // Redis returns 1 if key exists, 0 otherwise
 		} catch (error) {
-			systemLogger.error(
+			getSystemLogger().error(
 				error,
 				`Error checking existence for key: ${key}`,
 			);
@@ -115,7 +115,10 @@ class CacheProvider {
 
 			return freshData;
 		} catch (error) {
-			systemLogger.error(error, `Error fetching cache for key: ${key}`);
+			getSystemLogger().error(
+				error,
+				`Error fetching cache for key: ${key}`,
+			);
 
 			return await fetchFunction(); // Fallback to fetching fresh data
 		}
@@ -132,7 +135,10 @@ class CacheProvider {
 				);
 			}
 		} catch (error) {
-			systemLogger.error(error, `Error setting cache for key: ${key}`);
+			getSystemLogger().error(
+				error,
+				`Error setting cache for key: ${key}`,
+			);
 		}
 	}
 
@@ -140,7 +146,10 @@ class CacheProvider {
 		try {
 			await this.cache.del(key);
 		} catch (error) {
-			systemLogger.error(error, `Error deleting cache for key: ${key}`);
+			getSystemLogger().error(
+				error,
+				`Error deleting cache for key: ${key}`,
+			);
 		}
 	}
 
@@ -176,7 +185,7 @@ class CacheProvider {
 				}
 			} while (cursor !== '0'); // Continue until all keys are scanned
 		} catch (error) {
-			systemLogger.error(
+			getSystemLogger().error(
 				error,
 				`Error deleting cache with pattern: ${pattern}`,
 			);

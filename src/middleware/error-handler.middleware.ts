@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { cfg } from '@/config/settings.config';
 import CustomError from '@/exceptions/custom.error';
-import { systemLogger } from '@/providers/logger.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
 
 export const errorHandler = (
 	err: Error,
@@ -17,7 +17,7 @@ export const errorHandler = (
 		(cfg('app.debug') || ![400, 401, 403, 404, 409].includes(status))
 	) {
 		if ([401].includes(status)) {
-			systemLogger.warn(
+			getSystemLogger().warn(
 				{
 					err: err,
 					request: {
@@ -31,7 +31,7 @@ export const errorHandler = (
 				`${err.name}: ${err.message}`,
 			);
 		} else {
-			systemLogger.error(
+			getSystemLogger().error(
 				{
 					err: err,
 					request: {

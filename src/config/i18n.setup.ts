@@ -4,7 +4,7 @@ import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
 import { cfg } from '@/config/settings.config';
 import { buildSrcPath } from '@/helpers';
-import logger from '@/providers/logger.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
 
 // async function getNamespaces() {
 // 	try {
@@ -67,7 +67,7 @@ export async function initializeI18next() {
 			},
 		});
 
-	logger.debug('i18next initialized');
+	getSystemLogger().debug('i18next initialized');
 }
 
 /**

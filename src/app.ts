@@ -21,7 +21,7 @@ import { outputHandler } from '@/middleware/output-handler.middleware';
 import { requestContextMiddleware } from '@/middleware/request-context.middleware';
 import startCronJobs from '@/providers/cron.provider';
 import { destroyDatabase, initDatabase } from '@/providers/database.provider';
-import { LogStream, systemLogger } from '@/providers/logger.provider';
+import { getSystemLogger, LogStream } from '@/providers/logger.provider';
 import emailQueue from '@/queues/email.queue';
 
 const app: express.Application = express();
@@ -101,40 +101,42 @@ export async function closeHandler(): Promise<void> {
 		closeOperations.map(async ({ name, fn }) => {
 			try {
 				await fn();
-				systemLogger.debug(`${name} closed successfully`);
+				getSystemLogger().debug(`${name} closed successfully`);
 			} catch (error) {
-				systemLogger.warn(error, `${name} close warning:`);
+				getSystemLogger().warn(error, `${name} close warning:`);
 			}
 		}),
 	);
 }
 
 function shutdown(signal: string): void {
-	systemLogger.debug(`${signal} received. Starting graceful shutdown...`);
+	getSystemLogger().debug(
+		`${signal} received. Starting graceful shutdown...`,
+	);
 
 	if (isStartingUp) {
-		systemLogger.debug('Shutdown requested during startup');
+		getSystemLogger().debug('Shutdown requested during startup');
 		process.exit(1);
 	}
 
 	if (!server) {
-		systemLogger.debug('No server instance to close');
+		getSystemLogger().debug('No server instance to close');
 		process.exit(0);
 	}
 
 	server.close(async () => {
 		try {
 			await closeHandler();
-			systemLogger.debug('Server closed gracefully');
+			getSystemLogger().debug('Server closed gracefully');
 			process.exit(0);
 		} catch (error) {
-			systemLogger.fatal(error, 'Error during shutdown:');
+			getSystemLogger().fatal(error, 'Error during shutdown:');
 			process.exit(1);
 		}
 	});
 
 	setTimeout(() => {
-		systemLogger.fatal(
+		getSystemLogger().fatal(
 			`Forcing shutdown after ${FORCE_SHUTDOWN_TIMEOUT}ms`,
 		);
 		process.exit(1);
@@ -227,7 +229,7 @@ app.use((_req, res, next) => {
 // Request timeout
 app.use((req, res, next) => {
 	req.setTimeout(REQUEST_TIMEOUT, () => {
-		systemLogger.warn(
+		getSystemLogger().warn(
 			`Request timeout: ${req.method} ${req.url} (${res.locals.request_id})`,
 		);
 	});
@@ -277,7 +279,7 @@ async function initializeApp(): Promise<void> {
 		// Routes
 		const router = initRoutes();
 		app.use('/', router);
-		systemLogger.debug('Routes initialized');
+		getSystemLogger().debug('Routes initialized');
 
 		// Error handlers (must be last)
 		app.use(notFoundHandler);
@@ -297,7 +299,7 @@ async function initializeApp(): Promise<void> {
 		if (APP_ENV !== 'test') {
 			// Email worker
 			import('./workers/email.worker').catch((error) => {
-				systemLogger.error(
+				getSystemLogger().error(
 					{ err: error },
 					'Failed to start email worker',
 				);
@@ -313,7 +315,7 @@ async function initializeApp(): Promise<void> {
 		// Print startup banner
 		printStartupInfo();
 	} catch (error) {
-		systemLogger.fatal(error, 'Failed to initialize application');
+		getSystemLogger().fatal(error, 'Failed to initialize application');
 		throw error;
 	}
 }
@@ -323,17 +325,17 @@ async function initializeApp(): Promise<void> {
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('uncaughtException', (error) => {
-	systemLogger.fatal(error, 'Uncaught exception:');
+	getSystemLogger().fatal(error, 'Uncaught exception:');
 	shutdown('UNCAUGHT_EXCEPTION');
 });
 process.on('unhandledRejection', (reason, _promise) => {
-	systemLogger.error(reason, 'Unhandled rejection');
+	getSystemLogger().error(reason, 'Unhandled rejection');
 });
 
 // ========== START APPLICATION ==========
 
 initializeApp().catch((error) => {
-	systemLogger.fatal('Application startup failed:', error);
+	getSystemLogger().fatal('Application startup failed:', error);
 	process.exit(1);
 });
 

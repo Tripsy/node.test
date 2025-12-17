@@ -138,7 +138,7 @@ export class LogStream extends Writable {
 			Object.values(this.fileStreams).map((stream) => {
 				return new Promise((resolve) => {
 					stream.on('finish', resolve); // Listen for finish event
-					stream.end(''); // End with empty string
+					stream.end(''); // End with an empty string
 				});
 			}),
 		);
@@ -310,7 +310,7 @@ const logStream = new LogStream();
 const logger = pino(
 	{
 		// The minimum level to log: Pino will not log messages with a lower level.
-		// Setting this option reduces the load, as typically, debug and trace logs are only valid for development, and not needed in production.
+		// Setting this option reduces the load, as typically, debug and trace logs are only valid for development and not needed in production.
 		// 'fatal', 'error', 'warn', 'info', 'debug', 'trace' or 'silent'
 		level:
 			cfg('app.env') === 'test'
@@ -374,21 +374,41 @@ const logger = pino(
 	logStream,
 );
 
-export function childLogger(logger: Logger, category: LogDataCategoryEnum) {
-	return logger.child({
-		category: category,
-	});
+let systemLoggerInstance: Logger | null = null;
+
+export function getSystemLogger(): Logger {
+	if (!systemLoggerInstance) {
+		systemLoggerInstance = logger.child({
+			category: LogDataCategoryEnum.SYSTEM,
+		});
+	}
+	return systemLoggerInstance;
 }
 
-export const systemLogger: Logger = childLogger(
-	logger,
-	LogDataCategoryEnum.SYSTEM,
-);
+let historyLoggerInstance: Logger | null = null;
+
+export function getHistoryLogger(): Logger {
+	if (!historyLoggerInstance) {
+		historyLoggerInstance = logger.child({
+			category: LogDataCategoryEnum.HISTORY,
+		});
+	}
+	return historyLoggerInstance;
+}
+
+let cronLoggerInstance: Logger | null = null;
+
+export function getCronLogger(): Logger {
+	if (!cronLoggerInstance) {
+		cronLoggerInstance = logger.child({
+			category: LogDataCategoryEnum.CRON,
+		});
+	}
+	return cronLoggerInstance;
+}
 
 if (cfg('app.env') === 'test') {
-	// systemLogger.debug = console.log;
-	systemLogger.debug = () => {};
-	systemLogger.error = console.error;
+	// getSystemLogger().debug = console.log;
+	getSystemLogger().debug = () => {};
+	getSystemLogger().error = console.error;
 }
-
-export default logger;

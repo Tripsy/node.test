@@ -1,12 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
-import { systemLogger } from '@/providers/logger.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
 
 export const notFoundHandler = (
 	req: Request,
 	res: Response,
 	_next: NextFunction,
 ): void => {
-	systemLogger.error(
+	getSystemLogger().error(
 		{
 			request: {
 				method: req.method,
