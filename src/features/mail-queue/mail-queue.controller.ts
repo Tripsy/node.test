@@ -2,7 +2,8 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import MailQueuePolicy from '@/features/mail-queue/mail-queue.policy';
-import MailQueueRepository, {
+import {
+	getMailQueueRepository,
 	MailQueueQuery,
 } from '@/features/mail-queue/mail-queue.repository';
 import {
@@ -29,7 +30,8 @@ class MailQueueController {
 		);
 
 		const mailQueue = await cacheProvider.get(cacheKey, async () => {
-			return MailQueueRepository.createQuery()
+			return getMailQueueRepository()
+				.createQuery()
 				.filterById(res.locals.validated.id)
 				.firstOrFail();
 		});
@@ -54,7 +56,8 @@ class MailQueueController {
 			throw new BadRequestError();
 		}
 
-		const countDelete: number = await MailQueueRepository.createQuery()
+		const countDelete: number = await getMailQueueRepository()
+			.createQuery()
 			.filterBy('id', validated.data.ids, 'IN')
 			.delete(false, true);
 
@@ -103,7 +106,8 @@ class MailQueueController {
 			'updated_at',
 		];
 
-		const [entries, total] = await MailQueueRepository.createQuery()
+		const [entries, total] = await getMailQueueRepository()
+			.createQuery()
 			.select(querySelect)
 			.join('mail_queue.template', 'template', 'LEFT')
 			.filterById(validated.data.filter.id)

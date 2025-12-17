@@ -11,7 +11,7 @@ import NotFoundError from '@/exceptions/not-found.error';
 import CronHistoryEntity, {
 	CronHistoryStatusEnum,
 } from '@/features/cron-history/cron-history.entity';
-import CronHistoryRepository from '@/features/cron-history/cron-history.repository';
+import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import { dateDiffInSeconds } from '@/helpers';
 import { getCronLogger, getSystemLogger } from '@/providers/logger.provider';
 
@@ -77,7 +77,7 @@ async function executeCron<R extends Record<string, unknown>>(
 					cronHistoryEntity.status = CronHistoryStatusEnum.WARNING;
 				}
 
-				await CronHistoryRepository.save(cronHistoryEntity);
+				await getCronHistoryRepository().save(cronHistoryEntity);
 			}
 		},
 	);
@@ -94,12 +94,12 @@ const startCronJobs = () => {
 		await executeCron(workerMaintenance, 1);
 	});
 
-	// Report cron errors in last 24 hours - every day at 02:01
+	// Report cron errors in the last 24 hours - every day at 02:01
 	cron.schedule('01 02 * * *', async () => {
 		await executeCron(cronErrorCount, 1);
 	});
 
-	// Report cron warnings in last 7 days - every 7 days at 02:02
+	// Report cron warnings in the last 7 days - every 7 days at 02:02
 	cron.schedule('02 02 * * *', async () => {
 		await executeCron(cronWarningCount, 1);
 	});

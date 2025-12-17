@@ -4,8 +4,9 @@ import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
 import CarrierEntity from '@/features/carrier/carrier.entity';
 import CarrierPolicy from '@/features/carrier/carrier.policy';
-import CarrierRepository, {
+import {
 	CarrierQuery,
+	getCarrierRepository,
 } from '@/features/carrier/carrier.repository';
 import {
 	CarrierCreateValidator,
@@ -32,7 +33,8 @@ class CarrierController {
 			throw new BadRequestError();
 		}
 
-		const existingCarrier = await CarrierRepository.createQuery()
+		const existingCarrier = await getCarrierRepository()
+			.createQuery()
 			.filterBy('name', validated.data.name)
 			.withDeleted(policy.allowDeleted())
 			.first();
@@ -48,7 +50,7 @@ class CarrierController {
 		carrier.email = validated.data.email ?? null;
 		carrier.notes = validated.data.notes ?? null;
 
-		const entry: CarrierEntity = await CarrierRepository.save(carrier);
+		const entry: CarrierEntity = await getCarrierRepository().save(carrier);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('carrier.success.create'));
@@ -71,7 +73,8 @@ class CarrierController {
 		);
 
 		const carrier = await cacheProvider.get(cacheKey, async () => {
-			return CarrierRepository.createQuery()
+			return getCarrierRepository()
+				.createQuery()
 				.filterById(res.locals.validated.id)
 				.withDeleted(policy.allowDeleted())
 				.firstOrFail();
@@ -98,14 +101,16 @@ class CarrierController {
 			throw new BadRequestError();
 		}
 
-		const carrier = await CarrierRepository.createQuery()
+		const carrier = await getCarrierRepository()
+			.createQuery()
 			.select(paramsUpdateList)
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
 		// Check name uniqueness only if the name is being updated
 		if (validated.data.name) {
-			const existingCarrier = await CarrierRepository.createQuery()
+			const existingCarrier = await getCarrierRepository()
+				.createQuery()
 				.filterBy('id', res.locals.validated.id, '!=')
 				.filterBy('name', validated.data.name)
 				.withDeleted(policy.allowDeleted())
@@ -129,7 +134,7 @@ class CarrierController {
 			) as Partial<CarrierEntity>),
 		};
 
-		await CarrierRepository.save(updatedEntity);
+		await getCarrierRepository().save(updatedEntity);
 
 		res.locals.output.message(lang('carrier.success.update'));
 		res.locals.output.data(updatedEntity);
@@ -143,7 +148,8 @@ class CarrierController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		await CarrierRepository.createQuery()
+		await getCarrierRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.delete();
 
@@ -158,7 +164,8 @@ class CarrierController {
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await CarrierRepository.createQuery()
+		await getCarrierRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.restore();
 
@@ -182,7 +189,8 @@ class CarrierController {
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await CarrierRepository.createQuery()
+		const [entries, total] = await getCarrierRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterByTerm(validated.data.filter.term)
 			.withDeleted(

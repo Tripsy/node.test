@@ -3,7 +3,7 @@ import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import BadRequestError from '@/exceptions/bad-request.error';
 import { PlaceTypeEnum } from '@/features/place/place.entity';
-import PlaceRepository from '@/features/place/place.repository';
+import { getPlaceRepository } from '@/features/place/place.repository';
 import { isValidDate, stringToDate } from '@/helpers/date.helper';
 
 /**
@@ -227,7 +227,7 @@ export const validateAddressPlaceTypes =
 				continue;
 			}
 
-			const isValid = await PlaceRepository.checkPlaceType(
+			const isValid = await getPlaceRepository().checkPlaceType(
 				id,
 				check.type,
 			);

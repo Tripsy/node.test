@@ -3,8 +3,9 @@ import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import DiscountEntity from '@/features/discount/discount.entity';
 import DiscountPolicy from '@/features/discount/discount.policy';
-import DiscountRepository, {
+import {
 	DiscountQuery,
+	getDiscountRepository,
 } from '@/features/discount/discount.repository';
 import {
 	DiscountCreateValidator,
@@ -43,7 +44,8 @@ class DiscountController {
 		discount.end_at = validated.data.end_at ?? null;
 		discount.notes = validated.data.notes ?? null;
 
-		const entry: DiscountEntity = await DiscountRepository.save(discount);
+		const entry: DiscountEntity =
+			await getDiscountRepository().save(discount);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('discount.success.create'));
@@ -66,7 +68,8 @@ class DiscountController {
 		);
 
 		const discount = await cacheProvider.get(cacheKey, async () => {
-			return DiscountRepository.createQuery()
+			return getDiscountRepository()
+				.createQuery()
 				.filterById(res.locals.validated.id)
 				.withDeleted(policy.allowDeleted())
 				.firstOrFail();
@@ -93,7 +96,8 @@ class DiscountController {
 			throw new BadRequestError();
 		}
 
-		const discount = await DiscountRepository.createQuery()
+		const discount = await getDiscountRepository()
+			.createQuery()
 			.select(paramsUpdateList)
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
@@ -107,7 +111,7 @@ class DiscountController {
 			) as Partial<DiscountEntity>),
 		};
 
-		await DiscountRepository.save(updatedEntity);
+		await getDiscountRepository().save(updatedEntity);
 
 		res.locals.output.message(lang('discount.success.update'));
 		res.locals.output.data(updatedEntity);
@@ -121,7 +125,8 @@ class DiscountController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		await DiscountRepository.createQuery()
+		await getDiscountRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.delete();
 
@@ -136,7 +141,8 @@ class DiscountController {
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await DiscountRepository.createQuery()
+		await getDiscountRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.restore();
 
@@ -160,7 +166,8 @@ class DiscountController {
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await DiscountRepository.createQuery()
+		const [entries, total] = await getDiscountRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterBy('scope', validated.data.filter.scope)
 			.filterBy('reason', validated.data.filter.reason)

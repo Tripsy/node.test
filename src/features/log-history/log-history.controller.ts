@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import LogHistoryPolicy from '@/features/log-history/log-history.policy';
-import LogHistoryRepository from '@/features/log-history/log-history.repository';
+import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import {
 	LogHistoryDeleteValidator,
 	LogHistoryFindValidator,
@@ -16,7 +16,8 @@ class LogHistoryController {
 		// Check permission (admin or operator with permission)
 		policy.read();
 
-		const logHistory = await LogHistoryRepository.createQuery()
+		const logHistory = await getLogHistoryRepository()
+			.createQuery()
 			.join('log_history.user', 'user', 'LEFT')
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
@@ -40,7 +41,8 @@ class LogHistoryController {
 			throw new BadRequestError();
 		}
 
-		const countDelete: number = await LogHistoryRepository.createQuery()
+		const countDelete: number = await getLogHistoryRepository()
+			.createQuery()
 			.filterBy('id', validated.data.ids, 'IN')
 			.delete(false, true);
 
@@ -68,7 +70,8 @@ class LogHistoryController {
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await LogHistoryRepository.createQuery()
+		const [entries, total] = await getLogHistoryRepository()
+			.createQuery()
 			.join('log_history.user', 'user', 'LEFT')
 			.filterBy('request_id', validated.data.filter.request_id)
 			.filterBy('entity', validated.data.filter.entity)

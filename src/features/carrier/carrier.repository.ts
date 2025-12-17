@@ -38,12 +38,9 @@ export class CarrierQuery extends RepositoryAbstract<CarrierEntity> {
 	}
 }
 
-export const CarrierRepository = dataSource
-	.getRepository(CarrierEntity)
-	.extend({
+export const getCarrierRepository = () =>
+	dataSource.getRepository(CarrierEntity).extend({
 		createQuery() {
 			return new CarrierQuery(this);
 		},
 	});
-
-export default CarrierRepository;

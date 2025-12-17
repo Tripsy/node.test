@@ -1,12 +1,13 @@
 import { cfg } from '@/config/settings.config';
-import CronHistoryRepository from '@/features/cron-history/cron-history.repository';
+import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import { createPastDate } from '@/helpers';
 import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 import type { EmailTemplate } from '@/types/template.type';
 
-// Report cron errors in last 24 hours
+// Report cron errors in the last 24 hours
 export const cronErrorCount = async () => {
-	const query = CronHistoryRepository.createQuery()
+	const query = getCronHistoryRepository()
+		.createQuery()
 		.select(['id'])
 		.filterByRange('start_at', createPastDate(86400)) // Last 24 hours
 		.filterBy('status', 'error');

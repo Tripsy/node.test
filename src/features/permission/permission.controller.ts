@@ -4,7 +4,8 @@ import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
 import PermissionEntity from '@/features/permission/permission.entity';
 import PermissionPolicy from '@/features/permission/permission.policy';
-import PermissionRepository, {
+import {
+	getPermissionRepository,
 	PermissionQuery,
 } from '@/features/permission/permission.repository';
 import {
@@ -31,7 +32,8 @@ class PermissionController {
 			throw new BadRequestError();
 		}
 
-		const existingPermission = await PermissionRepository.createQuery()
+		const existingPermission = await getPermissionRepository()
+			.createQuery()
 			.select(['id', 'entity', 'operation', 'deleted_at'])
 			.filterBy('entity', validated.data.entity)
 			.filterBy('operation', validated.data.operation)
@@ -40,7 +42,7 @@ class PermissionController {
 
 		if (existingPermission) {
 			if (existingPermission.deleted_at) {
-				await PermissionRepository.restore(existingPermission.id);
+				await getPermissionRepository().restore(existingPermission.id);
 
 				res.locals.output.data(existingPermission);
 				res.locals.output.message(lang('permission.success.restore'));
@@ -56,7 +58,7 @@ class PermissionController {
 			permission.operation = validated.data.operation;
 
 			const entry: PermissionEntity =
-				await PermissionRepository.save(permission);
+				await getPermissionRepository().save(permission);
 
 			res.locals.output.data(entry);
 			res.locals.output.message(lang('permission.success.create'));
@@ -80,7 +82,8 @@ class PermissionController {
 		);
 
 		const permission = await cacheProvider.get(cacheKey, async () => {
-			return PermissionRepository.createQuery()
+			return getPermissionRepository()
+				.createQuery()
 				.filterById(res.locals.validated.id)
 				.withDeleted(policy.allowDeleted())
 				.firstOrFail();
@@ -107,7 +110,8 @@ class PermissionController {
 			throw new BadRequestError();
 		}
 
-		const existingPermission = await PermissionRepository.createQuery()
+		const existingPermission = await getPermissionRepository()
+			.createQuery()
 			.filterBy('id', res.locals.validated.id, '!=')
 			.filterBy('entity', validated.data.entity)
 			.filterBy('operation', validated.data.operation)
@@ -118,7 +122,8 @@ class PermissionController {
 			throw new CustomError(409, lang('permission.error.already_exists'));
 		}
 
-		const permission = await PermissionRepository.createQuery()
+		const permission = await getPermissionRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
@@ -130,7 +135,7 @@ class PermissionController {
 			auth_id: policy.getUserId(),
 		};
 
-		await PermissionRepository.save(permission);
+		await getPermissionRepository().save(permission);
 
 		res.locals.output.message(lang('permission.success.update'));
 		res.locals.output.data(permission);
@@ -144,7 +149,8 @@ class PermissionController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		await PermissionRepository.createQuery()
+		await getPermissionRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.delete();
 
@@ -159,7 +165,8 @@ class PermissionController {
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await PermissionRepository.createQuery()
+		await getPermissionRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.restore();
 
@@ -183,7 +190,8 @@ class PermissionController {
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await PermissionRepository.createQuery()
+		const [entries, total] = await getPermissionRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterByTerm(validated.data.filter.term)
 			.withDeleted(

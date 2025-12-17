@@ -2,7 +2,8 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import LogDataPolicy from '@/features/log-data/log-data.policy';
-import LogDataRepository, {
+import {
+	getLogDataRepository,
 	LogDataQuery,
 } from '@/features/log-data/log-data.repository';
 import {
@@ -28,7 +29,8 @@ class LogDataController {
 		);
 
 		const logData = await cacheProvider.get(cacheKey, async () => {
-			return LogDataRepository.createQuery()
+			return getLogDataRepository()
+				.createQuery()
 				.filterById(res.locals.validated.id)
 				.withDeleted(policy.allowDeleted())
 				.firstOrFail();
@@ -54,7 +56,8 @@ class LogDataController {
 			throw new BadRequestError();
 		}
 
-		const countDelete: number = await LogDataRepository.createQuery()
+		const countDelete: number = await getLogDataRepository()
+			.createQuery()
 			.filterBy('id', validated.data.ids, 'IN')
 			.delete(false, true);
 
@@ -81,7 +84,8 @@ class LogDataController {
 
 			throw new BadRequestError();
 		}
-		const [entries, total] = await LogDataRepository.createQuery()
+		const [entries, total] = await getLogDataRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterBy('pid', validated.data.filter.pid)
 			.filterByRange(

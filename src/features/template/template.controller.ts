@@ -6,7 +6,8 @@ import TemplateEntity, {
 	TemplateTypeEnum,
 } from '@/features/template/template.entity';
 import TemplatePolicy from '@/features/template/template.policy';
-import TemplateRepository, {
+import {
+	getTemplateRepository,
 	TemplateQuery,
 } from '@/features/template/template.repository';
 import {
@@ -34,7 +35,8 @@ class TemplateController {
 			throw new BadRequestError();
 		}
 
-		const existingTemplate = await TemplateRepository.createQuery()
+		const existingTemplate = await getTemplateRepository()
+			.createQuery()
 			.filterBy('label', validated.data.label)
 			.filterBy('language', validated.data.language)
 			.filterBy('type', validated.data.type)
@@ -51,7 +53,8 @@ class TemplateController {
 		template.type = validated.data.type;
 		template.content = validated.data.content;
 
-		const entry: TemplateEntity = await TemplateRepository.save(template);
+		const entry: TemplateEntity =
+			await getTemplateRepository().save(template);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('template.success.create'));
@@ -74,7 +77,8 @@ class TemplateController {
 		);
 
 		const template = await cacheProvider.get(cacheKey, async () => {
-			return TemplateRepository.createQuery()
+			return getTemplateRepository()
+				.createQuery()
 				.filterById(res.locals.validated.id)
 				.withDeleted(policy.allowDeleted())
 				.firstOrFail();
@@ -101,12 +105,14 @@ class TemplateController {
 			throw new BadRequestError();
 		}
 
-		const template = await TemplateRepository.createQuery()
+		const template = await getTemplateRepository()
+			.createQuery()
 			.select(paramsUpdateList)
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
-		const existingTemplate = await TemplateRepository.createQuery()
+		const existingTemplate = await getTemplateRepository()
+			.createQuery()
 			.filterBy('id', res.locals.validated.id, '!=')
 			.filterBy('label', validated.data.label || template.label)
 			.filterBy('language', validated.data.language || template.language)
@@ -128,7 +134,7 @@ class TemplateController {
 			) as Partial<TemplateEntity>),
 		};
 
-		await TemplateRepository.save(updatedEntity);
+		await getTemplateRepository().save(updatedEntity);
 
 		res.locals.output.message(lang('template.success.update'));
 		res.locals.output.data(updatedEntity);
@@ -142,7 +148,8 @@ class TemplateController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		await TemplateRepository.createQuery()
+		await getTemplateRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.delete();
 
@@ -157,7 +164,8 @@ class TemplateController {
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await TemplateRepository.createQuery()
+		await getTemplateRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.restore();
 
@@ -181,7 +189,8 @@ class TemplateController {
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await TemplateRepository.createQuery()
+		const [entries, total] = await getTemplateRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterBy('language', validated.data.filter.language)
 			.filterBy('type', validated.data.filter.type)
@@ -216,7 +225,8 @@ class TemplateController {
 		);
 
 		const template = await cacheProvider.get(cacheKey, async () => {
-			return TemplateRepository.createQuery()
+			return getTemplateRepository()
+				.createQuery()
 				.filterBy('label', res.locals.validated.label)
 				.filterBy('language', res.locals.lang)
 				.filterBy('type', TemplateTypeEnum.PAGE)

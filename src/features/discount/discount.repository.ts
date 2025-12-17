@@ -38,12 +38,9 @@ export class DiscountQuery extends RepositoryAbstract<DiscountEntity> {
 	}
 }
 
-export const DiscountRepository = dataSource
-	.getRepository(DiscountEntity)
-	.extend({
+export const getDiscountRepository = () =>
+	dataSource.getRepository(DiscountEntity).extend({
 		createQuery() {
 			return new DiscountQuery(this);
 		},
 	});
-
-export default DiscountRepository;

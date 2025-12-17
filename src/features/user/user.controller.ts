@@ -5,7 +5,7 @@ import CustomError from '@/exceptions/custom.error';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity, { UserRoleEnum } from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
-import UserRepository, { UserQuery } from '@/features/user/user.repository';
+import { getUserRepository, UserQuery } from '@/features/user/user.repository';
 import {
 	paramsUpdateList,
 	UserCreateValidator,
@@ -23,7 +23,7 @@ class UserController {
 		policy.create();
 
 		// Validate against the schema
-		const validated = UserCreateValidator.safeParse(req.body);
+		const validated = UserCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -31,7 +31,8 @@ class UserController {
 			throw new BadRequestError();
 		}
 
-		const existingUser = await UserRepository.createQuery()
+		const existingUser = await getUserRepository()
+			.createQuery()
 			.filterByEmail(validated.data.email)
 			.withDeleted(policy.allowDeleted())
 			.first();
@@ -57,7 +58,7 @@ class UserController {
 			user.language = validated.data.language;
 		}
 
-		const entry: UserEntity = await UserRepository.save(user);
+		const entry: UserEntity = await getUserRepository().save(user);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('user.success.create'));
@@ -81,7 +82,8 @@ class UserController {
 
 		const user = await cacheProvider.get(cacheKey, async () => {
 			return (
-				UserRepository.createQuery()
+				getUserRepository()
+					.createQuery()
 					// .select(['id', 'name', 'email', 'status', 'created_at', 'updated_at'])
 					// .addSelect(['password'])
 					.filterById(res.locals.validated.id)
@@ -103,7 +105,7 @@ class UserController {
 		policy.update();
 
 		// Validate against the schema
-		const validated = UserUpdateValidator.safeParse(req.body);
+		const validated = UserUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -111,12 +113,14 @@ class UserController {
 			throw new BadRequestError();
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(paramsUpdateList)
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
-		const existingUser = await UserRepository.createQuery()
+		const existingUser = await getUserRepository()
+			.createQuery()
 			.filterBy('id', res.locals.validated.id, '!=')
 			.filterByEmail(validated.data.email)
 			.first();
@@ -142,7 +146,7 @@ class UserController {
 			) as Partial<UserEntity>),
 		};
 
-		await UserRepository.save(updatedEntity);
+		await getUserRepository().save(updatedEntity);
 
 		res.locals.output.message(lang('user.success.update'));
 		res.locals.output.data(updatedEntity);
@@ -156,7 +160,8 @@ class UserController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		await UserRepository.createQuery()
+		await getUserRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.delete();
 
@@ -171,7 +176,8 @@ class UserController {
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await UserRepository.createQuery()
+		await getUserRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.restore();
 
@@ -187,7 +193,7 @@ class UserController {
 		policy.find();
 
 		// Validate against the schema
-		const validated = UserFindValidator.safeParse(req.query);
+		const validated = UserFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
 			res.locals.output.errors(validated.error.errors);
@@ -195,7 +201,8 @@ class UserController {
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await UserRepository.createQuery()
+		const [entries, total] = await getUserRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterByStatus(validated.data.filter.status)
 			.filterBy('role', validated.data.filter.role)
@@ -231,7 +238,8 @@ class UserController {
 		// Check permission (admin or operator with permission)
 		policy.update();
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'status'])
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
@@ -251,7 +259,7 @@ class UserController {
 			auth_id: policy.getUserId(),
 		};
 
-		await UserRepository.save(user);
+		await getUserRepository().save(user);
 
 		res.locals.output.message(lang('user.success.status_update'));
 

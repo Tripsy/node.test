@@ -2,8 +2,9 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CronHistoryPolicy from '@/features/cron-history/cron-history.policy';
-import CronHistoryRepository, {
+import {
 	CronHistoryQuery,
+	getCronHistoryRepository,
 } from '@/features/cron-history/cron-history.repository';
 import {
 	CronHistoryDeleteValidator,
@@ -28,7 +29,8 @@ class CronHistoryController {
 		);
 
 		const cronHistory = await cacheProvider.get(cacheKey, async () => {
-			return CronHistoryRepository.createQuery()
+			return getCronHistoryRepository()
+				.createQuery()
 				.filterById(res.locals.validated.id)
 				.withDeleted(policy.allowDeleted())
 				.firstOrFail();
@@ -54,7 +56,8 @@ class CronHistoryController {
 			throw new BadRequestError();
 		}
 
-		const countDelete: number = await CronHistoryRepository.createQuery()
+		const countDelete: number = await getCronHistoryRepository()
+			.createQuery()
 			.filterBy('id', validated.data.ids, 'IN')
 			.delete(false, true);
 
@@ -82,7 +85,8 @@ class CronHistoryController {
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await CronHistoryRepository.createQuery()
+		const [entries, total] = await getCronHistoryRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterByRange(
 				'start_at',

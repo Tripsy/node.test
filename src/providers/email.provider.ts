@@ -5,9 +5,9 @@ import { lang } from '@/config/i18n.setup';
 import templates from '@/config/nunjucks.config';
 import { cfg } from '@/config/settings.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
-import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
+import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
-import TemplateRepository from '@/features/template/template.repository';
+import { getTemplateRepository } from '@/features/template/template.repository';
 import { getErrorMessage } from '@/helpers';
 import { getSystemLogger } from '@/providers/logger.provider';
 import type { EmailContent, EmailTemplate } from '@/types/template.type';
@@ -41,7 +41,8 @@ export async function loadEmailTemplate(
 	label: string,
 	language: string,
 ): Promise<EmailTemplate> {
-	const template = await TemplateRepository.createQuery()
+	const template = await getTemplateRepository()
+		.createQuery()
 		.select(['id', 'language', 'type', 'content'])
 		.filterBy('label', label)
 		.filterBy('language', language)
@@ -111,7 +112,7 @@ export async function queueEmail(
 	mailQueueEntity.to = to;
 	mailQueueEntity.from = from;
 
-	await MailQueueRepository.save(mailQueueEntity);
+	await getMailQueueRepository().save(mailQueueEntity);
 }
 
 export async function sendEmail(
@@ -120,7 +121,7 @@ export async function sendEmail(
 	from: Mail.Address | null,
 ): Promise<void> {
 	try {
-		// Fallback to default from address
+		// Fallback to default `from` address
 		if (!from) {
 			from = {
 				name: cfg('mail.fromName') as string,

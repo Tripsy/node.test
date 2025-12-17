@@ -8,7 +8,7 @@ import AccountRecoveryRepository from '@/features/account/account-recovery.repos
 import AccountTokenEntity from '@/features/account/account-token.entity';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
-import UserRepository from '@/features/user/user.repository';
+import { getUserRepository } from '@/features/user/user.repository';
 import {
 	createFutureDate,
 	getErrorMessage,
@@ -285,7 +285,7 @@ export async function updateUserPassword(
 	user.password = password; // Encryption it handled in subscriber
 	user.password_updated_at = new Date();
 
-	await UserRepository.save(user);
+	await getUserRepository().save(user);
 
 	// Remove all account tokens
 	await AccountTokenRepository.createQuery()

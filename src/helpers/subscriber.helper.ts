@@ -1,12 +1,10 @@
-import type { Logger } from 'pino';
 import type { UpdateEvent } from 'typeorm';
 import { lang } from '@/config/i18n.setup';
 import { requestContext } from '@/config/request.context';
 import { cfg, type LogHistoryDestination } from '@/config/settings.config';
-import { LogDataCategoryEnum } from '@/features/log-data/log-data.entity';
-import LogHistoryRepository from '@/features/log-history/log-history.repository';
+import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import { getCacheProvider } from '@/providers/cache.provider';
-import logger, { childLogger } from '@/providers/logger.provider';
+import { getHistoryLogger } from '@/providers/logger.provider';
 
 export function cacheClean(entity: string, ident: number | string) {
 	const identString = ident.toString();
@@ -32,11 +30,6 @@ export function logHistory(
 
 	switch (cfg('logging.history') as LogHistoryDestination) {
 		case 'pino': {
-			const historyLogger: Logger = childLogger(
-				logger,
-				LogDataCategoryEnum.HISTORY,
-			);
-
 			const replacements = {
 				entity,
 				entity_id: Array.isArray(entity_id)
@@ -50,7 +43,7 @@ export function logHistory(
 				...data,
 			};
 
-			historyLogger.info(
+			getHistoryLogger().info(
 				lang(`${entity}.history.${action}`, replacements),
 			);
 			break;
@@ -60,13 +53,18 @@ export function logHistory(
 				? entity_id
 				: [entity_id];
 
-			void LogHistoryRepository.createLogs(entity, entity_ids, action, {
-				auth_id: ctx?.auth_id || null,
-				performed_by: ctx?.performed_by || 'unknown',
-				request_id: ctx?.request_id || 'unknown',
-				source: ctx?.source || 'unknown',
-				data,
-			});
+			void getLogHistoryRepository().createLogs(
+				entity,
+				entity_ids,
+				action,
+				{
+					auth_id: ctx?.auth_id || null,
+					performed_by: ctx?.performed_by || 'unknown',
+					request_id: ctx?.request_id || 'unknown',
+					source: ctx?.source || 'unknown',
+					data,
+				},
+			);
 			break;
 		}
 	}

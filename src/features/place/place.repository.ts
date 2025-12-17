@@ -33,22 +33,21 @@ export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 	}
 }
 
-export const PlaceRepository = dataSource.getRepository(PlaceEntity).extend({
-	createQuery() {
-		return new PlaceQuery(this);
-	},
+export const getPlaceRepository = () =>
+	dataSource.getRepository(PlaceEntity).extend({
+		createQuery() {
+			return new PlaceQuery(this);
+		},
 
-	async checkPlaceType(
-		place_id: number,
-		type: PlaceTypeEnum,
-	): Promise<boolean> {
-		const result = await this.createQuery()
-			.select(['type'])
-			.filterById(place_id)
-			.firstRaw();
+		async checkPlaceType(
+			place_id: number,
+			type: PlaceTypeEnum,
+		): Promise<boolean> {
+			const result = await this.createQuery()
+				.select(['type'])
+				.filterById(place_id)
+				.firstRaw();
 
-		return result?.place_type === type;
-	},
-});
-
-export default PlaceRepository;
+			return result?.place_type === type;
+		},
+	});

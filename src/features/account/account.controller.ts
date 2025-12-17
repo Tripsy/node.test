@@ -33,7 +33,7 @@ import {
 import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
-import UserRepository from '@/features/user/user.repository';
+import { getUserRepository } from '@/features/user/user.repository';
 import {
 	compareMetaDataValue,
 	createPastDate,
@@ -64,7 +64,8 @@ class AccountController {
 			throw new BadRequestError();
 		}
 
-		const existingUser = await UserRepository.createQuery()
+		const existingUser = await getUserRepository()
+			.createQuery()
 			.filterByEmail(validated.data.email)
 			.first();
 
@@ -87,7 +88,7 @@ class AccountController {
 		user.password = validated.data.password;
 		user.language = validated.data.language || res.locals.lang;
 
-		const entry: UserEntity = await UserRepository.save(user);
+		const entry: UserEntity = await getUserRepository().save(user);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('account.success.register'));
@@ -115,7 +116,8 @@ class AccountController {
 
 		await policy.checkRateLimitOnLogin(ipKey, emailKey);
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'password', 'status'])
 			.filterByEmail(validated.data.email)
 			.firstOrFail();
@@ -248,7 +250,8 @@ class AccountController {
 				throw new BadRequestError();
 			}
 
-			const user = await UserRepository.createQuery()
+			const user = await getUserRepository()
+				.createQuery()
 				.select(['id', 'name', 'email', 'language', 'status'])
 				.filterByEmail(validated.data.email)
 				.firstOrFail();
@@ -351,7 +354,8 @@ class AccountController {
 				}
 			}
 
-			const user = await UserRepository.createQuery()
+			const user = await getUserRepository()
+				.createQuery()
 				.select(['id', 'name', 'email', 'language', 'status'])
 				.filterById(recovery.user_id)
 				.first();
@@ -407,7 +411,8 @@ class AccountController {
 				throw new BadRequestError();
 			}
 
-			const user = await UserRepository.createQuery()
+			const user = await getUserRepository()
+				.createQuery()
 				.select(['id', 'password'])
 				.filterById(policy.getUserId())
 				.firstOrFail();
@@ -466,7 +471,8 @@ class AccountController {
 			);
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'status'])
 			.filterById(payload.user_id)
 			.filterByEmail(payload.user_email)
@@ -482,7 +488,7 @@ class AccountController {
 			user.email = payload.user_email_new;
 			user.email_verified_at = new Date();
 
-			await UserRepository.save(user);
+			await getUserRepository().save(user);
 
 			res.locals.output.message(lang('account.success.email_updated'));
 		} else {
@@ -500,7 +506,7 @@ class AccountController {
 			user.status = UserStatusEnum.ACTIVE;
 			user.email_verified_at = new Date();
 
-			await UserRepository.save(user);
+			await getUserRepository().save(user);
 
 			res.locals.output.message(lang('account.success.email_confirmed'));
 		}
@@ -529,7 +535,8 @@ class AccountController {
 				throw new BadRequestError();
 			}
 
-			const user = await UserRepository.createQuery()
+			const user = await getUserRepository()
+				.createQuery()
 				.select(['id', 'name', 'email', 'language', 'status'])
 				.filterByEmail(validated.data.email)
 				.first();
@@ -568,7 +575,8 @@ class AccountController {
 			throw new BadRequestError();
 		}
 
-		const existingUser = await UserRepository.createQuery()
+		const existingUser = await getUserRepository()
+			.createQuery()
 			.filterByEmail(validated.data.email_new)
 			.first();
 
@@ -580,7 +588,8 @@ class AccountController {
 			);
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'name', 'email', 'language'])
 			.filterById(policy.getUserId())
 			.firstOrFail();
@@ -603,7 +612,7 @@ class AccountController {
 
 		// const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, policy.getUserId().toString() , 'details');
 		// const user = await cacheProvider.get(cacheKey, async () => {
-		//     const userData = await UserRepository
+		//     const userData = await getUserRepository()
 		//         .createQuery()
 		//         .select(['id', 'name', 'email', 'language', 'status', 'role', 'created_at', 'updated_at'])
 		//         .filterById(policy.getUserId())
@@ -673,7 +682,8 @@ class AccountController {
 			throw new BadRequestError();
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['name', 'language'])
 			.filterById(user_id)
 			.firstOrFail();
@@ -686,7 +696,7 @@ class AccountController {
 			auth_id: user_id,
 		};
 
-		await UserRepository.save(user);
+		await getUserRepository().save(user);
 
 		res.locals.output.message(lang('account.success.edit'));
 
@@ -714,7 +724,8 @@ class AccountController {
 			throw new BadRequestError();
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'password'])
 			.filterById(user_id)
 			.firstOrFail();
@@ -736,7 +747,7 @@ class AccountController {
 			throw new UnauthorizedError();
 		}
 
-		await UserRepository.createQuery().filterById(user_id).delete();
+		await getUserRepository().createQuery().filterById(user_id).delete();
 
 		res.locals.output.message(lang('account.success.delete'));
 

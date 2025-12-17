@@ -16,9 +16,8 @@ export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
 	}
 }
 
-export const LogHistoryRepository = dataSource
-	.getRepository(LogHistoryEntity)
-	.extend({
+export const getLogHistoryRepository = () =>
+	dataSource.getRepository(LogHistoryEntity).extend({
 		createQuery() {
 			return new LogHistoryQuery(this);
 		},
@@ -51,5 +50,3 @@ export const LogHistoryRepository = dataSource
 			return this.save(records);
 		},
 	});
-
-export default LogHistoryRepository;

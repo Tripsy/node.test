@@ -5,9 +5,12 @@ import AccountTokenRepository from '@/features/account/account-token.repository'
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
-import UserRepository from '@/features/user/user.repository';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
+import {
+	getUserRepository,
+	type UserQuery,
+} from '@/features/user/user.repository';
 import { routeLink } from '@/helpers/routing.helper';
 
 beforeEach(() => {
@@ -74,9 +77,9 @@ describe('UserController - create', () => {
 			filterByEmail: jest.fn().mockReturnThis(),
 			withDeleted: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 
@@ -92,13 +95,13 @@ describe('UserController - create', () => {
 			filterByEmail: jest.fn().mockReturnThis(),
 			withDeleted: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 
-		jest.spyOn(UserRepository, 'save').mockResolvedValue(mockUser);
+		jest.spyOn(getUserRepository(), 'save').mockResolvedValue(mockUser);
 
 		const response = await request(app).post(userCreateLink).send(testData);
 
@@ -170,9 +173,9 @@ describe('UserController - read', () => {
 			filterById: jest.fn().mockReturnThis(),
 			withDeleted: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 
@@ -225,9 +228,9 @@ describe('UserController - update', () => {
 			firstOrFail: jest.fn().mockImplementation(() => {
 				throw new NotFoundError();
 			}),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 
@@ -245,9 +248,9 @@ describe('UserController - update', () => {
 			filterBy: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 
@@ -266,9 +269,9 @@ describe('UserController - update', () => {
 			filterBy: jest.fn().mockReturnThis(),
 			filterByEmail: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(null),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 
@@ -283,7 +286,7 @@ describe('UserController - update', () => {
 			mockQueryBuilderAccountToken,
 		);
 
-		jest.spyOn(UserRepository, 'save').mockResolvedValue(mockUser);
+		jest.spyOn(getUserRepository(), 'save').mockResolvedValue(mockUser);
 
 		const response = await request(app).put(userUpdateLink).send(testData);
 
@@ -318,9 +321,9 @@ describe('UserController - delete', () => {
 		const mockQueryBuilderUser = {
 			filterById: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 
@@ -356,9 +359,9 @@ describe('UserController - restore', () => {
 		const mockQueryBuilderUser = {
 			filterById: jest.fn().mockReturnThis(),
 			restore: jest.fn().mockResolvedValue(1),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 

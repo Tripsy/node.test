@@ -4,7 +4,10 @@ import { cfg } from '@/config/settings.config';
 import { readToken } from '@/features/account/account.service';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
-import UserRepository from '@/features/user/user.repository';
+import {
+	getUserRepository,
+	type UserQuery,
+} from '@/features/user/user.repository';
 import {
 	compareMetaDataValue,
 	createFutureDate,
@@ -204,9 +207,9 @@ describe('authMiddleware', () => {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 
@@ -244,9 +247,9 @@ describe('authMiddleware', () => {
 			select: jest.fn().mockReturnThis(),
 			filterById: jest.fn().mockReturnThis(),
 			first: jest.fn().mockResolvedValue(mockUser),
-		} as jest.MockedObject<ReturnType<typeof UserRepository.createQuery>>;
+		} as unknown as UserQuery;
 
-		jest.spyOn(UserRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderUser,
 		);
 

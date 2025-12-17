@@ -10,8 +10,9 @@ import ClientEntity, {
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
 import ClientPolicy from '@/features/client/client.policy';
-import ClientRepository, {
+import {
 	ClientQuery,
+	getClientRepository,
 } from '@/features/client/client.repository';
 import {
 	ClientCreateValidator,
@@ -52,7 +53,7 @@ class ClientController {
 					};
 
 		const isDuplicate =
-			await ClientRepository.isDuplicateIdentity(clientIdentityData);
+			await getClientRepository().isDuplicateIdentity(clientIdentityData);
 
 		if (isDuplicate) {
 			throw new CustomError(409, lang('client.error.already_exists'));
@@ -62,7 +63,7 @@ class ClientController {
 		Object.assign(client, validated.data);
 		client.status = ClientStatusEnum.ACTIVE;
 
-		const entry: ClientEntity = await ClientRepository.save(client);
+		const entry: ClientEntity = await getClientRepository().save(client);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('client.success.create'));
@@ -151,7 +152,8 @@ class ClientController {
 		// Check permission (admin or operator with permission)
 		policy.update();
 
-		const client = await ClientRepository.createQuery()
+		const client = await getClientRepository()
+			.createQuery()
 			.select(paramsUpdateList)
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
@@ -181,7 +183,7 @@ class ClientController {
 						person_cnp: validated.data.person_cnp,
 					};
 
-		const isDuplicate = await ClientRepository.isDuplicateIdentity(
+		const isDuplicate = await getClientRepository().isDuplicateIdentity(
 			clientIdentityData,
 			res.locals.validated.id,
 		);
@@ -199,7 +201,7 @@ class ClientController {
 			) as Partial<ClientEntity>),
 		};
 
-		await ClientRepository.save(updatedEntity);
+		await getClientRepository().save(updatedEntity);
 
 		res.locals.output.message(lang('client.success.update'));
 		res.locals.output.data(updatedEntity);
@@ -213,7 +215,8 @@ class ClientController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		await ClientRepository.createQuery()
+		await getClientRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.delete();
 
@@ -228,7 +231,8 @@ class ClientController {
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await ClientRepository.createQuery()
+		await getClientRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.restore();
 
@@ -252,7 +256,8 @@ class ClientController {
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await ClientRepository.createQuery()
+		const [entries, total] = await getClientRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterBy('client_type', validated.data.filter.client_type)
 			.filterByStatus(validated.data.filter.status)
@@ -288,7 +293,8 @@ class ClientController {
 		// Check permission (admin or operator with permission)
 		policy.update();
 
-		const client = await ClientRepository.createQuery()
+		const client = await getClientRepository()
+			.createQuery()
 			.select(['id', 'status'])
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
@@ -308,7 +314,7 @@ class ClientController {
 			auth_id: policy.getUserId(),
 		};
 
-		await ClientRepository.save(client);
+		await getClientRepository().save(client);
 
 		res.locals.output.message(lang('client.success.status_update'));
 

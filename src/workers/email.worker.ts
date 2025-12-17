@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { cfg } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
-import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
+import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import { type EmailQueueData, sendEmail } from '@/providers/email.provider';
 import { getSystemLogger } from '@/providers/logger.provider';
 
@@ -18,7 +18,7 @@ const emailWorker = new Worker(
 
 			await sendEmail(emailContent, to, from);
 
-			await MailQueueRepository.update(mailQueueId, {
+			await getMailQueueRepository().update(mailQueueId, {
 				status: MailQueueStatusEnum.SENT,
 				error: null,
 				sent_at: new Date(),
@@ -35,7 +35,7 @@ const emailWorker = new Worker(
 				`Failed to process email job ${job.id}: ${errorMessage}`,
 			);
 
-			await MailQueueRepository.update(mailQueueId, {
+			await getMailQueueRepository().update(mailQueueId, {
 				status: MailQueueStatusEnum.ERROR,
 				error: errorMessage,
 				sent_at: new Date(),

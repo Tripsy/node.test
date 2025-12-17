@@ -4,7 +4,10 @@ import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import PlaceEntity from '@/features/place/place.entity';
 import PlacePolicy from '@/features/place/place.policy';
-import PlaceRepository, { PlaceQuery } from '@/features/place/place.repository';
+import {
+	getPlaceRepository,
+	PlaceQuery,
+} from '@/features/place/place.repository';
 import {
 	PlaceCreateValidator,
 	PlaceFindValidator,
@@ -71,7 +74,8 @@ class PlaceController {
 		);
 
 		const place = await cacheProvider.get(cacheKey, async () => {
-			const placeData = await PlaceRepository.createQuery()
+			const placeData = await getPlaceRepository()
+				.createQuery()
 				.joinAndSelect(
 					'place.contents',
 					'content',
@@ -142,7 +146,8 @@ class PlaceController {
 			throw new BadRequestError();
 		}
 
-		const place = await PlaceRepository.createQuery()
+		const place = await getPlaceRepository()
+			.createQuery()
 			.select(['type', 'code', 'parent_id'])
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
@@ -152,7 +157,8 @@ class PlaceController {
 			validated.data.type !== place.type;
 
 		if (isTypeChange) {
-			const hasChildren = await PlaceRepository.createQuery()
+			const hasChildren = await getPlaceRepository()
+				.createQuery()
 				.filterBy('parent_id', place.id)
 				.firstRaw();
 
@@ -200,7 +206,8 @@ class PlaceController {
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		const hasChildren = await PlaceRepository.createQuery()
+		const hasChildren = await getPlaceRepository()
+			.createQuery()
 			.filterBy('parent_id', res.locals.validated.id)
 			.firstRaw();
 
@@ -210,7 +217,8 @@ class PlaceController {
 			);
 		}
 
-		await PlaceRepository.createQuery()
+		await getPlaceRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.delete();
 
@@ -225,7 +233,8 @@ class PlaceController {
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await PlaceRepository.createQuery()
+		await getPlaceRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
 			.restore();
 
@@ -252,7 +261,8 @@ class PlaceController {
 		const selectedLanguage =
 			validated.data.filter.language ?? res.locals.language;
 
-		const [entries, total] = await PlaceRepository.createQuery()
+		const [entries, total] = await getPlaceRepository()
+			.createQuery()
 			.join(
 				'place.contents',
 				'content',

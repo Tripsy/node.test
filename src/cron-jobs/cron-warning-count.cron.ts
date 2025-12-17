@@ -1,12 +1,13 @@
 import { cfg } from '@/config/settings.config';
-import CronHistoryRepository from '@/features/cron-history/cron-history.repository';
+import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import { createPastDate } from '@/helpers';
 import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 import type { EmailTemplate } from '@/types/template.type';
 
 // Report cron warnings in the last 7 days
 export const cronWarningCount = async () => {
-	const query = CronHistoryRepository.createQuery()
+	const query = getCronHistoryRepository()
+		.createQuery()
 		.select(
 			[
 				'cron_history.label AS label',

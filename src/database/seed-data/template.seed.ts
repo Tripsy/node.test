@@ -1,6 +1,6 @@
 import dataSource from '@/config/data-source.config';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
-import TemplateRepository from '@/features/template/template.repository';
+import { getTemplateRepository } from '@/features/template/template.repository';
 
 const templateData = [
 	{
@@ -217,7 +217,7 @@ async function seedTemplates() {
 		await dataSource.initialize();
 
 		console.log('Seeding templates...');
-		await TemplateRepository.save(templateData);
+		await getTemplateRepository().save(templateData);
 
 		console.log('Templates seeded successfully ✅');
 	} catch (error) {
