@@ -239,7 +239,7 @@ export class LogStream extends Writable {
 		emailTransporter
 			.sendMail({
 				from: cfg('mail.fromAddress') as string,
-				to: cfg('pino.logEmail') as string,
+				to: cfg('logging.logEmail') as string,
 				subject: lang('debug.email_log_subject', {
 					app: cfg('app.name') as string,
 					level: logLevel,
@@ -271,13 +271,15 @@ export class LogStream extends Writable {
 			const logLevel: LogDataLevelEnum = getLogLevel(log.level);
 
 			if (
-				(cfg('pino.levelFile') as LogDataLevelEnum[]).includes(logLevel)
+				(cfg('logging.levelFile') as LogDataLevelEnum[]).includes(
+					logLevel,
+				)
 			) {
 				this.writeToFile(logLevel, log);
 			}
 
 			if (
-				(cfg('pino.levelDatabase') as LogDataLevelEnum[]).includes(
+				(cfg('logging.levelDatabase') as LogDataLevelEnum[]).includes(
 					logLevel,
 				)
 			) {
@@ -287,7 +289,7 @@ export class LogStream extends Writable {
 			}
 
 			if (
-				(cfg('pino.levelEmail') as LogDataLevelEnum[]).includes(
+				(cfg('logging.levelEmail') as LogDataLevelEnum[]).includes(
 					logLevel,
 				)
 			) {
@@ -313,7 +315,7 @@ const logger = pino(
 		level:
 			cfg('app.env') === 'test'
 				? 'error'
-				: (cfg('pino.logLevel') as LogDataLevelEnum),
+				: (cfg('logging.logLevel') as LogDataLevelEnum),
 		// Defines how and where to send log data, such as to files, external services, or streams.
 		nestedKey: 'context',
 		// Define default properties included in every log line.

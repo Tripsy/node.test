@@ -2,6 +2,8 @@ import 'dotenv/config';
 import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import { getObjectValue, type ObjectValue, setObjectValue } from '@/helpers';
 
+export type LogHistoryDestination = 'pino' | 'db' | null;
+
 function getSettings(): { [key: string]: ObjectValue } {
 	return {
 		app: {
@@ -19,6 +21,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 				.trim()
 				.split(','),
 			languageNamespaces: [
+				// TODO remote this if we do dynamic loading of namespaces based on translation files
 				'account',
 				'carrier',
 				'client',
@@ -63,7 +66,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 		 * For `app.env` === test OR `app.debug` === true logs will always be printed to console
 		 * Below log level 30 can only be logged to a file
 		 */
-		pino: {
+		logging: {
 			logLevel:
 				process.env.PINO_LOG_LEVEL || ('trace' as LogDataLevelEnum),
 			levelFile: [
@@ -81,6 +84,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 			] as LogDataLevelEnum[],
 			levelEmail: ['error', 'fatal'] as LogDataLevelEnum[],
 			logEmail: process.env.PINO_LOG_EMAIL || '',
+			history: process.env.LOGGING_HISTORY as LogHistoryDestination,
 		},
 		mail: {
 			host: process.env.MAIL_HOST || '127.0.0.1',

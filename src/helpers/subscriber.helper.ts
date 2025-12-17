@@ -2,7 +2,9 @@ import type { Logger } from 'pino';
 import type { UpdateEvent } from 'typeorm';
 import { lang } from '@/config/i18n.setup';
 import { requestContext } from '@/config/request.context';
+import { cfg, type LogHistoryDestination } from '@/config/settings.config';
 import { LogDataCategoryEnum } from '@/features/log-data/log-data.entity';
+import LogHistoryRepository from '@/features/log-history/log-history.repository';
 import { getCacheProvider } from '@/providers/cache.provider';
 import logger, { childLogger } from '@/providers/logger.provider';
 
@@ -26,27 +28,48 @@ export function logHistory(
 	action: string,
 	data: Record<string, string> = {},
 ) {
-	const historyLogger: Logger = childLogger(
-		logger,
-		LogDataCategoryEnum.HISTORY,
-	);
 	const ctx = requestContext.getStore();
 
-	const replacements = {
-		entity,
-		entity_id: Array.isArray(entity_id)
-			? entity_id.join(', ')
-			: entity_id.toString(),
-		action,
-		auth_id: ctx?.auth_id.toString() || '0',
-		performed_by: ctx?.performed_by || 'unknown',
-		request_id: ctx?.request_id || 'unknown',
-		source: ctx?.source || 'unknown',
-		...data,
-	};
-	// TODO: what to do when saving to DB and entity_id is number[]
+	switch (cfg('logging.history') as LogHistoryDestination) {
+		case 'pino': {
+			const historyLogger: Logger = childLogger(
+				logger,
+				LogDataCategoryEnum.HISTORY,
+			);
 
-	historyLogger.info(lang(`${entity}.history.${action}`, replacements));
+			const replacements = {
+				entity,
+				entity_id: Array.isArray(entity_id)
+					? entity_id.join(', ')
+					: entity_id.toString(),
+				action,
+				auth_id: ctx?.auth_id.toString() || '0',
+				performed_by: ctx?.performed_by || 'unknown',
+				request_id: ctx?.request_id || 'unknown',
+				source: ctx?.source || 'unknown',
+				...data,
+			};
+
+			historyLogger.info(
+				lang(`${entity}.history.${action}`, replacements),
+			);
+			break;
+		}
+		case 'db': {
+			const entity_ids = Array.isArray(entity_id)
+				? entity_id
+				: [entity_id];
+
+			void LogHistoryRepository.createLogs(entity, entity_ids, action, {
+				auth_id: ctx?.auth_id || null,
+				performed_by: ctx?.performed_by || 'unknown',
+				request_id: ctx?.request_id || 'unknown',
+				source: ctx?.source || 'unknown',
+				data,
+			});
+			break;
+		}
+	}
 }
 
 /**

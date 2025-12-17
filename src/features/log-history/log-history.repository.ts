@@ -1,7 +1,8 @@
 import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
-import LogHistoryEntity from '@/features/log-history/log-history.entity';
+import LogHistoryEntity, {
+	type LogHistoryDetails,
+} from '@/features/log-history/log-history.entity';
 
 export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
 	static entityAlias: string = 'log_history';
@@ -13,31 +14,6 @@ export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
 	) {
 		super(repository, LogHistoryQuery.entityAlias);
 	}
-
-	filterByTerm(term?: string): this {
-		if (term) {
-			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
-				this.filterBy('id', Number(term));
-			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
-					this.filterAny([
-						{
-							column: 'label',
-							value: term,
-							operator: 'ILIKE',
-						},
-						{
-							column: 'content::text',
-							value: term,
-							operator: 'ILIKE',
-						},
-					]);
-				}
-			}
-		}
-
-		return this;
-	}
 }
 
 export const LogHistoryRepository = dataSource
@@ -45,6 +21,34 @@ export const LogHistoryRepository = dataSource
 	.extend({
 		createQuery() {
 			return new LogHistoryQuery(this);
+		},
+
+		createLogs(
+			entity: string,
+			entity_ids: number[],
+			action: string,
+			details: LogHistoryDetails,
+		) {
+			const recorded_at = new Date();
+
+			const records = entity_ids.map((entity_id) => {
+				const log = new LogHistoryEntity();
+
+				log.entity = entity;
+				log.entity_id = entity_id;
+				log.action = action;
+
+				log.auth_id = details.auth_id ?? null;
+				log.performed_by = details.performed_by;
+				log.request_id = details.request_id;
+				log.source = details.source;
+				log.recorded_at = recorded_at;
+				log.details = details.data;
+
+				return log;
+			});
+
+			return this.save(records);
 		},
 	});
 

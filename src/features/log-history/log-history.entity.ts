@@ -6,9 +6,16 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
+import type { RequestContextSource } from '@/config/request.context';
 import UserEntity from '@/features/user/user.entity';
 
-// TODO add performed by & source
+export type LogHistoryDetails = {
+	auth_id: number | null;
+	performed_by: string;
+	request_id: string;
+	source: RequestContextSource;
+	data: Record<string, unknown>;
+};
 
 @Entity({
 	name: 'log_history',
@@ -33,11 +40,19 @@ export default class LogHistoryEntity {
 
 	@Column({ type: 'bigint', nullable: true })
 	@Index('IDX_log_history_auth_id', { unique: false })
-	auth_id!: number;
+	auth_id!: number | null;
 
-	@Column({ type: 'bigint', nullable: false })
+	@Column({ type: 'varchar', nullable: false })
+	@Index('IDX_log_history_performed_by', { unique: false })
+	performed_by!: string;
+
+	@Column({ type: 'varchar', nullable: false })
 	@Index('IDX_log_history_request_id', { unique: false })
-	request_id!: number;
+	request_id!: string;
+
+	@Column({ type: 'varchar', nullable: false })
+	@Index('IDX_log_history_source', { unique: false })
+	source!: RequestContextSource;
 
 	@Column({ type: 'timestamp', nullable: false })
 	@Index('IDX_log_history_recorded_at', { unique: false })
