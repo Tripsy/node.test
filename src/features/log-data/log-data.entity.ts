@@ -35,6 +35,10 @@ export default class LogDataEntity {
 	@Index('IDX_log_data_pid')
 	pid!: string;
 
+	@Column('varchar', { nullable: true })
+	@Index('IDX_log_data_request_id')
+	request_id!: string | null;
+
 	@Column('varchar', { nullable: false })
 	category!: string;
 

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
 import {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
@@ -18,7 +17,7 @@ export function LogDataDeleteValidator() {
 
 enum OrderByEnum {
 	ID = 'id',
-	PID = 'pid',
+	REQUEST_ID = 'request_id',
 	CATEGORY = 'category',
 	LEVEL = 'level',
 	CREATED_AT = 'created_at',
@@ -35,15 +34,6 @@ export function LogDataFindValidator() {
 		filterShape: {
 			id: z.coerce
 				.number({ message: lang('error.invalid_number') })
-				.optional(),
-			pid: z
-				.string({ message: lang('error.invalid_string') })
-				.min(cfg('filter.termMinLength') as number, {
-					message: lang('error.string_min', {
-						min: cfg('filter.termMinLength') as string,
-						term: 'pid',
-					}),
-				})
 				.optional(),
 			category: z.enum(LogDataCategoryEnum).optional(),
 			level: z.enum(LogDataLevelEnum).optional(),

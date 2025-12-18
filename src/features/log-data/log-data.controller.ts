@@ -87,7 +87,6 @@ class LogDataController {
 		const [entries, total] = await getLogDataRepository()
 			.createQuery()
 			.filterById(validated.data.filter.id)
-			.filterBy('pid', validated.data.filter.pid)
 			.filterByRange(
 				'created_at',
 				validated.data.filter.create_date_start,

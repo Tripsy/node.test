@@ -28,7 +28,8 @@ describe('LogDataController - read', () => {
 
 	const mockLogData: LogDataEntity = {
 		id: 1,
-		pid: 'xxx',
+		pid: 'yyy',
+		request_id: 'xxx',
 		category: 'system',
 		level: LogDataLevelEnum.ERROR,
 		message: 'Lorem ipsum',
@@ -83,6 +84,10 @@ describe('LogDataController - read', () => {
 		const response = await request(app).get(logDataReadLink).send();
 
 		expect(response.status).toBe(200);
+		expect(response.body.data).toHaveProperty(
+			'request_id',
+			mockLogData.request_id,
+		);
 		expect(response.body.data).toHaveProperty('pid', mockLogData.pid);
 		expect(mockQueryBuilderLogData.filterById).toHaveBeenCalledWith(1);
 	});

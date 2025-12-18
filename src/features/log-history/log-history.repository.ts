@@ -3,6 +3,7 @@ import dataSource from '@/config/data-source.config';
 import LogHistoryEntity, {
 	type LogHistoryDetails,
 } from '@/features/log-history/log-history.entity';
+import { getSystemLogger } from '@/providers/logger.provider';
 
 export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
 	static entityAlias: string = 'log_history';
@@ -29,6 +30,10 @@ export const getLogHistoryRepository = () =>
 			details: LogHistoryDetails,
 		) {
 			const recorded_at = new Date();
+
+			getSystemLogger().info(
+				`Creating log history for ${entity} ${entity_ids.join(', ')}`,
+			);
 
 			const records = entity_ids.map((entity_id) => {
 				const log = new LogHistoryEntity();

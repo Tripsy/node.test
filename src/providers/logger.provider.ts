@@ -8,6 +8,7 @@ import pinoPretty from 'pino-pretty';
 import { v4 as uuid } from 'uuid';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
+import { requestContext } from '@/config/request.context';
 import { cfg } from '@/config/settings.config';
 import LogDataEntity, {
 	LogDataCategoryEnum,
@@ -147,6 +148,7 @@ export class LogStream extends Writable {
 	}
 
 	private writeToFile(logLevel: LogDataLevelEnum, log: PinoLog) {
+		// Do not write to file - already written to file
 		if (log.destinations.includes('file')) {
 			return;
 		}
@@ -162,8 +164,14 @@ export class LogStream extends Writable {
 			delete clonedLog.context.debugStack.trace;
 		}
 
+		if (clonedLog.context?.request_id) {
+			clonedLog.request_id = clonedLog.context.request_id;
+
+			delete clonedLog.context.request_id;
+		}
+
 		// Reorder properties
-		const { time, msg, ...orderedLog } = clonedLog;
+		const { time, msg, request_id, ...orderedLog } = clonedLog;
 
 		log.destinations.push('email');
 
@@ -171,7 +179,7 @@ export class LogStream extends Writable {
 		log.destinations.push('file');
 
 		this.getFileStream(logLevel).write(
-			JSON.stringify({ time, msg, ...orderedLog }) + EOL,
+			JSON.stringify({ time, msg, request_id, ...orderedLog }) + EOL,
 		);
 	}
 
@@ -184,6 +192,13 @@ export class LogStream extends Writable {
 
 		const logData = new LogDataEntity();
 		logData.pid = clonedLog.pid;
+
+		if (clonedLog.context?.request_id) {
+			logData.request_id = clonedLog.context.request_id;
+
+			delete clonedLog.context.request_id;
+		}
+
 		logData.category = clonedLog.category ?? 'n/a';
 		logData.level = logLevel;
 		logData.message = clonedLog.msg;
@@ -331,10 +346,8 @@ const logger = pino(
 		//         host: bindings.hostname,
 		//     };
 		// },
-		mixin: (context, level, _logger) => {
-			if (level === 30) {
-				return context;
-			}
+		mixin: (context, _level, _logger) => {
+			const ctx = requestContext.getStore();
 
 			if ('err' in context && context.err instanceof Error) {
 				const debugStack: string = context.err.stack || '';
@@ -343,12 +356,14 @@ const logger = pino(
 
 				return {
 					...context,
+					request_id: ctx?.request_id,
 					debugStack: formatCallStack(debugStack),
 				};
 			}
 
 			return {
 				...context,
+				request_id: ctx?.request_id,
 				debugStack: formatCallStack(new Error().stack || '', [
 					'logger.provider.ts',
 				]),

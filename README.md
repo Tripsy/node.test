@@ -139,14 +139,13 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. configure pino to same request id as log history - the one from api
-3. dynamic namespaces for i18next
-4. Build an entities list dynamically - for permissions & maybe for other purposes; routes more dynamic
-5. Features disable / enable
-6. create a library / package for my utilities - drop moment !!!
-7. do log history on FE
-8. image > category ( + route images) > brand ( + route images)
-9. wip entities:
+1. dynamic namespaces for i18next
+2. Build an entities list dynamically - for permissions & maybe for other purposes; routes more dynamic
+3. Features disable / enable
+4. create a library / package for my utilities - drop moment !!!
+5. do log history on FE
+6. image > category ( + route images) > brand ( + route images)
+7. wip entities:
     - article
         - article-category
         - article-content
@@ -172,8 +171,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-renewal
     - term
-10. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-11. Some tests that are failing
+8. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+9. Some tests that are failing
 
 # BUGS & ISSUES
 

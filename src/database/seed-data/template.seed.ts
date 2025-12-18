@@ -1,6 +1,9 @@
+import { v4 as uuid } from 'uuid';
 import dataSource from '@/config/data-source.config';
-import { TemplateTypeEnum } from '@/features/template/template.entity';
-import { getTemplateRepository } from '@/features/template/template.repository';
+import { requestContext } from '@/config/request.context';
+import TemplateEntity, {
+	TemplateTypeEnum,
+} from '@/features/template/template.entity';
 
 const templateData = [
 	{
@@ -212,38 +215,73 @@ const templateData = [
 ];
 
 async function seedTemplates() {
-    const connection = dataSource;
+	const connection = dataSource;
 
-    try {
-        console.log('Initializing database connection...');
-        await connection.initialize();
+	try {
+		console.log('Initializing database connection...');
+		await connection.initialize();
 
-        console.log('Seeding templates...');
-        await getTemplateRepository().save(templateData);
+		await requestContext.run(
+			{
+				auth_id: 0,
+				performed_by: 'template.seed',
+				source: 'seed',
+				request_id: uuid(),
+				language: 'en',
+			},
+			async () => {
+				await connection.transaction(
+					async (transactionalEntityManager) => {
+						console.log('Clearing templates table...');
 
-        console.log('Templates seeded successfully ✅');
+						const tableName =
+							connection.getMetadata(TemplateEntity).tableName;
+						const schemaName =
+							connection.getMetadata(TemplateEntity).schema ||
+							'system';
 
-    } catch (error) {
-        console.error('Error seeding templates:', error);
-        throw error;
+						// Raw SQL DELETE - won't trigger TypeORM subscribers
+						await transactionalEntityManager.query(
+							`DELETE FROM "${schemaName}"."${tableName}"`,
+						);
 
-    } finally {
-        // Only destroy if the connection was initialized
-        if (connection?.isInitialized) {
-            // Wait a moment to ensure all operations are complete
-            await new Promise(resolve => setTimeout(resolve, 100));
-            await connection.destroy();
-            console.log('Database connection closed.');
-        }
-    }
+						// Clear using TypeORM repository
+						const repository =
+							transactionalEntityManager.getRepository(
+								TemplateEntity,
+							);
+						await repository.clear();
+
+						console.log('Inserting new templates...');
+
+						// Insert new data
+						await repository.save(templateData);
+					},
+				);
+			},
+		);
+
+		console.log('Templates seeded successfully ✅');
+	} catch (error) {
+		console.error('Error seeding templates:', error);
+		throw error;
+	} finally {
+		// Only destroy if the connection was initialized
+		if (connection?.isInitialized) {
+			// Wait a moment to ensure all operations are complete
+			await new Promise((resolve) => setTimeout(resolve, 100));
+			await connection.destroy();
+			console.log('Database connection closed.');
+		}
+	}
 }
 
 (async () => {
-    try {
-        await seedTemplates();
-    } catch (error) {
-        console.error('Seeding failed:', error);
-        process.exit(1);
-    }
-    process.exit(0);
+	try {
+		await seedTemplates();
+	} catch (error) {
+		console.error('Seeding failed:', error);
+		process.exit(1);
+	}
+	process.exit(0);
 })();

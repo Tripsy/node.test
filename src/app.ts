@@ -151,12 +151,12 @@ app.use(
 		/**
 		 * APIs don't render HTML.
 		 */
-        contentSecurityPolicy: {
-            useDefaults: false,
-            directives: {
-                defaultSrc: ["'none'"],
-            },
-        },
+		contentSecurityPolicy: {
+			useDefaults: false,
+			directives: {
+				defaultSrc: ["'none'"],
+			},
+		},
 
 		/**
 		 * Stop browsers from sniffing MIME types.
@@ -173,7 +173,7 @@ app.use(
 		/**
 		 * Not relevant for APIs
 		 */
-        frameguard: { action: 'deny' },
+		frameguard: { action: 'deny' },
 
 		/**
 		 * HSTS only in production.

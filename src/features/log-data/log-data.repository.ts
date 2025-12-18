@@ -42,6 +42,11 @@ export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 				if (term.length > (cfg('filter.termMinLength') as number)) {
 					this.filterAny([
 						{
+							column: 'request_id',
+							value: term,
+							operator: '=',
+						},
+						{
 							column: 'pid',
 							value: term,
 							operator: '=',
