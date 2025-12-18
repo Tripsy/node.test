@@ -59,7 +59,7 @@ class AccountController {
 		const validated = AccountRegisterValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -106,7 +106,7 @@ class AccountController {
 		const validated = AccountLoginValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -188,7 +188,7 @@ class AccountController {
 		const validated = AccountRemoveTokenValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -245,7 +245,7 @@ class AccountController {
 			);
 
 			if (!validated.success) {
-				res.locals.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.issues);
 
 				throw new BadRequestError();
 			}
@@ -317,7 +317,7 @@ class AccountController {
 			);
 
 			if (!validated.success) {
-				res.locals.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.issues);
 
 				throw new BadRequestError();
 			}
@@ -406,7 +406,7 @@ class AccountController {
 			);
 
 			if (!validated.success) {
-				res.locals.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.issues);
 
 				throw new BadRequestError();
 			}
@@ -530,7 +530,7 @@ class AccountController {
 			);
 
 			if (!validated.success) {
-				res.locals.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.issues);
 
 				throw new BadRequestError();
 			}
@@ -570,7 +570,7 @@ class AccountController {
 		const validated = AccountEmailUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -677,7 +677,7 @@ class AccountController {
 		const validated = AccountEditValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -719,7 +719,7 @@ class AccountController {
 		const validated = AccountDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}

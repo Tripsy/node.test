@@ -28,7 +28,7 @@ class CarrierController {
 		const validated = CarrierCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -96,7 +96,7 @@ class CarrierController {
 		const validated = CarrierUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -184,7 +184,7 @@ class CarrierController {
 		const validated = CarrierFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}

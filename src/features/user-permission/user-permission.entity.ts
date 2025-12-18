@@ -32,7 +32,7 @@ export default class UserPermissionEntity {
 	@CreateDateColumn({ type: 'timestamp', nullable: false })
 	created_at!: Date;
 
-	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: false })
+	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: true })
 	deleted_at!: Date | null;
 
 	// RELATIONS

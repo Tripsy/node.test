@@ -1,7 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { ZodIssue } from 'zod';
+import type { z } from 'zod';
 
 type OutputData = Record<string, unknown>;
+type ZodIssue = z.core.$ZodIssue;
 
 interface OutputWrapperInterface {
 	success: boolean;

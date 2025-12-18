@@ -212,22 +212,38 @@ const templateData = [
 ];
 
 async function seedTemplates() {
-	try {
-		console.log('Initializing database connection...');
-		await dataSource.initialize();
+    const connection = dataSource;
 
-		console.log('Seeding templates...');
-		await getTemplateRepository().save(templateData);
+    try {
+        console.log('Initializing database connection...');
+        await connection.initialize();
 
-		console.log('Templates seeded successfully ✅');
-	} catch (error) {
-		console.error('Error seeding templates:', error);
-	} finally {
-		await dataSource.destroy();
-		console.log('Database connection closed.');
-	}
+        console.log('Seeding templates...');
+        await getTemplateRepository().save(templateData);
+
+        console.log('Templates seeded successfully ✅');
+
+    } catch (error) {
+        console.error('Error seeding templates:', error);
+        throw error;
+
+    } finally {
+        // Only destroy if the connection was initialized
+        if (connection?.isInitialized) {
+            // Wait a moment to ensure all operations are complete
+            await new Promise(resolve => setTimeout(resolve, 100));
+            await connection.destroy();
+            console.log('Database connection closed.');
+        }
+    }
 }
 
 (async () => {
-	await seedTemplates();
+    try {
+        await seedTemplates();
+    } catch (error) {
+        console.error('Seeding failed:', error);
+        process.exit(1);
+    }
+    process.exit(0);
 })();

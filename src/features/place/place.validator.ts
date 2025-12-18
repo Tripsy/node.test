@@ -49,7 +49,7 @@ export function PlaceCreateValidator() {
 				ctx.addIssue({
 					path: ['parent_id'],
 					message: lang('place.validation.required_parent_id'),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -85,7 +85,7 @@ export function PlaceUpdateValidator() {
 				ctx.addIssue({
 					path: ['parent_id'],
 					message: lang('place.validation.required_parent_id'),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -107,7 +107,7 @@ export function PlaceFindValidator() {
 			term: z
 				.string({ message: lang('error.invalid_string') })
 				.optional(),
-			type: z.nativeEnum(PlaceTypeEnum).optional(),
+			type: z.enum(PlaceTypeEnum).optional(),
 			language: validateString(lang('error.invalid_string')).optional(),
 			is_deleted: validateBoolean().default(false),
 		},

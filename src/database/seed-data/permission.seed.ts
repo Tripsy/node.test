@@ -13,37 +13,54 @@ const permissionArray = {
 };
 
 async function seedPermissions() {
-	try {
-		console.log('Initializing database connection...');
-		await dataSource.initialize();
+    const connection = dataSource;
 
-		const permissionData: { entity: string; operation: string }[] = [];
+    try {
+        console.log('Initializing database connection...');
+        await connection.initialize();
 
-		for (const [entity, operations] of Object.entries(permissionArray)) {
-			for (const operation of operations) {
-				permissionData.push({ entity, operation });
-			}
-		}
+        const permissionData: { entity: string; operation: string }[] = [];
 
-		console.log('Seeding permissions...');
+        for (const [entity, operations] of Object.entries(permissionArray)) {
+            for (const operation of operations) {
+                permissionData.push({ entity, operation });
+            }
+        }
 
-		await dataSource
-			.createQueryBuilder()
-			.insert()
-			.into(PermissionEntity)
-			.values(permissionData)
-			.orIgnore() // Ignores if (entity, operation) already exists
-			.execute();
+        console.log('Seeding permissions...');
+        console.log(`Inserting ${permissionData.length} permission records...`);
 
-		console.log('Permissions seeded successfully ✅');
-	} catch (error) {
-		console.error('Error seeding permissions:', error);
-	} finally {
-		await dataSource.destroy();
-		console.log('Database connection closed.');
-	}
+        await connection
+            .createQueryBuilder()
+            .insert()
+            .into(PermissionEntity)
+            .values(permissionData)
+            .orIgnore() // Ignores if (entity, operation) already exists
+            .execute();
+
+        console.log('Permissions seeded successfully ✅');
+
+    } catch (error) {
+        console.error('Error seeding permissions:', error);
+        throw error;
+
+    } finally {
+        // Only destroy if the connection was initialized
+        if (connection?.isInitialized) {
+            // Wait a moment to ensure all operations are complete
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await connection.destroy();
+            console.log('Database connection closed.');
+        }
+    }
 }
 
 (async () => {
-	await seedPermissions();
+    try {
+        await seedPermissions();
+        process.exit(0); // Exit successfully
+    } catch (error) {
+        console.error('Seeding failed:', error);
+        process.exit(1); // Exit with error code
+    }
 })();

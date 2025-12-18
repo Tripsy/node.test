@@ -29,7 +29,7 @@ class PlaceController {
 		const validated = PlaceCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -141,7 +141,7 @@ class PlaceController {
 		const validated = PlaceUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -253,7 +253,7 @@ class PlaceController {
 		const validated = PlaceFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}

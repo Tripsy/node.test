@@ -26,7 +26,7 @@ class UserController {
 		const validated = UserCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -108,7 +108,7 @@ class UserController {
 		const validated = UserUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -196,7 +196,7 @@ class UserController {
 		const validated = UserFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}

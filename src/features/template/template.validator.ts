@@ -191,7 +191,7 @@ export function TemplateFindValidator() {
 				})
 				.optional(),
 			type: z
-				.nativeEnum(TemplateTypeEnum, {
+				.enum(TemplateTypeEnum, {
 					message: lang('template.validation.type_invalid'),
 				})
 				.optional(),

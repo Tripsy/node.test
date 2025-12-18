@@ -31,7 +31,12 @@ export const paramsUpdateList: string[] = [
 ];
 
 const discountRulesSchema: z.ZodType<DiscountRules> = z.record(
-	z.union([z.number(), z.array(z.number()), z.array(z.string())]),
+	z.string(), // Keys are strings
+	z.union([
+		z.number(), // Single number
+		z.array(z.number()), // Array of number
+		z.array(z.string()), // Array of string
+	]),
 );
 
 export function DiscountCreateValidator() {
@@ -70,7 +75,7 @@ export function DiscountCreateValidator() {
 					message: lang(
 						'discount.validation.end_at_must_be_after_start_at',
 					),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 
@@ -85,7 +90,7 @@ export function DiscountCreateValidator() {
 					message: lang(
 						'discount.validation.percent_must_be_between_0_and_100',
 					),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -139,7 +144,7 @@ export function DiscountUpdateValidator() {
 					message: lang(
 						'discount.validation.end_at_must_be_after_start_at',
 					),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 
@@ -154,7 +159,7 @@ export function DiscountUpdateValidator() {
 					message: lang(
 						'discount.validation.percent_must_be_between_0_and_100',
 					),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -183,9 +188,9 @@ export function DiscountFindValidator() {
 			term: z
 				.string({ message: lang('error.invalid_string') })
 				.optional(),
-			scope: z.nativeEnum(DiscountScopeEnum).optional(),
-			reason: z.nativeEnum(DiscountReasonEnum).optional(),
-			type: z.nativeEnum(DiscountTypeEnum).optional(),
+			scope: z.enum(DiscountScopeEnum).optional(),
+			reason: z.enum(DiscountReasonEnum).optional(),
+			type: z.enum(DiscountTypeEnum).optional(),
 			reference: z.string().optional(),
 			start_at_start: validateDate(),
 			start_at_end: validateDate(),
@@ -200,7 +205,7 @@ export function DiscountFindValidator() {
 			ctx.addIssue({
 				path: ['filter', 'start_at_start'],
 				message: lang('error.invalid_date_range'),
-				code: z.ZodIssueCode.custom,
+				code: 'custom',
 			});
 		}
 	});

@@ -7,7 +7,7 @@ export type LogHistoryDestination = 'pino' | 'db' | null;
 function getSettings(): { [key: string]: ObjectValue } {
 	return {
 		app: {
-			env: process.env.APP_ENV || 'developmƒent',
+			env: process.env.APP_ENV || 'development',
 			debug: process.env.APP_DEBUG === 'true',
 			url: process.env.APP_URL || 'http://node.test',
 			port: parseInt(process.env.APP_PORT || '3000', 10),

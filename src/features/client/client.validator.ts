@@ -52,7 +52,6 @@ export function ClientCreateValidator() {
 			lang('client.validation.contact_name_invalid'),
 		).optional(),
 		contact_email: z
-			.string()
 			.email({ message: lang('client.validation.contact_email_invalid') })
 			.optional(),
 		contact_phone: validateString(
@@ -118,7 +117,6 @@ export function ClientUpdateValidator() {
 			lang('client.validation.contact_name_invalid'),
 		).optional(),
 		contact_email: z
-			.string()
 			.email({ message: lang('client.validation.contact_email_invalid') })
 			.optional(),
 		contact_phone: validateString(
@@ -196,8 +194,8 @@ export function ClientFindValidator() {
 			term: z
 				.string({ message: lang('error.invalid_string') })
 				.optional(),
-			client_type: z.nativeEnum(ClientTypeEnum).optional(),
-			status: z.nativeEnum(ClientStatusEnum).optional(),
+			client_type: z.enum(ClientTypeEnum).optional(),
+			status: z.enum(ClientStatusEnum).optional(),
 			create_date_start: validateDate(),
 			create_date_end: validateDate(),
 			is_deleted: validateBoolean().default(false),
@@ -211,7 +209,7 @@ export function ClientFindValidator() {
 			ctx.addIssue({
 				path: ['filter', 'create_date_start'],
 				message: lang('error.invalid_date_range'),
-				code: z.ZodIssueCode.custom,
+				code: 'custom',
 			});
 		}
 	});

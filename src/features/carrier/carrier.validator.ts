@@ -27,7 +27,6 @@ export function CarrierCreateValidator() {
 		website: z.preprocess(
 			(val) => (val === '' ? null : val),
 			z
-				.string({ message: lang('carrier.validation.website_invalid') })
 				.url({ message: lang('carrier.validation.website_invalid') })
 				.nullable()
 				.optional(),
@@ -36,7 +35,6 @@ export function CarrierCreateValidator() {
 		email: z.preprocess(
 			(val) => (val === '' ? null : val),
 			z
-				.string({ message: lang('carrier.validation.email_invalid') })
 				.email({ message: lang('carrier.validation.email_invalid') })
 				.nullable()
 				.optional(),
@@ -57,9 +55,6 @@ export function CarrierUpdateValidator() {
 			website: z.preprocess(
 				(val) => (val === '' ? null : val),
 				z
-					.string({
-						message: lang('carrier.validation.website_invalid'),
-					})
 					.url({
 						message: lang('carrier.validation.website_invalid'),
 					})
@@ -70,9 +65,6 @@ export function CarrierUpdateValidator() {
 			email: z.preprocess(
 				(val) => (val === '' ? null : val),
 				z
-					.string({
-						message: lang('carrier.validation.email_invalid'),
-					})
 					.email({
 						message: lang('carrier.validation.email_invalid'),
 					})
@@ -98,9 +90,9 @@ enum OrderByEnum {
 
 export function CarrierFindValidator() {
 	return z.object({
-		order_by: z.nativeEnum(OrderByEnum).optional().default(OrderByEnum.ID),
+		order_by: z.enum(OrderByEnum).optional().default(OrderByEnum.ID),
 		direction: z
-			.nativeEnum(OrderDirectionEnum)
+			.enum(OrderDirectionEnum)
 			.optional()
 			.default(OrderDirectionEnum.ASC),
 		limit: z.coerce

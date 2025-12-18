@@ -51,7 +51,7 @@ class LogDataController {
 		const validated = LogDataDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -80,7 +80,7 @@ class LogDataController {
 		const validated = LogDataFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}

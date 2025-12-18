@@ -140,10 +140,9 @@ $ pnpm run test account.unit.ts --detect-open-handles
 # TODO
 
 1. log history wip
-2. update packages
-3. dynamic namespaces for i18next
-4. category ( + route images) > brand ( + route images)
-5. wip entities:
+2. dynamic namespaces for i18next
+3. category ( + route images) > brand ( + route images)
+4. wip entities:
     - article
         - article-category
         - article-content
@@ -170,9 +169,9 @@ $ pnpm run test account.unit.ts --detect-open-handles
         - subscription-renewal
     - term
 
-6. create a library / package for my utilities - drop moment !!!
-7. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-8. Some tests that are failing
+5. create a library / package for my utilities - drop moment !!!
+6. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+7. Some tests that are failing
 
 # BUGS & ISSUES
 

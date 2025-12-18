@@ -33,7 +33,7 @@ export function CronHistoryFindValidator() {
 			term: z
 				.string({ message: lang('error.invalid_string') })
 				.optional(),
-			status: z.nativeEnum(CronHistoryStatusEnum).optional(),
+			status: z.enum(CronHistoryStatusEnum).optional(),
 			start_date_start: validateDate(),
 			start_date_end: validateDate(),
 		},
@@ -46,7 +46,7 @@ export function CronHistoryFindValidator() {
 			ctx.addIssue({
 				path: ['filter', 'create_date_start'],
 				message: lang('error.invalid_date_range'),
-				code: z.ZodIssueCode.custom,
+				code: 'custom',
 			});
 		}
 	});

@@ -45,8 +45,8 @@ export function LogDataFindValidator() {
 					}),
 				})
 				.optional(),
-			category: z.nativeEnum(LogDataCategoryEnum).optional(),
-			level: z.nativeEnum(LogDataLevelEnum).optional(),
+			category: z.enum(LogDataCategoryEnum).optional(),
+			level: z.enum(LogDataLevelEnum).optional(),
 			term: z
 				.string({ message: lang('error.invalid_string') })
 				.optional(),
@@ -62,7 +62,7 @@ export function LogDataFindValidator() {
 			ctx.addIssue({
 				path: ['filter', 'create_date_start'],
 				message: lang('error.invalid_date_range'),
-				code: z.ZodIssueCode.custom,
+				code: 'custom',
 			});
 		}
 	});

@@ -51,7 +51,7 @@ class MailQueueController {
 		const validated = MailQueueDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -86,7 +86,7 @@ class MailQueueController {
 		const validated = MailQueueFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}

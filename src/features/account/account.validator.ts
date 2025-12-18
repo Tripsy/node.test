@@ -13,9 +13,9 @@ export function AccountRegisterValidator() {
 					min: cfg('user.nameMinLength') as string,
 				}),
 			),
-			email: z
-				.string({ message: lang('account.validation.email_invalid') })
-				.email({ message: lang('account.validation.email_invalid') }),
+			email: z.email({
+				message: lang('account.validation.email_invalid'),
+			}),
 			password: z
 				.string({
 					message: lang('account.validation.password_invalid'),
@@ -60,7 +60,7 @@ export function AccountRegisterValidator() {
 					message: lang(
 						'account.validation.password_confirm_mismatch',
 					),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -68,9 +68,7 @@ export function AccountRegisterValidator() {
 
 export function AccountLoginValidator() {
 	return z.object({
-		email: z
-			.string({ message: lang('account.validation.email_invalid') })
-			.email({ message: lang('account.validation.email_invalid') }),
+		email: z.email({ message: lang('account.validation.email_invalid') }),
 		password: z.string({
 			message: lang('account.validation.password_invalid'),
 		}),
@@ -79,9 +77,7 @@ export function AccountLoginValidator() {
 
 export function AccountPasswordRecoverValidator() {
 	return z.object({
-		email: z
-			.string({ message: lang('account.validation.email_invalid') })
-			.email({ message: lang('account.validation.email_invalid') }),
+		email: z.email({ message: lang('account.validation.email_invalid') }),
 	});
 }
 
@@ -120,7 +116,7 @@ export function AccountPasswordRecoverChangeValidator() {
 				ctx.addIssue({
 					path: ['password_confirm'],
 					message: lang('user.validation.password_confirm_mismatch'),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -171,7 +167,7 @@ export function AccountPasswordUpdateValidator() {
 				ctx.addIssue({
 					path: ['password_confirm'],
 					message: lang('user.validation.password_confirm_mismatch'),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -179,17 +175,15 @@ export function AccountPasswordUpdateValidator() {
 
 export function AccountEmailConfirmSendValidator() {
 	return z.object({
-		email: z
-			.string({ message: lang('account.validation.email_invalid') })
-			.email({ message: lang('account.validation.email_invalid') }),
+		email: z.email({ message: lang('account.validation.email_invalid') }),
 	});
 }
 
 export function AccountEmailUpdateValidator() {
 	return z.object({
-		email_new: z
-			.string({ message: lang('account.validation.email_invalid') })
-			.email({ message: lang('account.validation.email_invalid') }),
+		email_new: z.email({
+			message: lang('account.validation.email_invalid'),
+		}),
 	});
 }
 
@@ -202,11 +196,9 @@ export function AccountEditValidator() {
 				min: cfg('user.nameMinLength') as string,
 			}),
 		),
-		language: z
-			.string()
-			.length(2, {
-				message: lang('account.validation.language_invalid'),
-			}),
+		language: z.string().length(2, {
+			message: lang('account.validation.language_invalid'),
+		}),
 	});
 }
 
@@ -225,8 +217,6 @@ export function AccountDeleteValidator() {
 
 export function AccountRemoveTokenValidator() {
 	return z.object({
-		ident: z
-			.string({ message: lang('account.validation.ident_required') })
-			.uuid({ message: lang('account.validation.ident_invalid') }),
+		ident: z.uuid({ message: lang('account.validation.ident_invalid') }),
 	});
 }

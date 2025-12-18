@@ -48,7 +48,7 @@ export function LogHistoryFindValidator() {
 			ctx.addIssue({
 				path: ['filter', 'recorded_at_start'],
 				message: lang('error.invalid_date_range'),
-				code: z.ZodIssueCode.custom,
+				code: 'custom',
 			});
 		}
 	});

@@ -34,7 +34,7 @@ export function makeJsonFilterSchema<T extends z.ZodRawShape>(shape: T) {
 			parseJsonFilter(val, () => {
 				throw new BadRequestError(lang('error.invalid_filter'));
 			}),
-		z.object(shape),
+		z.object(shape).partial(),
 	);
 }
 
@@ -117,7 +117,7 @@ export function validateEnum<T extends Record<string, string>>(
 	enumObj: T,
 	message: string,
 ) {
-	return z.nativeEnum(enumObj, { message });
+	return z.enum(enumObj, { message });
 }
 
 /**
@@ -156,12 +156,9 @@ export function makeFindValidator<
 	} = options;
 
 	return z.object({
-		order_by: z.nativeEnum(orderByEnum).optional().default(defaultOrderBy),
+		order_by: z.enum(orderByEnum).optional().default(defaultOrderBy),
 
-		direction: z
-			.nativeEnum(directionEnum)
-			.optional()
-			.default(defaultDirection),
+		direction: z.enum(directionEnum).optional().default(defaultDirection),
 
 		limit: z.coerce
 			.number({ message: lang('error.invalid_number') })
@@ -175,19 +172,8 @@ export function makeFindValidator<
 			.optional()
 			.default(1),
 
-		filter: makeJsonFilterSchema(filterShape)
-			.optional()
-			.default(buildEmptyDefault(filterShape)),
+		filter: makeJsonFilterSchema(filterShape),
 	});
-}
-
-/**
- * @description Utility function used to create an object with all keys = undefined so it can be used as default
- */
-function buildEmptyDefault(shape: z.ZodRawShape) {
-	return Object.fromEntries(
-		Object.keys(shape).map((k) => [k, undefined]),
-	) as Record<keyof typeof shape, undefined>;
 }
 
 type AddressFields = {
@@ -235,7 +221,7 @@ export const validateAddressPlaceTypes =
 			if (!isValid) {
 				ctx.addIssue({
 					path: [check.field],
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 					message: check.error,
 				});
 			}

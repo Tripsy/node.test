@@ -21,7 +21,7 @@ class UserPermissionController {
 		const validated = UserPermissionCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -122,22 +122,12 @@ class UserPermissionController {
 		const validated = UserPermissionFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.locals.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const querySelect = ['id', 'user_id', 'permission_id', 'created_at'];
-
-		const withDeleted: boolean =
-			policy.allowDeleted() && validated.data.filter.is_deleted;
-
-		if (withDeleted) {
-			querySelect.push('deleted_at');
-		}
-
 		const [entries, total] = await UserPermissionRepository.createQuery()
-			.select(querySelect)
 			.join('user_permission.user', 'user')
 			.join('user_permission.permission', 'permission')
 			.filterBy('user_id', res.locals.validated.user_id)
@@ -147,7 +137,9 @@ class UserPermissionController {
 				validated.data.filter.operation,
 				'LIKE',
 			)
-			.withDeleted(withDeleted)
+			.withDeleted(
+				policy.allowDeleted() && validated.data.filter.is_deleted,
+			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);

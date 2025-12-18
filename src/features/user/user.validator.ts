@@ -35,9 +35,7 @@ export function UserCreateValidator() {
 					min: cfg('user.nameMinLength') as string,
 				}),
 			),
-			email: z
-				.string()
-				.email({ message: lang('user.validation.email_invalid') }),
+			email: z.email({ message: lang('user.validation.email_invalid') }),
 			password: z
 				.string({ message: lang('user.validation.password_invalid') })
 				.min(cfg('user.passwordMinLength') as number, {
@@ -71,24 +69,18 @@ export function UserCreateValidator() {
 				})
 				.optional(),
 			status: z
-				.nativeEnum(UserStatusEnum)
+				.enum(UserStatusEnum)
 				.optional()
 				.default(UserStatusEnum.PENDING),
-			role: z
-				.nativeEnum(UserRoleEnum)
-				.optional()
-				.default(UserRoleEnum.MEMBER),
-			operator_type: z
-				.nativeEnum(UserOperatorTypeEnum)
-				.nullable()
-				.optional(),
+			role: z.enum(UserRoleEnum).optional().default(UserRoleEnum.MEMBER),
+			operator_type: z.enum(UserOperatorTypeEnum).nullable().optional(),
 		})
 		.superRefine(({ password, password_confirm }, ctx) => {
 			if (password !== password_confirm) {
 				ctx.addIssue({
 					path: ['password_confirm'],
 					message: lang('user.validation.password_confirm_mismatch'),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		})
@@ -97,7 +89,7 @@ export function UserCreateValidator() {
 				ctx.addIssue({
 					path: ['operator_type'],
 					message: lang('user.validation.operator_type_required'),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 
@@ -107,7 +99,7 @@ export function UserCreateValidator() {
 					message: lang(
 						'user.validation.operator_type_only_for_operator',
 					),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -124,7 +116,6 @@ export function UserUpdateValidator() {
 				}),
 			).optional(),
 			email: z
-				.string()
 				.email({ message: lang('user.validation.email_invalid') })
 				.optional(),
 			password: z.preprocess(
@@ -168,11 +159,8 @@ export function UserUpdateValidator() {
 					message: lang('user.validation.language_invalid'),
 				})
 				.optional(),
-			role: z.nativeEnum(UserRoleEnum).optional(),
-			operator_type: z
-				.nativeEnum(UserOperatorTypeEnum)
-				.nullable()
-				.optional(),
+			role: z.enum(UserRoleEnum).optional(),
+			operator_type: z.enum(UserOperatorTypeEnum).nullable().optional(),
 		})
 		.refine((data) => hasAtLeastOneValue(data), {
 			message: lang('error.params_at_least_one', {
@@ -185,7 +173,7 @@ export function UserUpdateValidator() {
 				ctx.addIssue({
 					path: ['password_confirm'],
 					message: lang('user.validation.password_confirm_mismatch'),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		})
@@ -198,7 +186,7 @@ export function UserUpdateValidator() {
 				ctx.addIssue({
 					path: ['operator_type'],
 					message: lang('user.validation.operator_type_required'),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 
@@ -214,7 +202,7 @@ export function UserUpdateValidator() {
 					message: lang(
 						'user.validation.operator_type_only_for_operator',
 					),
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 				});
 			}
 		});
@@ -242,8 +230,8 @@ export function UserFindValidator() {
 			term: z
 				.string({ message: lang('error.invalid_string') })
 				.optional(),
-			status: z.nativeEnum(UserStatusEnum).optional(),
-			role: z.nativeEnum(UserRoleEnum).optional(),
+			status: z.enum(UserStatusEnum).optional(),
+			role: z.enum(UserRoleEnum).optional(),
 			create_date_start: validateDate(),
 			create_date_end: validateDate(),
 			is_deleted: validateBoolean().default(false),
@@ -257,7 +245,7 @@ export function UserFindValidator() {
 			ctx.addIssue({
 				path: ['filter', 'create_date_start'],
 				message: lang('error.invalid_date_range'),
-				code: z.ZodIssueCode.custom,
+				code: 'custom',
 			});
 		}
 	});

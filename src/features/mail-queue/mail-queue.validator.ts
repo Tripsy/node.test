@@ -38,7 +38,7 @@ export function MailQueueFindValidator() {
 					message: lang('mail_queue.validation.language_invalid'),
 				})
 				.optional(),
-			status: z.nativeEnum(MailQueueStatusEnum).optional(),
+			status: z.enum(MailQueueStatusEnum).optional(),
 			content: z
 				.string({ message: lang('error.invalid_string') })
 				.min(cfg('filter.termMinLength') as number, {
@@ -69,7 +69,7 @@ export function MailQueueFindValidator() {
 			ctx.addIssue({
 				path: ['filter', 'sent_date_start'],
 				message: lang('error.invalid_date_range'),
-				code: z.ZodIssueCode.custom,
+				code: 'custom',
 			});
 		}
 	});
