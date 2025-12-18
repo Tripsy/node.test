@@ -2,10 +2,10 @@
 
 - [x] Settings Management
 - [x] Automatic Error Handling
-- [x] Logging (powered by Pino) - file, db & email
+- [x] Logging (powered by Pino) to file, db or email
 - [x] TypeORM Wrapper: A layer over TypeORM for smoother database interactions.
 - [x] Request validators (using Zod)
-- [x] Standardized JSON Responses: Consistent response structures for better frontend integration (eg: req.output)
+- [x] Standardized JSON Responses: Consistent response structures for better frontend integration (e.g.: res.locals.output)
 - [x] Caching (powered by ioredis)
 - [x] Cron Jobs (with history)
    - clean-account-recovery; 
@@ -17,16 +17,16 @@
     - [x] Nunjucks implemented for templating language
 - [x] Subscribers (powered by TypeORM)
 - [x] Custom Middlewares
-    - Auth (auth.middleware -> req.user)
+    - Auth (auth.middleware → res.locals.auth)
     - REST API Documentation Link (meta-documentation.middleware)
-    - Determine language (language.middleware -> req.lang)
+    - Determine language (language.middleware → res.locals.lang)
     - Params validation 
 - [x] Language management (powered by i18next)
-- [x] User system (eg: signup, login, logout, password recover, password change, email confirm)
-   - user roles (eg: admin, user, operator)
-   - login based on JWT tokens (managed by account-token.repository)
-   - password recovery (managed by account-recovery.repository)
-- [x] Policies (based on user roles & user permissions)
+- [x] User system (e.g.: register, login, logout, password recover, password change, email confirm)
+   - user roles (e.g.: admin, user, operator)
+   - login based on JWT tokens (managed by `account-token.repository`)
+   - password recovery (managed by `account-recovery.repository`)
+- [x] Policies (based on user roles and permissions)
 - [x] Controllers (eg: REST Api)
     - user.controller (create, read, update, delete, restore, find, statusUpdate)
     - account.controller (register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate)
@@ -34,12 +34,14 @@
     - user-permission.controller (create, delete, restore, find)
     - template.controller (create, read, update, delete, restore, find)
     - log-data.controller (read, delete, find)
+    - log-history.controller (read, delete, find)
+    - cron-history.controller (read, delete, find)
 - [x] Tests (powered by Jest & Supertest)
 
 # Setup
 
 ### 1. Add `hosts` record
-To configure your hosts file, refer to this guide:  
+For configuration refer to this guide:  
 [How to Edit the Hosts File on macOS](https://phoenixnap.com/kb/mac-hosts-file)
 
 ### 2. Initialize Docker container
@@ -72,10 +74,9 @@ $ pnpm run dev
 
 # Notes & Limitations
 
-- req & res objects have injected additional properties - check /src/types/express.d.ts
-- workers are not set run on separate process (updates will be required to workers if they will be set to run on separate process)
+- res object contains additional properties - check /src/types/express.d.ts
+- workers are not set run on separate process (updates will be required to workers if they are set to run on separate process)
 - /providers - Reusable utilities, external integrations; Encapsulates infrastructure (e.g., Redis, DB connections)
-- /subscriber - Business logic, high-level functionality; Manages operations, workflows
 
 ### TypeORM
 
@@ -91,7 +92,7 @@ CREATE SCHEMA IF NOT EXISTS logs
 
 ```
 // Generate migration file for schemas - DEPRECATED
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/migrations/CreateSchemas
+$ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/database/migrations/CreateSchemas
 
 // Generate migration file
 $ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/database/migrations/init
@@ -106,8 +107,8 @@ $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/c
 $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 
 // Import seed data
-$ pnpx tsx /var/www/html/src/seed-data/template.seed.ts  
-$ pnpx tsx /var/www/html/src/seed-data/permission.seed.ts
+$ pnpx tsx /var/www/html/src/database/seed-data/template.seed.ts  
+$ pnpx tsx /var/www/html/src/database/seed-data/permission.seed.ts
 ```
 
 # Dependencies
@@ -138,26 +139,58 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. we have some tests which are failing
-2. Tests
-   - account.controller - emailConfirmSend
-   - user.controller - find, statusUpdate missing tests
-   - log-data.controller - find missing tests
-   - template.controller
-   - permission.controller
-   - user-permission.controller
-   - mail-queue controller
-   - validators
-   - middleware
-       - output-handler.middleware
-       - validate-params.middleware
-   - providers
+1. log history wip
+2. dynamic namespaces for i18next
+3. category ( + route images) > brand ( + route images)
+4. wip entities:
+    - article
+        - article-category
+        - article-content
+        - article-tag  
+        - article-track
+    - brand
+        - brand-content
+    - category
+        - category-content     - 
+    - image  
+      - image-content
+    - invoice
+    - order
+        - order-product
+    - order-shipping
+        - order-shipping-product
+    - payment
+    - product
+        - product-attribute
+        - product-category
+        - product-tag
+        - product-content
+    - subscription
+        - subscription-renewal
+    - term
+
+5. create a library / package for my utilities - drop moment !!!
+6. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+7. Some tests that are failing
 
 # BUGS & ISSUES
 
-1. src/tests/middleware/auth.unit.ts is broken
-2. types/express.d.ts - is in .gitignore
-3. consider replacing moment library
+1. Some missing tests
+    - account.controller - emailConfirmSend
+    - user.controller - find, statusUpdate missing tests
+    - log-data.controller - find missing tests
+    - template.controller
+    - permission.controller
+    - user-permission.controller
+    - mail-queue controller
+    - validators
+    - middleware
+        - output-handler.middleware
+        - validate-params.middleware
+    - providers
+2. src/tests/middleware/auth.unit.ts is broken
+3. types/express.d.ts - is in .gitignore
+4. consider replacing the moment library
 
 # IDEAS
 
@@ -168,4 +201,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 5. cron hanging / delaying / semaphore ?!
 6. CI/CD
 
-# TEMP
+# DEVELOPMENT STEPS
+
+- last commit before merging main with new entities "Commits on Dec 5, 2025" - "+ unified validators"
+- merged new entities into main branch on 18 dec 2025

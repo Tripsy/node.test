@@ -6,7 +6,8 @@ import TemplateEntity, {
 	TemplateTypeEnum,
 } from '@/features/template/template.entity';
 import TemplatePolicy from '@/features/template/template.policy';
-import TemplateRepository, {
+import {
+	getTemplateRepository,
 	TemplateQuery,
 } from '@/features/template/template.repository';
 import {
@@ -20,21 +21,22 @@ import { getCacheProvider } from '@/providers/cache.provider';
 
 class TemplateController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
 
 		// Validate against the schema
-		const validated = TemplateCreateValidator.safeParse(req.body);
+		const validated = TemplateCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const existingTemplate = await TemplateRepository.createQuery()
+		const existingTemplate = await getTemplateRepository()
+			.createQuery()
 			.filterBy('label', validated.data.label)
 			.filterBy('language', validated.data.language)
 			.filterBy('type', validated.data.type)
@@ -51,21 +53,17 @@ class TemplateController {
 		template.type = validated.data.type;
 		template.content = validated.data.content;
 
-		// Set `contextData` for usage in subscriber
-		template.contextData = {
-			auth_id: policy.getUserId(),
-		};
+		const entry: TemplateEntity =
+			await getTemplateRepository().save(template);
 
-		const entry: TemplateEntity = await TemplateRepository.save(template);
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('template.success.create'));
 
-		res.output.data(entry);
-		res.output.message(lang('template.success.create'));
-
-		res.status(201).json(res.output);
+		res.status(201).json(res.locals.output);
 	});
 
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.read();
@@ -77,40 +75,44 @@ class TemplateController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const template = await cacheProvider.get(cacheKey, async () => {
-			return TemplateRepository.createQuery()
+			return getTemplateRepository()
+				.createQuery()
 				.filterById(res.locals.validated.id)
 				.withDeleted(policy.allowDeleted())
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(template);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(template);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
 
 		// Validate against the schema
-		const validated = TemplateUpdateValidator.safeParse(req.body);
+		const validated = TemplateUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const template = await TemplateRepository.createQuery()
+		const template = await getTemplateRepository()
+			.createQuery()
 			.select(paramsUpdateList)
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
-		const existingTemplate = await TemplateRepository.createQuery()
+		const existingTemplate = await getTemplateRepository()
+			.createQuery()
 			.filterBy('id', res.locals.validated.id, '!=')
 			.filterBy('label', validated.data.label || template.label)
 			.filterBy('language', validated.data.language || template.language)
@@ -118,7 +120,7 @@ class TemplateController {
 			.withDeleted(policy.allowDeleted())
 			.first();
 
-		// Return error if template already exist
+		// Return error if the template already exists
 		if (existingTemplate) {
 			throw new CustomError(409, lang('template.error.already_exists'));
 		}
@@ -132,71 +134,63 @@ class TemplateController {
 			) as Partial<TemplateEntity>),
 		};
 
-		// Set `contextData` for usage in subscriber
-		updatedEntity.contextData = {
-			auth_id: policy.getUserId(),
-		};
+		await getTemplateRepository().save(updatedEntity);
 
-		await TemplateRepository.save(updatedEntity);
+		res.locals.output.message(lang('template.success.update'));
+		res.locals.output.data(updatedEntity);
 
-		res.output.message(lang('template.success.update'));
-		res.output.data(template);
-
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		await TemplateRepository.createQuery()
+		await getTemplateRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete();
 
-		res.output.message(lang('template.success.delete'));
+		res.locals.output.message(lang('template.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await TemplateRepository.createQuery()
+		await getTemplateRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
-		res.output.message(lang('template.success.restore'));
+		res.locals.output.message(lang('template.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(req);
+		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
 
 		// Validate against the schema
-		const validated = TemplateFindValidator.safeParse(req.query);
+		const validated = TemplateFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await TemplateRepository.createQuery()
+		const [entries, total] = await getTemplateRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterBy('language', validated.data.filter.language)
 			.filterBy('type', validated.data.filter.type)
@@ -208,7 +202,7 @@ class TemplateController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -218,10 +212,10 @@ class TemplateController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public readPage = asyncHandler(async (req: Request, res: Response) => {
+	public readPage = asyncHandler(async (_req: Request, res: Response) => {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
@@ -229,18 +223,20 @@ class TemplateController {
 			res.locals.validated.label,
 			'read',
 		);
+
 		const template = await cacheProvider.get(cacheKey, async () => {
-			return TemplateRepository.createQuery()
+			return getTemplateRepository()
+				.createQuery()
 				.filterBy('label', res.locals.validated.label)
-				.filterBy('language', req.lang)
+				.filterBy('language', res.locals.lang)
 				.filterBy('type', TemplateTypeEnum.PAGE)
 				.firstOrFail();
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(template);
+		res.locals.output.meta(res.locals.outputder.isCached, 'isCached');
+		res.locals.output.data(template);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

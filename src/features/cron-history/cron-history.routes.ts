@@ -1,39 +1,28 @@
-import { Router } from 'express';
-import { buildRoutes, type RoutesConfigType } from '@/config/routes.setup';
 import CronHistoryController from '@/features/cron-history/cron-history.controller';
 import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/types/routing.type';
 
-export const cronHistoryRoutesBasePath: string = '/cron-history';
-export const cronHistoryRoutesConfig: RoutesConfigType<
-	typeof CronHistoryController
-> = {
-	read: {
-		path: '/:id',
-		method: 'get',
-		action: 'read',
-		handlers: [validateParamsWhenId('id')],
-	},
-	delete: {
-		path: '/:id',
-		method: 'delete',
-		action: 'delete',
-		handlers: [validateParamsWhenId('id')],
-	},
-	find: {
-		path: '',
-		method: 'get',
-		action: 'find',
-	},
+export default {
+	basePath: '/cron-history',
+	documentation: 'cron-history',
+	controller: CronHistoryController,
+	routesConfig: {
+		read: {
+			path: '/:id',
+			method: 'get',
+			action: 'read',
+			handlers: [validateParamsWhenId('id')],
+		},
+		delete: {
+			path: '/:id',
+			method: 'delete',
+			action: 'delete',
+			handlers: [validateParamsWhenId('id')],
+		},
+		find: {
+			path: '',
+			method: 'get',
+			action: 'find',
+		},
+	} as RoutesConfigType<typeof CronHistoryController>,
 };
-
-const routes: Router = Router();
-
-buildRoutes(
-	routes,
-	CronHistoryController,
-	'cron-history',
-	cronHistoryRoutesConfig,
-	cronHistoryRoutesBasePath,
-);
-
-export default routes;

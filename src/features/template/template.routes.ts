@@ -1,14 +1,15 @@
-import { Router } from 'express';
-import { buildRoutes, type RoutesConfigType } from '@/config/routes.setup';
 import TemplateController from '@/features/template/template.controller';
 import {
 	validateParamsWhenId,
 	validateParamsWhenString,
 } from '@/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/types/routing.type';
 
-export const templateRoutesBasePath: string = '/templates';
-export const templateRoutesConfig: RoutesConfigType<typeof TemplateController> =
-	{
+export default {
+	basePath: '/templates',
+	documentation: 'templates',
+	controller: TemplateController,
+	routesConfig: {
 		create: {
 			path: '',
 			method: 'post',
@@ -49,16 +50,5 @@ export const templateRoutesConfig: RoutesConfigType<typeof TemplateController> =
 			method: 'get',
 			action: 'find',
 		},
-	};
-
-const routes: Router = Router();
-
-buildRoutes(
-	routes,
-	TemplateController,
-	'templates',
-	templateRoutesConfig,
-	templateRoutesBasePath,
-);
-
-export default routes;
+	} as RoutesConfigType<typeof TemplateController>,
+};

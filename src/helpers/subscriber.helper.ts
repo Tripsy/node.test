@@ -1,10 +1,10 @@
-import type { Logger } from 'pino';
 import type { UpdateEvent } from 'typeorm';
-import type { EntityContextData } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
-import { LogDataCategoryEnum } from '@/features/log-data/log-data.entity';
+import { requestContext } from '@/config/request.context';
+import { cfg, type LogHistoryDestination } from '@/config/settings.config';
+import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import { getCacheProvider } from '@/providers/cache.provider';
-import logger, { childLogger } from '@/providers/logger.provider';
+import { getHistoryLogger } from '@/providers/logger.provider';
 
 export function cacheClean(entity: string, ident: number | string) {
 	const identString = ident.toString();
@@ -20,14 +20,54 @@ export function cacheClean(entity: string, ident: number | string) {
 	);
 }
 
-const historyLogger: Logger = childLogger(logger, LogDataCategoryEnum.HISTORY);
-
 export function logHistory(
 	entity: string,
+	entity_id: number | number[],
 	action: string,
-	replacements: Record<string, string> = {},
+	data: Record<string, string> = {},
 ) {
-	historyLogger.info(lang(`${entity}.history.${action}`, replacements));
+	const ctx = requestContext.getStore();
+
+	switch (cfg('logging.history') as LogHistoryDestination) {
+		case 'pino': {
+			const replacements = {
+				entity,
+				entity_id: Array.isArray(entity_id)
+					? entity_id.join(', ')
+					: entity_id.toString(),
+				action,
+				auth_id: ctx?.auth_id.toString() || '0',
+				performed_by: ctx?.performed_by || 'unknown',
+				request_id: ctx?.request_id || 'unknown',
+				source: ctx?.source || 'unknown',
+				...data,
+			};
+
+			getHistoryLogger().info(
+				lang(`${entity}.history.${action}`, replacements),
+			);
+			break;
+		}
+		case 'db': {
+			const entity_ids = Array.isArray(entity_id)
+				? entity_id
+				: [entity_id];
+
+			void getLogHistoryRepository().createLogs(
+				entity,
+				entity_ids,
+				action,
+				{
+					auth_id: ctx?.auth_id || null,
+					performed_by: ctx?.performed_by || 'unknown',
+					request_id: ctx?.request_id || 'unknown',
+					source: ctx?.source || 'unknown',
+					data,
+				},
+			);
+			break;
+		}
+	}
 }
 
 /**
@@ -36,12 +76,6 @@ export function logHistory(
  *
  * `removeOperation` can be used instead and triggered on delete operations
  */
-
-type OperationData = {
-	entity: string;
-	id: number | undefined;
-	auth_id: number;
-};
 
 export function isRestore<
 	E extends {
@@ -56,36 +90,19 @@ export function isRestore<
 }
 
 export function removeOperation(
-	data: OperationData,
+	entity: string,
+	entity_id: number,
 	isSoftDelete: boolean = false,
 ) {
 	const action: string = isSoftDelete ? 'deleted' : 'removed';
 
-	if (data.id === undefined) {
-		return;
-	}
+	cacheClean(entity, entity_id);
 
-	cacheClean(data.entity, data.id);
-
-	logHistory(data.entity, action, {
-		id: data.id.toString(),
-		auth_id: data.auth_id?.toString(),
-	});
+	logHistory(entity, entity_id, action);
 }
 
-export function restoreOperation(data: OperationData) {
-	if (data.id === undefined) {
-		return;
-	}
+export function restoreOperation(entity: string, entity_id: number) {
+	cacheClean(entity, entity_id);
 
-	cacheClean(data.entity, data.id);
-
-	logHistory(data.entity, 'restored', {
-		id: data.id.toString(),
-		auth_id: data.auth_id.toString(),
-	});
-}
-
-export function getAuthIdFromContext(contextData?: EntityContextData): number {
-	return Number(contextData?.auth_id) || 0;
+	logHistory(entity, entity_id, 'restored');
 }

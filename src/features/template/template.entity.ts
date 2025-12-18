@@ -1,8 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 
 export enum TemplateTypeEnum {
 	PAGE = 'page',
@@ -21,7 +18,7 @@ export default class TemplateEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	label!: string;
 
-	@Column('char', { length: 2, nullable: false })
+	@Column('varchar', { length: 3, nullable: false })
 	language!: string;
 
 	@Column({
@@ -34,7 +31,4 @@ export default class TemplateEntity extends EntityAbstract {
 
 	@Column({ type: 'jsonb', nullable: false, comment: 'Template data' })
 	content!: Record<string, unknown>;
-
-	// Virtual
-	contextData?: EntityContextData;
 }

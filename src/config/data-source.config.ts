@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { cfg } from '@/config/settings.config';
-import { buildSrcPath } from '@/helpers/system.helper';
+import { buildSrcPath } from '@/helpers';
 
 const dataSource = new DataSource({
 	type: cfg('database.connection') as 'postgres' | 'mariadb',
@@ -16,7 +16,7 @@ const dataSource = new DataSource({
 			? 'system.migrations'
 			: 'migrations',
 	entities: [buildSrcPath('features/**/*.entity.ts')],
-	migrations: [buildSrcPath('database/migrations', '*.ts')],
+	migrations: [buildSrcPath('database/migrations/*.ts')],
 	subscribers: [buildSrcPath('features/**/*.subscriber.ts')],
 	poolSize: 10,
 });

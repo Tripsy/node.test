@@ -65,12 +65,9 @@ export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 	}
 }
 
-export const LogDataRepository = dataSource
-	.getRepository(LogDataEntity)
-	.extend({
+export const getLogDataRepository = () =>
+	dataSource.getRepository(LogDataEntity).extend({
 		createQuery() {
 			return new LogDataQuery(this);
 		},
 	});
-
-export default LogDataRepository;

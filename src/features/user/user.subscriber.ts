@@ -16,12 +16,11 @@ import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
 import { UserQuery } from '@/features/user/user.repository';
 import {
 	cacheClean,
-	getAuthIdFromContext,
 	isRestore,
 	logHistory,
 	removeOperation,
 	restoreOperation,
-} from '@/helpers/subscriber.helper';
+} from '@/helpers';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
@@ -58,50 +57,33 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 	}
 
 	/**
-	 * When entry is removed from the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When entry is removed from the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	beforeRemove(event: RemoveEvent<UserEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: UserQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			false,
-		);
+		removeOperation(UserQuery.entityAlias, id, false);
 	}
 
 	/**
-	 * When entry is marked as deleted in the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When the entry is marked as deleted in the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	afterSoftRemove(event: SoftRemoveEvent<UserEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: UserQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			true,
-		);
+		removeOperation(UserQuery.entityAlias, id, true);
 	}
 
 	async afterInsert(event: InsertEvent<UserEntity>) {
 		const id = event.entity.id;
 
-		logHistory(UserQuery.entityAlias, 'created', {
-			id: id.toString(),
-			auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
-		});
+		logHistory(UserQuery.entityAlias, id, 'created');
 
 		switch (event.entity.status) {
 			case UserStatusEnum.ACTIVE:
@@ -115,38 +97,25 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 
 	async afterUpdate(event: UpdateEvent<UserEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
-		const auth_id: number = getAuthIdFromContext(event.entity?.contextData);
 
-		// When entry is restored
 		if (isRestore(event)) {
-			restoreOperation({
-				entity: UserQuery.entityAlias,
-				id: id,
-				auth_id: auth_id,
-			});
+			restoreOperation(UserQuery.entityAlias, id);
 
 			return;
 		}
 
-		// When entry is updated
 		cacheClean(UserQuery.entityAlias, id);
+		logHistory(UserQuery.entityAlias, id, 'updated');
 
-		logHistory(UserQuery.entityAlias, 'updated', {
-			id: id.toString(),
-			auth_id: auth_id.toString(),
-		});
-
-		// Check if status was updated
+		// Check if the status was updated
 		if (
 			event.entity?.status &&
 			event.databaseEntity?.status &&
 			event.entity.status !== event.databaseEntity.status
 		) {
-			logHistory(UserQuery.entityAlias, 'status', {
-				id: id.toString(),
+			logHistory(UserQuery.entityAlias, id, 'status', {
 				oldStatus: event.databaseEntity.status,
 				newStatus: event.entity.status,
-				auth_id: auth_id.toString(),
 			});
 
 			if (event.entity.status === UserStatusEnum.ACTIVE) {
@@ -159,16 +128,13 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 			}
 		}
 
-		// Check if password was updated
+		// Check if the password was updated
 		if (
 			event.entity?.password &&
 			event.databaseEntity?.password &&
 			event.entity.password !== event.databaseEntity.password
 		) {
-			logHistory(UserQuery.entityAlias, 'password_change', {
-				id: id.toString(),
-				auth_id: auth_id.toString(),
-			});
+			logHistory(UserQuery.entityAlias, id, 'password_change');
 		}
 	}
 }

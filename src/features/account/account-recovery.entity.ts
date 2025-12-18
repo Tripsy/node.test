@@ -38,15 +38,10 @@ export default class AccountRecoveryEntity {
 	@Column({ type: 'timestamp', nullable: false })
 	expire_at!: Date;
 
-	@ManyToOne(
-		() => UserEntity,
-		(user) => user.account_recoveries,
-		{ onDelete: 'CASCADE' },
-	)
-	@JoinColumn({
-		name: 'user_id', // The column in this entity that references the foreign key
-		referencedColumnName: 'id', // The column in the referenced entity (UserEntity)
-		foreignKeyConstraintName: 'FK_account_recovery_user_id', // Custom foreign key name
+	// RELATIONS
+	@ManyToOne(() => UserEntity, {
+		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'user_id' })
 	user?: UserEntity;
 }

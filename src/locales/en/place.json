@@ -1,0 +1,32 @@
+{
+	"validation": {
+		"type_invalid": "Invalid type",
+		"code_invalid": "Invalid code",
+		"invalid_parent_id": "Invalid parent ID",
+		"required_parent_id": "Parent ID required for region & city types",
+		"language_invalid": "Invalid language",
+		"name_invalid": "Invalid place name",
+		"type_label_invalid": "Invalid type label",
+		"address_country_invalid": "Invalid address country",
+		"address_region_invalid": "Invalid address region",
+		"address_city_invalid": "Invalid address city"
+	},
+	"error": {
+		"not_found": "Place not found",
+		"cannot_change_type_with_children": "Type cannot be changed. This place has children(s).",
+		"cannot_delete_type_with_children": "Type cannot be deleted. This place has children(s)."
+	},
+	"success": {
+		"create": "Place created successfully",
+		"update": "Place updated successfully",
+		"delete": "Place deleted successfully",
+		"restore": "Place restored successfully"
+	},
+	"history": {
+		"created": "Place #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Place #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Place #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Place #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Place #{{entity_id}} has been restored by user #{{auth_id}}"
+	}
+}

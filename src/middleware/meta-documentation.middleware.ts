@@ -1,12 +1,15 @@
 import type { NextFunction, Request, Response } from 'express';
-import { apiDocumentationUrl } from '@/helpers/system.helper';
 
-export const metaDocumentation = (...args: string[]) => {
+function apiDocumentationUrl(...args: string[]): string {
+	return `/api-docs/${args.join('/')}`;
+}
+
+function metaDocumentation(...args: string[]) {
 	return (_req: Request, res: Response, next: NextFunction) => {
-		res.output.meta(apiDocumentationUrl(...args), 'documentationUrl');
+		res.locals._documentationUrl = apiDocumentationUrl(...args);
 
 		next(); // Proceed to the next middleware or route handler
 	};
-};
+}
 
 export default metaDocumentation;

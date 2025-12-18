@@ -5,14 +5,11 @@ import {
 	type SelectQueryBuilder,
 } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
-import {
-	type EntityContextData,
-	OrderDirectionEnum,
-} from '@/abstracts/entity.abstract';
+import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import CustomError from '@/exceptions/custom.error';
 import NotFoundError from '@/exceptions/not-found.error';
-import { formatDate } from '@/helpers/date.helper';
+import { formatDate } from '@/helpers';
 
 type QueryValue = string | number | (string | number)[] | null;
 type QueryParams = Record<string, QueryValue>;
@@ -29,7 +26,6 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	protected query: SelectQueryBuilder<TEntity>;
 	protected hasFilter: boolean = false; // Flag used to signal if query builder filters have been applied in preparation for delete operations
 	protected hasGroup: boolean = false; // Flag used to signal if query builder groups have been applied
-	protected contextData: EntityContextData | undefined;
 
 	constructor(repository: Repository<TEntity>, entityAlias: string) {
 		this.repository = repository;
@@ -52,40 +48,61 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		return this;
 	}
 
-	setContextData(data: EntityContextData): this {
-		this.contextData = data;
-
-		return this;
-	}
-
-	getContextData(): EntityContextData | undefined {
-		return this.contextData;
-	}
-
-	/**
-	 * entityOrProperty:
-	 *       Entity name = user_permission.permission
-	 *       Property name = permission (condition is required)
-	 *       Entity class = UserPermission
-	 *       Callback function that returns a query builder for subqueries (condition is required)
-	 *
-	 * @param entityOrProperty
-	 * @param alias
-	 * @param type
-	 * @param condition
-	 */
 	join(
 		entityOrProperty: string,
 		alias: string,
 		type: 'INNER' | 'LEFT' = 'INNER',
 		condition?: string,
+		parameters?: ObjectLiteral,
 	): this {
 		switch (type) {
 			case 'INNER':
-				this.query.innerJoin(entityOrProperty, alias, condition);
+				this.query.innerJoin(
+					entityOrProperty,
+					alias,
+					condition,
+					parameters,
+				);
 				break;
 			case 'LEFT':
-				this.query.leftJoin(entityOrProperty, alias, condition);
+				this.query.leftJoin(
+					entityOrProperty,
+					alias,
+					condition,
+					parameters,
+				);
+				break;
+		}
+
+		return this;
+	}
+
+	/**
+	 * Note: This method automatically selects all related fields (including relations)
+	 */
+	joinAndSelect(
+		entityOrProperty: string,
+		alias: string,
+		type: 'INNER' | 'LEFT' = 'INNER',
+		condition?: string,
+		parameters?: ObjectLiteral,
+	): this {
+		switch (type) {
+			case 'INNER':
+				this.query.innerJoinAndSelect(
+					entityOrProperty,
+					alias,
+					condition,
+					parameters,
+				);
+				break;
+			case 'LEFT':
+				this.query.leftJoinAndSelect(
+					entityOrProperty,
+					alias,
+					condition,
+					parameters,
+				);
 				break;
 		}
 
@@ -179,7 +196,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	}
 
 	/**
-	 * Return query builder object so further TypeOrm methods can be chained
+	 * Return `QueryBuilder` object so further TypeOrm methods can be chained
 	 */
 	getQuery(): QueryBuilder<TEntity> {
 		return this.query;
@@ -284,7 +301,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	 *
 	 * @param isSoftDelete - if set as `true` will be soft deleted
 	 * @param multiple - must be set as `true` to allow multiple entity deletion
-	 * @param force - if set as `true` will allow deletion without filter (note: Use with caution!!!)
+	 * @param force - if set as `true` will allow deletion without any proper filter (note: Use with caution!!!)
 	 */
 	async delete(
 		isSoftDelete: boolean = true,
@@ -303,16 +320,6 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 
 		if (!multiple && results.length > 1) {
 			throw new CustomError(500, lang('error.db_delete_one'));
-		}
-
-		const contextData: EntityContextData | undefined =
-			this.getContextData();
-
-		// Set contextData for each entity
-		if (contextData !== undefined) {
-			results.forEach((entity) => {
-				(entity as ObjectLiteral).contextData = contextData;
-			});
 		}
 
 		if (isSoftDelete) {
@@ -342,15 +349,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 			throw new CustomError(500, lang('error.db_restore_one'));
 		}
 
-		const contextData: EntityContextData | undefined =
-			this.getContextData();
-
-		// Set contextData and restore using save() flow
 		for (const entity of results) {
-			if (contextData) {
-				(entity as ObjectLiteral).contextData = contextData;
-			}
-
 			(entity as ObjectLiteral).deleted_at = null;
 
 			await this.repository.save(entity);
@@ -480,8 +479,8 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 
 	filterByRange(
 		column: string,
-		min?: Date | string | null,
-		max?: Date | string | null,
+		min?: Date | number | null,
+		max?: Date | number | null,
 	): this {
 		const minValue = min instanceof Date ? formatDate(min) : min;
 		const maxValue = max instanceof Date ? formatDate(max) : max;

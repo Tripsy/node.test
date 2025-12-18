@@ -5,11 +5,11 @@ import { lang } from '@/config/i18n.setup';
 import templates from '@/config/nunjucks.config';
 import { cfg } from '@/config/settings.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
-import MailQueueRepository from '@/features/mail-queue/mail-queue.repository';
+import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
-import TemplateRepository from '@/features/template/template.repository';
-import { getErrorMessage } from '@/helpers/system.helper';
-import { systemLogger } from '@/providers/logger.provider';
+import { getTemplateRepository } from '@/features/template/template.repository';
+import { getErrorMessage } from '@/helpers';
+import { getSystemLogger } from '@/providers/logger.provider';
 import type { EmailContent, EmailTemplate } from '@/types/template.type';
 
 let emailTransporter: Transporter<SMTPTransport.SentMessageInfo> | null = null;
@@ -30,11 +30,6 @@ export function getEmailTransporter(): Transporter<SMTPTransport.SentMessageInfo
 	return emailTransporter;
 }
 
-export const systemFrom: Mail.Address = {
-	name: cfg('mail.fromName') as string,
-	address: cfg('mail.fromAddress') as string,
-};
-
 export type EmailQueueData = {
 	mailQueueId: number;
 	emailContent: EmailContent;
@@ -46,7 +41,8 @@ export async function loadEmailTemplate(
 	label: string,
 	language: string,
 ): Promise<EmailTemplate> {
-	const template = await TemplateRepository.createQuery()
+	const template = await getTemplateRepository()
+		.createQuery()
 		.select(['id', 'language', 'type', 'content'])
 		.filterBy('label', label)
 		.filterBy('language', language)
@@ -98,7 +94,7 @@ export function prepareEmailContent(template: EmailTemplate): EmailContent {
 				: emailContent,
 		};
 	} catch (error: unknown) {
-		systemLogger.fatal(error, getErrorMessage(error));
+		getSystemLogger().fatal(error, getErrorMessage(error));
 
 		throw new Error('Template render error');
 	}
@@ -116,15 +112,23 @@ export async function queueEmail(
 	mailQueueEntity.to = to;
 	mailQueueEntity.from = from;
 
-	await MailQueueRepository.save(mailQueueEntity);
+	await getMailQueueRepository().save(mailQueueEntity);
 }
 
 export async function sendEmail(
 	content: EmailContent,
 	to: Mail.Address,
-	from: Mail.Address,
+	from: Mail.Address | null,
 ): Promise<void> {
 	try {
+		// Fallback to default `from` address
+		if (!from) {
+			from = {
+				name: cfg('mail.fromName') as string,
+				address: cfg('mail.fromAddress') as string,
+			};
+		}
+
 		await getEmailTransporter().sendMail({
 			to: to,
 			from: from,
@@ -133,14 +137,14 @@ export async function sendEmail(
 			html: content.html,
 		});
 
-		systemLogger.debug(
+		getSystemLogger().debug(
 			lang('debug.email_sent', {
 				subject: content.subject,
 				to: to.address,
 			}),
 		);
 	} catch (error: unknown) {
-		systemLogger.error(
+		getSystemLogger().error(
 			error,
 			lang('debug.email_error', {
 				subject: content.subject,

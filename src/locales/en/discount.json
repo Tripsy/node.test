@@ -1,0 +1,32 @@
+{
+	"validation": {
+		"label_invalid": "Label is invalid",
+		"scope_invalid": "Scope is invalid",
+		"reason_invalid": "Reason is invalid",
+		"reference_invalid": "Reference is invalid",
+		"type_invalid": "Type is invalid",
+		"value_invalid": "Value is invalid",
+		"value_must_be_positive": "Value must be positive",
+		"percent_must_be_between_0_and_100": "Percent discount must be between 0 and 100",
+		"start_at_invalid": "Start date is invalid",
+		"end_at_invalid": "End date is invalid",
+		"end_at_must_be_after_start_at": "End date must be after start date",
+		"notes_invalid": "Notes is invalid"
+	},
+	"error": {
+		"not_found": "Discount not found"
+	},
+	"success": {
+		"create": "Discount created successfully",
+		"update": "Discount updated successfully",
+		"delete": "Discount deleted successfully",
+		"restore": "Discount restored successfully"
+	},
+	"history": {
+		"created": "Discount #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Discount #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Discount #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Discount #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Discount #{{entity_id}} has been restored by user #{{auth_id}}"
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"error": {
+		"not_found": "Log history entry not found"
+	},
+	"success": {
+		"delete": "Log(s) history deleted"
+	},
+	"validation": {
+		"ids_invalid": "Invalid ids"
+	}
+}

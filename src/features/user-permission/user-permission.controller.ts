@@ -12,16 +12,16 @@ import asyncHandler from '@/helpers/async.handler';
 
 class UserPermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(req);
+		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
 
 		// Validate against the schema
-		const validated = UserPermissionCreateValidator.safeParse(req.body);
+		const validated = UserPermissionCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -43,11 +43,6 @@ class UserPermissionController {
 
 				if (existingUserPermission) {
 					if (existingUserPermission.deleted_at) {
-						// Set `contextData` for usage in subscriber
-						existingUserPermission.contextData = {
-							auth_id: policy.getUserId(),
-						};
-
 						await UserPermissionRepository.restore(
 							existingUserPermission.id,
 						);
@@ -69,11 +64,6 @@ class UserPermissionController {
 					userPermission.user_id = res.locals.validated.user_id;
 					userPermission.permission_id = permission_id;
 
-					// Set `contextData` for usage in subscriber
-					userPermission.contextData = {
-						auth_id: policy.getUserId(),
-					};
-
 					await UserPermissionRepository.save(userPermission);
 
 					results.push({
@@ -84,14 +74,14 @@ class UserPermissionController {
 			}),
 		);
 
-		res.output.data(results);
-		res.output.message(lang('user_permission.success.update'));
+		res.locals.output.data(results);
+		res.locals.output.message(lang('user_permission.success.update'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
@@ -99,18 +89,15 @@ class UserPermissionController {
 		await UserPermissionRepository.createQuery()
 			.filterBy('user_id', res.locals.validated.user_id)
 			.filterBy('permission_id', res.locals.validated.permission_id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete(true, false, true);
 
-		res.output.message(lang('user_permission.success.delete'));
+		res.locals.output.message(lang('user_permission.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
@@ -118,42 +105,29 @@ class UserPermissionController {
 		await UserPermissionRepository.createQuery()
 			.filterById(res.locals.validated.id)
 			.filterBy('user_id', res.locals.validated.user_id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
-		res.output.message(lang('user_permission.success.restore'));
+		res.locals.output.message(lang('user_permission.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(req);
+		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
 
 		// Validate against the schema
-		const validated = UserPermissionFindValidator.safeParse(req.query);
+		const validated = UserPermissionFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const querySelect = ['id', 'user_id', 'permission_id', 'created_at'];
-
-		const withDeleted: boolean =
-			policy.allowDeleted() && validated.data.filter.is_deleted;
-
-		if (withDeleted) {
-			querySelect.push('deleted_at');
-		}
-
 		const [entries, total] = await UserPermissionRepository.createQuery()
-			.select(querySelect)
 			.join('user_permission.user', 'user')
 			.join('user_permission.permission', 'permission')
 			.filterBy('user_id', res.locals.validated.user_id)
@@ -163,12 +137,14 @@ class UserPermissionController {
 				validated.data.filter.operation,
 				'LIKE',
 			)
-			.withDeleted(withDeleted)
+			.withDeleted(
+				policy.allowDeleted() && validated.data.filter.is_deleted,
+			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -178,7 +154,7 @@ class UserPermissionController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

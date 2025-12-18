@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import { cfg } from '@/config/settings.config';
-import { systemLogger } from '@/providers/logger.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
 
 let redisInstance: Redis | null = null;
 
@@ -13,11 +13,11 @@ export const getRedisClient = (): Redis => {
 		});
 
 		redisInstance.on('error', (error) => {
-			systemLogger.error({ err: error }, 'Redis connection error');
+			getSystemLogger().error({ err: error }, 'Redis connection error');
 		});
 
 		redisInstance.on('connect', () => {
-			systemLogger.debug('Connected to Redis');
+			getSystemLogger().debug('Connected to Redis');
 		});
 	}
 
@@ -28,9 +28,9 @@ export const redisClose = async (): Promise<void> => {
 	if (redisInstance) {
 		try {
 			await redisInstance.quit();
-			systemLogger.debug('Redis connection closed gracefully');
+			getSystemLogger().debug('Redis connection closed gracefully');
 		} catch (error) {
-			systemLogger.error(
+			getSystemLogger().error(
 				{ err: error },
 				'Error closing Redis connection',
 			);

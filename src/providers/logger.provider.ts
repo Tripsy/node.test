@@ -13,7 +13,7 @@ import LogDataEntity, {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
 } from '@/features/log-data/log-data.entity';
-import { buildRootPath } from '@/helpers/system.helper';
+import { buildRootPath } from '@/helpers';
 
 interface CallStackInterface {
 	trace: string[];
@@ -138,7 +138,7 @@ export class LogStream extends Writable {
 			Object.values(this.fileStreams).map((stream) => {
 				return new Promise((resolve) => {
 					stream.on('finish', resolve); // Listen for finish event
-					stream.end(''); // End with empty string
+					stream.end(''); // End with an empty string
 				});
 			}),
 		);
@@ -239,7 +239,7 @@ export class LogStream extends Writable {
 		emailTransporter
 			.sendMail({
 				from: cfg('mail.fromAddress') as string,
-				to: cfg('pino.logEmail') as string,
+				to: cfg('logging.logEmail') as string,
 				subject: lang('debug.email_log_subject', {
 					app: cfg('app.name') as string,
 					level: logLevel,
@@ -271,13 +271,15 @@ export class LogStream extends Writable {
 			const logLevel: LogDataLevelEnum = getLogLevel(log.level);
 
 			if (
-				(cfg('pino.levelFile') as LogDataLevelEnum[]).includes(logLevel)
+				(cfg('logging.levelFile') as LogDataLevelEnum[]).includes(
+					logLevel,
+				)
 			) {
 				this.writeToFile(logLevel, log);
 			}
 
 			if (
-				(cfg('pino.levelDatabase') as LogDataLevelEnum[]).includes(
+				(cfg('logging.levelDatabase') as LogDataLevelEnum[]).includes(
 					logLevel,
 				)
 			) {
@@ -287,7 +289,7 @@ export class LogStream extends Writable {
 			}
 
 			if (
-				(cfg('pino.levelEmail') as LogDataLevelEnum[]).includes(
+				(cfg('logging.levelEmail') as LogDataLevelEnum[]).includes(
 					logLevel,
 				)
 			) {
@@ -308,12 +310,12 @@ const logStream = new LogStream();
 const logger = pino(
 	{
 		// The minimum level to log: Pino will not log messages with a lower level.
-		// Setting this option reduces the load, as typically, debug and trace logs are only valid for development, and not needed in production.
+		// Setting this option reduces the load, as typically, debug and trace logs are only valid for development and not needed in production.
 		// 'fatal', 'error', 'warn', 'info', 'debug', 'trace' or 'silent'
 		level:
 			cfg('app.env') === 'test'
 				? 'error'
-				: (cfg('pino.logLevel') as LogDataLevelEnum),
+				: (cfg('logging.logLevel') as LogDataLevelEnum),
 		// Defines how and where to send log data, such as to files, external services, or streams.
 		nestedKey: 'context',
 		// Define default properties included in every log line.
@@ -372,21 +374,41 @@ const logger = pino(
 	logStream,
 );
 
-export function childLogger(logger: Logger, category: LogDataCategoryEnum) {
-	return logger.child({
-		category: category,
-	});
+let systemLoggerInstance: Logger | null = null;
+
+export function getSystemLogger(): Logger {
+	if (!systemLoggerInstance) {
+		systemLoggerInstance = logger.child({
+			category: LogDataCategoryEnum.SYSTEM,
+		});
+	}
+	return systemLoggerInstance;
 }
 
-export const systemLogger: Logger = childLogger(
-	logger,
-	LogDataCategoryEnum.SYSTEM,
-);
+let historyLoggerInstance: Logger | null = null;
+
+export function getHistoryLogger(): Logger {
+	if (!historyLoggerInstance) {
+		historyLoggerInstance = logger.child({
+			category: LogDataCategoryEnum.HISTORY,
+		});
+	}
+	return historyLoggerInstance;
+}
+
+let cronLoggerInstance: Logger | null = null;
+
+export function getCronLogger(): Logger {
+	if (!cronLoggerInstance) {
+		cronLoggerInstance = logger.child({
+			category: LogDataCategoryEnum.CRON,
+		});
+	}
+	return cronLoggerInstance;
+}
 
 if (cfg('app.env') === 'test') {
-	// systemLogger.debug = console.log;
-	systemLogger.debug = () => {};
-	systemLogger.error = console.error;
+	// getSystemLogger().debug = console.log;
+	getSystemLogger().debug = () => {};
+	getSystemLogger().error = console.error;
 }
-
-export default logger;

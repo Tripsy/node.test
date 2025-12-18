@@ -1,8 +1,5 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
-import {
-	EntityAbstract,
-	type EntityContextData,
-} from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/abstracts/entity.abstract';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import AccountTokenEntity from '@/features/account/account-token.entity';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
@@ -19,16 +16,21 @@ export enum UserRoleEnum {
 	OPERATOR = 'operator',
 }
 
+export enum UserOperatorTypeEnum {
+	SELLER = 'seller',
+	PRODUCT_MANAGER = 'product_manager',
+	CONTENT_EDITOR = 'content_editor',
+}
+
 @Entity({
 	name: 'user',
 	schema: 'public',
-	comment: 'Stores email & page templates',
 })
 export default class UserEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	name!: string;
 
-	@Column('varchar', { nullable: false, unique: true })
+	@Column('varchar', { nullable: false })
 	@Index('IDX_user_email', { unique: true })
 	email!: string;
 
@@ -41,7 +43,7 @@ export default class UserEntity extends EntityAbstract {
 	@Column({ type: 'timestamp', nullable: false })
 	password_updated_at!: Date;
 
-	@Column('char', { length: 2, nullable: false })
+	@Column('varchar', { length: 3, nullable: false })
 	language!: string;
 
 	@Column({
@@ -60,6 +62,15 @@ export default class UserEntity extends EntityAbstract {
 	})
 	role!: UserRoleEnum;
 
+	@Column({
+		type: 'enum',
+		enum: UserOperatorTypeEnum,
+		nullable: true,
+		comment: 'Operator type; only relevant when role is OPERATOR',
+	})
+	operator_type!: UserOperatorTypeEnum | null;
+
+	// RELATIONS
 	@OneToMany(
 		() => AccountTokenEntity,
 		(accountToken) => accountToken.user,
@@ -77,7 +88,4 @@ export default class UserEntity extends EntityAbstract {
 		(userPermission) => userPermission.user,
 	)
 	permissions?: UserPermissionEntity[];
-
-	// Virtual
-	contextData?: EntityContextData;
 }

@@ -5,7 +5,7 @@ import { redisClose } from '@/config/init-redis.config';
 import * as accountService from '@/features/account/account.service';
 import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
 import AccountTokenRepository from '@/features/account/account-token.repository';
-import type { TokenMetadata } from '@/helpers/meta-data.helper';
+import type { TokenMetadata } from '@/helpers';
 import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 import type { EmailTemplate } from '@/types/template.type';
 

@@ -1,0 +1,41 @@
+{
+	"validation": {
+		"client_invalid": "Client type is invalid",
+		"iban_invalid": "Invalid iban number",
+		"bank_name_invalid": "Invalid bank name",
+		"contact_name_invalid": "Invalid contact name",
+		"contact_email_invalid": "Invalid contact email",
+		"contact_phone_invalid": "Invalid contact phone number",
+		"address_country_invalid": "Invalid country",
+		"address_region_invalid": "Invalid county",
+		"address_city_invalid": "Invalid city",
+		"address_info_invalid": "Invalid address info",
+		"address_postal_code_invalid": "Invalid postal code",
+		"company_name_invalid": "Invalid company name",
+		"company_cui_invalid": "Invalid company CUI",
+		"company_reg_com_invalid": "Invalid company registration number",
+		"person_name_invalid": "Invalid person name",
+		"person_cnp_invalid": "Invalid person CNP",
+		"person_phone_invalid": "Invalid person phone number"
+	},
+	"error": {
+		"not_found": "Client not found",
+		"already_exists": "Client already exists",
+		"status_unchanged": "Status unchanged (eg: {{status}})"
+	},
+	"success": {
+		"create": "Client created successfully",
+		"update": "Client updated successfully",
+		"delete": "Client deleted successfully",
+		"restore": "Client restored successfully",
+		"status_update": "Client status updated successfully"
+	},
+	"history": {
+		"created": "Client #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Client #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Client #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "Client #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "Client #{{entity_id}} has been restored by user #{{auth_id}}",
+		"status": "Client #{{entity_id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}"
+	}
+}

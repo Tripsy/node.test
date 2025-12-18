@@ -10,12 +10,11 @@ import TemplateEntity from '@/features/template/template.entity';
 import { TemplateQuery } from '@/features/template/template.repository';
 import {
 	cacheClean,
-	getAuthIdFromContext,
 	isRestore,
 	logHistory,
 	removeOperation,
 	restoreOperation,
-} from '@/helpers/subscriber.helper';
+} from '@/helpers';
 
 @EventSubscriber()
 export class TemplateSubscriber
@@ -29,76 +28,47 @@ export class TemplateSubscriber
 	}
 
 	/**
-	 * When entry is removed from the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When entry is removed from the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	beforeRemove(event: RemoveEvent<TemplateEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: TemplateQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			false,
-		);
+		removeOperation(TemplateQuery.entityAlias, id, false);
 
 		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
 	}
 
 	/**
-	 * When entry is marked as deleted in the database
-	 * `event.entity` will be undefined if entity is not properly loaded via Repository
+	 * When the entry is marked as deleted in the database,
+	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
 	 *
 	 * @param event
 	 */
 	afterSoftRemove(event: SoftRemoveEvent<TemplateEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(
-			{
-				entity: TemplateQuery.entityAlias,
-				id: id,
-				auth_id: getAuthIdFromContext(event.entity?.contextData),
-			},
-			true,
-		);
-
+		removeOperation(TemplateQuery.entityAlias, id, true);
 		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
 	}
 
 	async afterInsert(event: InsertEvent<TemplateEntity>) {
-		logHistory(TemplateQuery.entityAlias, 'created', {
-			id: event.entity.id.toString(),
-			auth_id: getAuthIdFromContext(event.entity?.contextData).toString(),
-		});
+		logHistory(TemplateQuery.entityAlias, event.entity.id, 'created');
 	}
 
 	async afterUpdate(event: UpdateEvent<TemplateEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
-		const auth_id: number = getAuthIdFromContext(event.entity?.contextData);
 
-		// When entry is restored
 		if (isRestore(event)) {
-			restoreOperation({
-				entity: TemplateQuery.entityAlias,
-				id: id,
-				auth_id: auth_id,
-			});
+			restoreOperation(TemplateQuery.entityAlias, id);
 
 			return;
 		}
 
-		// When entry is updated
 		cacheClean(TemplateQuery.entityAlias, id);
 		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
-
-		logHistory(TemplateQuery.entityAlias, 'updated', {
-			id: id.toString(),
-			auth_id: auth_id.toString(),
-		});
+		logHistory(TemplateQuery.entityAlias, id, 'updated');
 	}
 }

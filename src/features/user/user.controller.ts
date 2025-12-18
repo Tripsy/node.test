@@ -3,9 +3,9 @@ import { lang } from '@/config/i18n.setup';
 import BadRequestError from '@/exceptions/bad-request.error';
 import CustomError from '@/exceptions/custom.error';
 import AccountTokenRepository from '@/features/account/account-token.repository';
-import UserEntity from '@/features/user/user.entity';
+import UserEntity, { UserRoleEnum } from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
-import UserRepository, { UserQuery } from '@/features/user/user.repository';
+import { getUserRepository, UserQuery } from '@/features/user/user.repository';
 import {
 	paramsUpdateList,
 	UserCreateValidator,
@@ -17,21 +17,22 @@ import { getCacheProvider } from '@/providers/cache.provider';
 
 class UserController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.create();
 
 		// Validate against the schema
-		const validated = UserCreateValidator.safeParse(req.body);
+		const validated = UserCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const existingUser = await UserRepository.createQuery()
+		const existingUser = await getUserRepository()
+			.createQuery()
 			.filterByEmail(validated.data.email)
 			.withDeleted(policy.allowDeleted())
 			.first();
@@ -47,28 +48,29 @@ class UserController {
 		user.status = validated.data.status;
 		user.role = validated.data.role;
 
+		if (validated.data.role === UserRoleEnum.OPERATOR) {
+			user.operator_type = validated.data.operator_type ?? null;
+		} else {
+			user.operator_type = null;
+		}
+
 		if (validated.data.language) {
 			user.language = validated.data.language;
 		}
 
-		// Set `contextData` for usage in subscriber
-		user.contextData = {
-			auth_id: policy.getUserId(),
-		};
+		const entry: UserEntity = await getUserRepository().save(user);
 
-		const entry: UserEntity = await UserRepository.save(user);
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('user.success.create'));
 
-		res.output.data(entry);
-		res.output.message(lang('user.success.create'));
-
-		res.status(201).json(res.output);
+		res.status(201).json(res.locals.output);
 	});
 
-	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+	public read = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin, operator with permission or owner)
-		policy.read('user', req.user?.id);
+		policy.read('user', res.locals.auth?.id);
 
 		const cacheProvider = getCacheProvider();
 
@@ -77,9 +79,11 @@ class UserController {
 			res.locals.validated.id,
 			'read',
 		);
+
 		const user = await cacheProvider.get(cacheKey, async () => {
 			return (
-				UserRepository.createQuery()
+				getUserRepository()
+					.createQuery()
 					// .select(['id', 'name', 'email', 'status', 'created_at', 'updated_at'])
 					// .addSelect(['password'])
 					.filterById(res.locals.validated.id)
@@ -88,33 +92,35 @@ class UserController {
 			);
 		});
 
-		res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(user);
+		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(user);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
 
 		// Validate against the schema
-		const validated = UserUpdateValidator.safeParse(req.body);
+		const validated = UserUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(paramsUpdateList)
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
-		const existingUser = await UserRepository.createQuery()
+		const existingUser = await getUserRepository()
+			.createQuery()
 			.filterBy('id', res.locals.validated.id, '!=')
 			.filterByEmail(validated.data.email)
 			.first();
@@ -140,71 +146,63 @@ class UserController {
 			) as Partial<UserEntity>),
 		};
 
-		// Set `contextData` for usage in subscriber
-		updatedEntity.contextData = {
-			auth_id: policy.getUserId(),
-		};
+		await getUserRepository().save(updatedEntity);
 
-		await UserRepository.save(updatedEntity);
+		res.locals.output.message(lang('user.success.update'));
+		res.locals.output.data(updatedEntity);
 
-		res.output.message(lang('user.success.update'));
-		res.output.data(user);
-
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+	public delete = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.delete();
 
-		await UserRepository.createQuery()
+		await getUserRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.delete();
 
-		res.output.message(lang('user.success.delete'));
+		res.locals.output.message(lang('user.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public restore = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+	public restore = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.restore();
 
-		await UserRepository.createQuery()
+		await getUserRepository()
+			.createQuery()
 			.filterById(res.locals.validated.id)
-			.setContextData({
-				auth_id: policy.getUserId(),
-			})
 			.restore();
 
-		res.output.message(lang('user.success.restore'));
+		res.locals.output.message(lang('user.success.restore'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.find();
 
 		// Validate against the schema
-		const validated = UserFindValidator.safeParse(req.query);
+		const validated = UserFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const [entries, total] = await UserRepository.createQuery()
+		const [entries, total] = await getUserRepository()
+			.createQuery()
 			.filterById(validated.data.filter.id)
 			.filterByStatus(validated.data.filter.status)
 			.filterBy('role', validated.data.filter.role)
@@ -221,7 +219,7 @@ class UserController {
 			.pagination(validated.data.page, validated.data.limit)
 			.all(true);
 
-		res.output.data({
+		res.locals.output.data({
 			entries: entries,
 			pagination: {
 				page: validated.data.page,
@@ -231,16 +229,17 @@ class UserController {
 			query: validated.data,
 		});
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public statusUpdate = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(req);
+	public statusUpdate = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new UserPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
 		policy.update();
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'status'])
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
@@ -260,11 +259,11 @@ class UserController {
 			auth_id: policy.getUserId(),
 		};
 
-		await UserRepository.save(user);
+		await getUserRepository().save(user);
 
-		res.output.message(lang('user.success.status_update'));
+		res.locals.output.message(lang('user.success.status_update'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

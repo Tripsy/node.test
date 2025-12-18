@@ -38,12 +38,9 @@ export class TemplateQuery extends RepositoryAbstract<TemplateEntity> {
 	}
 }
 
-export const TemplateRepository = dataSource
-	.getRepository(TemplateEntity)
-	.extend({
+export const getTemplateRepository = () =>
+	dataSource.getRepository(TemplateEntity).extend({
 		createQuery() {
 			return new TemplateQuery(this);
 		},
 	});
-
-export default TemplateRepository;

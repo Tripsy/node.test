@@ -10,7 +10,10 @@
 		"password_condition_special_character": "Password must contain at least one special character",
 		"password_confirm_required": "Password confirmation is required",
 		"password_confirm_mismatch": "Passwords does not match",
-		"language_invalid": "Invalid language"
+		"language_invalid": "Invalid language",
+		"operator_type_invalid": "Invalid operator type",
+		"operator_type_required": "Operator type is required when role is operator",
+		"operator_type_only_for_operator": "Operator type can only be set when role is operator"
 	},
 	"error": {
 		"not_found": "User not found",
@@ -25,12 +28,12 @@
 		"status_update": "User status updated successfully"
 	},
 	"history": {
-		"created": "User #{{id}} created by user #{{auth_id}}",
-		"updated": "User #{{id}} updated by user #{{auth_id}}",
-		"deleted": "User #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "User #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "User #{{id}} has been restored by user #{{auth_id}}",
-		"status": "User #{{id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}",
-		"password_change": "Password changed for user #{{id}} by user #{{auth_id}}"
+		"created": "User #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "User #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "User #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "User #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "User #{{entity_id}} has been restored by user #{{auth_id}}",
+		"status": "User #{{entity_id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}",
+		"password_change": "Password changed for user #{{entity_id}} by user #{{auth_id}}"
 	}
 }

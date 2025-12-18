@@ -7,8 +7,5 @@
 	},
 	"validation": {
 		"ids_invalid": "Invalid ids"
-	},
-	"history": {
-		"deleted": "Cron(s) history have been removed by user #{{auth_id}}"
 	}
 }

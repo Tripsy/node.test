@@ -4,27 +4,25 @@ import { getActiveAuthToken } from '@/features/account/account.service';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
-import UserRepository from '@/features/user/user.repository';
+import { getUserRepository } from '@/features/user/user.repository';
 import { getPolicyPermissions } from '@/features/user/user.service';
-import { createFutureDate, dateDiffInSeconds } from '@/helpers/date.helper';
 import {
 	compareMetaDataValue,
+	createFutureDate,
+	dateDiffInSeconds,
 	tokenMetaData,
-} from '@/helpers/meta-data.helper';
+} from '@/helpers';
 
-async function authMiddleware(
-	req: Request,
-	_res: Response,
-	next: NextFunction,
-) {
+async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 	try {
 		// Initialize the user as a visitor
-		req.user = {
+		res.locals.auth = {
 			id: 0,
 			email: '',
 			name: '',
 			language: cfg('app.language') as string,
 			role: 'visitor',
+			operator_type: null,
 			permissions: [],
 			activeToken: '',
 		};
@@ -37,7 +35,7 @@ async function authMiddleware(
 			return next();
 		}
 
-		// Check if token is expired
+		// Check if the token is expired
 		if (activeToken.expire_at < new Date()) {
 			AccountTokenRepository.removeTokenById(activeToken.id);
 
@@ -57,7 +55,8 @@ async function authMiddleware(
 			return next();
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select([
 				'id',
 				'name',
@@ -66,13 +65,14 @@ async function authMiddleware(
 				'password_updated_at',
 				'language',
 				'role',
+				'operator_type',
 				'status',
 				'created_at',
 			])
 			.filterById(activeToken.user_id)
 			.first();
 
-		// User not found or inactive
+		// User was not found or inactive
 		if (!user || user.status !== UserStatusEnum.ACTIVE) {
 			AccountTokenRepository.removeTokenById(activeToken.id);
 
@@ -99,7 +99,7 @@ async function authMiddleware(
 		}
 
 		// Attach user information to the request object
-		req.user = {
+		res.locals.auth = {
 			...user,
 			permissions:
 				user.role === UserRoleEnum.OPERATOR

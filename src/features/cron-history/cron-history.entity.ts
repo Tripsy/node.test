@@ -18,19 +18,19 @@ export default class CronHistoryEntity {
 	@Column('varchar', { nullable: false })
 	label!: string;
 
-	@Index('IDX_cron_history_start_at', { unique: false })
 	@Column({ type: 'timestamp', nullable: false })
+	@Index('IDX_cron_history_start_at', { unique: false })
 	start_at!: Date;
 
 	@Column({ type: 'timestamp', nullable: false })
 	end_at!: Date;
 
-	@Index('IDX_cron_history_status', { unique: false })
 	@Column({
 		type: 'enum',
 		enum: CronHistoryStatusEnum,
 		nullable: false,
 	})
+	@Index('IDX_cron_history_status', { unique: false })
 	status!: CronHistoryStatusEnum;
 
 	@Column('smallint', {

@@ -1,14 +1,15 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { ZodIssue } from 'zod';
+import type { z } from 'zod';
 
 type OutputData = Record<string, unknown>;
+type ZodIssue = z.core.$ZodIssue;
 
 interface OutputWrapperInterface {
 	success: boolean;
 	message: string;
-	errors: Array<ZodIssue | Record<string, unknown>>;
-	data: Record<string, unknown>;
-	meta: Record<string, unknown>;
+	errors: Array<ZodIssue | OutputData>;
+	data: OutputData;
+	meta: OutputData;
 	request: {
 		url: string;
 		headers: OutputData;
@@ -24,7 +25,7 @@ export const outputHandler = (
 	res: Response,
 	next: NextFunction,
 ): void => {
-	res.output = new OutputWrapper(req, res);
+	res.locals.output = new OutputWrapper(req, res);
 
 	next();
 };
@@ -95,6 +96,12 @@ export class OutputWrapper {
 		// Force success to true
 		if ([200, 201, 202, 204].includes(this.res.statusCode)) {
 			this.success(true);
+		}
+
+		// Pull metadata added by metaDocumentation
+		if (this.res.locals._documentationUrl) {
+			this.result.meta.documentationUrl =
+				this.res.locals._documentationUrl;
 		}
 
 		if (filter) {

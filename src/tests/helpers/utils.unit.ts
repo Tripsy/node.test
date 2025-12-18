@@ -1,4 +1,4 @@
-import { isValidIp, replaceVars } from '@/helpers/utils.helper';
+import { isValidIp, replaceVars } from '@/helpers';
 
 describe('helpers/utils.helper.ts - Unit Tests', () => {
 	describe('isValidIp', () => {

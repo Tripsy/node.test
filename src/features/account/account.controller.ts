@@ -33,14 +33,14 @@ import {
 import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
-import UserRepository from '@/features/user/user.repository';
-import asyncHandler from '@/helpers/async.handler';
-import { createPastDate } from '@/helpers/date.helper';
+import { getUserRepository } from '@/features/user/user.repository';
 import {
 	compareMetaDataValue,
+	createPastDate,
+	getClientIp,
 	tokenMetaData,
-} from '@/helpers/meta-data.helper';
-import { getClientIp } from '@/helpers/system.helper';
+} from '@/helpers';
+import asyncHandler from '@/helpers/async.handler';
 import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 import type { EmailTemplate } from '@/types/template.type';
 import type {
@@ -50,21 +50,22 @@ import type {
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (should not be authenticated)
 		policy.register();
 
 		// Validate against the schema
-		const validated = AccountRegisterValidator.safeParse(req.body);
+		const validated = AccountRegisterValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const existingUser = await UserRepository.createQuery()
+		const existingUser = await getUserRepository()
+			.createQuery()
 			.filterByEmail(validated.data.email)
 			.first();
 
@@ -85,27 +86,27 @@ class AccountController {
 		user.name = validated.data.name;
 		user.email = validated.data.email;
 		user.password = validated.data.password;
-		user.language = validated.data.language || req.lang;
+		user.language = validated.data.language || res.locals.lang;
 
-		const entry: UserEntity = await UserRepository.save(user);
+		const entry: UserEntity = await getUserRepository().save(user);
 
-		res.output.data(entry);
-		res.output.message(lang('account.success.register'));
+		res.locals.output.data(entry);
+		res.locals.output.message(lang('account.success.register'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public login = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (should not be authenticated)
 		policy.login();
 
 		// Validate against the schema
-		const validated = AccountLoginValidator.safeParse(req.body);
+		const validated = AccountLoginValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -115,7 +116,8 @@ class AccountController {
 
 		await policy.checkRateLimitOnLogin(ipKey, emailKey);
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'password', 'status'])
 			.filterByEmail(validated.data.email)
 			.firstOrFail();
@@ -154,37 +156,39 @@ class AccountController {
 			authValidTokens.length >= (cfg('user.maxActiveSessions') as number)
 		) {
 			res.status(403); // Forbidden - client's identity is known to the server
-			res.output.message(lang('account.error.max_active_sessions'));
-			res.output.data({
+			res.locals.output.message(
+				lang('account.error.max_active_sessions'),
+			);
+			res.locals.output.data({
 				authValidTokens: authValidTokens,
 			});
 		} else {
 			const token = await setupToken(user, req);
 
-			res.output.message(lang('account.success.login'));
-			res.output.data({
+			res.locals.output.message(lang('account.success.login'));
+			res.locals.output.data({
 				token: token,
 			});
 		}
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	/**
 	 * With this endpoint account tokens can be removed
-	 * It is allowed to be used authenticated or not; "safety" is only guaranteed by the ident parameter which is hard to guess
+	 * It is allowed to be used authenticated or not
 	 *
 	 * Practical aspects:
-	 *      - On login (with valid credentials) if too many sessions are active a list of tokens will be returned
+	 *      - On login (with valid credentials), if too many sessions are active, a list of tokens will be returned
 	 *        in the response -> front-end implementation can allow token(s) to be removed before login retry
-	 *      - From his account page user could see all active tokens and allow removal
+	 *      - From his account page the user could see all active tokens and allow removal
 	 */
 	public removeToken = asyncHandler(async (req: Request, res: Response) => {
 		// Validate against the schema
-		const validated = AccountRemoveTokenValidator.safeParse(req.body);
+		const validated = AccountRemoveTokenValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
@@ -193,13 +197,13 @@ class AccountController {
 			.filterByIdent(validated.data.ident)
 			.delete(false);
 
-		res.output.message(lang('account.success.token_deleted'));
+		res.locals.output.message(lang('account.success.token_deleted'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public logout = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (should be authenticated)
 		policy.logout();
@@ -223,30 +227,31 @@ class AccountController {
 			}
 		}
 
-		res.output.message(lang('account.success.logout'));
+		res.locals.output.message(lang('account.success.logout'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public passwordRecover = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(req);
+			const policy = new AccountPolicy(res.locals.auth);
 
 			// Check permission (should not be authenticated)
 			policy.passwordRecover();
 
 			// Validate against the schema
-			const validated = AccountPasswordRecoverValidator.safeParse(
+			const validated = AccountPasswordRecoverValidator().safeParse(
 				req.body,
 			);
 
 			if (!validated.success) {
-				res.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.issues);
 
 				throw new BadRequestError();
 			}
 
-			const user = await UserRepository.createQuery()
+			const user = await getUserRepository()
+				.createQuery()
 				.select(['id', 'name', 'email', 'language', 'status'])
 				.filterByEmail(validated.data.email)
 				.firstOrFail();
@@ -277,7 +282,7 @@ class AccountController {
 
 			const emailTemplate: EmailTemplate = await loadEmailTemplate(
 				'password-recover',
-				user.language || req.lang,
+				user.language || res.locals.lang,
 			);
 
 			emailTemplate.content.vars = {
@@ -291,15 +296,15 @@ class AccountController {
 				address: user.email,
 			});
 
-			res.output.message(lang('account.success.password_recover'));
+			res.locals.output.message(lang('account.success.password_recover'));
 
-			res.json(res.output);
+			res.json(res.locals.output);
 		},
 	);
 
 	public passwordRecoverChange = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(req);
+			const policy = new AccountPolicy(res.locals.auth);
 
 			// Check permission (should not be authenticated)
 			policy.passwordRecoverChange();
@@ -307,12 +312,12 @@ class AccountController {
 			const ident = req.params.ident;
 
 			// Validate against the schema
-			const validated = AccountPasswordRecoverChangeValidator.safeParse(
+			const validated = AccountPasswordRecoverChangeValidator().safeParse(
 				req.body,
 			);
 
 			if (!validated.success) {
-				res.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.issues);
 
 				throw new BadRequestError();
 			}
@@ -349,27 +354,28 @@ class AccountController {
 				}
 			}
 
-			const user = await UserRepository.createQuery()
+			const user = await getUserRepository()
+				.createQuery()
 				.select(['id', 'name', 'email', 'language', 'status'])
 				.filterById(recovery.user_id)
 				.first();
 
-			// User not found or inactive
+			// User was not found or inactive
 			if (!user || user.status !== UserStatusEnum.ACTIVE) {
 				throw new NotFoundError(lang('account.error.not_found'));
 			}
 
-			// Update user password & remove all account tokens
+			// Update user password and remove all account tokens
 			await updateUserPassword(user, validated.data.password);
 
-			// Mark recovery token as used
+			// Mark the recovery token as used
 			await AccountRecoveryRepository.update(recovery.id, {
 				used_at: new Date(),
 			});
 
 			const emailTemplate: EmailTemplate = await loadEmailTemplate(
 				'password-change',
-				user.language || req.lang,
+				user.language || res.locals.lang,
 			);
 
 			emailTemplate.content.vars = {
@@ -381,31 +387,32 @@ class AccountController {
 				address: user.email,
 			});
 
-			res.output.message(lang('account.success.password_changed'));
+			res.locals.output.message(lang('account.success.password_changed'));
 
-			res.json(res.output);
+			res.json(res.locals.output);
 		},
 	);
 
 	public passwordUpdate = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(req);
+			const policy = new AccountPolicy(res.locals.auth);
 
 			// Check permission (needs to be authenticated)
 			policy.me();
 
 			// Validate against the schema
-			const validated = AccountPasswordUpdateValidator.safeParse(
+			const validated = AccountPasswordUpdateValidator().safeParse(
 				req.body,
 			);
 
 			if (!validated.success) {
-				res.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.issues);
 
 				throw new BadRequestError();
 			}
 
-			const user = await UserRepository.createQuery()
+			const user = await getUserRepository()
+				.createQuery()
 				.select(['id', 'password'])
 				.filterById(policy.getUserId())
 				.firstOrFail();
@@ -416,7 +423,7 @@ class AccountController {
 			);
 
 			if (!isValidPassword) {
-				res.output.errors([
+				res.locals.output.errors([
 					{
 						password_current: lang(
 							'account.validation.password_invalid',
@@ -427,25 +434,25 @@ class AccountController {
 				throw new UnauthorizedError();
 			}
 
-			// Update user password & remove all account tokens
+			// Update user password and remove all account tokens
 			await updateUserPassword(user, validated.data.password_new);
 
 			// Generate new token
 			const token = await setupToken(user, req);
 
-			res.output.message(lang('account.success.password_updated'));
-			res.output.data({
+			res.locals.output.message(lang('account.success.password_updated'));
+			res.locals.output.data({
 				token: token,
 			});
 
-			res.json(res.output);
+			res.json(res.locals.output);
 		},
 	);
 
 	/**
 	 * This endpoint is used to confirm user email after account registration or email update
-	 * It is allowed to be used authenticated or not; "safety" is guaranteed by the token parameter which is pretty much impossible to guess
-	 * & "Yes" - based on implementation (maybe auto-login after registration) - confirmation can take place even if logged in
+	 * It is allowed to be used authenticated or not
+	 * ...and "Yes" - based on implementation (maybe auto-login after registration) - confirmation can take place even if logged in
 	 */
 	public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
 		const token = decodeURIComponent(req.params.token);
@@ -464,7 +471,8 @@ class AccountController {
 			);
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'status'])
 			.filterById(payload.user_id)
 			.filterByEmail(payload.user_email)
@@ -480,9 +488,9 @@ class AccountController {
 			user.email = payload.user_email_new;
 			user.email_verified_at = new Date();
 
-			await UserRepository.save(user);
+			await getUserRepository().save(user);
 
-			res.output.message(lang('account.success.email_updated'));
+			res.locals.output.message(lang('account.success.email_updated'));
 		} else {
 			// Confirm procedure for email confirmation
 			switch (user.status) {
@@ -498,12 +506,12 @@ class AccountController {
 			user.status = UserStatusEnum.ACTIVE;
 			user.email_verified_at = new Date();
 
-			await UserRepository.save(user);
+			await getUserRepository().save(user);
 
-			res.output.message(lang('account.success.email_confirmed'));
+			res.locals.output.message(lang('account.success.email_confirmed'));
 		}
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	/**
@@ -511,23 +519,24 @@ class AccountController {
 	 */
 	public emailConfirmSend = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(req);
+			const policy = new AccountPolicy(res.locals.auth);
 
 			// Check permission (should not be authenticated)
 			policy.emailConfirmSend();
 
 			// Validate against the schema
-			const validated = AccountEmailConfirmSendValidator.safeParse(
+			const validated = AccountEmailConfirmSendValidator().safeParse(
 				req.body,
 			);
 
 			if (!validated.success) {
-				res.output.errors(validated.error.errors);
+				res.locals.output.errors(validated.error.issues);
 
 				throw new BadRequestError();
 			}
 
-			const user = await UserRepository.createQuery()
+			const user = await getUserRepository()
+				.createQuery()
 				.select(['id', 'name', 'email', 'language', 'status'])
 				.filterByEmail(validated.data.email)
 				.first();
@@ -543,28 +552,31 @@ class AccountController {
 
 			await sendEmailConfirmCreate(user);
 
-			res.output.message(lang('account.success.email_confirmation_sent'));
+			res.locals.output.message(
+				lang('account.success.email_confirmation_sent'),
+			);
 
-			res.json(res.output);
+			res.json(res.locals.output);
 		},
 	);
 
 	public emailUpdate = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
 
 		// Validate against the schema
-		const validated = AccountEmailUpdateValidator.safeParse(req.body);
+		const validated = AccountEmailUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const existingUser = await UserRepository.createQuery()
+		const existingUser = await getUserRepository()
+			.createQuery()
 			.filterByEmail(validated.data.email_new)
 			.first();
 
@@ -576,7 +588,8 @@ class AccountController {
 			);
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'name', 'email', 'language'])
 			.filterById(policy.getUserId())
 			.firstOrFail();
@@ -584,13 +597,13 @@ class AccountController {
 		// Send confirmation email
 		await sendEmailConfirmUpdate(user, validated.data.email_new);
 
-		res.output.message(lang('account.success.email_update_request'));
+		res.locals.output.message(lang('account.success.email_update_request'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
-	public me = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+	public me = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -599,7 +612,7 @@ class AccountController {
 
 		// const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, policy.getUserId().toString() , 'details');
 		// const user = await cacheProvider.get(cacheKey, async () => {
-		//     const userData = await UserRepository
+		//     const userData = await getUserRepository()
 		//         .createQuery()
 		//         .select(['id', 'name', 'email', 'language', 'status', 'role', 'created_at', 'updated_at'])
 		//         .filterById(policy.getUserId())
@@ -612,17 +625,17 @@ class AccountController {
 		//     return userData;
 		// });
 
-		// res.output.meta(cacheProvider.isCached, 'isCached');
-		res.output.data(req.user);
+		// res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.data(res.locals.auth);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	/**
 	 * Returns a list of all active sessions for the current user
 	 */
-	public sessions = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+	public sessions = asyncHandler(async (_req: Request, res: Response) => {
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -639,17 +652,17 @@ class AccountController {
 		const tokens = authValidTokens.map((token) => {
 			return {
 				...token,
-				used_now: token.ident === req.user?.activeToken,
+				used_now: token.ident === res.locals.auth?.activeToken,
 			};
 		});
 
-		res.output.data(tokens);
+		res.locals.output.data(tokens);
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public edit = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -661,15 +674,16 @@ class AccountController {
 		}
 
 		// Validate against the schema
-		const validated = AccountEditValidator.safeParse(req.body);
+		const validated = AccountEditValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['name', 'language'])
 			.filterById(user_id)
 			.firstOrFail();
@@ -682,15 +696,15 @@ class AccountController {
 			auth_id: user_id,
 		};
 
-		await UserRepository.save(user);
+		await getUserRepository().save(user);
 
-		res.output.message(lang('account.success.edit'));
+		res.locals.output.message(lang('account.success.edit'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(req);
+		const policy = new AccountPolicy(res.locals.auth);
 
 		// Check permission (needs to be authenticated)
 		policy.me();
@@ -702,15 +716,16 @@ class AccountController {
 		}
 
 		// Validate against the schema
-		const validated = AccountDeleteValidator.safeParse(req.body);
+		const validated = AccountDeleteValidator().safeParse(req.body);
 
 		if (!validated.success) {
-			res.output.errors(validated.error.errors);
+			res.locals.output.errors(validated.error.issues);
 
 			throw new BadRequestError();
 		}
 
-		const user = await UserRepository.createQuery()
+		const user = await getUserRepository()
+			.createQuery()
 			.select(['id', 'password'])
 			.filterById(user_id)
 			.firstOrFail();
@@ -721,7 +736,7 @@ class AccountController {
 		);
 
 		if (!isValidPassword) {
-			res.output.errors([
+			res.locals.output.errors([
 				{
 					password_current: lang(
 						'account.validation.password_invalid',
@@ -732,16 +747,11 @@ class AccountController {
 			throw new UnauthorizedError();
 		}
 
-		await UserRepository.createQuery()
-			.filterById(user_id)
-			.setContextData({
-				auth_id: user_id,
-			})
-			.delete();
+		await getUserRepository().createQuery().filterById(user_id).delete();
 
-		res.output.message(lang('account.success.delete'));
+		res.locals.output.message(lang('account.success.delete'));
 
-		res.json(res.output);
+		res.json(res.locals.output);
 	});
 }
 

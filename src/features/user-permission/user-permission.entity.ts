@@ -8,7 +8,6 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import type { EntityContextData } from '@/abstracts/entity.abstract';
 import PermissionEntity from '@/features/permission/permission.entity';
 import UserEntity from '@/features/user/user.entity';
 
@@ -33,33 +32,19 @@ export default class UserPermissionEntity {
 	@CreateDateColumn({ type: 'timestamp', nullable: false })
 	created_at!: Date;
 
-	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: false })
+	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: true })
 	deleted_at!: Date | null;
 
-	@ManyToOne(
-		() => UserEntity,
-		(user) => user.permissions,
-		{ onDelete: 'CASCADE' },
-	)
-	@JoinColumn({
-		name: 'user_id', // The column in this entity that references the foreign key
-		referencedColumnName: 'id', // The column in the referenced entity (UserEntity)
-		foreignKeyConstraintName: 'FK_user_permission_user_id', // Custom foreign key name
+	// RELATIONS
+	@ManyToOne(() => UserEntity, {
+		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'user_id' })
 	user?: UserEntity;
 
-	@ManyToOne(
-		() => PermissionEntity,
-		(permission) => permission.user_permissions,
-		{ onDelete: 'CASCADE' },
-	)
-	@JoinColumn({
-		name: 'permission_id', // The column in this entity that references the foreign key
-		referencedColumnName: 'id', // The column in the referenced entity (UserEntity)
-		foreignKeyConstraintName: 'FK_user_permission_permission_id', // Custom foreign key name
+	@ManyToOne(() => PermissionEntity, {
+		onDelete: 'CASCADE',
 	})
+	@JoinColumn({ name: 'permission_id' })
 	permission?: PermissionEntity;
-
-	// Virtual
-	contextData?: EntityContextData;
 }

@@ -20,7 +20,7 @@ export const validateParamsWhenId = (...args: string[]) => {
 		}
 
 		if (errors.length > 0) {
-			res.output.errors(errors);
+			res.locals.output.errors(errors);
 
 			throw new BadRequestError();
 		}
@@ -56,7 +56,7 @@ export const validateParamsWhenStatus = (data: Record<string, unknown[]>) => {
 		}
 
 		if (errors.length > 0) {
-			res.output.errors(errors);
+			res.locals.output.errors(errors);
 
 			throw new BadRequestError();
 		}

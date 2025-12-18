@@ -40,12 +40,9 @@ export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
 	}
 }
 
-export const PermissionRepository = dataSource
-	.getRepository(PermissionEntity)
-	.extend({
+export const getPermissionRepository = () =>
+	dataSource.getRepository(PermissionEntity).extend({
 		createQuery() {
 			return new PermissionQuery(this);
 		},
 	});
-
-export default PermissionRepository;

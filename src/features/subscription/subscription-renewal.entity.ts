@@ -1,0 +1,59 @@
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	Index,
+	JoinColumn,
+	ManyToOne,
+	PrimaryGeneratedColumn,
+} from 'typeorm';
+import SubscriptionEntity from '@/features/subscription/subscription.entity';
+
+export enum SubscriptionRenewalStatusEnum {
+	SUCCESS = 'success',
+	FAILED = 'failed',
+}
+
+@Entity({
+	name: 'subscription_renewal',
+	schema: 'public',
+	comment: 'Used to track renewal attempts for subscriptions.',
+})
+export default class SubscriptionRenewalEntity {
+	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	id!: number;
+
+	@Column('bigint', { nullable: false })
+	@Index('IDX_subscription_renewals_subscription_id')
+	subscription_id!: number;
+
+	@Column('bigint', { nullable: false })
+	@Index('IDX_subscription_renewals_invoice_id')
+	invoice_id!: number;
+
+	@Column({
+		type: 'enum',
+		enum: SubscriptionRenewalStatusEnum,
+		nullable: false,
+	})
+	@Index('IDX_subscription_renewals_status')
+	status!: SubscriptionRenewalStatusEnum;
+
+	@Column('jsonb', {
+		nullable: true,
+		comment:
+			'Response data from the payment gateway. For example: { "transaction_id": "1234567890" }',
+	})
+	response_data!: Record<string, unknown> | null;
+
+	@Column('text', { nullable: true })
+	fail_reason!: string | null;
+
+	@CreateDateColumn({ type: 'timestamp', nullable: false })
+	recorded_at!: Date;
+
+	// RELATIONS
+	@ManyToOne(() => SubscriptionEntity, { onDelete: 'CASCADE' })
+	@JoinColumn({ name: 'subscription_id' })
+	subscription!: SubscriptionEntity;
+}

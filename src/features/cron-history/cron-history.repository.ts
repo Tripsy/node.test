@@ -40,12 +40,9 @@ export class CronHistoryQuery extends RepositoryAbstract<CronHistoryEntity> {
 	}
 }
 
-export const CronHistoryRepository = dataSource
-	.getRepository(CronHistoryEntity)
-	.extend({
+export const getCronHistoryRepository = () =>
+	dataSource.getRepository(CronHistoryEntity).extend({
 		createQuery() {
 			return new CronHistoryQuery(this);
 		},
 	});
-
-export default CronHistoryRepository;

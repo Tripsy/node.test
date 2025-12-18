@@ -47,10 +47,9 @@ export class UserQuery extends RepositoryAbstract<UserEntity> {
 	}
 }
 
-export const UserRepository = dataSource.getRepository(UserEntity).extend({
-	createQuery() {
-		return new UserQuery(this);
-	},
-});
-
-export default UserRepository;
+export const getUserRepository = () =>
+	dataSource.getRepository(UserEntity).extend({
+		createQuery() {
+			return new UserQuery(this);
+		},
+	});

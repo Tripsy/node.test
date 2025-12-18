@@ -41,12 +41,9 @@ export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
 	}
 }
 
-export const MailQueueRepository = dataSource
-	.getRepository(MailQueueEntity)
-	.extend({
+export const getMailQueueRepository = () =>
+	dataSource.getRepository(MailQueueEntity).extend({
 		createQuery() {
 			return new MailQueueQuery(this);
 		},
 	});
-
-export default MailQueueRepository;

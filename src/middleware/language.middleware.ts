@@ -11,7 +11,7 @@ function getLanguageFromHeaders(acceptLanguage?: string): string {
 
 async function languageMiddleware(
 	req: Request,
-	_res: Response,
+	res: Response,
 	next: NextFunction,
 ) {
 	let lang: string = (req.query.lang as string) || '';
@@ -22,9 +22,9 @@ async function languageMiddleware(
 
 	// Attach lang value to the request object
 	if ((cfg('app.languageSupported') as string[]).includes(lang)) {
-		req.lang = lang;
+		res.locals.lang = lang;
 	} else {
-		req.lang = cfg('app.language') as string;
+		res.locals.lang = cfg('app.language') as string;
 	}
 
 	next();

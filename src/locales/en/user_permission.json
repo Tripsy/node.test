@@ -14,9 +14,9 @@
 		"operation_invalid": "Invalid operation"
 	},
 	"history": {
-		"created": "User permission #{{id}} created by user #{{auth_id}}",
-		"deleted": "User permission #{{id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "User permission #{{id}} has been removed by user #{{auth_id}}",
-		"restored": "User permission #{{id}} has been restored by user #{{auth_id}}"
+		"created": "User permission #{{entity_id}} created by user #{{auth_id}}",
+		"deleted": "User permission #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
+		"removed": "User permission #{{entity_id}} has been removed by user #{{auth_id}}",
+		"restored": "User permission #{{entity_id}} has been restored by user #{{auth_id}}"
 	}
 }

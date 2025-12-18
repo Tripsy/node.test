@@ -3,11 +3,14 @@ import app from '@/app';
 import type LogDataEntity from '@/features/log-data/log-data.entity';
 import { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import LogDataPolicy from '@/features/log-data/log-data.policy';
-import LogDataRepository from '@/features/log-data/log-data.repository';
-import * as subscriberHelper from '@/helpers/subscriber.helper';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
-import { routeLink } from '@/config/routes.setup';
+import {
+	getLogDataRepository,
+	type LogDataQuery,
+} from '@/features/log-data/log-data.repository';
+import { routeLink } from '@/helpers/routing.helper';
+import * as subscriberHelper from '@/helpers/subscriber.helper';
 
 beforeEach(() => {
 	jest.clearAllMocks();
@@ -71,11 +74,9 @@ describe('LogDataController - read', () => {
 			filterById: jest.fn().mockReturnThis(),
 			withDeleted: jest.fn().mockReturnThis(),
 			firstOrFail: jest.fn().mockResolvedValue(mockLogData),
-		} as jest.MockedObject<
-			ReturnType<typeof LogDataRepository.createQuery>
-		>;
+		} as unknown as LogDataQuery;
 
-		jest.spyOn(LogDataRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getLogDataRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderLogData,
 		);
 
@@ -107,11 +108,9 @@ describe('LogDataController - delete', () => {
 		const mockQueryBuilderLogData = {
 			filterBy: jest.fn().mockReturnThis(),
 			delete: jest.fn().mockResolvedValue(1),
-		} as jest.MockedObject<
-			ReturnType<typeof LogDataRepository.createQuery>
-		>;
+		} as unknown as LogDataQuery;
 
-		jest.spyOn(LogDataRepository, 'createQuery').mockReturnValue(
+		jest.spyOn(getLogDataRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderLogData,
 		);
 
