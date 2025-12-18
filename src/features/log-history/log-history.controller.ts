@@ -44,7 +44,7 @@ class LogHistoryController {
 		const countDelete: number = await getLogHistoryRepository()
 			.createQuery()
 			.filterBy('id', validated.data.ids, 'IN')
-			.delete(false, true);
+			.delete(false, true, true);
 
 		if (countDelete === 0) {
 			res.status(204).locals.output.message(lang('error.db_delete_zero'));

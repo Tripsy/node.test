@@ -59,7 +59,7 @@ class CronHistoryController {
 		const countDelete: number = await getCronHistoryRepository()
 			.createQuery()
 			.filterBy('id', validated.data.ids, 'IN')
-			.delete(false, true);
+			.delete(false, true, true);
 
 		if (countDelete === 0) {
 			res.status(204).locals.output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204

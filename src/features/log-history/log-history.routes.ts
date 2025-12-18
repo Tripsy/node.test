@@ -14,10 +14,9 @@ export default {
 			handlers: [validateParamsWhenId('id')],
 		},
 		delete: {
-			path: '/:id',
+			path: '',
 			method: 'delete',
 			action: 'delete',
-			handlers: [validateParamsWhenId('id')],
 		},
 		find: {
 			path: '',

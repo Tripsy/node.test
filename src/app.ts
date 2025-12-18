@@ -7,7 +7,7 @@ import express from 'express';
 import helmet from 'helmet';
 import i18next from 'i18next';
 import { handle as i18nextMiddleware } from 'i18next-http-middleware';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
 import { initRoutes } from '@/config/routes.setup';
@@ -220,7 +220,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request ID middleware
 app.use((_req, res, next) => {
-	res.locals.request_id = uuidv4();
+	res.locals.request_id = uuid();
 	res.setHeader('X-Request-ID', res.locals.request_id);
 
 	next();

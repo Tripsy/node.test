@@ -35,7 +35,7 @@ export function LogHistoryFindValidator() {
 			entity: validateString(lang('error.invalid_string')).optional(),
 			entity_id: validateNumber(lang('error.invalid_number')).optional(),
 			action: validateString(lang('error.invalid_string')).optional(),
-			request_id: validateNumber(lang('error.invalid_string')).optional(),
+			request_id: validateString(lang('error.invalid_string')).optional(),
 			recorded_at_start: validateDate(),
 			recorded_at_end: validateDate(),
 		},
