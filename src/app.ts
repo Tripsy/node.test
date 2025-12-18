@@ -149,12 +149,14 @@ function shutdown(signal: string): void {
 app.use(
 	helmet({
 		/**
-		 * @security
 		 * APIs don't render HTML.
-		 * Content-Security-Policy adds overhead and provides no value for API endpoints.
-		 * This is a deliberate, security-conscious decision for API-only applications.
 		 */
-		contentSecurityPolicy: false,
+        contentSecurityPolicy: {
+            useDefaults: false,
+            directives: {
+                defaultSrc: ["'none'"],
+            },
+        },
 
 		/**
 		 * Stop browsers from sniffing MIME types.
@@ -169,11 +171,9 @@ app.use(
 		referrerPolicy: { policy: 'no-referrer' },
 
 		/**
-		 * @security
-		 * Not relevant for APIs, disable it.
-		 * API endpoints are not embedded in iframes.
+		 * Not relevant for APIs
 		 */
-		frameguard: false,
+        frameguard: { action: 'deny' },
 
 		/**
 		 * HSTS only in production.

@@ -201,4 +201,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 5. cron hanging / delaying / semaphore ?!
 6. CI/CD
 
-# TEMP
+# DEVELOPMENT STEPS
+
+- last commit before merging main with new entities "Commits on Dec 5, 2025" - "+ unified validators"
+- merged new entities into main branch on 18 dec 2025
