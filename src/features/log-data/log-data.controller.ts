@@ -62,9 +62,11 @@ class LogDataController {
 			.delete(false, true, true);
 
 		if (countDelete === 0) {
-			res.status(204).locals.output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
+			res.status(204).locals.output.message(
+				lang('shared.error.db_delete_zero'),
+			); // Note: By API design the response message is actually not displayed for 204
 		} else {
-			res.locals.output.message(lang('log_data.success.delete'));
+			res.locals.output.message(lang('log-data.success.delete'));
 		}
 
 		res.json(res.locals.output);

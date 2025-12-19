@@ -34,7 +34,7 @@ export function PlaceCreateValidator() {
 				lang('place.validation.code_invalid'),
 			).optional(),
 			parent_id: z.coerce
-				.number({ message: lang('error.invalid_parent_id') })
+				.number({ message: lang('shared.error.invalid_parent_id') })
 				.optional(),
 			content: PlaceContentSchema().array(),
 		})
@@ -64,12 +64,12 @@ export function PlaceUpdateValidator() {
 			).optional(),
 			code: nullableString(lang('place.validation.code_invalid')),
 			parent_id: z.coerce
-				.number({ message: lang('error.invalid_parent_id') })
+				.number({ message: lang('shared.error.invalid_parent_id') })
 				.optional(),
 			content: PlaceContentSchema().array().optional(),
 		})
 		.refine((data) => hasAtLeastOneValue(data), {
-			message: lang('error.params_at_least_one', {
+			message: lang('shared.error.params_at_least_one', {
 				params: ['type', 'code', 'parent_id', 'content'].join(', '),
 			}),
 			path: ['_global'],
@@ -105,10 +105,12 @@ export function PlaceFindValidator() {
 
 		filterShape: {
 			term: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.optional(),
 			type: z.enum(PlaceTypeEnum).optional(),
-			language: validateString(lang('error.invalid_string')).optional(),
+			language: validateString(
+				lang('shared.error.invalid_string'),
+			).optional(),
 			is_deleted: validateBoolean().default(false),
 		},
 	});

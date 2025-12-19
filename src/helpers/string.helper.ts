@@ -65,3 +65,7 @@ export function safeHtml(dirtyHtml: string): string {
 		allowProtocolRelative: false,
 	});
 }
+
+export function snakeToKebab(str: string): string {
+	return str.replace(/_/g, '-');
+}

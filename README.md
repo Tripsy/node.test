@@ -139,7 +139,6 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. dynamic namespaces for i18next
 2. Build an entities list dynamically - for permissions & maybe for other purposes; routes more dynamic
 3. Features disable / enable
 4. create a library / package for my utilities - drop moment !!!

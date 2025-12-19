@@ -20,24 +20,6 @@ function getSettings(): { [key: string]: ObjectValue } {
 			languageSupported: (process.env.APP_LANGUAGE_SUPPORTED || 'en')
 				.trim()
 				.split(','),
-			languageNamespaces: [
-				// TODO remote this if we do dynamic loading of namespaces based on translation files
-				'account',
-				'carrier',
-				'client',
-				'cron_history',
-				'debug',
-				'discount',
-				'error',
-				'log_data',
-				'log_history',
-				'mail_queue',
-				'permission',
-				'place',
-				'template',
-				'user',
-				'user_permission',
-			],
 		},
 		frontend: {
 			url: process.env.FRONTEND_URL || 'http://nextjs.test',

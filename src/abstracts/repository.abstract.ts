@@ -9,7 +9,7 @@ import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import CustomError from '@/exceptions/custom.error';
 import NotFoundError from '@/exceptions/not-found.error';
-import { formatDate } from '@/helpers';
+import { formatDate, snakeToKebab } from '@/helpers';
 
 type QueryValue = string | number | (string | number)[] | null;
 type QueryParams = Record<string, QueryValue>;
@@ -228,7 +228,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		if (!result) {
 			throw new NotFoundError(
 				lang(
-					`${this.entityAlias}.error.not_found`,
+					`${snakeToKebab(this.entityAlias)}.error.not_found`,
 					{},
 					'Entry not found',
 				),
@@ -270,14 +270,14 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 			if (isRaw) {
 				throw new CustomError(
 					500,
-					lang('error.db_select_count_while_using_raw'),
+					lang('shared.error.db_select_count_while_using_raw'),
 				);
 			}
 
 			if (this.hasGroup) {
 				throw new CustomError(
 					500,
-					lang('error.db_select_count_while_using_groups'),
+					lang('shared.error.db_select_count_while_using_groups'),
 				);
 			}
 
@@ -309,7 +309,10 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		force: boolean = false,
 	): Promise<number> {
 		if (!force && !this.hasFilter) {
-			throw new CustomError(500, lang('error.db_delete_missing_filter'));
+			throw new CustomError(
+				500,
+				lang('shared.error.db_delete_missing_filter'),
+			);
 		}
 
 		const results = await this.query.getMany();
@@ -319,7 +322,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		}
 
 		if (!multiple && results.length > 1) {
-			throw new CustomError(500, lang('error.db_delete_one'));
+			throw new CustomError(500, lang('shared.error.db_delete_one'));
 		}
 
 		if (isSoftDelete) {
@@ -336,7 +339,10 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		force: boolean = false,
 	): Promise<number> {
 		if (!force && !this.hasFilter) {
-			throw new CustomError(500, lang('error.db_restore_missing_filter'));
+			throw new CustomError(
+				500,
+				lang('shared.error.db_restore_missing_filter'),
+			);
 		}
 
 		const results = await this.query.withDeleted().getMany();
@@ -346,7 +352,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		}
 
 		if (!multiple && results.length > 1) {
-			throw new CustomError(500, lang('error.db_restore_one'));
+			throw new CustomError(500, lang('shared.error.db_restore_one'));
 		}
 
 		for (const entity of results) {

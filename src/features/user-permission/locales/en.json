@@ -9,7 +9,6 @@
 		"delete": "User permission deleted"
 	},
 	"validation": {
-		"permission_ids_invalid": "Invalid permission ids",
 		"entity_invalid": "Invalid entity",
 		"operation_invalid": "Invalid operation"
 	},

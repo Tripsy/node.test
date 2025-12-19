@@ -11,7 +11,9 @@ import {
 export function LogHistoryDeleteValidator() {
 	return z.object({
 		ids: z.array(z.number(), {
-			message: lang('log_history.validation.ids_invalid'),
+			message: lang('shared.error.invalid_ids', {
+				name: 'ids',
+			}),
 		}),
 	});
 }
@@ -32,10 +34,18 @@ export function LogHistoryFindValidator() {
 		defaultDirection: OrderDirectionEnum.ASC,
 
 		filterShape: {
-			entity: validateString(lang('error.invalid_string')).optional(),
-			entity_id: validateNumber(lang('error.invalid_number')).optional(),
-			action: validateString(lang('error.invalid_string')).optional(),
-			request_id: validateString(lang('error.invalid_string')).optional(),
+			entity: validateString(
+				lang('shared.error.invalid_string'),
+			).optional(),
+			entity_id: validateNumber(
+				lang('shared.error.invalid_number'),
+			).optional(),
+			action: validateString(
+				lang('shared.error.invalid_string'),
+			).optional(),
+			request_id: validateString(
+				lang('shared.error.invalid_string'),
+			).optional(),
 			recorded_at_start: validateDate(),
 			recorded_at_end: validateDate(),
 		},
@@ -47,7 +57,7 @@ export function LogHistoryFindValidator() {
 		) {
 			ctx.addIssue({
 				path: ['filter', 'recorded_at_start'],
-				message: lang('error.invalid_date_range'),
+				message: lang('shared.error.invalid_date_range'),
 				code: 'custom',
 			});
 		}

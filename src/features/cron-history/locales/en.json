@@ -4,8 +4,5 @@
 	},
 	"success": {
 		"delete": "Cron(s) history deleted"
-	},
-	"validation": {
-		"ids_invalid": "Invalid ids"
 	}
 }

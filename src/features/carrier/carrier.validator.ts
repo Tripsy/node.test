@@ -74,7 +74,7 @@ export function CarrierUpdateValidator() {
 			notes: nullableString(lang('carrier.validation.notes_invalid')),
 		})
 		.refine((data) => hasAtLeastOneValue(data), {
-			message: lang('error.params_at_least_one', {
+			message: lang('shared.error.params_at_least_one', {
 				params: paramsUpdateList.join(', '),
 			}),
 			path: ['_global'],
@@ -96,21 +96,21 @@ export function CarrierFindValidator() {
 			.optional()
 			.default(OrderDirectionEnum.ASC),
 		limit: z.coerce
-			.number({ message: lang('error.invalid_number') })
+			.number({ message: lang('shared.error.invalid_number') })
 			.min(1)
 			.optional()
 			.default(cfg('filter.limit') as number),
 		page: z.coerce
-			.number({ message: lang('error.invalid_number') })
+			.number({ message: lang('shared.error.invalid_number') })
 			.min(1)
 			.optional()
 			.default(1),
 		filter: makeJsonFilterSchema({
 			id: z.coerce
-				.number({ message: lang('error.invalid_number') })
+				.number({ message: lang('shared.error.invalid_number') })
 				.optional(),
 			term: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.optional(),
 			is_deleted: validateBoolean().default(false),
 		})

@@ -64,8 +64,8 @@ export function DiscountCreateValidator() {
 				.positive({
 					message: lang('discount.validation.value_must_be_positive'),
 				}),
-			start_at: validateDate(lang('error.start_at_invalid')),
-			end_at: validateDate(lang('error.end_at_invalid')),
+			start_at: validateDate(lang('shared.error.start_at_invalid')),
+			end_at: validateDate(lang('shared.error.end_at_invalid')),
 			notes: nullableString(lang('discount.validation.notes_invalid')),
 		})
 		.superRefine((data, ctx) => {
@@ -127,12 +127,12 @@ export function DiscountUpdateValidator() {
 					message: lang('discount.validation.value_must_be_positive'),
 				})
 				.optional(),
-			start_at: validateDate(lang('error.start_at_invalid')),
-			end_at: validateDate(lang('error.end_at_invalid')),
+			start_at: validateDate(lang('shared.error.start_at_invalid')),
+			end_at: validateDate(lang('shared.error.end_at_invalid')),
 			notes: nullableString(lang('discount.validation.notes_invalid')),
 		})
 		.refine((data) => hasAtLeastOneValue(data), {
-			message: lang('error.params_at_least_one', {
+			message: lang('shared.error.params_at_least_one', {
 				params: paramsUpdateList.join(', '),
 			}),
 			path: ['_global'],
@@ -183,10 +183,10 @@ export function DiscountFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('error.invalid_number') })
+				.number({ message: lang('shared.error.invalid_number') })
 				.optional(),
 			term: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.optional(),
 			scope: z.enum(DiscountScopeEnum).optional(),
 			reason: z.enum(DiscountReasonEnum).optional(),
@@ -204,7 +204,7 @@ export function DiscountFindValidator() {
 		) {
 			ctx.addIssue({
 				path: ['filter', 'start_at_start'],
-				message: lang('error.invalid_date_range'),
+				message: lang('shared.error.invalid_date_range'),
 				code: 'custom',
 			});
 		}

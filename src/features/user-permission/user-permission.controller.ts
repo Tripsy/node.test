@@ -49,13 +49,13 @@ class UserPermissionController {
 
 						results.push({
 							permission_id: permission_id,
-							message: lang('user_permission.success.restore'),
+							message: lang('user-permission.success.restore'),
 						});
 					} else {
 						results.push({
 							permission_id: permission_id,
 							message: lang(
-								'user_permission.error.already_exists',
+								'user-permission.error.already_exists',
 							),
 						});
 					}
@@ -68,14 +68,14 @@ class UserPermissionController {
 
 					results.push({
 						permission_id: permission_id,
-						message: lang('user_permission.success.created'),
+						message: lang('user-permission.success.created'),
 					});
 				}
 			}),
 		);
 
 		res.locals.output.data(results);
-		res.locals.output.message(lang('user_permission.success.update'));
+		res.locals.output.message(lang('user-permission.success.update'));
 
 		res.json(res.locals.output);
 	});
@@ -91,7 +91,7 @@ class UserPermissionController {
 			.filterBy('permission_id', res.locals.validated.permission_id)
 			.delete(true, false, true);
 
-		res.locals.output.message(lang('user_permission.success.delete'));
+		res.locals.output.message(lang('user-permission.success.delete'));
 
 		res.json(res.locals.output);
 	});
@@ -107,7 +107,7 @@ class UserPermissionController {
 			.filterBy('user_id', res.locals.validated.user_id)
 			.restore();
 
-		res.locals.output.message(lang('user_permission.success.restore'));
+		res.locals.output.message(lang('user-permission.success.restore'));
 
 		res.json(res.locals.output);
 	});

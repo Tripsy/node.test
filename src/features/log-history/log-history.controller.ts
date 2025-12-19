@@ -47,9 +47,11 @@ class LogHistoryController {
 			.delete(false, true, true);
 
 		if (countDelete === 0) {
-			res.status(204).locals.output.message(lang('error.db_delete_zero'));
+			res.status(204).locals.output.message(
+				lang('shared.error.db_delete_zero'),
+			);
 		} else {
-			res.locals.output.message(lang('log_history.success.delete'));
+			res.locals.output.message(lang('log-history.success.delete'));
 		}
 
 		res.json(res.locals.output);

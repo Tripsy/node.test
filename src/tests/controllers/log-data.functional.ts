@@ -126,7 +126,7 @@ describe('LogDataController - delete', () => {
 			.send(testData);
 
 		expect(response.status).toBe(200);
-		expect(response.body.message).toBe('log_data.success.delete');
+		expect(response.body.message).toBe('log-data.success.delete');
 		expect(mockQueryBuilderLogData.filterBy).toHaveBeenCalledWith(
 			'id',
 			[1, 2, 3],

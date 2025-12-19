@@ -12,7 +12,7 @@ export const validateParamsWhenId = (...args: string[]) => {
 
 			if (Number.isNaN(value) || value <= 0) {
 				errors.push({
-					[name]: lang('error.invalid_id', { name }),
+					[name]: lang('shared.error.invalid_id', { name }),
 				});
 			} else {
 				validated[name] = value;
@@ -45,7 +45,7 @@ export const validateParamsWhenStatus = (data: Record<string, unknown[]>) => {
 
 			if (!allowedValues.includes(value)) {
 				errors.push({
-					[name]: lang('error.invalid_status', {
+					[name]: lang('shared.error.invalid_status', {
 						name: name,
 						allowedValues: allowedValues.join(', '),
 					}),

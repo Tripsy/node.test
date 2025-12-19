@@ -255,7 +255,7 @@ export class LogStream extends Writable {
 			.sendMail({
 				from: cfg('mail.fromAddress') as string,
 				to: cfg('logging.logEmail') as string,
-				subject: lang('debug.email_log_subject', {
+				subject: lang('shared.debug.email_log_subject', {
 					app: cfg('app.name') as string,
 					level: logLevel,
 				}),

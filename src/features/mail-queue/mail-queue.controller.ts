@@ -62,7 +62,9 @@ class MailQueueController {
 			.delete(false, true, true);
 
 		if (countDelete === 0) {
-			res.status(204).locals.output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
+			res.status(204).locals.output.message(
+				lang('shared.error.db_delete_zero'),
+			); // Note: By API design the response message is actually not displayed for 204
 		} else {
 			logHistory(
 				MailQueueQuery.entityAlias,
@@ -70,7 +72,7 @@ class MailQueueController {
 				'deleted',
 			);
 
-			res.locals.output.message(lang('mail_queue.success.delete'));
+			res.locals.output.message(lang('mail-queue.success.delete'));
 		}
 
 		res.json(res.locals.output);

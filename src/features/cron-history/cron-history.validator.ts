@@ -7,7 +7,9 @@ import { makeFindValidator, validateDate } from '@/helpers';
 export function CronHistoryDeleteValidator() {
 	return z.object({
 		ids: z.array(z.number(), {
-			message: lang('cron_history.validation.ids_invalid'),
+			message: lang('shared.error.invalid_ids', {
+				name: 'ids',
+			}),
 		}),
 	});
 }
@@ -28,10 +30,10 @@ export function CronHistoryFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('error.invalid_number') })
+				.number({ message: lang('shared.error.invalid_number') })
 				.optional(),
 			term: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.optional(),
 			status: z.enum(CronHistoryStatusEnum).optional(),
 			start_date_start: validateDate(),
@@ -45,7 +47,7 @@ export function CronHistoryFindValidator() {
 		) {
 			ctx.addIssue({
 				path: ['filter', 'create_date_start'],
-				message: lang('error.invalid_date_range'),
+				message: lang('shared.error.invalid_date_range'),
 				code: 'custom',
 			});
 		}

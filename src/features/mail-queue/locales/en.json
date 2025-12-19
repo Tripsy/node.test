@@ -6,8 +6,7 @@
 		"delete": "Mail queue entry / entries deleted"
 	},
 	"validation": {
-		"language_invalid": "Invalid language",
-		"ids_invalid": "Invalid ids"
+		"language_invalid": "Invalid language"
 	},
 	"history": {
 		"deleted": "Mail queue entry / entries have been removed by user #{{auth_id}}"

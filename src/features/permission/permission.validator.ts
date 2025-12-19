@@ -28,10 +28,10 @@ export function PermissionFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('error.invalid_number') })
+				.number({ message: lang('shared.error.invalid_number') })
 				.optional(),
 			term: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.optional(),
 			is_deleted: validateBoolean().default(false),
 		},

@@ -8,7 +8,9 @@ import { makeFindValidator, validateDate } from '@/helpers';
 export function MailQueueDeleteValidator() {
 	return z.object({
 		ids: z.array(z.number(), {
-			message: lang('mail_queue.validation.ids_invalid'),
+			message: lang('shared.error.invalid_ids', {
+				name: 'ids',
+			}),
 		}),
 	});
 }
@@ -29,29 +31,29 @@ export function MailQueueFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('error.invalid_number') })
+				.number({ message: lang('shared.error.invalid_number') })
 				.optional(),
 			template: z.union([z.string(), z.number()]).optional(),
 			language: z
 				.string()
 				.length(2, {
-					message: lang('mail_queue.validation.language_invalid'),
+					message: lang('mail-queue.validation.language_invalid'),
 				})
 				.optional(),
 			status: z.enum(MailQueueStatusEnum).optional(),
 			content: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.min(cfg('filter.termMinLength') as number, {
-					message: lang('error.string_min', {
+					message: lang('shared.error.string_min', {
 						min: cfg('filter.termMinLength') as string,
 						field: 'content',
 					}),
 				})
 				.optional(),
 			to: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.min(cfg('filter.termMinLength') as number, {
-					message: lang('error.string_min', {
+					message: lang('shared.error.string_min', {
 						min: cfg('filter.termMinLength') as string,
 						field: 'to',
 					}),
@@ -68,7 +70,7 @@ export function MailQueueFindValidator() {
 		) {
 			ctx.addIssue({
 				path: ['filter', 'sent_date_start'],
-				message: lang('error.invalid_date_range'),
+				message: lang('shared.error.invalid_date_range'),
 				code: 'custom',
 			});
 		}

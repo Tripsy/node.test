@@ -163,7 +163,7 @@ export function UserUpdateValidator() {
 			operator_type: z.enum(UserOperatorTypeEnum).nullable().optional(),
 		})
 		.refine((data) => hasAtLeastOneValue(data), {
-			message: lang('error.params_at_least_one', {
+			message: lang('shared.error.params_at_least_one', {
 				params: paramsUpdateList.join(', '),
 			}),
 			path: ['_global'],
@@ -225,10 +225,10 @@ export function UserFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('error.invalid_number') })
+				.number({ message: lang('shared.error.invalid_number') })
 				.optional(),
 			term: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.optional(),
 			status: z.enum(UserStatusEnum).optional(),
 			role: z.enum(UserRoleEnum).optional(),
@@ -244,7 +244,7 @@ export function UserFindValidator() {
 		) {
 			ctx.addIssue({
 				path: ['filter', 'create_date_start'],
-				message: lang('error.invalid_date_range'),
+				message: lang('shared.error.invalid_date_range'),
 				code: 'custom',
 			});
 		}

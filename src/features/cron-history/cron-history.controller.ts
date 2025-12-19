@@ -62,9 +62,11 @@ class CronHistoryController {
 			.delete(false, true, true);
 
 		if (countDelete === 0) {
-			res.status(204).locals.output.message(lang('error.db_delete_zero')); // Note: By API design the response message is actually not displayed for 204
+			res.status(204).locals.output.message(
+				lang('shared.error.db_delete_zero'),
+			); // Note: By API design the response message is actually not displayed for 204
 		} else {
-			res.locals.output.message(lang('cron_history.success.delete'));
+			res.locals.output.message(lang('cron-history.success.delete'));
 		}
 
 		res.json(res.locals.output);

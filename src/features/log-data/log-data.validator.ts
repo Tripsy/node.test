@@ -10,7 +10,9 @@ import { makeFindValidator, validateDate } from '@/helpers';
 export function LogDataDeleteValidator() {
 	return z.object({
 		ids: z.array(z.number(), {
-			message: lang('log_data.validation.ids_invalid'),
+			message: lang('shared.error.invalid_ids', {
+				name: 'ids',
+			}),
 		}),
 	});
 }
@@ -33,12 +35,14 @@ export function LogDataFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('error.invalid_number') })
+				.number({
+					message: lang('shared.error.invalid_stringnvalid_number'),
+				})
 				.optional(),
 			category: z.enum(LogDataCategoryEnum).optional(),
 			level: z.enum(LogDataLevelEnum).optional(),
 			term: z
-				.string({ message: lang('error.invalid_string') })
+				.string({ message: lang('shared.error.invalid_string') })
 				.optional(),
 			create_date_start: validateDate(),
 			create_date_end: validateDate(),
@@ -51,7 +55,7 @@ export function LogDataFindValidator() {
 		) {
 			ctx.addIssue({
 				path: ['filter', 'create_date_start'],
-				message: lang('error.invalid_date_range'),
+				message: lang('shared.error.invalid_date_range'),
 				code: 'custom',
 			});
 		}

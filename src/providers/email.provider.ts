@@ -138,7 +138,7 @@ export async function sendEmail(
 		});
 
 		getSystemLogger().debug(
-			lang('debug.email_sent', {
+			lang('shared.debug.email_sent', {
 				subject: content.subject,
 				to: to.address,
 			}),
@@ -146,7 +146,7 @@ export async function sendEmail(
 	} catch (error: unknown) {
 		getSystemLogger().error(
 			error,
-			lang('debug.email_error', {
+			lang('shared.debug.email_error', {
 				subject: content.subject,
 				to: to.address,
 				error: getErrorMessage(error),

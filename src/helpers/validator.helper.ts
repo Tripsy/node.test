@@ -32,7 +32,7 @@ export function makeJsonFilterSchema<T extends z.ZodRawShape>(shape: T) {
 	return z.preprocess(
 		(val) =>
 			parseJsonFilter(val, () => {
-				throw new BadRequestError(lang('error.invalid_filter'));
+				throw new BadRequestError(lang('shared.error.invalid_filter'));
 			}),
 		z.object(shape).partial(),
 	);
@@ -81,7 +81,9 @@ export function validateNumber(
 /**
  * @description Convert string to boolean and validate
  */
-export function validateBoolean(message = lang('error.invalid_boolean')) {
+export function validateBoolean(
+	message = lang('shared.error.invalid_boolean'),
+) {
 	return z.preprocess((val) => {
 		if (val === 'true' || val === true) {
 			return true;
@@ -99,7 +101,7 @@ export function validateBoolean(message = lang('error.invalid_boolean')) {
  * @description Validate date string and convert to `Date` object
  */
 export function validateDate(
-	message = lang('error.invalid_date'),
+	message = lang('shared.error.invalid_date'),
 	optional = true,
 ) {
 	const schema = z
@@ -161,13 +163,13 @@ export function makeFindValidator<
 		direction: z.enum(directionEnum).optional().default(defaultDirection),
 
 		limit: z.coerce
-			.number({ message: lang('error.invalid_number') })
+			.number({ message: lang('shared.error.invalid_number') })
 			.min(1)
 			.optional()
 			.default(cfg('filter.limit') as number),
 
 		page: z.coerce
-			.number({ message: lang('error.invalid_number') })
+			.number({ message: lang('shared.error.invalid_number') })
 			.min(1)
 			.optional()
 			.default(1),
