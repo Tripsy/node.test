@@ -1,7 +1,5 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import BadRequestError from '@/exceptions/bad-request.error';
-import CustomError from '@/exceptions/custom.error';
 import PermissionEntity from '@/features/permission/permission.entity';
 import PermissionPolicy from '@/features/permission/permission.policy';
 import {
@@ -12,8 +10,10 @@ import {
 	PermissionFindValidator,
 	PermissionManageValidator,
 } from '@/features/permission/permission.validator';
-import asyncHandler from '@/helpers/async.handler';
-import { getCacheProvider } from '@/providers/cache.provider';
+import BadRequestError from '@/lib/exceptions/bad-request.error';
+import CustomError from '@/lib/exceptions/custom.error';
+import asyncHandler from '@/lib/helpers/async.handler';
+import { getCacheProvider } from '@/lib/providers/cache.provider';
 
 class PermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

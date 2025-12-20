@@ -3,8 +3,8 @@ import { lang } from '@/config/i18n.setup';
 import { requestContext } from '@/config/request.context';
 import { cfg, type LogHistoryDestination } from '@/config/settings.config';
 import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
-import { getCacheProvider } from '@/providers/cache.provider';
-import { getHistoryLogger } from '@/providers/logger.provider';
+import { getCacheProvider } from '@/lib/providers/cache.provider';
+import { getHistoryLogger } from '@/lib/providers/logger.provider';
 
 export function cacheClean(entity: string, ident: number | string) {
 	const identString = ident.toString();

@@ -1,6 +1,6 @@
-import PolicyAbstract from '@/abstracts/policy.abstract';
 import { PlaceQuery } from '@/features/place/place.repository';
-import type { AuthContext } from '@/types/express';
+import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import type { AuthContext } from '@/lib/types/express';
 
 class PlacePolicy extends PolicyAbstract {
 	constructor(auth: AuthContext | undefined) {

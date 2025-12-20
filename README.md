@@ -139,9 +139,9 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. Tests are failing
-2. create a library / package for my utilities - drop moment !!!
-3. do log history on FE
+1. create a library / package for my utilities - drop moment !!!
+2. do log history on FE
+3. Recap Jest; Tests are failing
 4. image > category ( + route images) > brand ( + route images)
 5. wip entities:
     - article

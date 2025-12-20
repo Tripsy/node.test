@@ -1,6 +1,6 @@
-import PolicyAbstract from '@/abstracts/policy.abstract';
 import { UserQuery } from '@/features/user/user.repository';
-import type { AuthContext } from '@/types/express';
+import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import type { AuthContext } from '@/lib/types/express';
 
 class UserPolicy extends PolicyAbstract {
 	constructor(auth: AuthContext | undefined) {

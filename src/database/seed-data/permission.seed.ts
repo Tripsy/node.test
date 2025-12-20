@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import dataSource from '@/config/data-source.config';
 import { requestContext } from '@/config/request.context';
 import PermissionEntity from '@/features/permission/permission.entity';
-import { getSystemLogger } from '@/providers/logger.provider';
+import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 /**
  * The `delete` action is also considered for `restore` action

@@ -2,8 +2,8 @@ import { Worker } from 'bullmq';
 import { cfg } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
-import { type EmailQueueData, sendEmail } from '@/providers/email.provider';
-import { getSystemLogger } from '@/providers/logger.provider';
+import { type EmailQueueData, sendEmail } from '@/lib/providers/email.provider';
+import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 const emailWorker = new Worker(
 	'emailQueue',

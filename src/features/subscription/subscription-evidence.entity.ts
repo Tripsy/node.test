@@ -54,8 +54,8 @@ export default class SubscriptionEvidenceEntity {
 
 	// RELATIONS
 	@ManyToOne('SubscriptionEntity', {
-        onDelete: 'CASCADE'
-    })
+		onDelete: 'CASCADE',
+	})
 	@JoinColumn({ name: 'subscription_id' })
 	subscription!: SubscriptionEntity;
 }

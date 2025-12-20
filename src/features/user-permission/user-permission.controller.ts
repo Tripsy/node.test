@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import BadRequestError from '@/exceptions/bad-request.error';
 import PermissionPolicy from '@/features/permission/permission.policy';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 import UserPermissionRepository from '@/features/user-permission/user-permission.repository';
@@ -8,7 +7,8 @@ import {
 	UserPermissionCreateValidator,
 	UserPermissionFindValidator,
 } from '@/features/user-permission/user-permission.validator';
-import asyncHandler from '@/helpers/async.handler';
+import BadRequestError from '@/lib/exceptions/bad-request.error';
+import asyncHandler from '@/lib/helpers/async.handler';
 
 class UserPermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

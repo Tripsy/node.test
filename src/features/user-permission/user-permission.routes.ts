@@ -1,6 +1,6 @@
 import UserPermissionController from '@/features/user-permission/user-permission.controller';
-import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
-import type { RoutesConfigType } from '@/types/routing.type';
+import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/users',

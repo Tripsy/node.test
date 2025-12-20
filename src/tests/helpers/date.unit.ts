@@ -6,7 +6,7 @@ import {
 	isValidDate,
 	isValidDateInstance,
 	stringToDate,
-} from '@/helpers';
+} from '@/lib/helpers';
 
 describe('helpers/utils.helper.ts - Unit Tests', () => {
 	describe('isValidDate', () => {

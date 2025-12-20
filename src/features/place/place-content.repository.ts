@@ -1,8 +1,8 @@
 import type { EntityManager } from 'typeorm';
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import type { PlaceContentInput } from '@/features/place/place.entity';
 import PlaceContentEntity from '@/features/place/place-content.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class PlaceContentQuery extends RepositoryAbstract<PlaceContentEntity> {
 	static entityAlias: string = 'place_content';

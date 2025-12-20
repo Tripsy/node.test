@@ -15,14 +15,14 @@ import {
 	getMetaDataValue,
 	type TokenMetadata,
 	tokenMetaData,
-} from '@/helpers';
-import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
-import type { EmailTemplate } from '@/types/template.type';
+} from '@/lib/helpers';
+import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
+import type { EmailTemplate } from '@/lib/types/template.type';
 import type {
 	AuthTokenPayload,
 	AuthValidToken,
 	ConfirmationTokenPayload,
-} from '@/types/token.type';
+} from '@/lib/types/token.type';
 
 export async function encryptPassword(password: string): Promise<string> {
 	return await bcrypt.hash(password, 10);

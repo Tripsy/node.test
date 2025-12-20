@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum TemplateTypeEnum {
 	PAGE = 'page',
@@ -19,8 +19,8 @@ export default class TemplateEntity extends EntityAbstract {
 	label!: string;
 
 	@Column('varchar', {
-        length: 3
-    })
+		length: 3,
+	})
 	language!: string;
 
 	@Column({

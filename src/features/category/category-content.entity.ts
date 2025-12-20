@@ -1,5 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 import type CategoryEntity from './category.entity';
 
 @Entity({
@@ -22,11 +22,11 @@ export default class CategoryContentEntity extends EntityAbstract {
 	@Column('varchar', { nullable: false })
 	label!: number;
 
-    @Column('varchar', { nullable: false })
-    slug!: string;
+	@Column('varchar', { nullable: false })
+	slug!: string;
 
-    @Column('text', { nullable: true })
-    description!: string | null;
+	@Column('text', { nullable: true })
+	description!: string | null;
 
 	@Column('jsonb', {
 		nullable: true,

@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type OrderEntity from '@/features/order/order.entity';
 import type UserEntity from '@/features/user/user.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum SubscriptionStatusEnum {
 	ACTIVE = 'active',
@@ -104,14 +104,14 @@ export default class SubscriptionEntity extends EntityAbstract {
 
 	// RELATIONS
 	@ManyToOne('OrderEntity', {
-        onDelete: 'RESTRICT'
-    })
+		onDelete: 'RESTRICT',
+	})
 	@JoinColumn({ name: 'order_id' })
 	order!: OrderEntity;
 
 	@ManyToOne('UserEntity', {
-        onDelete: 'CASCADE'
-    })
+		onDelete: 'CASCADE',
+	})
 	@JoinColumn({ name: 'user_id' })
 	user?: UserEntity | null;
 }

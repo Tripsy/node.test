@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type ArticleEntity from '@/features/article/article.entity';
 import type TermEntity from '@/features/term/term.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 @Entity({
 	name: 'article_tag',

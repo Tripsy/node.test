@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
-import { makeFindValidator, validateDate } from '@/helpers';
+import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
+import { makeFindValidator, validateDate } from '@/lib/helpers';
 
 export function MailQueueDeleteValidator() {
 	return z.object({

@@ -1,7 +1,7 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
 import TemplateEntity from '@/features/template/template.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class TemplateQuery extends RepositoryAbstract<TemplateEntity> {
 	static entityAlias: string = 'template';

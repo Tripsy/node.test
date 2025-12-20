@@ -1,7 +1,5 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import BadRequestError from '@/exceptions/bad-request.error';
-import CustomError from '@/exceptions/custom.error';
 import TemplateEntity, {
 	TemplateTypeEnum,
 } from '@/features/template/template.entity';
@@ -16,8 +14,10 @@ import {
 	TemplateUpdateValidator,
 } from '@/features/template/template.validator';
 import { paramsUpdateList } from '@/features/user/user.validator';
-import asyncHandler from '@/helpers/async.handler';
-import { getCacheProvider } from '@/providers/cache.provider';
+import BadRequestError from '@/lib/exceptions/bad-request.error';
+import CustomError from '@/lib/exceptions/custom.error';
+import asyncHandler from '@/lib/helpers/async.handler';
+import { getCacheProvider } from '@/lib/providers/cache.provider';
 
 class TemplateController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

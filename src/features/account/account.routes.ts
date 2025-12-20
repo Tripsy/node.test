@@ -1,5 +1,5 @@
 import AccountController from '@/features/account/account.controller';
-import type { RoutesConfigType } from '@/types/routing.type';
+import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/account',

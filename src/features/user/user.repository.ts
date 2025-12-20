@@ -1,7 +1,7 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
 import UserEntity from '@/features/user/user.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class UserQuery extends RepositoryAbstract<UserEntity> {
 	static entityAlias: string = 'user';

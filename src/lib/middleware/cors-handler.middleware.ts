@@ -1,6 +1,6 @@
 import cors from 'cors';
 import { cfg } from '@/config/settings.config';
-import NotAllowedError from '@/exceptions/not-allowed.error';
+import NotAllowedError from '@/lib/exceptions/not-allowed.error';
 
 const allowedOrigins = new Set(
 	(cfg('security.allowedOrigins') as string[]) || [],

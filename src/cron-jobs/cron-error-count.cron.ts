@@ -1,8 +1,8 @@
 import { cfg } from '@/config/settings.config';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
-import { createPastDate } from '@/helpers';
-import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
-import type { EmailTemplate } from '@/types/template.type';
+import { createPastDate } from '@/lib/helpers';
+import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
+import type { EmailTemplate } from '@/lib/types/template.type';
 
 // Report cron errors in the last 24 hours
 export const cronErrorCount = async () => {

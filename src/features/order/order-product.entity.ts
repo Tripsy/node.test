@@ -1,8 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
 import type OrderEntity from '@/features/order/order.entity';
 import type ProductEntity from '@/features/product/product.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 @Entity({
 	name: 'order_product',

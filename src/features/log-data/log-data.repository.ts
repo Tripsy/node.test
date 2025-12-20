@@ -1,7 +1,7 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
 import LogDataEntity from '@/features/log-data/log-data.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 	static entityAlias: string = 'log_data';

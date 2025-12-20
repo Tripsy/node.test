@@ -1,7 +1,7 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
 import DiscountEntity from '@/features/discount/discount.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class DiscountQuery extends RepositoryAbstract<DiscountEntity> {
 	static entityAlias: string = 'discount';

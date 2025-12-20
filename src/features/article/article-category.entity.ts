@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
-import ArticleEntity from '@/features/article/article.entity';
+import type ArticleEntity from '@/features/article/article.entity';
 import type CategoryEntity from '@/features/category/category.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 @Entity({
 	name: 'article_category',

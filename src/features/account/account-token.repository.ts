@@ -1,6 +1,6 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import AccountTokenEntity from '@/features/account/account-token.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class AccountTokenQuery extends RepositoryAbstract<AccountTokenEntity> {
 	static entityAlias: string = 'account_token';

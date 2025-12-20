@@ -12,15 +12,15 @@ import {
 	compareMetaDataValue,
 	createFutureDate,
 	dateDiffInSeconds,
-} from '@/helpers';
-import authMiddleware from '@/middleware/auth.middleware';
-import type { OutputWrapper } from '@/middleware/output-handler.middleware';
+} from '@/lib/helpers';
+import authMiddleware from '@/lib/middleware/auth.middleware';
+import type { OutputWrapper } from '@/lib/middleware/output-handler.middleware';
 import { createAuthContext } from '@/tests/jest-functional.setup';
 
 jest.mock('@/features/account/account.service');
 jest.mock('@/features/account/account-token.repository');
 jest.mock('@/features/user/user.repository');
-jest.mock('@/helpers/meta-data.helper');
+jest.mock('@/lib/helpers/meta-data.helper');
 
 describe('authMiddleware', () => {
 	let req: Partial<Request>;

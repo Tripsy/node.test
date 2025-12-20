@@ -6,12 +6,12 @@ import {
 	ManyToOne,
 	OneToMany,
 } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type BrandEntity from '@/features/brand/brand.entity';
 import type OrderProductEntity from '@/features/order/order-product.entity';
 import type ProductAttributeEntity from '@/features/product/product-attribute.entity';
 import type ProductCategoryEntity from '@/features/product/product-category.entity';
 import type ProductTagEntity from '@/features/product/product-tag.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum ProductWorkflowEnum {
 	DRAFT = 'draft', // Initial creation
@@ -135,27 +135,28 @@ export default class ProductEntity extends EntityAbstract {
 
 	// RELATIONS
 	@ManyToOne('BrandEntity', {
-        onDelete: 'RESTRICT',
-    })
+		onDelete: 'RESTRICT',
+	})
 	@JoinColumn({ name: 'brand_id' })
 	brand?: BrandEntity;
 
-	@OneToMany('ProductTagEntity',
-		(tag: ProductTagEntity) => tag.product,
-	)
+	@OneToMany('ProductTagEntity', (tag: ProductTagEntity) => tag.product)
 	tags?: ProductTagEntity[];
 
-	@OneToMany('ProductCategoryEntity',
+	@OneToMany(
+		'ProductCategoryEntity',
 		(productCategory: ProductCategoryEntity) => productCategory.product,
 	)
 	categories?: ProductCategoryEntity[];
 
-	@OneToMany('ProductAttributeEntity',
+	@OneToMany(
+		'ProductAttributeEntity',
 		(attribute: ProductAttributeEntity) => attribute.product,
 	)
 	attributes?: ProductAttributeEntity[];
 
-	@OneToMany('OrderProductEntity',
+	@OneToMany(
+		'OrderProductEntity',
 		(orderProduct: OrderProductEntity) => orderProduct.product,
 	)
 	order_products?: OrderProductEntity[];

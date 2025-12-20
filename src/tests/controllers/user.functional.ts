@@ -1,11 +1,11 @@
 import request from 'supertest';
 import app from '@/app';
-import NotFoundError from '@/exceptions/not-found.error';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
-import * as cacheProvider from '@/providers/cache.provider';
+import NotFoundError from '@/lib/exceptions/not-found.error';
+import * as cacheProvider from '@/lib/providers/cache.provider';
 import '../jest-functional.setup';
 import { routeLink } from '@/config/routes.setup';
 import {

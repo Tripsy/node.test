@@ -6,11 +6,11 @@ import {
 	ManyToOne,
 	OneToMany,
 } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type ClientEntity from '@/features/client/client.entity';
 import type InvoiceEntity from '@/features/invoice/invoice.entity';
 import type OrderProductEntity from '@/features/order/order-product.entity';
 import type OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum OrderStatusEnum {
 	DRAFT = 'draft',
@@ -70,17 +70,20 @@ export default class OrderEntity extends EntityAbstract {
 	@JoinColumn({ name: 'client_id' })
 	client!: ClientEntity;
 
-	@OneToMany('OrderProductEntity',
+	@OneToMany(
+		'OrderProductEntity',
 		(orderProduct: OrderProductEntity) => orderProduct.order,
 	)
 	order_products?: OrderProductEntity[];
 
-	@OneToMany('OrderShippingEntity',
+	@OneToMany(
+		'OrderShippingEntity',
 		(orderShipping: OrderShippingEntity) => orderShipping.order,
 	)
 	order_shipments?: OrderShippingEntity[];
 
-	@OneToMany('InvoiceEntity',
+	@OneToMany(
+		'InvoiceEntity',
 		(orderInvoice: InvoiceEntity) => orderInvoice.order,
 	)
 	order_invoices?: InvoiceEntity[];

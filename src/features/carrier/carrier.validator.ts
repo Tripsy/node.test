@@ -1,13 +1,13 @@
 import { z } from 'zod';
-import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
+import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
 	nullableString,
 	validateBoolean,
-} from '@/helpers';
+} from '@/lib/helpers';
 
 export const paramsUpdateList: string[] = [
 	'name',

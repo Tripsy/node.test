@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum TermTypeEnum {
 	CATEGORY_LABEL = 'category_label',
@@ -30,7 +30,7 @@ export default class TermEntity extends EntityAbstract {
 		default: 'en',
 		comment: 'ISO language code (en will the fallback for universal terms)',
 	})
-    @Index('IDX_term_language')
+	@Index('IDX_term_language')
 	language!: string;
 
 	@Column('varchar', {

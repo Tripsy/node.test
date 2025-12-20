@@ -6,7 +6,7 @@ import type { Request } from 'express';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const ROOT_PATH = path.resolve(__dirname, '../../');
+export const ROOT_PATH = path.resolve(__dirname, '../../../');
 export const SRC_PATH = path.resolve(ROOT_PATH, 'src');
 
 export function buildRootPath(...args: string[]) {

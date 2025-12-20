@@ -11,7 +11,7 @@ import {
 	createFutureDate,
 	dateDiffInSeconds,
 	tokenMetaData,
-} from '@/helpers';
+} from '@/lib/helpers';
 
 async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 	try {

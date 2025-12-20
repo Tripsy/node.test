@@ -1,6 +1,6 @@
 import nunjucks from 'nunjucks';
 import { cfg } from '@/config/settings.config';
-import { buildSrcPath } from '@/helpers';
+import { buildSrcPath } from '@/lib/helpers';
 
 // Create a new environment
 const templates = new nunjucks.Environment(

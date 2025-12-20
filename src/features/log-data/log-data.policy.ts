@@ -1,6 +1,6 @@
-import PolicyAbstract from '@/abstracts/policy.abstract';
 import { LogDataQuery } from '@/features/log-data/log-data.repository';
-import type { AuthContext } from '@/types/express';
+import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import type { AuthContext } from '@/lib/types/express';
 
 class LogDataPolicy extends PolicyAbstract {
 	constructor(auth: AuthContext | undefined) {

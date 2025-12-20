@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import {
@@ -7,6 +6,7 @@ import {
 	UserRoleEnum,
 	UserStatusEnum,
 } from '@/features/user/user.entity';
+import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -14,7 +14,7 @@ import {
 	validateBoolean,
 	validateDate,
 	validateStringMin,
-} from '@/helpers';
+} from '@/lib/helpers';
 
 export const paramsUpdateList: string[] = [
 	'name',

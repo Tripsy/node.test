@@ -1,6 +1,6 @@
-import PolicyAbstract from '@/abstracts/policy.abstract';
 import { LogHistoryQuery } from '@/features/log-history/log-history.repository';
-import type { AuthContext } from '@/types/express';
+import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import type { AuthContext } from '@/lib/types/express';
 
 class LogHistoryPolicy extends PolicyAbstract {
 	constructor(auth: AuthContext | undefined) {

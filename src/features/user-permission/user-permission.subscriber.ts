@@ -9,7 +9,7 @@ import {
 import { UserQuery } from '@/features/user/user.repository';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 import { UserPermissionQuery } from '@/features/user-permission/user-permission.repository';
-import { cacheClean, isRestore, logHistory } from '@/helpers';
+import { cacheClean, isRestore, logHistory } from '@/lib/helpers';
 
 @EventSubscriber()
 export class UserPermissionSubscriber

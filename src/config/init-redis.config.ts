@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import { cfg } from '@/config/settings.config';
-import { getSystemLogger } from '@/providers/logger.provider';
+import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 let redisInstance: Redis | null = null;
 

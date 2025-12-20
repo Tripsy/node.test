@@ -1,5 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 import type ProductEntity from './product.entity';
 
 @Entity({

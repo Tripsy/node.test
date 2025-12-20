@@ -1,8 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
-import CarrierEntity from '@/features/carrier/carrier.entity';
+import type CarrierEntity from '@/features/carrier/carrier.entity';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
 import type OrderEntity from '@/features/order/order.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum ShippingStatusEnum {
 	PENDING = 'pending',

@@ -1,9 +1,9 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import LogHistoryEntity, {
 	type LogHistoryDetails,
 } from '@/features/log-history/log-history.entity';
-import { getSystemLogger } from '@/providers/logger.provider';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
 	static entityAlias: string = 'log_history';

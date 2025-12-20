@@ -12,17 +12,20 @@ import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
 import { getRoutesInfo, initRoutes } from '@/config/routes.setup';
 import { cfg } from '@/config/settings.config';
-import authMiddleware from '@/middleware/auth.middleware';
-import { corsHandler } from '@/middleware/cors-handler.middleware';
-import { errorHandler } from '@/middleware/error-handler.middleware';
-import languageMiddleware from '@/middleware/language.middleware';
-import { notFoundHandler } from '@/middleware/not-found-handler.middleware';
-import { outputHandler } from '@/middleware/output-handler.middleware';
-import { requestContextMiddleware } from '@/middleware/request-context.middleware';
-import startCronJobs from '@/providers/cron.provider';
-import { destroyDatabase, initDatabase } from '@/providers/database.provider';
-import { getSystemLogger, LogStream } from '@/providers/logger.provider';
-import emailQueue from '@/queues/email.queue';
+import authMiddleware from '@/lib/middleware/auth.middleware';
+import { corsHandler } from '@/lib/middleware/cors-handler.middleware';
+import { errorHandler } from '@/lib/middleware/error-handler.middleware';
+import languageMiddleware from '@/lib/middleware/language.middleware';
+import { notFoundHandler } from '@/lib/middleware/not-found-handler.middleware';
+import { outputHandler } from '@/lib/middleware/output-handler.middleware';
+import { requestContextMiddleware } from '@/lib/middleware/request-context.middleware';
+import startCronJobs from '@/lib/providers/cron.provider';
+import {
+	destroyDatabase,
+	initDatabase,
+} from '@/lib/providers/database.provider';
+import { getSystemLogger, LogStream } from '@/lib/providers/logger.provider';
+import emailQueue from '@/lib/queues/email.queue';
 
 const app: express.Application = express();
 export let server: Server | null = null;
@@ -317,7 +320,7 @@ async function initializeApp(): Promise<void> {
 		// Start background services (non-test env only)
 		if (APP_ENV !== 'test') {
 			// Email worker
-			import('./workers/email.worker').catch((error) => {
+			import('@/lib/workers/email.worker').catch((error) => {
 				getSystemLogger().error(
 					{ err: error },
 					'Failed to start email worker',

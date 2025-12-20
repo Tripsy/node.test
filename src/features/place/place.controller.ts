@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
-import BadRequestError from '@/exceptions/bad-request.error';
 import PlaceEntity from '@/features/place/place.entity';
 import PlacePolicy from '@/features/place/place.policy';
 import {
@@ -15,8 +14,9 @@ import {
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
-import asyncHandler from '@/helpers/async.handler';
-import { getCacheProvider } from '@/providers/cache.provider';
+import BadRequestError from '@/lib/exceptions/bad-request.error';
+import asyncHandler from '@/lib/helpers/async.handler';
+import { getCacheProvider } from '@/lib/providers/cache.provider';
 
 class PlaceController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

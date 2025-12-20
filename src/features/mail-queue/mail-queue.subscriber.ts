@@ -8,8 +8,8 @@ import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import {
 	type EmailQueueData,
 	prepareEmailContent,
-} from '@/providers/email.provider';
-import emailQueue from '@/queues/email.queue';
+} from '@/lib/providers/email.provider';
+import emailQueue from '@/lib/queues/email.queue';
 
 @EventSubscriber()
 export class MailQueueSubscriber

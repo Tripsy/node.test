@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import BadRequestError from '@/exceptions/bad-request.error';
 import MailQueuePolicy from '@/features/mail-queue/mail-queue.policy';
 import {
 	getMailQueueRepository,
@@ -10,9 +9,10 @@ import {
 	MailQueueDeleteValidator,
 	MailQueueFindValidator,
 } from '@/features/mail-queue/mail-queue.validator';
-import { logHistory } from '@/helpers';
-import asyncHandler from '@/helpers/async.handler';
-import { getCacheProvider } from '@/providers/cache.provider';
+import BadRequestError from '@/lib/exceptions/bad-request.error';
+import { logHistory } from '@/lib/helpers';
+import asyncHandler from '@/lib/helpers/async.handler';
+import { getCacheProvider } from '@/lib/providers/cache.provider';
 
 class MailQueueController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {

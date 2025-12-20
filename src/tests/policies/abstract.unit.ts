@@ -1,7 +1,7 @@
-import PolicyAbstract from '@/abstracts/policy.abstract';
-import NotAllowedError from '@/exceptions/not-allowed.error';
-import UnauthorizedError from '@/exceptions/unauthorized.error';
 import { UserRoleEnum } from '@/features/user/user.entity';
+import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import NotAllowedError from '@/lib/exceptions/not-allowed.error';
+import UnauthorizedError from '@/lib/exceptions/unauthorized.error';
 import { createAuthContext } from '@/tests/jest-functional.setup';
 
 describe('PolicyAbstract', () => {

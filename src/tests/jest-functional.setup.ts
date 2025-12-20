@@ -1,5 +1,5 @@
 import { appReady, closeHandler, server } from '@/app';
-import type { AuthContext } from '@/types/express';
+import type { AuthContext } from '@/lib/types/express';
 
 beforeAll(async () => {
 	await appReady;

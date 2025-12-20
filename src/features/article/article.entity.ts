@@ -1,8 +1,8 @@
 import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type ArticleCategoryEntity from '@/features/article/article-category.entity';
 import type ArticleTagEntity from '@/features/article/article-tag.entity';
 import type ArticleTrackEntity from '@/features/article/article-track.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum ArticleStatusEnum {
 	DRAFT = 'draft', // Initial creation
@@ -73,11 +73,8 @@ export default class ArticleEntity extends EntityAbstract {
 	featuredStatus!: ArticleFeaturedStatusEnum;
 
 	// RELATIONS
-    @OneToMany(
-        'ArticleTagEntity',
-        (tag: ArticleTagEntity) => tag.article,
-    )
-    tags!: ArticleTagEntity[];
+	@OneToMany('ArticleTagEntity', (tag: ArticleTagEntity) => tag.article)
+	tags!: ArticleTagEntity[];
 
 	@OneToMany(
 		'ArticleCategoryEntity',

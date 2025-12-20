@@ -1,7 +1,7 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
 import PlaceEntity, { type PlaceTypeEnum } from '@/features/place/place.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 	static entityAlias: string = 'place';

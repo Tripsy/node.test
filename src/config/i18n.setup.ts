@@ -5,9 +5,9 @@ import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
 import { cfg } from '@/config/settings.config';
-import { buildSrcPath } from '@/helpers';
-import { getCacheProvider } from '@/providers/cache.provider';
-import { getSystemLogger } from '@/providers/logger.provider';
+import { buildSrcPath } from '@/lib/helpers';
+import { getCacheProvider } from '@/lib/providers/cache.provider';
+import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 async function getNamespaces(): Promise<string[]> {
 	const featureNamespaces = await getFeatureNamespaces();

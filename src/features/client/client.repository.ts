@@ -1,10 +1,10 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
 import ClientEntity, {
 	type ClientIdentityData,
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class ClientQuery extends RepositoryAbstract<ClientEntity> {
 	static entityAlias: string = 'client';

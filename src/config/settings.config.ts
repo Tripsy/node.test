@@ -1,6 +1,10 @@
 import 'dotenv/config';
 import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
-import { getObjectValue, type ObjectValue, setObjectValue } from '@/helpers';
+import {
+	getObjectValue,
+	type ObjectValue,
+	setObjectValue,
+} from '@/lib/helpers';
 
 export type LogHistoryDestination = 'pino' | 'db' | null;
 

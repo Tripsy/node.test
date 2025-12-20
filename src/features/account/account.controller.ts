@@ -2,11 +2,6 @@ import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import BadRequestError from '@/exceptions/bad-request.error';
-import CustomError from '@/exceptions/custom.error';
-import NotAllowedError from '@/exceptions/not-allowed.error';
-import NotFoundError from '@/exceptions/not-found.error';
-import UnauthorizedError from '@/exceptions/unauthorized.error';
 import AccountPolicy from '@/features/account/account.policy';
 import {
 	getActiveAuthToken,
@@ -34,19 +29,24 @@ import AccountRecoveryRepository from '@/features/account/account-recovery.repos
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
 import { getUserRepository } from '@/features/user/user.repository';
+import BadRequestError from '@/lib/exceptions/bad-request.error';
+import CustomError from '@/lib/exceptions/custom.error';
+import NotAllowedError from '@/lib/exceptions/not-allowed.error';
+import NotFoundError from '@/lib/exceptions/not-found.error';
+import UnauthorizedError from '@/lib/exceptions/unauthorized.error';
 import {
 	compareMetaDataValue,
 	createPastDate,
 	getClientIp,
 	tokenMetaData,
-} from '@/helpers';
-import asyncHandler from '@/helpers/async.handler';
-import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
-import type { EmailTemplate } from '@/types/template.type';
+} from '@/lib/helpers';
+import asyncHandler from '@/lib/helpers/async.handler';
+import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
+import type { EmailTemplate } from '@/lib/types/template.type';
 import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
-} from '@/types/token.type';
+} from '@/lib/types/token.type';
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {

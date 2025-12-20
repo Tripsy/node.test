@@ -1,9 +1,6 @@
 import type { Request, Response } from 'express';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
-import BadRequestError from '@/exceptions/bad-request.error';
-import CustomError from '@/exceptions/custom.error';
-import NotFoundError from '@/exceptions/not-found.error';
 import ClientEntity, {
 	type ClientIdentityData,
 	ClientStatusEnum,
@@ -20,8 +17,11 @@ import {
 	ClientUpdateValidator,
 	paramsUpdateList,
 } from '@/features/client/client.validator';
-import asyncHandler from '@/helpers/async.handler';
-import { getCacheProvider } from '@/providers/cache.provider';
+import BadRequestError from '@/lib/exceptions/bad-request.error';
+import CustomError from '@/lib/exceptions/custom.error';
+import NotFoundError from '@/lib/exceptions/not-found.error';
+import asyncHandler from '@/lib/helpers/async.handler';
+import { getCacheProvider } from '@/lib/providers/cache.provider';
 
 class ClientController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

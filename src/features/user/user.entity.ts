@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum UserStatusEnum {
 	ACTIVE = 'active',

@@ -7,9 +7,9 @@ import {
 	TreeChildren,
 	TreeParent,
 } from 'typeorm';
-import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type CategoryContentEntity from '@/features/category/category-content.entity';
 import type ProductCategoryEntity from '@/features/product/product-category.entity';
+import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum CategoryStatusEnum {
 	ACTIVE = 'active',
@@ -69,12 +69,14 @@ export default class CategoryEntity extends EntityAbstract {
 	details!: Record<string, string | number | boolean>;
 
 	// RELATIONS
-	@OneToMany('CategoryContentEntity',
+	@OneToMany(
+		'CategoryContentEntity',
 		(content: CategoryContentEntity) => content.category,
 	)
 	contents?: CategoryContentEntity[];
 
-	@OneToMany('ProductCategoryEntity',
+	@OneToMany(
+		'ProductCategoryEntity',
 		(productCategory: ProductCategoryEntity) => productCategory.category,
 	)
 	products?: ProductCategoryEntity[];

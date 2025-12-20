@@ -8,9 +8,9 @@ import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
 import { getTemplateRepository } from '@/features/template/template.repository';
-import { getErrorMessage } from '@/helpers';
-import { getSystemLogger } from '@/providers/logger.provider';
-import type { EmailContent, EmailTemplate } from '@/types/template.type';
+import { getErrorMessage } from '@/lib/helpers';
+import { getSystemLogger } from '@/lib/providers/logger.provider';
+import type { EmailContent, EmailTemplate } from '@/lib/types/template.type';
 
 let emailTransporter: Transporter<SMTPTransport.SentMessageInfo> | null = null;
 

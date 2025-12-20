@@ -1,6 +1,6 @@
-import PolicyAbstract from '@/abstracts/policy.abstract';
 import { CronHistoryQuery } from '@/features/cron-history/cron-history.repository';
-import type { AuthContext } from '@/types/express';
+import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import type { AuthContext } from '@/lib/types/express';
 
 class CronHistoryPolicy extends PolicyAbstract {
 	constructor(auth: AuthContext | undefined) {

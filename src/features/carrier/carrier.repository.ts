@@ -1,7 +1,7 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
 import CarrierEntity from '@/features/carrier/carrier.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class CarrierQuery extends RepositoryAbstract<CarrierEntity> {
 	static entityAlias: string = 'carrier';

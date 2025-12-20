@@ -1,11 +1,11 @@
-import PolicyAbstract from '@/abstracts/policy.abstract';
 import { lang } from '@/config/i18n.setup';
 import { getRedisClient } from '@/config/init-redis.config';
 import { cfg } from '@/config/settings.config';
-import CustomError from '@/exceptions/custom.error';
-import UnauthorizedError from '@/exceptions/unauthorized.error';
-import { getSystemLogger } from '@/providers/logger.provider';
-import type { AuthContext } from '@/types/express';
+import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import CustomError from '@/lib/exceptions/custom.error';
+import UnauthorizedError from '@/lib/exceptions/unauthorized.error';
+import { getSystemLogger } from '@/lib/providers/logger.provider';
+import type { AuthContext } from '@/lib/types/express';
 
 class AccountPolicy extends PolicyAbstract {
 	constructor(auth: AuthContext | undefined) {

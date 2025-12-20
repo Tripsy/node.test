@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import { type RequestHandler, Router } from 'express';
 import { cfg } from '@/config/settings.config';
-import { buildSrcPath, getObjectValue } from '@/helpers';
-import metaDocumentation from '@/middleware/meta-documentation.middleware';
-import { getSystemLogger } from '@/providers/logger.provider';
-import type { RoutesConfigType } from '@/types/routing.type';
+import { buildSrcPath, getObjectValue } from '@/lib/helpers';
+import metaDocumentation from '@/lib/middleware/meta-documentation.middleware';
+import { getSystemLogger } from '@/lib/providers/logger.provider';
+import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 const FEATURES_FOLDER = 'features';
 

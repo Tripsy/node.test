@@ -7,13 +7,16 @@ import { cronErrorCount } from '@/cron-jobs/cron-error-count.cron';
 import { cronTimeCheck } from '@/cron-jobs/cron-time-check.cron';
 import { cronWarningCount } from '@/cron-jobs/cron-warning-count.cron';
 import { workerMaintenance } from '@/cron-jobs/worker-maintenance.cron';
-import NotFoundError from '@/exceptions/not-found.error';
 import CronHistoryEntity, {
 	CronHistoryStatusEnum,
 } from '@/features/cron-history/cron-history.entity';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
-import { dateDiffInSeconds } from '@/helpers';
-import { getCronLogger, getSystemLogger } from '@/providers/logger.provider';
+import NotFoundError from '@/lib/exceptions/not-found.error';
+import { dateDiffInSeconds } from '@/lib/helpers';
+import {
+	getCronLogger,
+	getSystemLogger,
+} from '@/lib/providers/logger.provider';
 
 /**
  * Execute a cron job and save history

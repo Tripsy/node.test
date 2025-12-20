@@ -1,5 +1,5 @@
 import AccountTokenRepository from '@/features/account/account-token.repository';
-import { createPastDate } from '@/helpers';
+import { createPastDate } from '@/lib/helpers';
 
 // Remove expired account tokens
 export const cleanAccountToken = async () => {

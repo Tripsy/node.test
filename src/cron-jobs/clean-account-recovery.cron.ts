@@ -1,5 +1,5 @@
 import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
-import { createPastDate } from '@/helpers';
+import { createPastDate } from '@/lib/helpers';
 
 // Remove expired recovery tokens
 export const cleanAccountRecovery = async () => {

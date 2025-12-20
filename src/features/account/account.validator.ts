@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import { validateStringMin } from '@/helpers';
+import { validateStringMin } from '@/lib/helpers';
 
 export function AccountRegisterValidator() {
 	return z

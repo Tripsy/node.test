@@ -1,6 +1,6 @@
-import PolicyAbstract from '@/abstracts/policy.abstract';
 import { MailQueueQuery } from '@/features/mail-queue/mail-queue.repository';
-import type { AuthContext } from '@/types/express';
+import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import type { AuthContext } from '@/lib/types/express';
 
 class MailQueuePolicy extends PolicyAbstract {
 	constructor(auth: AuthContext | undefined) {

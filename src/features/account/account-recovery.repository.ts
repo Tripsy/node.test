@@ -1,6 +1,6 @@
-import RepositoryAbstract from '@/abstracts/repository.abstract';
 import dataSource from '@/config/data-source.config';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
+import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class AccountRecoveryQuery extends RepositoryAbstract<AccountRecoveryEntity> {
 	static entityAlias: string = 'account_recovery';

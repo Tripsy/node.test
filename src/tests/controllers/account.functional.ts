@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
-import NotAllowedError from '@/exceptions/not-allowed.error';
 import AccountPolicy from '@/features/account/account.policy';
 import * as accountService from '@/features/account/account.service';
 import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
@@ -8,11 +7,12 @@ import AccountRecoveryRepository from '@/features/account/account-recovery.repos
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
-import * as emailProvider from '@/providers/email.provider';
+import NotAllowedError from '@/lib/exceptions/not-allowed.error';
+import * as emailProvider from '@/lib/providers/email.provider';
 import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
-} from '@/types/token.type';
+} from '@/lib/types/token.type';
 import '../jest-functional.setup';
 
 import app from '@/app';
@@ -22,8 +22,8 @@ import {
 	getUserRepository,
 	type UserQuery,
 } from '@/features/user/user.repository';
-import { createFutureDate, type ObjectValue } from '@/helpers';
-import * as metaDataHelper from '@/helpers/meta-data.helper';
+import { createFutureDate, type ObjectValue } from '@/lib/helpers';
+import * as metaDataHelper from '@/lib/helpers/meta-data.helper';
 
 beforeEach(() => {
 	jest.clearAllMocks();
