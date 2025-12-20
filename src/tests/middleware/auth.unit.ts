@@ -18,11 +18,9 @@ import type { OutputWrapper } from '@/middleware/output-handler.middleware';
 import { createAuthContext } from '@/tests/jest-functional.setup';
 
 jest.mock('@/features/account/account.service');
-jest.mock('jsonwebtoken');
 jest.mock('@/features/account/account-token.repository');
 jest.mock('@/features/user/user.repository');
 jest.mock('@/helpers/meta-data.helper');
-jest.mock('@/helpers/utils.helper');
 
 describe('authMiddleware', () => {
 	let req: Partial<Request>;

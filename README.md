@@ -140,7 +140,6 @@ $ pnpm run test account.unit.ts --detect-open-handles
 # TODO
 
 1. Tests are failing
-    - fix "circular dependency" from entities
 2. create a library / package for my utilities - drop moment !!!
 3. do log history on FE
 4. image > category ( + route images) > brand ( + route images)
@@ -168,7 +167,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
         - product-tag
         - product-content
     - subscription
-        - subscription-renewal
+        - subscription-evidence
     - term
 6. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 

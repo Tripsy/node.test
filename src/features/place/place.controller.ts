@@ -308,7 +308,6 @@ class PlaceController {
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
-			.debug()
 			.all(true);
 
 		res.locals.output.data({

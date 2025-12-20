@@ -7,11 +7,11 @@ import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
+import { routeLink } from '@/config/routes.setup';
 import {
 	getUserRepository,
 	type UserQuery,
 } from '@/features/user/user.repository';
-import { routeLink } from '@/helpers/routing.helper';
 
 beforeEach(() => {
 	jest.clearAllMocks();

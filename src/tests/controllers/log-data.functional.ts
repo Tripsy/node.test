@@ -5,11 +5,11 @@ import { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import LogDataPolicy from '@/features/log-data/log-data.policy';
 import * as cacheProvider from '@/providers/cache.provider';
 import '../jest-functional.setup';
+import { routeLink } from '@/config/routes.setup';
 import {
 	getLogDataRepository,
 	type LogDataQuery,
 } from '@/features/log-data/log-data.repository';
-import { routeLink } from '@/helpers/routing.helper';
 import * as subscriberHelper from '@/helpers/subscriber.helper';
 
 beforeEach(() => {
