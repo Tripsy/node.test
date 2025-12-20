@@ -26,7 +26,12 @@ async function getFeatureNamespaces(): Promise<string[]> {
 			directories.map(async (e) => {
 				try {
 					await fs.promises.access(
-						path.join(featuresDir, e.name, 'locales', `${cfg('app.language')}.json`),
+						path.join(
+							featuresDir,
+							e.name,
+							'locales',
+							`${cfg('app.language')}.json`,
+						),
 					);
 					return e.name;
 				} catch {

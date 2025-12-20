@@ -4,7 +4,7 @@ import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import {
 	hasAtLeastOneValue,
-	makeJsonFilterSchema,
+	makeFindValidator,
 	nullableString,
 	validateBoolean,
 } from '@/helpers';
@@ -89,23 +89,17 @@ enum OrderByEnum {
 }
 
 export function CarrierFindValidator() {
-	return z.object({
-		order_by: z.enum(OrderByEnum).optional().default(OrderByEnum.ID),
-		direction: z
-			.enum(OrderDirectionEnum)
-			.optional()
-			.default(OrderDirectionEnum.ASC),
-		limit: z.coerce
-			.number({ message: lang('shared.error.invalid_number') })
-			.min(1)
-			.optional()
-			.default(cfg('filter.limit') as number),
-		page: z.coerce
-			.number({ message: lang('shared.error.invalid_number') })
-			.min(1)
-			.optional()
-			.default(1),
-		filter: makeJsonFilterSchema({
+	return makeFindValidator({
+		orderByEnum: OrderByEnum,
+		defaultOrderBy: OrderByEnum.ID,
+
+		directionEnum: OrderDirectionEnum,
+		defaultDirection: OrderDirectionEnum.ASC,
+
+		defaultLimit: cfg('filter.limit') as number,
+		defaultPage: 1,
+
+		filterShape: {
 			id: z.coerce
 				.number({ message: lang('shared.error.invalid_number') })
 				.optional(),
@@ -113,12 +107,6 @@ export function CarrierFindValidator() {
 				.string({ message: lang('shared.error.invalid_string') })
 				.optional(),
 			is_deleted: validateBoolean().default(false),
-		})
-			.optional()
-			.default({
-				id: undefined,
-				term: undefined,
-				is_deleted: false,
-			}),
+		},
 	});
 }

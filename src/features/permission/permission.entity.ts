@@ -3,10 +3,9 @@ import {
 	DeleteDateColumn,
 	Entity,
 	Index,
-	OneToMany,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
+// import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 
 @Entity({
 	name: 'permission',
@@ -27,10 +26,10 @@ export default class PermissionEntity {
 	@DeleteDateColumn({ type: 'timestamp', nullable: true, select: true })
 	deleted_at!: Date | null;
 
-	// RELATIONS
-	@OneToMany(
-		() => UserPermissionEntity,
-		(userPermission) => userPermission.permission,
-	)
-	user_permissions?: UserPermissionEntity[];
+	// // RELATIONS
+	// @OneToMany(
+	// 	() => UserPermissionEntity,
+	// 	(userPermission) => userPermission.permission,
+	// )
+	// user_permissions?: UserPermissionEntity[];
 }

@@ -223,6 +223,9 @@ export function UserFindValidator() {
 		directionEnum: OrderDirectionEnum,
 		defaultDirection: OrderDirectionEnum.ASC,
 
+		defaultLimit: cfg('filter.limit') as number,
+		defaultPage: 1,
+
 		filterShape: {
 			id: z.coerce
 				.number({ message: lang('shared.error.invalid_number') })

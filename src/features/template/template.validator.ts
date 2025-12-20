@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
+import { cfg } from '@/config/settings.config';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
 import {
 	hasAtLeastOneValue,
@@ -176,6 +177,9 @@ export function TemplateFindValidator() {
 
 		directionEnum: OrderDirectionEnum,
 		defaultDirection: OrderDirectionEnum.ASC,
+
+		defaultLimit: cfg('filter.limit') as number,
+		defaultPage: 1,
 
 		filterShape: {
 			id: z.coerce

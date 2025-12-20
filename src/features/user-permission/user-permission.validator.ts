@@ -33,6 +33,9 @@ export function UserPermissionFindValidator() {
 		directionEnum: OrderDirectionEnum,
 		defaultDirection: OrderDirectionEnum.ASC,
 
+		defaultLimit: cfg('filter.limit') as number,
+		defaultPage: 1,
+
 		filterShape: {
 			user_id: z.coerce
 				.number({ message: lang('shared.error.invalid_number') })

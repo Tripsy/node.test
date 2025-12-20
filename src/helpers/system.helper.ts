@@ -1,22 +1,24 @@
 import net from 'node:net';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Request } from 'express';
-import { cfg } from '@/config/settings.config';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const ROOT_PATH = path.resolve(__dirname, '../../');
+export const SRC_PATH = path.resolve(ROOT_PATH, 'src');
+
+export function buildRootPath(...args: string[]) {
+	return path.join(ROOT_PATH, ...args);
+}
+
+export function buildSrcPath(...args: string[]) {
+	return path.join(SRC_PATH, ...args);
+}
 
 export function getErrorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : String(error);
-}
-
-function buildPath(...args: string[]): string {
-	return path.join(...args);
-}
-
-export function buildRootPath(...args: string[]): string {
-	return buildPath(cfg('app.rootPath') as string, ...args);
-}
-
-export function buildSrcPath(...args: string[]): string {
-	return buildPath(cfg('app.srcPath') as string, ...args);
 }
 
 /**

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { OrderDirectionEnum } from '@/abstracts/entity.abstract';
 import { lang } from '@/config/i18n.setup';
+import { cfg } from '@/config/settings.config';
 import {
 	makeFindValidator,
 	validateDate,
@@ -32,6 +33,9 @@ export function LogHistoryFindValidator() {
 
 		directionEnum: OrderDirectionEnum,
 		defaultDirection: OrderDirectionEnum.ASC,
+
+		defaultLimit: cfg('filter.limit') as number,
+		defaultPage: 1,
 
 		filterShape: {
 			entity: validateString(

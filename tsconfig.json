@@ -8,9 +8,9 @@
 		"emitDecoratorMetadata": true,
 		"target": "ESNext",
 		"module": "ESNext",
-		// Enable ES modules
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
+		//        "allowImportingTsExtensions": true,
 		"strict": true,
 		"outDir": "./dist",
 		"typeRoots": ["./node_modules/@types", "./src/types"],

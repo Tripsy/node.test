@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
 import BadRequestError from '@/exceptions/bad-request.error';
 import { PlaceTypeEnum } from '@/features/place/place.entity';
 import { getPlaceRepository } from '@/features/place/place.repository';
@@ -147,6 +146,8 @@ export function makeFindValidator<
 	defaultOrderBy: TOrderBy[keyof TOrderBy];
 	directionEnum: TDirection;
 	defaultDirection: TDirection[keyof TDirection];
+	defaultLimit: number;
+	defaultPage: number;
 	filterShape: TFilter;
 }) {
 	const {
@@ -154,6 +155,8 @@ export function makeFindValidator<
 		defaultOrderBy,
 		directionEnum,
 		defaultDirection,
+		defaultLimit,
+		defaultPage,
 		filterShape,
 	} = options;
 
@@ -166,13 +169,13 @@ export function makeFindValidator<
 			.number({ message: lang('shared.error.invalid_number') })
 			.min(1)
 			.optional()
-			.default(cfg('filter.limit') as number),
+			.default(defaultLimit),
 
 		page: z.coerce
 			.number({ message: lang('shared.error.invalid_number') })
 			.min(1)
 			.optional()
-			.default(1),
+			.default(defaultPage),
 
 		filter: makeJsonFilterSchema(filterShape),
 	});

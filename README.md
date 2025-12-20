@@ -139,12 +139,12 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-2. Build an entities list dynamically - for permissions & maybe for other purposes; routes more dynamic
-3. Features disable / enable
-4. create a library / package for my utilities - drop moment !!!
-5. do log history on FE
-6. image > category ( + route images) > brand ( + route images)
-7. wip entities:
+1. Tests are failing
+    - fix "circular dependency" from entities
+2. create a library / package for my utilities - drop moment !!!
+3. do log history on FE
+4. image > category ( + route images) > brand ( + route images)
+5. wip entities:
     - article
         - article-category
         - article-content
@@ -170,8 +170,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-renewal
     - term
-8. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-9. Some tests that are failing
+6. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # BUGS & ISSUES
 

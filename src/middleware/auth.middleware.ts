@@ -44,7 +44,7 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 
 		// Validate metadata (e.g., user-agent check)
 		if (
-			cfg('app.env') !== 'development' &&
+			cfg('app.env') !== 'production' &&
 			(!activeToken.metadata ||
 				!compareMetaDataValue(
 					activeToken.metadata,

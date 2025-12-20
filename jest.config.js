@@ -88,6 +88,7 @@ const config = {
 	//   "node"
 	// ],
 	moduleFileExtensions: ['ts', 'js', 'json', 'node'],
+	extensionsToTreatAsEsm: ['.ts'],
 
 	// A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
 	// moduleNameMapper: {},
@@ -105,7 +106,7 @@ const config = {
 	// notifyMode: "failure-change",
 
 	// A preset that is used as a base for Jest's configuration
-	preset: 'ts-jest',
+	preset: 'ts-jest/presets/default-esm',
 
 	// Run tests from one or more projects
 	// projects: undefined,
@@ -142,7 +143,7 @@ const config = {
 	// setupFiles: [],
 
 	// A list of paths to modules that run some code to configure or set up the testing framework before each test
-	// setupFilesAfterEnv: [],
+	setupFilesAfterEnv: ['<rootDir>/src/tests/jest.setup.ts'],
 
 	// The number of seconds after which a test is considered as slow and reported as such in the results.
 	// slowTestThreshold: 5,

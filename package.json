@@ -18,7 +18,8 @@
 	"scripts": {
 		"dev": "nodemon",
 		"test": "NODE_OPTIONS=--experimental-vm-modules APP_DEBUG=false APP_ENV=test NODE_ENV=test jest",
-		"biome": "NODE_OPTIONS=--no-deprecation biome check --write"
+		"biome": "NODE_OPTIONS=--no-deprecation biome check --write",
+        "deps:circular": "madge --circular --extensions ts src"
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",
@@ -52,6 +53,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.10",
+		"@jest/globals": "^30.2.0",
 		"@types/bcrypt": "^6.0.0",
 		"@types/compression": "^1.8.1",
 		"@types/cookie-parser": "^1.4.10",
@@ -66,6 +68,7 @@
 		"@types/sanitize-html": "^2.16.0",
 		"@types/supertest": "^6.0.3",
 		"jest": "^30.2.0",
+		"madge": "^8.0.0",
 		"mailtrap": "^4.4.0",
 		"node-mocks-http": "^1.17.2",
 		"nodemon": "^3.1.11",

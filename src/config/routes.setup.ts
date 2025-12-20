@@ -1,98 +1,185 @@
-import { Router } from 'express';
-import accountRoutes from '@/features/account/account.routes';
-import carrierRoutes from '@/features/carrier/carrier.routes';
-import clientRoutes from '@/features/client/client.routes';
-import cronHistoryRoutes from '@/features/cron-history/cron-history.routes';
-import discountRoutes from '@/features/discount/discount.routes';
-import logDataRoutes from '@/features/log-data/log-data.routes';
-import logHistoryRoutes from '@/features/log-history/log-history.routes';
-import mailQueueRoutes from '@/features/mail-queue/mail-queue.routes';
-import permissionRoutes from '@/features/permission/permission.routes';
-import placeRoutes from '@/features/place/place.routes';
-import templateRoutes from '@/features/template/template.routes';
-import userRoutes from '@/features/user/user.routes';
-import userPermissionRoutes from '@/features/user-permission/user-permission.routes';
-import { buildRoutes, extractRoutesPath } from '@/helpers/routing.helper';
+import fs from 'node:fs';
+import { type RequestHandler, Router } from 'express';
+import { cfg } from '@/config/settings.config';
+import { buildSrcPath, getObjectValue } from '@/helpers';
+import metaDocumentation from '@/middleware/meta-documentation.middleware';
+import { getSystemLogger } from '@/providers/logger.provider';
+import type { RoutesConfigType } from '@/types/routing.type';
 
-export const initRoutes = (): Router => {
+const FEATURES_FOLDER = 'features';
+
+type ControllerType = Record<string, RequestHandler>;
+
+type FeatureRoutesModule = {
+	default: {
+		basePath: string;
+		documentation: string;
+		controller: ControllerType;
+		routesConfig: RoutesConfigType<ControllerType>;
+	};
+};
+
+interface RouteInfo {
+	name: string;
+	method: string;
+	path: string;
+	action: string;
+	description?: string;
+}
+
+function getFeatureFolders() {
+	const featuresDir = buildSrcPath(FEATURES_FOLDER);
+
+	return fs
+		.readdirSync(featuresDir, { withFileTypes: true })
+		.filter((f) => f.isDirectory())
+		.map((f) => f.name);
+}
+
+function getRoutesFile(feature: string) {
+	return buildSrcPath(FEATURES_FOLDER, feature, `${feature}.routes`);
+}
+
+function buildRoutes<C>({
+	basePath,
+	documentation,
+	controller,
+	routesConfig,
+}: {
+	basePath: string;
+	documentation: string;
+	controller: C;
+	routesConfig: RoutesConfigType<C>;
+}): Router {
 	const router = Router();
 
-	router.use(buildRoutes(accountRoutes));
-	router.use(buildRoutes(carrierRoutes));
-	router.use(buildRoutes(clientRoutes));
-	router.use(buildRoutes(cronHistoryRoutes));
-	router.use(buildRoutes(discountRoutes));
-	router.use(buildRoutes(mailQueueRoutes));
-	router.use(buildRoutes(logDataRoutes));
-	router.use(buildRoutes(logHistoryRoutes));
-	router.use(buildRoutes(permissionRoutes));
-	router.use(buildRoutes(placeRoutes));
-	router.use(buildRoutes(templateRoutes));
-	router.use(buildRoutes(userRoutes));
-	router.use(buildRoutes(userPermissionRoutes));
+	Object.entries(routesConfig).forEach(([_routeName, config]) => {
+		const { path, method, action, handlers = [] } = config;
+
+		const fullPath = `${basePath}${path}`;
+		const middleware = [
+			metaDocumentation(documentation, action as string),
+			...handlers,
+		];
+
+		router[method](
+			fullPath,
+			...middleware,
+			controller[action] as RequestHandler,
+		);
+	});
+
+	return router;
+}
+
+export const extractRoutesPath = <C>(
+	routes: RoutesConfigType<C>,
+	basePath: string,
+) =>
+	Object.fromEntries(
+		Object.entries(routes).map(([key, config]) => [
+			key,
+			`${basePath}${config.path}`,
+		]),
+	);
+
+// Used by `routeLink` helper
+const cachedRoutesPath: Record<string, Record<string, string>> = {};
+
+const allRoutesInfo: RouteInfo[] = [];
+
+export function getRoutesInfo(): RouteInfo[] {
+	return [...allRoutesInfo];
+}
+
+function pushRouteInfo(feature: string, def: FeatureRoutesModule['default']) {
+	Object.entries(def.routesConfig).forEach(([routeName, config]) => {
+		const fullPath = `${def.basePath}${config.path}`;
+
+		allRoutesInfo.push({
+			name: `${feature}.${routeName}`,
+			method: config.method,
+			path: fullPath,
+			action: String(config.action),
+		});
+	});
+}
+
+export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
+	const router = Router();
+	const featureFolders = getFeatureFolders();
+
+	for (const feature of featureFolders) {
+		try {
+			const routesFile = getRoutesFile(feature);
+			const featureModule = (await import(
+				routesFile
+			)) as FeatureRoutesModule;
+
+			const def = featureModule.default;
+
+			if (!def) {
+				getSystemLogger().fatal(
+					`Feature ${feature} does not export default routes config`,
+				);
+				continue;
+			}
+
+			router.use(apiPrefix, buildRoutes(def));
+
+			const key = feature.replace(/-/g, '');
+
+			if (cachedRoutesPath[key]) {
+				getSystemLogger().fatal(
+					`Duplicate routes detected on "${feature}"`,
+				);
+				continue;
+			}
+
+			cachedRoutesPath[key] = extractRoutesPath(
+				def.routesConfig,
+				def.basePath,
+			);
+
+			if (cfg('app.env') !== 'production') {
+				pushRouteInfo(feature, def);
+			}
+		} catch {
+			// feature has no routes file → ignore
+		}
+	}
 
 	return router;
 };
 
-let cachedRoutesPath: Record<string, Record<string, string>> | null = null;
-
 export function getRoutesPath() {
-	if (!cachedRoutesPath) {
-		cachedRoutesPath = {
-			account: extractRoutesPath(
-				accountRoutes.routesConfig,
-				accountRoutes.basePath,
-			),
-			carrier: extractRoutesPath(
-				carrierRoutes.routesConfig,
-				carrierRoutes.basePath,
-			),
-			clients: extractRoutesPath(
-				clientRoutes.routesConfig,
-				clientRoutes.basePath,
-			),
-			cronHistory: extractRoutesPath(
-				cronHistoryRoutes.routesConfig,
-				cronHistoryRoutes.basePath,
-			),
-			discount: extractRoutesPath(
-				discountRoutes.routesConfig,
-				discountRoutes.basePath,
-			),
-			logData: extractRoutesPath(
-				logDataRoutes.routesConfig,
-				logDataRoutes.basePath,
-			),
-			logHistory: extractRoutesPath(
-				logHistoryRoutes.routesConfig,
-				logHistoryRoutes.basePath,
-			),
-			mailQueue: extractRoutesPath(
-				mailQueueRoutes.routesConfig,
-				mailQueueRoutes.basePath,
-			),
-			permission: extractRoutesPath(
-				permissionRoutes.routesConfig,
-				permissionRoutes.basePath,
-			),
-			place: extractRoutesPath(
-				placeRoutes.routesConfig,
-				placeRoutes.basePath,
-			),
-			template: extractRoutesPath(
-				templateRoutes.routesConfig,
-				templateRoutes.basePath,
-			),
-			user: extractRoutesPath(
-				userRoutes.routesConfig,
-				userRoutes.basePath,
-			),
-			userPermission: extractRoutesPath(
-				userPermissionRoutes.routesConfig,
-				userPermissionRoutes.basePath,
-			),
-		};
+	return cachedRoutesPath;
+}
+
+export function baseLink(): string {
+	return cfg('app.url') as string;
+}
+
+export function routeLink(
+	route: string,
+	params?: Record<string, string | number>,
+	isAbsolute = false,
+): string {
+	const routesPath = getRoutesPath();
+	let routeLink = getObjectValue(routesPath, route) as string | undefined;
+
+	if (!routeLink) {
+		throw new Error(`Route ${route} not found`);
 	}
 
-	return cachedRoutesPath;
+	if (params) {
+		Object.keys(params).forEach((key) => {
+			routeLink = (routeLink as string).replace(
+				`:${key}`,
+				String(params[key]),
+			);
+		});
+	}
+
+	return isAbsolute ? `${baseLink()}${routeLink}` : routeLink;
 }

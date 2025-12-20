@@ -10,7 +10,7 @@ import { handle as i18nextMiddleware } from 'i18next-http-middleware';
 import { v4 as uuid } from 'uuid';
 import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
-import { initRoutes } from '@/config/routes.setup';
+import { getRoutesInfo, initRoutes } from '@/config/routes.setup';
 import { cfg } from '@/config/settings.config';
 import authMiddleware from '@/middleware/auth.middleware';
 import { corsHandler } from '@/middleware/cors-handler.middleware';
@@ -67,7 +67,7 @@ function validateConfig(): void {
 
 // Print startup banner
 function printStartupInfo(): void {
-	const width = 50;
+	const width = 60;
 	const lines = [
 		['Environment:', APP_ENV],
 		['Port:', APP_PORT.toString()],
@@ -82,6 +82,25 @@ function printStartupInfo(): void {
 	for (const [label, value] of lines) {
 		const text = `${label} ${value}`.padEnd(width);
 		console.log(`│ ${text} │`);
+	}
+
+	// Display routes
+	if (cfg('app.env') !== 'production') {
+		const routes = getRoutesInfo();
+
+		if (routes.length > 0) {
+			console.log(`├${'─'.repeat(width + 2)}┤`);
+			console.log(
+				`│ ${`Routes (${routes.length} total):`.padEnd(width)} │`,
+			);
+			console.log(`│${' '.repeat(width + 2)}│`);
+
+			routes.forEach((route) => {
+				console.log(
+					`│ ${route.method.padEnd(7)} ${route.path.padEnd(width - 8)} │`,
+				);
+			});
+		}
 	}
 
 	console.log(`└${'─'.repeat(width + 2)}┘`);
@@ -277,7 +296,7 @@ async function initializeApp(): Promise<void> {
 		app.use(outputHandler); // Set `res.locals.output`
 
 		// Routes
-		const router = initRoutes();
+		const router = await initRoutes();
 		app.use('/', router);
 		getSystemLogger().debug('Routes initialized');
 
