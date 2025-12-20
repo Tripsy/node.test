@@ -6,8 +6,8 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import OrderProductEntity from '@/features/order/order-product.entity';
-import OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
+import type OrderProductEntity from '@/features/order/order-product.entity';
+import type OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 
 @Entity({
 	name: 'order_shipping_product',
@@ -40,14 +40,14 @@ export default class OrderShippingProductEntity {
 	notes!: string | null;
 
 	// RELATIONS
-	@ManyToOne(() => OrderProductEntity, {
-		onDelete: 'RESTRICT',
+	@ManyToOne('OrderProductEntity', {
+		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'order_product_id' })
 	order_product!: OrderProductEntity;
 
-	@ManyToOne(() => OrderShippingEntity, {
-		onDelete: 'RESTRICT',
+	@ManyToOne('OrderShippingEntity', {
+		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'order_shipping_id' })
 	order_shipping!: OrderShippingEntity;
