@@ -8,8 +8,8 @@ import {
 	TreeParent,
 } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import CategoryContentEntity from '@/features/category/category-content.entity';
-import ProductCategoryEntity from '@/features/product/product-category.entity';
+import type CategoryContentEntity from '@/features/category/category-content.entity';
+import type ProductCategoryEntity from '@/features/product/product-category.entity';
 
 export enum CategoryStatusEnum {
 	ACTIVE = 'active',
@@ -69,15 +69,13 @@ export default class CategoryEntity extends EntityAbstract {
 	details!: Record<string, string | number | boolean>;
 
 	// RELATIONS
-	@OneToMany(
-		() => CategoryContentEntity,
-		(content) => content.category,
+	@OneToMany('CategoryContentEntity',
+		(content: CategoryContentEntity) => content.category,
 	)
 	contents?: CategoryContentEntity[];
 
-	@OneToMany(
-		() => ProductCategoryEntity,
-		(productCategory) => productCategory.category,
+	@OneToMany('ProductCategoryEntity',
+		(productCategory: ProductCategoryEntity) => productCategory.category,
 	)
 	products?: ProductCategoryEntity[];
 }

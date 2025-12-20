@@ -1,6 +1,6 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
+import type OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 
 @Entity({
 	name: 'carrier',
@@ -25,9 +25,8 @@ export default class CarrierEntity extends EntityAbstract {
 	notes!: string | null;
 
 	// RELATIONS
-	@OneToMany(
-		() => OrderShippingEntity,
-		(shipping) => shipping.carrier,
+	@OneToMany('OrderShippingEntity',
+		(shipping: OrderShippingEntity) => shipping.carrier,
 	)
 	order_shipments?: OrderShippingEntity[];
 }

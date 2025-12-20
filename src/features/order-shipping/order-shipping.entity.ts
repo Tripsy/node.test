@@ -2,7 +2,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
 import CarrierEntity from '@/features/carrier/carrier.entity';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
-import OrderEntity from '@/features/order/order.entity';
+import type OrderEntity from '@/features/order/order.entity';
 
 export enum ShippingStatusEnum {
 	PENDING = 'pending',
@@ -122,15 +122,15 @@ export default class OrderShippingEntity extends EntityAbstract {
 	notes!: string | null;
 
 	// RELATIONS
-	@ManyToOne(() => OrderEntity, {
+	@ManyToOne('OrderEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'order_id' })
 	order!: OrderEntity;
 
-	@ManyToOne(() => CarrierEntity, {
+	@ManyToOne('CarrierEntity', {
 		onDelete: 'RESTRICT',
 	})
 	@JoinColumn({ name: 'carrier_id' })
-	carrier!: CarrierEntity | null;
+	carrier?: CarrierEntity | null;
 }

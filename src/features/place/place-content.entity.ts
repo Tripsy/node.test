@@ -1,6 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import PlaceEntity from './place.entity';
+import type PlaceEntity from './place.entity';
 
 @Entity({
 	name: 'place_content',
@@ -36,7 +36,7 @@ export default class PlaceContentEntity extends EntityAbstract {
 	details!: Record<string, string | number | boolean>;
 
 	// RELATIONS
-	@ManyToOne(() => PlaceEntity, {
+	@ManyToOne('PlaceEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'place_id' })

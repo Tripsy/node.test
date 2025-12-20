@@ -30,6 +30,7 @@ export default class TermEntity extends EntityAbstract {
 		default: 'en',
 		comment: 'ISO language code (en will the fallback for universal terms)',
 	})
+    @Index('IDX_term_language')
 	language!: string;
 
 	@Column('varchar', {

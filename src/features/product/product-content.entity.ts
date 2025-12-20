@@ -1,6 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import ProductEntity from './product.entity';
+import type ProductEntity from './product.entity';
 
 @Entity({
 	name: 'product_content',
@@ -16,7 +16,6 @@ export default class ProductContentEntity extends EntityAbstract {
 
 	@Column('varchar', {
 		length: 3,
-		nullable: false,
 		default: 'en',
 	})
 	language!: string;
@@ -37,7 +36,7 @@ export default class ProductContentEntity extends EntityAbstract {
 	meta!: Record<string, number> | null;
 
 	// RELATIONS
-	@ManyToOne(() => ProductEntity, {
+	@ManyToOne('ProductEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'product_id' })

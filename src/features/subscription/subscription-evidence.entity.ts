@@ -7,9 +7,9 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import SubscriptionEntity from '@/features/subscription/subscription.entity';
+import type SubscriptionEntity from '@/features/subscription/subscription.entity';
 
-export enum SubscriptionRenewalStatusEnum {
+export enum SubscriptionEvidenceStatusEnum {
 	SUCCESS = 'success',
 	FAILED = 'failed',
 }
@@ -19,7 +19,7 @@ export enum SubscriptionRenewalStatusEnum {
 	schema: 'public',
 	comment: 'Used to track renewal attempts for subscriptions.',
 })
-export default class SubscriptionRenewalEntity {
+export default class SubscriptionEvidenceEntity {
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 
@@ -33,11 +33,11 @@ export default class SubscriptionRenewalEntity {
 
 	@Column({
 		type: 'enum',
-		enum: SubscriptionRenewalStatusEnum,
+		enum: SubscriptionEvidenceStatusEnum,
 		nullable: false,
 	})
 	@Index('IDX_subscription_renewals_status')
-	status!: SubscriptionRenewalStatusEnum;
+	status!: SubscriptionEvidenceStatusEnum;
 
 	@Column('jsonb', {
 		nullable: true,
@@ -53,7 +53,9 @@ export default class SubscriptionRenewalEntity {
 	recorded_at!: Date;
 
 	// RELATIONS
-	@ManyToOne(() => SubscriptionEntity, { onDelete: 'CASCADE' })
+	@ManyToOne('SubscriptionEntity', {
+        onDelete: 'CASCADE'
+    })
 	@JoinColumn({ name: 'subscription_id' })
 	subscription!: SubscriptionEntity;
 }

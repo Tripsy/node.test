@@ -7,7 +7,7 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import UserEntity from '@/features/user/user.entity';
+import type UserEntity from '@/features/user/user.entity';
 
 @Entity({
 	name: 'account_recovery',
@@ -38,8 +38,7 @@ export default class AccountRecoveryEntity {
 	@Column({ type: 'timestamp', nullable: false })
 	expire_at!: Date;
 
-	// RELATIONS
-	@ManyToOne(() => UserEntity, {
+	@ManyToOne('UserEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'user_id' })

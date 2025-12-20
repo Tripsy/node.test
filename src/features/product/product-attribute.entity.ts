@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import ProductEntity from '@/features/product/product.entity';
-import TermEntity from '@/features/term/term.entity';
+import type ProductEntity from '@/features/product/product.entity';
+import type TermEntity from '@/features/term/term.entity';
 
 @Entity({
 	name: 'product_attribute',
@@ -27,29 +27,21 @@ export default class ProductAttributeEntity extends EntityAbstract {
 	attribute_value_id!: number;
 
 	// RELATIONS
-	@ManyToOne(() => ProductEntity, {
+	@ManyToOne('ProductEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'product_id' })
 	product!: ProductEntity;
 
-	@ManyToOne(
-		() => TermEntity,
-		(term) => term.id,
-		{
-			onDelete: 'RESTRICT',
-		},
-	)
+	@ManyToOne('TermEntity', {
+        onDelete: 'RESTRICT',
+    })
 	@JoinColumn({ name: 'attribute_label_id' })
 	attribute_label!: TermEntity;
 
-	@ManyToOne(
-		() => TermEntity,
-		(term) => term.id,
-		{
-			onDelete: 'RESTRICT',
-		},
-	)
+    @ManyToOne('TermEntity', {
+        onDelete: 'RESTRICT',
+    })
 	@JoinColumn({ name: 'attribute_value_id' })
 	attribute_value!: TermEntity;
 }

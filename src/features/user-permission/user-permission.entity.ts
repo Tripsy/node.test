@@ -8,8 +8,8 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import PermissionEntity from '@/features/permission/permission.entity';
-import UserEntity from '@/features/user/user.entity';
+import type PermissionEntity from '@/features/permission/permission.entity';
+import type UserEntity from '@/features/user/user.entity';
 
 @Entity({
 	name: 'user_permission',
@@ -36,13 +36,13 @@ export default class UserPermissionEntity {
 	deleted_at!: Date | null;
 
 	// RELATIONS
-	@ManyToOne(() => UserEntity, {
+	@ManyToOne('UserEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'user_id' })
 	user?: UserEntity;
 
-	@ManyToOne(() => PermissionEntity, {
+	@ManyToOne('PermissionEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'permission_id' })

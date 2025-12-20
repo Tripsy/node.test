@@ -1,6 +1,6 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import ProductEntity from '@/features/product/product.entity';
+import type ProductEntity from '@/features/product/product.entity';
 
 export enum BrandStatusEnum {
 	ACTIVE = 'active',
@@ -41,9 +41,8 @@ export default class BrandEntity extends EntityAbstract {
 	details!: Record<string, string | number | boolean>;
 
 	// RELATIONS
-	@OneToMany(
-		() => ProductEntity,
-		(product) => product.brand,
+	@OneToMany('ProductEntity',
+		(product: ProductEntity) => product.brand,
 	)
 	products?: ProductEntity[];
 }

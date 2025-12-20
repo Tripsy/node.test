@@ -1,8 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
-import OrderEntity from '@/features/order/order.entity';
-import ProductEntity from '@/features/product/product.entity';
+import type OrderEntity from '@/features/order/order.entity';
+import type ProductEntity from '@/features/product/product.entity';
 
 @Entity({
 	name: 'order_product',
@@ -56,13 +56,13 @@ export default class OrderProductEntity extends EntityAbstract {
 	notes!: string | null;
 
 	// RELATIONS
-	@ManyToOne(() => OrderEntity, {
+	@ManyToOne('OrderEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'order_id' })
 	order!: OrderEntity;
 
-	@ManyToOne(() => ProductEntity, {
+	@ManyToOne('ProductEntity', {
 		onDelete: 'RESTRICT',
 	})
 	@JoinColumn({ name: 'product_id' })

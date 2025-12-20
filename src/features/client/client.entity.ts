@@ -7,8 +7,8 @@ import {
 	OneToMany,
 } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import OrderEntity from '@/features/order/order.entity';
-import PlaceEntity from '@/features/place/place.entity';
+import type OrderEntity from '@/features/order/order.entity';
+import type PlaceEntity from '@/features/place/place.entity';
 
 export enum ClientStatusEnum {
 	ACTIVE = 'active',
@@ -125,21 +125,26 @@ export default class ClientEntity extends EntityAbstract {
 	notes!: string | null;
 
 	// RELATIONS
-	@OneToMany(
-		() => OrderEntity,
-		(order) => order.client,
+	@OneToMany('OrderEntity',
+		(order: OrderEntity) => order.client,
 	)
 	orders?: OrderEntity[];
 
-	@ManyToOne(() => PlaceEntity, { onDelete: 'SET NULL' })
+	@ManyToOne('PlaceEntity', {
+        onDelete: 'SET NULL'
+    })
 	@JoinColumn({ name: 'address_country' })
 	country?: PlaceEntity | null;
 
-	@ManyToOne(() => PlaceEntity, { onDelete: 'SET NULL' })
+    @ManyToOne('PlaceEntity', {
+        onDelete: 'SET NULL'
+    })
 	@JoinColumn({ name: 'address_region' })
 	county?: PlaceEntity | null;
 
-	@ManyToOne(() => PlaceEntity, { onDelete: 'SET NULL' })
+    @ManyToOne('PlaceEntity', {
+        onDelete: 'SET NULL'
+    })
 	@JoinColumn({ name: 'address_city' })
 	city?: PlaceEntity | null;
 }

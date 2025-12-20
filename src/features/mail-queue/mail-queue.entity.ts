@@ -9,7 +9,7 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm';
-import TemplateEntity from '@/features/template/template.entity';
+import type TemplateEntity from '@/features/template/template.entity';
 import type { EmailContent } from '@/types/template.type';
 
 export enum MailQueueStatusEnum {
@@ -68,10 +68,9 @@ export default class MailQueueEntity {
 	@UpdateDateColumn({ type: 'timestamp', nullable: true })
 	updated_at!: Date | null;
 
-	@ManyToOne(() => TemplateEntity, {
-		nullable: true,
-		createForeignKeyConstraints: false,
-		eager: false,
+    // RELATIONS
+	@ManyToOne('TemplateEntity', {
+        onDelete: 'SET NULL',
 	})
 	@JoinColumn({ name: 'template_id', referencedColumnName: 'id' })
 	template?: TemplateEntity | null;

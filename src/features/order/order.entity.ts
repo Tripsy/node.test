@@ -7,10 +7,10 @@ import {
 	OneToMany,
 } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import ClientEntity from '@/features/client/client.entity';
-import InvoiceEntity from '@/features/invoice/invoice.entity';
-import OrderProductEntity from '@/features/order/order-product.entity';
-import OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
+import type ClientEntity from '@/features/client/client.entity';
+import type InvoiceEntity from '@/features/invoice/invoice.entity';
+import type OrderProductEntity from '@/features/order/order-product.entity';
+import type OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 
 export enum OrderStatusEnum {
 	DRAFT = 'draft',
@@ -64,27 +64,24 @@ export default class OrderEntity extends EntityAbstract {
 	notes!: string | null;
 
 	// RELATIONS
-	@ManyToOne(() => ClientEntity, {
+	@ManyToOne('ClientEntity', {
 		onDelete: 'RESTRICT',
 	})
 	@JoinColumn({ name: 'client_id' })
 	client!: ClientEntity;
 
-	@OneToMany(
-		() => OrderProductEntity,
-		(orderProduct) => orderProduct.order,
+	@OneToMany('OrderProductEntity',
+		(orderProduct: OrderProductEntity) => orderProduct.order,
 	)
 	order_products?: OrderProductEntity[];
 
-	@OneToMany(
-		() => OrderShippingEntity,
-		(orderShipping) => orderShipping.order,
+	@OneToMany('OrderShippingEntity',
+		(orderShipping: OrderShippingEntity) => orderShipping.order,
 	)
 	order_shipments?: OrderShippingEntity[];
 
-	@OneToMany(
-		() => InvoiceEntity,
-		(orderInvoice) => orderInvoice.order,
+	@OneToMany('InvoiceEntity',
+		(orderInvoice: InvoiceEntity) => orderInvoice.order,
 	)
 	order_invoices?: InvoiceEntity[];
 }

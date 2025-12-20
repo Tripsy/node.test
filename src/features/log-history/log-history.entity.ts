@@ -7,7 +7,7 @@ import {
 	PrimaryGeneratedColumn,
 } from 'typeorm';
 import type { RequestContextSource } from '@/config/request.context';
-import UserEntity from '@/features/user/user.entity';
+import type UserEntity from '@/features/user/user.entity';
 
 export type LogHistoryDetails = {
 	auth_id: number | null;
@@ -62,7 +62,7 @@ export default class LogHistoryEntity {
 	details?: Record<string, unknown>;
 
 	// RELATIONS
-	@ManyToOne(() => UserEntity, {
+	@ManyToOne('UserEntity', {
 		onDelete: 'SET NULL',
 	})
 	@JoinColumn({ name: 'auth_id', referencedColumnName: 'id' })

@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import CategoryEntity from '@/features/category/category.entity';
-import ProductEntity from '@/features/product/product.entity';
+import type CategoryEntity from '@/features/category/category.entity';
+import type ProductEntity from '@/features/product/product.entity';
 
 @Entity({
 	name: 'product_category',
@@ -26,13 +26,13 @@ export default class ProductCategoryEntity extends EntityAbstract {
 	details!: Record<string, string | number | boolean>;
 
 	// RELATIONS
-	@ManyToOne(() => ProductEntity, {
+	@ManyToOne('ProductEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'product_id' })
 	product!: ProductEntity;
 
-	@ManyToOne(() => CategoryEntity, {
+	@ManyToOne('CategoryEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'category_id' })

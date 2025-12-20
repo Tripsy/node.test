@@ -1,6 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import ArticleEntity from './article.entity';
+import type ArticleEntity from './article.entity';
 
 export type ArticleAuthorType = {
 	name: string;
@@ -24,8 +24,6 @@ export default class ArticleContentEntity extends EntityAbstract {
 	@Column('varchar', {
 		length: 3,
 		default: 'en',
-		comment:
-			'Using explicit column avoids overloading `term` for language lookups.',
 	})
 	language!: string;
 
@@ -60,7 +58,7 @@ export default class ArticleContentEntity extends EntityAbstract {
 	meta!: Record<string, number> | null;
 
 	// RELATIONS
-	@ManyToOne(() => ArticleEntity, {
+	@ManyToOne('ArticleEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'article_id' })

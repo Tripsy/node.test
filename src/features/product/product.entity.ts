@@ -7,11 +7,11 @@ import {
 	OneToMany,
 } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import BrandEntity from '@/features/brand/brand.entity';
-import OrderProductEntity from '@/features/order/order-product.entity';
-import ProductAttributeEntity from '@/features/product/product-attribute.entity';
-import ProductCategoryEntity from '@/features/product/product-category.entity';
-import ProductTagEntity from '@/features/product/product-tag.entity';
+import type BrandEntity from '@/features/brand/brand.entity';
+import type OrderProductEntity from '@/features/order/order-product.entity';
+import type ProductAttributeEntity from '@/features/product/product-attribute.entity';
+import type ProductCategoryEntity from '@/features/product/product-category.entity';
+import type ProductTagEntity from '@/features/product/product-tag.entity';
 
 export enum ProductWorkflowEnum {
 	DRAFT = 'draft', // Initial creation
@@ -134,37 +134,29 @@ export default class ProductEntity extends EntityAbstract {
 	details!: Record<string, string | number | boolean>;
 
 	// RELATIONS
-	@ManyToOne(
-		() => BrandEntity,
-		(brand) => brand.products,
-		{
-			onDelete: 'RESTRICT',
-		},
-	)
+	@ManyToOne('BrandEntity', {
+        onDelete: 'RESTRICT',
+    })
 	@JoinColumn({ name: 'brand_id' })
 	brand?: BrandEntity;
 
-	@OneToMany(
-		() => ProductTagEntity,
-		(tag) => tag.product,
+	@OneToMany('ProductTagEntity',
+		(tag: ProductTagEntity) => tag.product,
 	)
 	tags?: ProductTagEntity[];
 
-	@OneToMany(
-		() => ProductCategoryEntity,
-		(productCategory) => productCategory.product,
+	@OneToMany('ProductCategoryEntity',
+		(productCategory: ProductCategoryEntity) => productCategory.product,
 	)
 	categories?: ProductCategoryEntity[];
 
-	@OneToMany(
-		() => ProductAttributeEntity,
-		(attribute) => attribute.product,
+	@OneToMany('ProductAttributeEntity',
+		(attribute: ProductAttributeEntity) => attribute.product,
 	)
 	attributes?: ProductAttributeEntity[];
 
-	@OneToMany(
-		() => OrderProductEntity,
-		(orderProduct) => orderProduct.product,
+	@OneToMany('OrderProductEntity',
+		(orderProduct: OrderProductEntity) => orderProduct.product,
 	)
 	order_products?: OrderProductEntity[];
 }

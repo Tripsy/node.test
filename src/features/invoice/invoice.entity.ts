@@ -2,7 +2,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
 import type { ClientTypeEnum } from '@/features/client/client.entity';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
-import OrderEntity from '@/features/order/order.entity';
+import type OrderEntity from '@/features/order/order.entity';
 
 export enum InvoiceStatusEnum {
 	DRAFT = 'draft', // Initial state, not sent to customer
@@ -154,7 +154,7 @@ export default class InvoiceEntity extends EntityAbstract {
 	notes!: string | null;
 
 	// RELATIONS
-	@ManyToOne(() => OrderEntity, {
+	@ManyToOne('OrderEntity', {
 		onDelete: 'RESTRICT',
 	})
 	@JoinColumn({ name: 'order_id' })

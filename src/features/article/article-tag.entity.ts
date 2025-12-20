@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import ArticleEntity from '@/features/article/article.entity';
-import TermEntity from '@/features/term/term.entity';
+import type ArticleEntity from '@/features/article/article.entity';
+import type TermEntity from '@/features/term/term.entity';
 
 @Entity({
 	name: 'article_tag',
@@ -26,13 +26,13 @@ export default class ArticleTagEntity extends EntityAbstract {
 	details!: Record<string, string | number | boolean>;
 
 	// RELATIONS
-	@ManyToOne(() => ArticleEntity, {
+	@ManyToOne('ArticleEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'article_id' })
 	article!: ArticleEntity;
 
-	@ManyToOne(() => TermEntity, {
+	@ManyToOne('TermEntity', {
 		onDelete: 'RESTRICT',
 	})
 	@JoinColumn({ name: 'tag_id' })

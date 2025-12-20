@@ -6,7 +6,7 @@ import {
 	OneToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import ArticleEntity from './article.entity';
+import type ArticleEntity from './article.entity';
 
 @Entity({
 	name: 'article_content',
@@ -28,7 +28,7 @@ export default class ArticleTrackEntity {
 	reading_time_minutes?: number | null;
 
 	// RELATIONS
-	@OneToOne(() => ArticleEntity, {
+	@OneToOne('ArticleEntity', {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'article_id' })

@@ -1,8 +1,5 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-// import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
-// import AccountTokenEntity from '@/features/account/account-token.entity';
-// import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 
 export enum UserStatusEnum {
 	ACTIVE = 'active',
@@ -69,23 +66,4 @@ export default class UserEntity extends EntityAbstract {
 		comment: 'Operator type; only relevant when role is OPERATOR',
 	})
 	operator_type!: UserOperatorTypeEnum | null;
-
-	// RELATIONS
-	// @OneToMany(
-	// 	() => AccountTokenEntity,
-	// 	(accountToken) => accountToken.user,
-	// )
-	// account_tokens?: AccountTokenEntity[];
-    //
-	// @OneToMany(
-	// 	() => AccountRecoveryEntity,
-	// 	(accountRecovery) => accountRecovery.user,
-	// )
-	// account_recoveries?: AccountRecoveryEntity[];
-
-	// @OneToMany(
-	// 	() => UserPermissionEntity,
-	// 	(userPermission) => userPermission.user,
-	// )
-	// permissions?: UserPermissionEntity[];
 }

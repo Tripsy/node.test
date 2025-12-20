@@ -7,7 +7,7 @@ import {
 	OneToMany,
 } from 'typeorm';
 import { EntityAbstract } from '@/abstracts/entity.abstract';
-import PlaceContentEntity from '@/features/place/place-content.entity';
+import type PlaceContentEntity from '@/features/place/place-content.entity';
 
 export enum PlaceTypeEnum {
 	COUNTRY = 'country',
@@ -57,8 +57,8 @@ export default class PlaceEntity extends EntityAbstract {
 	children!: PlaceEntity[];
 
 	@OneToMany(
-		() => PlaceContentEntity,
-		(content) => content.place,
+		'PlaceContentEntity',
+		(content: PlaceContentEntity) => content.place,
 	)
 	contents!: PlaceContentEntity[];
 }
