@@ -19,7 +19,7 @@
 		"dev": "nodemon",
 		"test": "NODE_OPTIONS=--experimental-vm-modules APP_DEBUG=false APP_ENV=test NODE_ENV=test jest",
 		"biome": "NODE_OPTIONS=--no-deprecation biome check --write",
-        "deps:circular": "madge --circular --extensions ts src"
+		"deps:circular": "madge --circular --extensions ts src"
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",
