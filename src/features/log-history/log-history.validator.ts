@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
+import { RequestContextSource } from '@/config/request.context';
 import { cfg } from '@/config/settings.config';
 import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
@@ -22,7 +23,7 @@ export function LogHistoryDeleteValidator() {
 enum OrderByEnum {
 	ID = 'id',
 	ENTITY = 'entity',
-	ENTITY_ID = 'entity_id',
+	ACTION = 'action',
 	RECORDED_AT = 'recorded_at',
 }
 
@@ -50,6 +51,9 @@ export function LogHistoryFindValidator() {
 			request_id: validateString(
 				lang('shared.error.invalid_string'),
 			).optional(),
+			source: z
+				.enum(RequestContextSource, lang('shared.error.invalid_source'))
+				.optional(),
 			recorded_at_start: validateDate(),
 			recorded_at_end: validateDate(),
 		},

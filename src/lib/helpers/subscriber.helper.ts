@@ -1,6 +1,6 @@
 import type { UpdateEvent } from 'typeorm';
 import { lang } from '@/config/i18n.setup';
-import { requestContext } from '@/config/request.context';
+import { RequestContextSource, requestContext } from '@/config/request.context';
 import { cfg, type LogHistoryDestination } from '@/config/settings.config';
 import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
@@ -57,13 +57,11 @@ export function logHistory(
 				entity,
 				entity_ids,
 				action,
-				{
-					auth_id: ctx?.auth_id || null,
-					performed_by: ctx?.performed_by || 'unknown',
-					request_id: ctx?.request_id || 'unknown',
-					source: ctx?.source || 'unknown',
-					data,
-				},
+				ctx?.auth_id || null,
+				ctx?.performed_by || 'unknown',
+				ctx?.request_id || 'unknown',
+				ctx?.source || RequestContextSource.UNKNOWN,
+				data,
 			);
 			break;
 		}

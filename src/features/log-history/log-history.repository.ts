@@ -1,7 +1,6 @@
 import dataSource from '@/config/data-source.config';
-import LogHistoryEntity, {
-	type LogHistoryDetails,
-} from '@/features/log-history/log-history.entity';
+import type { RequestContextSource } from '@/config/request.context';
+import LogHistoryEntity from '@/features/log-history/log-history.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 
@@ -27,7 +26,11 @@ export const getLogHistoryRepository = () =>
 			entity: string,
 			entity_ids: number[],
 			action: string,
-			details: LogHistoryDetails,
+			auth_id: number | null,
+			performed_by: string,
+			request_id: string,
+			source: RequestContextSource,
+			data: Record<string, unknown>,
 		) {
 			const recorded_at = new Date();
 
@@ -41,13 +44,12 @@ export const getLogHistoryRepository = () =>
 				log.entity = entity;
 				log.entity_id = entity_id;
 				log.action = action;
-
-				log.auth_id = details.auth_id ?? null;
-				log.performed_by = details.performed_by;
-				log.request_id = details.request_id;
-				log.source = details.source;
+				log.auth_id = auth_id;
+				log.performed_by = performed_by;
+				log.request_id = request_id;
+				log.source = source;
 				log.recorded_at = recorded_at;
-				log.details = details.data;
+				log.details = data;
 
 				return log;
 			});

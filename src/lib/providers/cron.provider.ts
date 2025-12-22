@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { v4 as uuid } from 'uuid';
-import { requestContext } from '@/config/request.context';
+import { RequestContextSource, requestContext } from '@/config/request.context';
 import { cleanAccountRecovery } from '@/cron-jobs/clean-account-recovery.cron';
 import { cleanAccountToken } from '@/cron-jobs/clean-account-token.cron';
 import { cronErrorCount } from '@/cron-jobs/cron-error-count.cron';
@@ -33,7 +33,7 @@ async function executeCron<R extends Record<string, unknown>>(
 		{
 			auth_id: 0,
 			performed_by: action.name,
-			source: 'cron',
+			source: RequestContextSource.CRON,
 			request_id: uuid(),
 			language: 'en',
 		},

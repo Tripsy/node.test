@@ -1,6 +1,11 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 
-export type RequestContextSource = 'cron' | 'api' | 'seed' | 'unknown';
+export enum RequestContextSource {
+	CRON = 'cron',
+	API = 'api',
+	SEED = 'seed',
+	UNKNOWN = 'unknown',
+}
 
 export type RequestContext = {
 	auth_id: number;

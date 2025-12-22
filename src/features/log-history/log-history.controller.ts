@@ -79,6 +79,7 @@ class LogHistoryController {
 			.filterBy('entity', validated.data.filter.entity)
 			.filterBy('entity_id', validated.data.filter.entity_id)
 			.filterBy('action', validated.data.filter.action)
+			.filterBy('source', validated.data.filter.source)
 			.filterByRange(
 				'recorded_at',
 				validated.data.filter.recorded_at_start,

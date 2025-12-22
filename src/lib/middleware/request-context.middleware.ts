@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { requestContext } from '@/config/request.context';
+import { RequestContextSource, requestContext } from '@/config/request.context';
 
 export function requestContextMiddleware(
 	_req: Request,
@@ -11,7 +11,7 @@ export function requestContextMiddleware(
 			auth_id: res.locals.auth?.id || 0,
 			performed_by: res.locals.auth?.name || 'unknown',
 			request_id: res.locals.request_id,
-			source: 'api',
+			source: RequestContextSource.API,
 			language: res.locals.lang,
 		},
 		() => next(),

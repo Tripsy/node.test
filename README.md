@@ -139,11 +139,12 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. create a library / package for my utilities - drop moment !!!
+1. drop moment
 2. do log history on FE
-3. Recap Jest; Tests are failing
-4. image > category ( + route images) > brand ( + route images)
-5. wip entities:
+3. make features as package
+4. Recap Jest; Tests are failing
+5. image > category ( + route images) > brand ( + route images)
+6. wip entities:
     - article
         - article-category
         - article-content
@@ -169,7 +170,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-evidence
     - term
-6. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+7. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # BUGS & ISSUES
 

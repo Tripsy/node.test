@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import dataSource from '@/config/data-source.config';
-import { requestContext } from '@/config/request.context';
+import { RequestContextSource, requestContext } from '@/config/request.context';
 import PermissionEntity from '@/features/permission/permission.entity';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 
@@ -34,7 +34,7 @@ async function seedPermissions() {
 			{
 				auth_id: 0,
 				performed_by: 'permission.seed',
-				source: 'seed',
+				source: RequestContextSource.SEED,
 				request_id: uuid(),
 				language: 'en',
 			},

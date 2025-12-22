@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import dataSource from '@/config/data-source.config';
-import { requestContext } from '@/config/request.context';
+import { RequestContextSource, requestContext } from '@/config/request.context';
 import TemplateEntity, {
 	TemplateTypeEnum,
 } from '@/features/template/template.entity';
@@ -14,7 +14,7 @@ const templateData = [
 			subject: 'Confirm your email',
 			html: `
                 <p>
-                    Please confirm your email by clicking on the following  <a href="{{ siteUrl }}/account/email-confirm/{{ token }}">link</a>.
+                    Please confirm your email by clicking on the following <a href="{{ siteUrl }}/account/email-confirm/{{ token }}">link</a>.
                 </p>
             `,
 			layout: 'layout-default',
@@ -28,7 +28,7 @@ const templateData = [
 			subject: 'Confirm your email',
 			html: `
                 <p>
-                    Please confirm your email by clicking on the following  <a href="{{ siteUrl }}/account/email-confirm/{{ token }}">link</a>.
+                    Please confirm your email by clicking on the following <a href="{{ siteUrl }}/account/email-confirm/{{ token }}">link</a>.
                 </p>
             `,
 			layout: 'layout-default',
@@ -225,7 +225,7 @@ async function seedTemplates() {
 			{
 				auth_id: 0,
 				performed_by: 'template.seed',
-				source: 'seed',
+				source: RequestContextSource.SEED,
 				request_id: uuid(),
 				language: 'en',
 			},

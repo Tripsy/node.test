@@ -9,14 +9,6 @@ import {
 import type { RequestContextSource } from '@/config/request.context';
 import type UserEntity from '@/features/user/user.entity';
 
-export type LogHistoryDetails = {
-	auth_id: number | null;
-	performed_by: string;
-	request_id: string;
-	source: RequestContextSource;
-	data: Record<string, unknown>;
-};
-
 @Entity({
 	name: 'log_history',
 	schema: 'logs',
