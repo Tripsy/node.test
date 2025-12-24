@@ -19,8 +19,8 @@
 	"history": {
 		"created": "Carrier #{{entity_id}} created by user #{{auth_id}}",
 		"updated": "Carrier #{{entity_id}} updated by user #{{auth_id}}",
-		"deleted": "Carrier #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Carrier #{{entity_id}} has been removed by user #{{auth_id}}",
-		"restored": "Carrier #{{entity_id}} has been restored by user #{{auth_id}}"
+		"deleted": "Carrier(s) {{entity_ids}} marked as deleted by user #{{auth_id}}",
+		"removed": "Carrier(s) {{entity_ids}} removed by user #{{auth_id}}",
+		"restored": "Carrier(s) {{entity_ids}} restored by user #{{auth_id}}"
 	}
 }

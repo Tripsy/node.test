@@ -10,8 +10,10 @@ export enum SubscriptionStatusEnum {
 	EXPIRED = 'expired',
 }
 
+const ENTITY_TABLE_NAME = 'subscription';
+
 @Entity({
-	name: 'subscription',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Recurring subscriptions created from orders',
 })
@@ -19,6 +21,9 @@ export enum SubscriptionStatusEnum {
 	unique: true,
 })
 export default class SubscriptionEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Index('IDX_subscription_order_id', { unique: true })
 	@Column('bigint', { nullable: false })
 	order_id!: number;

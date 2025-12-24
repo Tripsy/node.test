@@ -9,8 +9,29 @@ import {
 import type { RequestContextSource } from '@/config/request.context';
 import type UserEntity from '@/features/user/user.entity';
 
+export type LogHistoryDestination = 'pino' | 'db' | null;
+
+export enum LogHistoryAction {
+	CREATED = 'created',
+	UPDATED = 'updated',
+	DELETED = 'deleted',
+	REMOVED = 'removed',
+	RESTORED = 'restored',
+	STATUS = 'status',
+	PASSWORD_CHANGE = 'password_change',
+}
+
+export type LogHistoryEventPayload = {
+	entity: string;
+	entity_ids: number[];
+	action: LogHistoryAction;
+	data?: Record<string, string | number>;
+};
+
+const ENTITY_TABLE_NAME = 'carrier';
+
 @Entity({
-	name: 'log_history',
+	name: ENTITY_TABLE_NAME,
 	schema: 'logs',
 	comment: 'Store entities history: created, updated, deleted, etc.',
 })
@@ -18,6 +39,9 @@ import type UserEntity from '@/features/user/user.entity';
 	unique: false,
 })
 export default class LogHistoryEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 
@@ -28,7 +52,7 @@ export default class LogHistoryEntity {
 	entity_id!: number;
 
 	@Column({ type: 'varchar', nullable: false })
-	action!: string;
+	action!: LogHistoryAction;
 
 	@Column({ type: 'bigint', nullable: true })
 	@Index('IDX_log_history_auth_id', { unique: false })

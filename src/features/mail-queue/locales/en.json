@@ -9,6 +9,6 @@
 		"language_invalid": "Invalid language"
 	},
 	"history": {
-		"deleted": "Mail queue entry / entries have been removed by user #{{auth_id}}"
+		"deleted": "Mail queue entry / entries {{entry_ids} removed by user #{{auth_id}}"
 	}
 }

@@ -4,12 +4,10 @@ import PlaceEntity, { type PlaceTypeEnum } from '@/features/place/place.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
-	static entityAlias: string = 'place';
-
 	constructor(
 		repository: ReturnType<typeof dataSource.getRepository<PlaceEntity>>,
 	) {
-		super(repository, PlaceQuery.entityAlias);
+		super(repository, PlaceEntity.NAME);
 	}
 
 	filterByTerm(term?: string): this {

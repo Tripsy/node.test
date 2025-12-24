@@ -9,8 +9,10 @@ import {
 import type OrderProductEntity from '@/features/order/order-product.entity';
 import type OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 
+const ENTITY_TABLE_NAME = 'order_shipping_product';
+
 @Entity({
-	name: 'order_shipping_product',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Allocation of ordered products to specific shipments',
 })
@@ -22,6 +24,9 @@ import type OrderShippingEntity from '@/features/order-shipping/order-shipping.e
 	},
 )
 export default class OrderShippingProductEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

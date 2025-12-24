@@ -1,4 +1,4 @@
-import { UserQuery } from '@/features/user/user.repository';
+import UserEntity from '@/features/user/user.entity';
 import UserPermissionRepository from '@/features/user-permission/user-permission.repository';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
 
@@ -6,7 +6,7 @@ export async function getPolicyPermissions(user_id: number): Promise<string[]> {
 	const cacheProvider = getCacheProvider();
 
 	const cacheKey = cacheProvider.buildKey(
-		UserQuery.entityAlias,
+		UserEntity.NAME,
 		user_id.toString(),
 		'permissions',
 	);

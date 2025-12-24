@@ -42,13 +42,18 @@ export enum ProductStockEnum {
 	OUT_OF_STOCK = 'out_of_stock', // Temporarily unavailable
 }
 
+const ENTITY_TABLE_NAME = 'product';
+
 @Entity({
-	name: 'product',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
 		'Stores core product information; textual content is saved in a product-content.entity',
 })
 export default class ProductEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('varchar', { nullable: false })
 	@Index('IDX_product_sku', { unique: true })
 	sku!: string;

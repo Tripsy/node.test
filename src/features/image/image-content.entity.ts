@@ -23,13 +23,18 @@ export type ImageElementAttrsType = {
 	title?: string;
 };
 
+const ENTITY_TABLE_NAME = 'image_content';
+
 @Entity({
-	name: 'image_content',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Language-specific content for images',
 })
 @Index('IDX_image_content_unique_per_lang', ['image_id', 'language'])
 export default class ImageContentEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	image_id!: number;
 

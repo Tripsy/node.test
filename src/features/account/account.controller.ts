@@ -608,24 +608,6 @@ class AccountController {
 		// Check permission (needs to be authenticated)
 		policy.me();
 
-		// const cacheProvider = getCacheProvider();
-
-		// const cacheKey = cacheProvider.buildKey(UserQuery.entityAlias, policy.getUserId().toString() , 'details');
-		// const user = await cacheProvider.get(cacheKey, async () => {
-		//     const userData = await getUserRepository()
-		//         .createQuery()
-		//         .select(['id', 'name', 'email', 'language', 'status', 'role', 'created_at', 'updated_at'])
-		//         .filterById(policy.getUserId())
-		//         .firstOrFail();
-		//
-		//     if (userData.role === UserRoleEnum.OPERATOR) {
-		//         userData.permissions = await getPolicyPermissions(userData.id);
-		//     }
-		//
-		//     return userData;
-		// });
-
-		// res.locals.output.meta(cacheProvider.isCached, 'isCached');
 		res.locals.output.data(res.locals.auth);
 
 		res.json(res.locals.output);

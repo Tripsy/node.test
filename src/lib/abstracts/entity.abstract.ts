@@ -12,7 +12,7 @@ export enum OrderDirectionEnum {
 }
 
 @Entity()
-export class EntityAbstract {
+export abstract class EntityAbstract {
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

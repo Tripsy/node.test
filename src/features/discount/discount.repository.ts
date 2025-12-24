@@ -4,12 +4,10 @@ import DiscountEntity from '@/features/discount/discount.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class DiscountQuery extends RepositoryAbstract<DiscountEntity> {
-	static entityAlias: string = 'discount';
-
 	constructor(
 		repository: ReturnType<typeof dataSource.getRepository<DiscountEntity>>,
 	) {
-		super(repository, DiscountQuery.entityAlias);
+		super(repository, DiscountEntity.NAME);
 	}
 
 	filterByTerm(term?: string): this {

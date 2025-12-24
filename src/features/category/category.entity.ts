@@ -22,14 +22,19 @@ export enum CategoryTypeEnum {
 	ARTICLE = 'article',
 }
 
+const ENTITY_TABLE_NAME = 'category';
+
 @Entity({
-	name: 'category',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Hierarchical product categories',
 })
 @Tree('closure-table')
 @Index('IDX_category_type', ['type', 'status'])
 export default class CategoryEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column({
 		type: 'enum',
 		enum: CategoryStatusEnum,

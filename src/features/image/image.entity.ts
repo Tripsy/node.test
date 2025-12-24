@@ -8,9 +8,14 @@ export enum ImageKindEnum {
 	GALLERY = 'gallery',
 }
 
-@Entity({ name: 'image', schema: 'public' })
+const ENTITY_TABLE_NAME = 'image';
+
+@Entity({ name: ENTITY_TABLE_NAME, schema: 'public' })
 @Index('IDX_image_type_id', ['entity_type', 'entity_id', 'kind'])
 export default class ImageEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('text', {
 		nullable: false,
 		comment:

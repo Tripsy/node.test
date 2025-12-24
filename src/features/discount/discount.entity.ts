@@ -44,14 +44,19 @@ export type DiscountSnapshot = {
 	value: number;
 };
 
+const ENTITY_TABLE_NAME = 'discount';
+
 @Entity({
-	name: 'discount',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
 		'Stores discount definitions. Note: Discount applied only for prices without VAT before exchange rate conversion',
 })
 @Index('IDX_discount_active', ['start_at', 'end_at', 'scope'])
 export default class DiscountEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('varchar', { nullable: false, comment: 'Discount name' })
 	label!: string;
 

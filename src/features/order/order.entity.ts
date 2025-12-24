@@ -25,12 +25,17 @@ export enum OrderTypeEnum {
 	SUBSCRIPTION = 'subscription',
 }
 
+const ENTITY_TABLE_NAME = 'order';
+
 @Entity({
-	name: 'order',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Stores order information',
 })
 export default class OrderEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	@Index('IDX_order_client_id')
 	client_id!: number;

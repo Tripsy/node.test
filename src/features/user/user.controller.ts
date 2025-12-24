@@ -3,7 +3,7 @@ import { lang } from '@/config/i18n.setup';
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity, { UserRoleEnum } from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
-import { getUserRepository, UserQuery } from '@/features/user/user.repository';
+import { getUserRepository } from '@/features/user/user.repository';
 import {
 	paramsUpdateList,
 	UserCreateValidator,
@@ -75,7 +75,7 @@ class UserController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			UserQuery.entityAlias,
+			UserEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);

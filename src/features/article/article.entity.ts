@@ -20,13 +20,18 @@ export enum ArticleFeaturedStatusEnum {
 	CATEGORY = 'category',
 }
 
+const ENTITY_TABLE_NAME = 'article';
+
 @Entity({
-	name: 'article',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
 		'Stores core article information; textual content is saved in article-content.entity',
 })
 export default class ArticleEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column({
 		type: 'enum',
 		enum: ArticleStatusEnum,

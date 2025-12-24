@@ -2,10 +2,7 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import CarrierEntity from '@/features/carrier/carrier.entity';
 import CarrierPolicy from '@/features/carrier/carrier.policy';
-import {
-	CarrierQuery,
-	getCarrierRepository,
-} from '@/features/carrier/carrier.repository';
+import { getCarrierRepository } from '@/features/carrier/carrier.repository';
 import {
 	CarrierCreateValidator,
 	CarrierFindValidator,
@@ -67,7 +64,7 @@ class CarrierController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			CarrierQuery.entityAlias,
+			CarrierEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);

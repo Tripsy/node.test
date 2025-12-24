@@ -1,12 +1,11 @@
 import 'dotenv/config';
 import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
+import type { LogHistoryDestination } from '@/features/log-history/log-history.entity';
 import {
 	getObjectValue,
 	type ObjectValue,
 	setObjectValue,
 } from '@/lib/helpers';
-
-export type LogHistoryDestination = 'pino' | 'db' | null;
 
 function getSettings(): { [key: string]: ObjectValue } {
 	return {

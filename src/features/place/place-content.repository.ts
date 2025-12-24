@@ -5,14 +5,12 @@ import PlaceContentEntity from '@/features/place/place-content.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class PlaceContentQuery extends RepositoryAbstract<PlaceContentEntity> {
-	static entityAlias: string = 'place_content';
-
 	constructor(
 		repository: ReturnType<
 			typeof dataSource.getRepository<PlaceContentEntity>
 		>,
 	) {
-		super(repository, PlaceContentQuery.entityAlias);
+		super(repository, PlaceContentEntity.NAME);
 	}
 }
 

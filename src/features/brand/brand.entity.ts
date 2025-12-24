@@ -7,11 +7,16 @@ export enum BrandStatusEnum {
 	INACTIVE = 'inactive',
 }
 
+const ENTITY_TABLE_NAME = 'brand';
+
 @Entity({
-	name: 'brand',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 })
 export default class BrandEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('varchar', { nullable: false })
 	name!: string;
 

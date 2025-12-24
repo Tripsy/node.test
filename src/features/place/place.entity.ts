@@ -21,12 +21,17 @@ export type PlaceContentInput = {
 	type_label: string;
 };
 
+const ENTITY_TABLE_NAME = 'place';
+
 @Entity({
-	name: 'place',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Places (countries, regions, cities)',
 })
 export default class PlaceEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('enum', {
 		enum: PlaceTypeEnum,
 		default: PlaceTypeEnum.COUNTRY,

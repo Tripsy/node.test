@@ -13,12 +13,17 @@ export enum ShippingStatusEnum {
 	RETURNED = 'returned',
 }
 
+const ENTITY_TABLE_NAME = 'order_shipping';
+
 @Entity({
-	name: 'order_shipping',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Stores shipping details for orders',
 })
 export default class OrderShippingEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	@Index('IDX_order_shipping_order_id')
 	order_id!: number;

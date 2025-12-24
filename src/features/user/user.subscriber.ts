@@ -1,34 +1,25 @@
-import {
-	type EntitySubscriberInterface,
-	EventSubscriber,
-	type InsertEvent,
-	type RemoveEvent,
-	type SoftRemoveEvent,
-	type UpdateEvent,
-} from 'typeorm';
+import { EventSubscriber, type InsertEvent, type UpdateEvent } from 'typeorm';
 import { cfg } from '@/config/settings.config';
 import {
 	encryptPassword,
 	sendEmailConfirmCreate,
 	sendWelcomeEmail,
 } from '@/features/account/account.service';
+import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
-import { UserQuery } from '@/features/user/user.repository';
-import {
-	cacheClean,
-	isRestore,
-	logHistory,
-	removeOperation,
-	restoreOperation,
-} from '@/lib/helpers';
+import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
 
 @EventSubscriber()
-export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
-	/**
-	 * Specify which entity this subscriber is for.
-	 */
-	listenTo() {
-		return UserEntity;
+export class UserSubscriber extends SubscriberAbstract<UserEntity> {
+	protected readonly Entity = UserEntity;
+
+	constructor() {
+		super();
+
+		this.config = {
+			beforeRemove: true,
+			afterSoftRemove: true,
+		};
 	}
 
 	async beforeInsert(event: InsertEvent<UserEntity>) {
@@ -39,7 +30,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 			);
 		}
 
-		// Set default language
+		// Set the default language
 		if (!event.entity.language) {
 			event.entity.language = cfg('app.language') as string;
 		}
@@ -48,7 +39,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 	}
 
 	async beforeUpdate(event: UpdateEvent<UserEntity>) {
-		// Hash password before updating if it has changed.
+		// Hash the password before updating if it has changed.
 		if (event.entity?.password) {
 			event.entity.password = await encryptPassword(
 				event.entity.password,
@@ -56,34 +47,10 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 		}
 	}
 
-	/**
-	 * When entry is removed from the database,
-	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
-	 *
-	 * @param event
-	 */
-	beforeRemove(event: RemoveEvent<UserEntity>) {
-		const id: number = event.entity?.id || event.databaseEntity.id;
-
-		removeOperation(UserQuery.entityAlias, id, false);
-	}
-
-	/**
-	 * When the entry is marked as deleted in the database,
-	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
-	 *
-	 * @param event
-	 */
-	afterSoftRemove(event: SoftRemoveEvent<UserEntity>) {
-		const id: number = event.entity?.id || event.databaseEntity.id;
-
-		removeOperation(UserQuery.entityAlias, id, true);
-	}
-
 	async afterInsert(event: InsertEvent<UserEntity>) {
 		const id = event.entity.id;
 
-		logHistory(UserQuery.entityAlias, id, 'created');
+		this.logHistory(id, LogHistoryAction.CREATED);
 
 		switch (event.entity.status) {
 			case UserStatusEnum.ACTIVE:
@@ -98,14 +65,14 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 	async afterUpdate(event: UpdateEvent<UserEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		if (isRestore(event)) {
-			restoreOperation(UserQuery.entityAlias, id);
+		this.cacheClean(id);
 
-			return;
-		}
-
-		cacheClean(UserQuery.entityAlias, id);
-		logHistory(UserQuery.entityAlias, id, 'updated');
+		this.logHistory(
+			id,
+			this.isRestore(event)
+				? LogHistoryAction.RESTORED
+				: LogHistoryAction.UPDATED,
+		);
 
 		// Check if the status was updated
 		if (
@@ -113,7 +80,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 			event.databaseEntity?.status &&
 			event.entity.status !== event.databaseEntity.status
 		) {
-			logHistory(UserQuery.entityAlias, id, 'status', {
+			this.logHistory(id, LogHistoryAction.STATUS, {
 				oldStatus: event.databaseEntity.status,
 				newStatus: event.entity.status,
 			});
@@ -134,7 +101,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 			event.databaseEntity?.password &&
 			event.entity.password !== event.databaseEntity.password
 		) {
-			logHistory(UserQuery.entityAlias, id, 'password_change');
+			this.logHistory(id, LogHistoryAction.PASSWORD_CHANGE);
 		}
 	}
 }

@@ -2,10 +2,7 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import PermissionEntity from '@/features/permission/permission.entity';
 import PermissionPolicy from '@/features/permission/permission.policy';
-import {
-	getPermissionRepository,
-	PermissionQuery,
-} from '@/features/permission/permission.repository';
+import { getPermissionRepository } from '@/features/permission/permission.repository';
 import {
 	PermissionFindValidator,
 	PermissionManageValidator,
@@ -75,7 +72,7 @@ class PermissionController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			PermissionQuery.entityAlias,
+			PermissionEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);

@@ -12,6 +12,7 @@ import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
 import { getRoutesInfo, initRoutes } from '@/config/routes.setup';
 import { cfg } from '@/config/settings.config';
+import { registerEventListeners } from '@/lib/listeners';
 import authMiddleware from '@/lib/middleware/auth.middleware';
 import { corsHandler } from '@/lib/middleware/cors-handler.middleware';
 import { errorHandler } from '@/lib/middleware/error-handler.middleware';
@@ -297,6 +298,9 @@ async function initializeApp(): Promise<void> {
 		app.use(authMiddleware); // Set `res.locals.auth`
 		app.use(requestContextMiddleware); // Prepare `requestContext`
 		app.use(outputHandler); // Set `res.locals.output`
+
+		// Event listeners
+		registerEventListeners();
 
 		// Routes
 		const router = await initRoutes();

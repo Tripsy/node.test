@@ -3,10 +3,7 @@ import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import PlaceEntity from '@/features/place/place.entity';
 import PlacePolicy from '@/features/place/place.policy';
-import {
-	getPlaceRepository,
-	PlaceQuery,
-} from '@/features/place/place.repository';
+import { getPlaceRepository } from '@/features/place/place.repository';
 import {
 	PlaceCreateValidator,
 	PlaceFindValidator,
@@ -68,7 +65,7 @@ class PlaceController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			PlaceQuery.entityAlias,
+			PlaceEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);

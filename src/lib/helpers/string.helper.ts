@@ -66,6 +66,40 @@ export function safeHtml(dirtyHtml: string): string {
 	});
 }
 
-export function snakeToKebab(str: string): string {
-	return str.replace(/_/g, '-');
+export function toKebabCase(
+	str: string,
+	options: {
+		preserveCase?: boolean;
+		preserveUnderscores?: boolean;
+	} = {},
+): string {
+	const { preserveCase = false, preserveUnderscores = true } = options;
+
+	let result = str;
+
+	// Convert to lowercase unless preserveCase is true
+	if (!preserveCase) {
+		result = result.toLowerCase();
+	}
+
+	// Handle camelCase/PascalCase
+	result = result.replace(/([a-z])([A-Z])/g, '$1-$2');
+
+	// Replace spaces and (optionally) underscores with hyphens
+	if (preserveUnderscores) {
+		result = result.replace(/\s+/g, '-');
+	} else {
+		result = result.replace(/[\s_]+/g, '-');
+	}
+
+	// Remove special characters but keep hyphens and alphanumeric
+	result = result.replace(/[^a-zA-Z0-9-]/g, '');
+
+	// Clean up multiple hyphens
+	result = result.replace(/-+/g, '-');
+
+	// Remove leading/trailing hyphens
+	result = result.replace(/^-+|-+$/g, '');
+
+	return result;
 }

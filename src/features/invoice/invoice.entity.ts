@@ -70,8 +70,10 @@ export type BillingDetailsCompany = {
 
 export type BillingDetails = BillingDetailsPerson | BillingDetailsCompany;
 
+const ENTITY_TABLE_NAME = 'invoice';
+
 @Entity({
-	name: 'invoice',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Stores invoices generated from orders',
 })
@@ -79,6 +81,9 @@ export type BillingDetails = BillingDetailsPerson | BillingDetailsCompany;
 	unique: true,
 })
 export default class InvoiceEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	@Index('IDX_invoice_order_id')
 	order_id!: number;

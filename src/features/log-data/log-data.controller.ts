@@ -1,10 +1,8 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
+import LogDataEntity from '@/features/log-data/log-data.entity';
 import LogDataPolicy from '@/features/log-data/log-data.policy';
-import {
-	getLogDataRepository,
-	LogDataQuery,
-} from '@/features/log-data/log-data.repository';
+import { getLogDataRepository } from '@/features/log-data/log-data.repository';
 import {
 	LogDataDeleteValidator,
 	LogDataFindValidator,
@@ -23,7 +21,7 @@ class LogDataController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			LogDataQuery.entityAlias,
+			LogDataEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);

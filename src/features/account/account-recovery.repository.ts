@@ -3,14 +3,12 @@ import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class AccountRecoveryQuery extends RepositoryAbstract<AccountRecoveryEntity> {
-	static entityAlias: string = 'account_recovery';
-
 	constructor(
 		repository: ReturnType<
 			typeof dataSource.getRepository<AccountRecoveryEntity>
 		>,
 	) {
-		super(repository, AccountRecoveryQuery.entityAlias);
+		super(repository, AccountRecoveryEntity.NAME);
 	}
 
 	filterByIdent(ident: string): this {

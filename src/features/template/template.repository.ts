@@ -4,12 +4,10 @@ import TemplateEntity from '@/features/template/template.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class TemplateQuery extends RepositoryAbstract<TemplateEntity> {
-	static entityAlias: string = 'template';
-
 	constructor(
 		repository: ReturnType<typeof dataSource.getRepository<TemplateEntity>>,
 	) {
-		super(repository, TemplateQuery.entityAlias);
+		super(repository, TemplateEntity.NAME);
 	}
 
 	filterByTerm(term?: string): this {

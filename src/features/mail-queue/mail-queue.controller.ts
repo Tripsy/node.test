@@ -1,16 +1,15 @@
 import type { Request, Response } from 'express';
+import { eventEmitter } from '@/config/event.config';
 import { lang } from '@/config/i18n.setup';
+import { LogHistoryAction } from '@/features/log-history/log-history.entity';
+import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import MailQueuePolicy from '@/features/mail-queue/mail-queue.policy';
-import {
-	getMailQueueRepository,
-	MailQueueQuery,
-} from '@/features/mail-queue/mail-queue.repository';
+import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import {
 	MailQueueDeleteValidator,
 	MailQueueFindValidator,
 } from '@/features/mail-queue/mail-queue.validator';
 import BadRequestError from '@/lib/exceptions/bad-request.error';
-import { logHistory } from '@/lib/helpers';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
 
@@ -24,7 +23,7 @@ class MailQueueController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			MailQueueQuery.entityAlias,
+			MailQueueEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
@@ -66,11 +65,11 @@ class MailQueueController {
 				lang('shared.error.db_delete_zero'),
 			); // Note: By API design the response message is actually not displayed for 204
 		} else {
-			logHistory(
-				MailQueueQuery.entityAlias,
-				validated.data.ids,
-				'deleted',
-			);
+			eventEmitter.emit('history', {
+				entity: MailQueueEntity.NAME,
+				entity_ids: validated.data.ids,
+				action: LogHistoryAction.DELETED,
+			});
 
 			res.locals.output.message(lang('mail-queue.success.delete'));
 		}

@@ -4,12 +4,10 @@ import CarrierEntity from '@/features/carrier/carrier.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class CarrierQuery extends RepositoryAbstract<CarrierEntity> {
-	static entityAlias: string = 'carrier';
-
 	constructor(
 		repository: ReturnType<typeof dataSource.getRepository<CarrierEntity>>,
 	) {
-		super(repository, CarrierQuery.entityAlias);
+		super(repository, CarrierEntity.NAME);
 	}
 
 	filterByTerm(term?: string): this {

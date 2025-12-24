@@ -19,11 +19,16 @@ export enum UserOperatorTypeEnum {
 	CONTENT_EDITOR = 'content_editor',
 }
 
+const ENTITY_TABLE_NAME = 'user';
+
 @Entity({
-	name: 'user',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 })
 export default class UserEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('varchar', { nullable: false })
 	name!: string;
 

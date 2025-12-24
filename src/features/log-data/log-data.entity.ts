@@ -22,12 +22,17 @@ export enum LogDataLevelEnum {
 	FATAL = 'fatal', // 60
 }
 
+const ENTITY_TABLE_NAME = 'log_data';
+
 @Entity({
-	name: 'log_data',
+	name: ENTITY_TABLE_NAME,
 	schema: 'logs',
 })
 @Index('idx_log_data', ['created_at', 'level', 'category'])
 export default class LogDataEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

@@ -3,8 +3,10 @@ import type CategoryEntity from '@/features/category/category.entity';
 import type ProductEntity from '@/features/product/product.entity';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
+const ENTITY_TABLE_NAME = 'product_category';
+
 @Entity({
-	name: 'product_category',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Links products to categories (multilingual via term)',
 })
@@ -12,6 +14,9 @@ import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 	unique: true,
 })
 export default class ProductCategoryEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	product_id!: number;
 

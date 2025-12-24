@@ -22,13 +22,18 @@ export enum PaymentGatewayEnum {
 	MANUAL = 'manual',
 }
 
+const ENTITY_TABLE_NAME = 'payment';
+
 @Entity({
-	name: 'payment',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
 		'Tracks payments from various gateways and links them to invoices.',
 })
 export default class PaymentEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

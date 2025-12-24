@@ -33,8 +33,10 @@ export type ClientIdentityData =
 			person_cnp?: string | null;
 	  };
 
+const ENTITY_TABLE_NAME = 'client';
+
 @Entity({
-	name: 'client',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Stores client information for persons OR companies',
 })
@@ -55,6 +57,9 @@ export type ClientIdentityData =
 	where: "person_cnp IS NOT NULL AND client_type = 'person'",
 })
 export default class ClientEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column({
 		type: 'enum',
 		enum: ClientTypeEnum,

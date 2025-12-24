@@ -3,8 +3,10 @@ import type ArticleEntity from '@/features/article/article.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
+const ENTITY_TABLE_NAME = 'article_tag';
+
 @Entity({
-	name: 'article_tag',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Links articles to tag terms',
 })
@@ -12,6 +14,9 @@ import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 	unique: true,
 })
 export default class ArticleTagEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = false;
+
 	@Column('bigint', { nullable: false })
 	article_id!: number;
 

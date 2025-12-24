@@ -11,8 +11,10 @@ import {
 import type PermissionEntity from '@/features/permission/permission.entity';
 import type UserEntity from '@/features/user/user.entity';
 
+const ENTITY_TABLE_NAME = 'user_permission';
+
 @Entity({
-	name: 'user_permission',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Stores user permissions',
 })
@@ -20,6 +22,9 @@ import type UserEntity from '@/features/user/user.entity';
 	unique: true,
 })
 export default class UserPermissionEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

@@ -4,12 +4,17 @@ import type OrderEntity from '@/features/order/order.entity';
 import type ProductEntity from '@/features/product/product.entity';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
+const ENTITY_TABLE_NAME = 'order_product';
+
 @Entity({
-	name: 'order_product',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Stores ordered products (order line items)',
 })
 export default class OrderProductEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	@Index('IDX_order_product_order_id')
 	order_id!: number;

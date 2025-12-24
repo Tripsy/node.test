@@ -4,14 +4,12 @@ import PermissionEntity from '@/features/permission/permission.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
-	static entityAlias: string = 'permission';
-
 	constructor(
 		repository: ReturnType<
 			typeof dataSource.getRepository<PermissionEntity>
 		>,
 	) {
-		super(repository, PermissionQuery.entityAlias);
+		super(repository, PermissionEntity.NAME);
 	}
 
 	filterByTerm(term?: string): this {

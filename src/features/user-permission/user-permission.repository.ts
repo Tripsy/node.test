@@ -3,14 +3,12 @@ import UserPermissionEntity from '@/features/user-permission/user-permission.ent
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class UserPermissionQuery extends RepositoryAbstract<UserPermissionEntity> {
-	static entityAlias: string = 'user_permission';
-
 	constructor(
 		repository: ReturnType<
 			typeof dataSource.getRepository<UserPermissionEntity>
 		>,
 	) {
-		super(repository, UserPermissionQuery.entityAlias);
+		super(repository, UserPermissionEntity.NAME);
 	}
 }
 

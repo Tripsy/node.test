@@ -7,12 +7,10 @@ import ClientEntity, {
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class ClientQuery extends RepositoryAbstract<ClientEntity> {
-	static entityAlias: string = 'client';
-
 	constructor(
 		repository: ReturnType<typeof dataSource.getRepository<ClientEntity>>,
 	) {
-		super(repository, ClientQuery.entityAlias);
+		super(repository, ClientEntity.NAME);
 	}
 
 	filterByTerm(term?: string): this {

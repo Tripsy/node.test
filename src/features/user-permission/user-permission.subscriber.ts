@@ -1,83 +1,54 @@
 import {
-	type EntitySubscriberInterface,
 	EventSubscriber,
 	type InsertEvent,
 	type RemoveEvent,
 	type SoftRemoveEvent,
 	type UpdateEvent,
 } from 'typeorm';
-import { UserQuery } from '@/features/user/user.repository';
+import { LogHistoryAction } from '@/features/log-history/log-history.entity';
+import UserEntity from '@/features/user/user.entity';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
-import { UserPermissionQuery } from '@/features/user-permission/user-permission.repository';
-import { cacheClean, isRestore, logHistory } from '@/lib/helpers';
+import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
 
 @EventSubscriber()
-export class UserPermissionSubscriber
-	implements EntitySubscriberInterface<UserPermissionEntity>
-{
-	/**
-	 * Specify which entity this subscriber is for.
-	 */
-	listenTo() {
-		return UserPermissionEntity;
-	}
+export class UserPermissionSubscriber extends SubscriberAbstract<UserPermissionEntity> {
+	protected readonly Entity = UserPermissionEntity;
 
-	/**
-	 * When entry is removed from the database,
-	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
-	 *
-	 * @param event
-	 */
 	beforeRemove(event: RemoveEvent<UserPermissionEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 		const user_id: number =
 			event.entity?.user_id || event.databaseEntity?.user_id;
 
-		// Clean user cache
-		if (user_id) {
-			cacheClean(UserQuery.entityAlias, user_id);
-		}
+		this.cacheClean(user_id, UserEntity);
 
-		logHistory(UserPermissionQuery.entityAlias, id, 'deleted');
+		this.logHistory(id, LogHistoryAction.DELETED);
 	}
 
-	/**
-	 * When the entry is marked as deleted in the database,
-	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
-	 *
-	 * @param event
-	 */
 	afterSoftRemove(event: SoftRemoveEvent<UserPermissionEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 		const user_id: number =
 			event.entity?.user_id || event.databaseEntity?.user_id;
 
-		cacheClean(UserQuery.entityAlias, user_id);
-		logHistory(UserPermissionQuery.entityAlias, id, 'removed');
+		this.cacheClean(user_id, UserEntity);
+		this.logHistory(id, LogHistoryAction.REMOVED);
 	}
 
-	async afterInsert(event: InsertEvent<UserPermissionEntity>) {
+	afterInsert(event: InsertEvent<UserPermissionEntity>) {
 		const id = event.entity?.id;
 		const user_id = event.entity?.user_id;
 
-		// Clean user cache
-		if (user_id) {
-			cacheClean(UserQuery.entityAlias, user_id);
-		}
-
-		logHistory(UserPermissionQuery.entityAlias, id, 'created');
+		this.cacheClean(user_id, UserEntity);
+		this.logHistory(id, LogHistoryAction.CREATED);
 	}
 
 	afterUpdate(event: UpdateEvent<UserPermissionEntity>) {
-		if (isRestore(event)) {
+		if (this.isRestore(event)) {
 			const id: number = event.entity?.id || event.databaseEntity.id;
 			const user_id: number =
 				event.entity?.user_id || event.databaseEntity?.user_id;
 
-			cacheClean(UserQuery.entityAlias, user_id);
-			logHistory(UserPermissionQuery.entityAlias, id, 'restored');
-
-			return;
+			this.cacheClean(user_id, UserEntity);
+			this.logHistory(id, LogHistoryAction.RESTORED);
 		}
 	}
 }

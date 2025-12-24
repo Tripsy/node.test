@@ -3,8 +3,10 @@ import type ProductEntity from '@/features/product/product.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
+const ENTITY_TABLE_NAME = 'product_attribute';
+
 @Entity({
-	name: 'product_attribute',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Key/value attributes for products, using multilingual terms',
 })
@@ -16,6 +18,9 @@ import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 	},
 )
 export default class ProductAttributeEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	@Index('IDX_product_attribute_product_id')
 	product_id!: number;

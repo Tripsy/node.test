@@ -7,10 +7,7 @@ import ClientEntity, {
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
 import ClientPolicy from '@/features/client/client.policy';
-import {
-	ClientQuery,
-	getClientRepository,
-} from '@/features/client/client.repository';
+import { getClientRepository } from '@/features/client/client.repository';
 import {
 	ClientCreateValidator,
 	ClientFindValidator,
@@ -82,7 +79,7 @@ class ClientController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			ClientQuery.entityAlias,
+			ClientEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);

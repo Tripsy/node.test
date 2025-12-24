@@ -14,12 +14,17 @@ export enum SubscriptionEvidenceStatusEnum {
 	FAILED = 'failed',
 }
 
+const ENTITY_TABLE_NAME = 'subscription_evidence';
+
 @Entity({
-	name: 'subscription_renewal',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Used to track renewal attempts for subscriptions.',
 })
 export default class SubscriptionEvidenceEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

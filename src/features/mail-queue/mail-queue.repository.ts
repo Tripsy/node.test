@@ -1,17 +1,15 @@
 import dataSource from '@/config/data-source.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
-import { TemplateQuery } from '@/features/template/template.repository';
+import TemplateEntity from '@/features/template/template.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
-	static entityAlias: string = 'mail_queue';
-
 	constructor(
 		repository: ReturnType<
 			typeof dataSource.getRepository<MailQueueEntity>
 		>,
 	) {
-		super(repository, MailQueueQuery.entityAlias);
+		super(repository, MailQueueEntity.NAME);
 	}
 
 	filterByTemplate(term?: string | number): this {
@@ -19,7 +17,7 @@ export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
 			if (typeof term === 'number') {
 				this.query.andWhere(
 					`(
-                       ${TemplateQuery.entityAlias}.id = :id
+                       ${TemplateEntity.NAME}.id = :id
                     )`,
 					{
 						id: term,
@@ -28,7 +26,7 @@ export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
 			} else {
 				this.query.andWhere(
 					`(
-                       ${TemplateQuery.entityAlias}.label LIKE :label   
+                       ${TemplateEntity.NAME}.label LIKE :label   
                     )`,
 					{
 						label: `%${term}%`,

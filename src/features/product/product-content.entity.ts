@@ -2,8 +2,10 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 import type ProductEntity from './product.entity';
 
+const ENTITY_TABLE_NAME = 'product_content';
+
 @Entity({
-	name: 'product_content',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
 		'Language-specific content for products (name, slug, descriptions, meta)',
@@ -11,6 +13,9 @@ import type ProductEntity from './product.entity';
 @Index('IDX_product_content_unique_per_lang', ['product_id', 'language'])
 @Index('IDX_product_content_slug_lang', ['slug', 'language'], { unique: true })
 export default class ProductContentEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	product_id!: number;
 

@@ -10,7 +10,6 @@ import {
 	getLogDataRepository,
 	type LogDataQuery,
 } from '@/features/log-data/log-data.repository';
-import * as subscriberHelper from '@/lib/helpers/subscriber.helper';
 
 beforeEach(() => {
 	jest.clearAllMocks();
@@ -118,8 +117,6 @@ describe('LogDataController - delete', () => {
 		jest.spyOn(getLogDataRepository(), 'createQuery').mockReturnValue(
 			mockQueryBuilderLogData,
 		);
-
-		jest.spyOn(subscriberHelper, 'logHistory').mockImplementation();
 
 		const response = await request(app)
 			.delete(logDataDeleteLink)

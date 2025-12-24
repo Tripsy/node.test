@@ -4,12 +4,10 @@ import LogDataEntity from '@/features/log-data/log-data.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
-	static entityAlias: string = 'log_data';
-
 	constructor(
 		repository: ReturnType<typeof dataSource.getRepository<LogDataEntity>>,
 	) {
-		super(repository, LogDataQuery.entityAlias);
+		super(repository, LogDataEntity.NAME);
 	}
 
 	// Keep this as inspiration
@@ -17,10 +15,10 @@ export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 	// 	if (term) {
 	// 		this.query.andWhere(
 	// 			`(
-	//                ${LogDataQuery.entityAlias}.id = :id
-	//             OR ${LogDataQuery.entityAlias}.pid = :pid
-	//             OR ${LogDataQuery.entityAlias}.message LIKE :message
-	//             OR ${LogDataQuery.entityAlias}.context LIKE :context
+	//                ${LogDataEntity.NAME}.id = :id
+	//             OR ${LogDataEntity.NAME}.pid = :pid
+	//             OR ${LogDataEntity.NAME}.message LIKE :message
+	//             OR ${LogDataEntity.NAME}.context LIKE :context
 	//         )`,
 	// 			{
 	// 				id: term,

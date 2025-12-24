@@ -8,13 +8,18 @@ import {
 } from 'typeorm';
 import type ArticleEntity from './article.entity';
 
+const ENTITY_TABLE_NAME = 'article_content';
+
 @Entity({
-	name: 'article_content',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Track article views, etc.',
 })
 @Index('IDX_article_track_article_id_unique', ['article_id'], { unique: true })
 export default class ArticleTrackEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = false;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

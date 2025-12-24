@@ -2,21 +2,24 @@ import { Column, Entity, Index } from 'typeorm';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
 export enum TermTypeEnum {
-	CATEGORY_LABEL = 'category_label',
-	CATEGORY_SLUG = 'category_slug',
 	TAG = 'tag',
 	ATTRIBUTE_LABEL = 'attribute_label',
 	ATTRIBUTE_VALUE = 'attribute_value',
 	TEXT = 'text',
 }
 
+const ENTITY_TABLE_NAME = 'term';
+
 @Entity({
-	name: 'term',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
 		'Multilingual taxonomy terms: categories, tags, attribute labels/values',
 })
 export default class TermEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column({
 		type: 'enum',
 		enum: TermTypeEnum,

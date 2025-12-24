@@ -1,10 +1,10 @@
-import { PlaceQuery } from '@/features/place/place.repository';
+import PlaceEntity from '@/features/place/place.entity';
 import PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import type { AuthContext } from '@/lib/types/express';
 
 class PlacePolicy extends PolicyAbstract {
 	constructor(auth: AuthContext | undefined) {
-		const entity = PlaceQuery.entityAlias;
+		const entity = PlaceEntity.NAME;
 
 		super(auth, entity);
 	}

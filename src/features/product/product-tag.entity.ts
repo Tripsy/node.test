@@ -3,8 +3,10 @@ import ProductEntity from '@/features/product/product.entity';
 import TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 
+const ENTITY_TABLE_NAME = 'product_tag';
+
 @Entity({
-	name: 'product_tag',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Links products to tag terms',
 })
@@ -12,6 +14,9 @@ import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 	unique: true,
 })
 export default class ProductTagEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	product_id!: number;
 

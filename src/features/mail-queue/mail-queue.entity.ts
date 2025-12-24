@@ -18,11 +18,16 @@ export enum MailQueueStatusEnum {
 	ERROR = 'error',
 }
 
+const ENTITY_TABLE_NAME = 'mail_queue';
+
 @Entity({
-	name: 'mail_queue',
+	name: ENTITY_TABLE_NAME,
 	schema: 'system',
 })
 export default class MailQueueEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

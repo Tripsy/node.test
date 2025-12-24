@@ -4,10 +4,7 @@ import TemplateEntity, {
 	TemplateTypeEnum,
 } from '@/features/template/template.entity';
 import TemplatePolicy from '@/features/template/template.policy';
-import {
-	getTemplateRepository,
-	TemplateQuery,
-} from '@/features/template/template.repository';
+import { getTemplateRepository } from '@/features/template/template.repository';
 import {
 	TemplateCreateValidator,
 	TemplateFindValidator,
@@ -71,7 +68,7 @@ class TemplateController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			TemplateQuery.entityAlias,
+			TemplateEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
@@ -219,7 +216,7 @@ class TemplateController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			TemplateQuery.entityAlias,
+			TemplateEntity.NAME,
 			res.locals.validated.label,
 			'read',
 		);

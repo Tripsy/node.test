@@ -9,8 +9,10 @@ export type ArticleAuthorType = {
 	description?: string;
 };
 
+const ENTITY_TABLE_NAME = 'article_content';
+
 @Entity({
-	name: 'article_content',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
 		'Language-specific content for articles (title, slug, brief, content, meta)',
@@ -18,6 +20,9 @@ export type ArticleAuthorType = {
 @Index('IDX_article_content_unique_per_lang', ['article_id', 'language'])
 @Index('IDX_article_content_slug_lang', ['slug', 'language'], { unique: true })
 export default class ArticleContentEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	article_id!: number;
 

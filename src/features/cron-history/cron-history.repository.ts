@@ -4,14 +4,12 @@ import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class CronHistoryQuery extends RepositoryAbstract<CronHistoryEntity> {
-	static entityAlias: string = 'cron_history';
-
 	constructor(
 		repository: ReturnType<
 			typeof dataSource.getRepository<CronHistoryEntity>
 		>,
 	) {
-		super(repository, CronHistoryQuery.entityAlias);
+		super(repository, CronHistoryEntity.NAME);
 	}
 
 	filterByTerm(term?: string): this {

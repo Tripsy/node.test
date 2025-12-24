@@ -4,12 +4,10 @@ import UserEntity from '@/features/user/user.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class UserQuery extends RepositoryAbstract<UserEntity> {
-	static entityAlias: string = 'user';
-
 	constructor(
 		repository: ReturnType<typeof dataSource.getRepository<UserEntity>>,
 	) {
-		super(repository, UserQuery.entityAlias);
+		super(repository, UserEntity.NAME);
 	}
 
 	filterByEmail(email?: string): this {

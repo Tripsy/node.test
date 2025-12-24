@@ -6,8 +6,10 @@ export enum TemplateTypeEnum {
 	EMAIL = 'email',
 }
 
+const ENTITY_TABLE_NAME = 'template';
+
 @Entity({
-	name: 'template',
+	name: ENTITY_TABLE_NAME,
 	schema: 'system',
 	comment: 'Stores email & page templates',
 })
@@ -15,6 +17,9 @@ export enum TemplateTypeEnum {
 	unique: true,
 })
 export default class TemplateEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('varchar', { nullable: false })
 	label!: string;
 

@@ -25,8 +25,8 @@
 	"history": {
 		"created": "Template #{{entity_id}} created by user #{{auth_id}}",
 		"updated": "Template #{{entity_id}} updated by user #{{auth_id}}",
-		"deleted": "Template #{{entity_id}} has been marked as deleted by user #{{auth_id}}",
-		"removed": "Template #{{entity_id}} has been removed by user #{{auth_id}}",
-		"restored": "Template #{{entity_id}} has been restored by user #{{auth_id}}"
+		"deleted": "Template(s) {{entity_ids}} as deleted by user #{{auth_id}}",
+		"removed": "Template(s) {{entity_ids}} removed by user #{{auth_id}}",
+		"restored": "Template(s) {{entity_ids}} restored by user #{{auth_id}}"
 	}
 }

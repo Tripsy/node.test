@@ -6,13 +6,18 @@ import {
 	PrimaryGeneratedColumn,
 } from 'typeorm';
 
+const ENTITY_TABLE_NAME = 'permission';
+
 @Entity({
-	name: 'permission',
+	name: ENTITY_TABLE_NAME,
 	schema: 'system',
 	comment: 'Stores permissions',
 })
 @Index('IDX_permission', ['entity', 'operation'], { unique: true })
 export default class PermissionEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

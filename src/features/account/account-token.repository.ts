@@ -3,14 +3,12 @@ import AccountTokenEntity from '@/features/account/account-token.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class AccountTokenQuery extends RepositoryAbstract<AccountTokenEntity> {
-	static entityAlias: string = 'account_token';
-
 	constructor(
 		repository: ReturnType<
 			typeof dataSource.getRepository<AccountTokenEntity>
 		>,
 	) {
-		super(repository, AccountTokenQuery.entityAlias);
+		super(repository, AccountTokenEntity.NAME);
 	}
 
 	filterByIdent(ident: string): this {

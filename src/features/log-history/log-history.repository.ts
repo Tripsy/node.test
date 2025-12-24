@@ -1,18 +1,18 @@
 import dataSource from '@/config/data-source.config';
 import type { RequestContextSource } from '@/config/request.context';
-import LogHistoryEntity from '@/features/log-history/log-history.entity';
+import LogHistoryEntity, {
+	type LogHistoryAction,
+} from '@/features/log-history/log-history.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
-	static entityAlias: string = 'log_history';
-
 	constructor(
 		repository: ReturnType<
 			typeof dataSource.getRepository<LogHistoryEntity>
 		>,
 	) {
-		super(repository, LogHistoryQuery.entityAlias);
+		super(repository, LogHistoryEntity.NAME);
 	}
 }
 
@@ -25,12 +25,12 @@ export const getLogHistoryRepository = () =>
 		createLogs(
 			entity: string,
 			entity_ids: number[],
-			action: string,
+			action: LogHistoryAction,
 			auth_id: number | null,
 			performed_by: string,
 			request_id: string,
 			source: RequestContextSource,
-			data: Record<string, unknown>,
+			details?: Record<string, string | number>,
 		) {
 			const recorded_at = new Date();
 
@@ -49,7 +49,7 @@ export const getLogHistoryRepository = () =>
 				log.request_id = request_id;
 				log.source = source;
 				log.recorded_at = recorded_at;
-				log.details = data;
+				log.details = details;
 
 				return log;
 			});

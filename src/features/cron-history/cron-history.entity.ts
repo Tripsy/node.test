@@ -6,12 +6,17 @@ export enum CronHistoryStatusEnum {
 	WARNING = 'warning', // Set when cron job is not running in expected time
 }
 
+const ENTITY_TABLE_NAME = 'cron_history';
+
 @Entity({
-	name: 'cron_history',
+	name: ENTITY_TABLE_NAME,
 	schema: 'logs',
 	comment: 'Stores cron usage',
 })
 export default class CronHistoryEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = false;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

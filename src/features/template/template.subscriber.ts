@@ -1,74 +1,54 @@
 import {
-	type EntitySubscriberInterface,
 	EventSubscriber,
-	type InsertEvent,
 	type RemoveEvent,
 	type SoftRemoveEvent,
 	type UpdateEvent,
 } from 'typeorm';
+import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import TemplateEntity from '@/features/template/template.entity';
-import { TemplateQuery } from '@/features/template/template.repository';
-import {
-	cacheClean,
-	isRestore,
-	logHistory,
-	removeOperation,
-	restoreOperation,
-} from '@/lib/helpers';
+import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
 
 @EventSubscriber()
-export class TemplateSubscriber
-	implements EntitySubscriberInterface<TemplateEntity>
-{
-	/**
-	 * Specify which entity this subscriber is for.
-	 */
-	listenTo() {
-		return TemplateEntity;
+export class TemplateSubscriber extends SubscriberAbstract<TemplateEntity> {
+	protected readonly Entity = TemplateEntity;
+
+	constructor() {
+		super();
+
+		this.config = {
+			afterInsert: true,
+		};
 	}
 
-	/**
-	 * When entry is removed from the database,
-	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
-	 *
-	 * @param event
-	 */
 	beforeRemove(event: RemoveEvent<TemplateEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(TemplateQuery.entityAlias, id, false);
+		this.cacheClean(id);
+		this.cacheClean(event.databaseEntity.label);
 
-		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
+		this.logHistory(id, LogHistoryAction.REMOVED);
 	}
 
-	/**
-	 * When the entry is marked as deleted in the database,
-	 * `event.entity` will be undefined if the entity is not properly loaded via Repository
-	 *
-	 * @param event
-	 */
 	afterSoftRemove(event: SoftRemoveEvent<TemplateEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		removeOperation(TemplateQuery.entityAlias, id, true);
-		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
-	}
+		this.cacheClean(id);
+		this.cacheClean(event.databaseEntity.label);
 
-	async afterInsert(event: InsertEvent<TemplateEntity>) {
-		logHistory(TemplateQuery.entityAlias, event.entity.id, 'created');
+		this.logHistory(id, LogHistoryAction.DELETED);
 	}
 
 	async afterUpdate(event: UpdateEvent<TemplateEntity>) {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
-		if (isRestore(event)) {
-			restoreOperation(TemplateQuery.entityAlias, id);
+		this.cacheClean(id);
+		this.cacheClean(event.databaseEntity.label);
 
-			return;
-		}
-
-		cacheClean(TemplateQuery.entityAlias, id);
-		cacheClean(TemplateQuery.entityAlias, event.databaseEntity.label); // Also clear cache based on `label`
-		logHistory(TemplateQuery.entityAlias, id, 'updated');
+		this.logHistory(
+			id,
+			this.isRestore(event)
+				? LogHistoryAction.RESTORED
+				: LogHistoryAction.UPDATED,
+		);
 	}
 }

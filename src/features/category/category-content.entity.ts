@@ -2,14 +2,19 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 import type CategoryEntity from './category.entity';
 
+const ENTITY_TABLE_NAME = 'category_content';
+
 @Entity({
-	name: 'category_content',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Language-specific category content (slug, description, metadata)',
 })
 @Index('IDX_category_content_unique', ['category_id', 'language'])
 @Index('IDX_category_content_slug_lang', ['slug', 'language'], { unique: true })
 export default class CategoryContentEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	category_id!: number;
 

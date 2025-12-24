@@ -9,7 +9,7 @@ import { lang } from '@/config/i18n.setup';
 import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import CustomError from '@/lib/exceptions/custom.error';
 import NotFoundError from '@/lib/exceptions/not-found.error';
-import { formatDate, snakeToKebab } from '@/lib/helpers';
+import { formatDate, toKebabCase } from '@/lib/helpers';
 
 type QueryValue = string | number | (string | number)[] | null;
 type QueryParams = Record<string, QueryValue>;
@@ -20,17 +20,17 @@ type FilterByPropsType = {
 	operator: string;
 };
 
-class RepositoryAbstract<TEntity extends ObjectLiteral> {
+abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	private repository: Repository<TEntity>;
-	protected entityAlias: string;
+	protected entity: string;
 	protected query: SelectQueryBuilder<TEntity>;
 	protected hasFilter: boolean = false; // Flag used to signal if query builder filters have been applied in preparation for delete operations
 	protected hasGroup: boolean = false; // Flag used to signal if query builder groups have been applied
 
-	constructor(repository: Repository<TEntity>, entityAlias: string) {
+	protected constructor(repository: Repository<TEntity>, entity: string) {
 		this.repository = repository;
-		this.entityAlias = entityAlias;
-		this.query = repository.createQueryBuilder(this.entityAlias);
+		this.entity = entity;
+		this.query = repository.createQueryBuilder(this.entity);
 	}
 
 	debugSql(): string {
@@ -118,7 +118,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	select(fields: string[], autoAppendId: boolean = true): this {
 		if (autoAppendId) {
 			// Define possible primary key variations
-			const primaryKeys = [`${this.entityAlias}.id`, 'id'];
+			const primaryKeys = [`${this.entity}.id`, 'id'];
 
 			// Check if either 'id' or 'user.id' is already included
 			const hasPrimaryKey = fields.some((field) =>
@@ -127,7 +127,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 
 			// If not present, add the fully qualified primary key
 			if (!hasPrimaryKey) {
-				fields.unshift(`${this.entityAlias}.id`);
+				fields.unshift(`${this.entity}.id`);
 			}
 		}
 
@@ -143,14 +143,14 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	}
 
 	/**
-	 * Ensure all fields are prefixed with an entity alias if not add this.entityAlias
+	 * Ensure all fields are prefixed with an entity alias if not add this.entity
 	 *
 	 * @param fields
 	 * @private
 	 */
 	private prefixFields(fields: string[]) {
 		return fields.map((field) =>
-			field.includes('.') ? field : `${this.entityAlias}.${field}`,
+			field.includes('.') ? field : `${this.entity}.${field}`,
 		);
 	}
 
@@ -167,7 +167,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 			throw new Error(`Invalid column name: ${column}`);
 		}
 
-		return column.includes('.') ? column : `${this.entityAlias}.${column}`;
+		return column.includes('.') ? column : `${this.entity}.${column}`;
 	}
 
 	private safeColumnKey(column: string): string {
@@ -228,7 +228,7 @@ class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		if (!result) {
 			throw new NotFoundError(
 				lang(
-					`${snakeToKebab(this.entityAlias)}.error.not_found`,
+					`${toKebabCase(this.entity)}.error.not_found`,
 					{},
 					'Entry not found',
 				),

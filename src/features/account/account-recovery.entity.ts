@@ -9,12 +9,17 @@ import {
 } from 'typeorm';
 import type UserEntity from '@/features/user/user.entity';
 
+const ENTITY_TABLE_NAME = 'account_recovery';
+
 @Entity({
-	name: 'account_recovery',
+	name: ENTITY_TABLE_NAME,
 	schema: 'system',
 	comment: 'Stores `ident` for account password recovery requests',
 })
 export default class AccountRecoveryEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = false;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

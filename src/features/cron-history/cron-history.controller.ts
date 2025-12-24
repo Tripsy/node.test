@@ -1,10 +1,8 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
+import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 import CronHistoryPolicy from '@/features/cron-history/cron-history.policy';
-import {
-	CronHistoryQuery,
-	getCronHistoryRepository,
-} from '@/features/cron-history/cron-history.repository';
+import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import {
 	CronHistoryDeleteValidator,
 	CronHistoryFindValidator,
@@ -23,7 +21,7 @@ class CronHistoryController {
 		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
-			CronHistoryQuery.entityAlias,
+			CronHistoryEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);

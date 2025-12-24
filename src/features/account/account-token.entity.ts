@@ -9,12 +9,17 @@ import {
 } from 'typeorm';
 import type UserEntity from '@/features/user/user.entity';
 
+const ENTITY_TABLE_NAME = 'account_token';
+
 @Entity({
-	name: 'account_token',
+	name: ENTITY_TABLE_NAME,
 	schema: 'system',
 	comment: 'Stores `ident` for account tokens to manage token revocation',
 })
 export default class AccountTokenEntity {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = false;
+
 	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
 	id!: number;
 

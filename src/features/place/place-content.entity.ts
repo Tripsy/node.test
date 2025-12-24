@@ -2,8 +2,10 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 import type PlaceEntity from './place.entity';
 
+const ENTITY_TABLE_NAME = 'place_content';
+
 @Entity({
-	name: 'place_content',
+	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment: 'Language-specific content for places',
 })
@@ -11,6 +13,9 @@ import type PlaceEntity from './place.entity';
 	unique: true,
 })
 export default class PlaceContentEntity extends EntityAbstract {
+	static readonly NAME: string = ENTITY_TABLE_NAME;
+	static readonly HAS_CACHE: boolean = true;
+
 	@Column('bigint', { nullable: false })
 	place_id!: number;
 
