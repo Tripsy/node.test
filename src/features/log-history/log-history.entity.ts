@@ -28,7 +28,7 @@ export type LogHistoryEventPayload = {
 	data?: Record<string, string | number>;
 };
 
-const ENTITY_TABLE_NAME = 'carrier';
+const ENTITY_TABLE_NAME = 'log_history';
 
 @Entity({
 	name: ENTITY_TABLE_NAME,

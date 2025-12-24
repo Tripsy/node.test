@@ -139,7 +139,6 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. drop moment
 2. make features as package
 3. Recap Jest; Tests are failing
 4. image > category ( + route images) > brand ( + route images)
@@ -187,8 +186,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
         - validate-params.middleware
     - providers
 2. src/tests/middleware/auth.unit.ts is broken
-3. types/express.d.ts - is in .gitignore
-4. consider replacing the moment library
+3. types/express.d.ts - is in .gitignore   
 
 # IDEAS
 

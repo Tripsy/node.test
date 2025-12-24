@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 /**
  * Check if a string is a valid date
@@ -142,7 +142,7 @@ export function getValidDate(date: unknown): Date | undefined {
  * @returns Formatted string or null
  */
 export function formatDate(
-	value: string | Date | null | undefined,
+	value: string | number | Date | null | undefined,
 	format?: 'default' | 'date-time' | string,
 	options?: {
 		strict?: boolean;
@@ -161,8 +161,7 @@ export function formatDate(
 		return null;
 	}
 
-	// Create moment object
-	const date = moment(value);
+	const date = dayjs(value);
 
 	// Validate date
 	if (!date.isValid()) {

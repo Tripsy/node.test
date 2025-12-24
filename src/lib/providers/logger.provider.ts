@@ -1,7 +1,6 @@
 import { EOL } from 'node:os';
 import { Writable } from 'node:stream';
 import FileStreamRotator from 'file-stream-rotator';
-import moment from 'moment';
 import nodemailer from 'nodemailer';
 import pino, { type Logger } from 'pino';
 import pinoPretty from 'pino-pretty';
@@ -14,7 +13,7 @@ import LogDataEntity, {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
 } from '@/features/log-data/log-data.entity';
-import { buildRootPath } from '@/lib/helpers';
+import { buildRootPath, formatDate } from '@/lib/helpers';
 
 interface CallStackInterface {
 	trace: string[];
@@ -155,7 +154,7 @@ export class LogStream extends Writable {
 
 		const clonedLog = JSON.parse(JSON.stringify(log));
 
-		clonedLog.time = moment(log.time).format('HH:mm:ss Z');
+		clonedLog.time = formatDate(log.time, 'HH:mm:ss Z');
 
 		delete clonedLog?.destinations; // Destinations were added to track log channels
 		delete clonedLog.level;
@@ -244,7 +243,7 @@ export class LogStream extends Writable {
 
 		const clonedLog = JSON.parse(JSON.stringify(log));
 
-		clonedLog.time = moment(log.time).format('HH:mm:ss Z');
+		clonedLog.time = formatDate(log.time, 'HH:mm:ss Z');
 
 		delete clonedLog?.destinations; // Destinations were added to track log channels
 
