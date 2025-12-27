@@ -139,10 +139,10 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-2. make features as package
+1. image > category ( + route images) > brand ( + route images)
+2. 1. make features as package
 3. Recap Jest; Tests are failing
-4. image > category ( + route images) > brand ( + route images)
-5. wip entities:
+4. wip entities:
     - article
         - article-category
         - article-content
@@ -168,7 +168,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-evidence
     - term
-6. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+5. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # BUGS & ISSUES
 
@@ -192,10 +192,9 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
 2. https://expressjs.com/en/advanced/best-practice-performance.html
-3. router.param - Adds callback triggers to route parameters, where name is the name of the parameter and callback is the callback function
-4. settings saved in DB
-5. cron hanging / delaying / semaphore ?!
-6. CI/CD
+3. settings saved in DB
+4. cron hanging / delaying / semaphore ?!
+5. CI/CD
 
 # DEVELOPMENT STEPS
 
