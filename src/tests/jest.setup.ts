@@ -1,14 +1,14 @@
 import { jest } from '@jest/globals';
 
 jest.mock('i18next', () => ({
-    t: (key: string) => key,
-    language: 'en',
-    options: { ns: [] },
+	t: (key: string) => key,
+	language: 'en',
+	options: { ns: [] },
 }));
 
 jest.mock('i18next-fs-backend', () => ({}));
 jest.mock('i18next-http-middleware', () => ({
-    LanguageDetector: jest.fn(),
+	LanguageDetector: jest.fn(),
 }));
 
 // import type UserEntity from '@/features/user/user.entity';
@@ -26,7 +26,7 @@ jest.mock('i18next-http-middleware', () => ({
 // 	const pastDate = mockPastDate();
 //
 // 	return {
-//         id: 1,
+//         id: "1",
 // 		created_at: pastDate,
 // 		deleted_at: null,
 // 		email_verified_at: pastDate,

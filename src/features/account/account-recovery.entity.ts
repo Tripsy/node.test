@@ -20,10 +20,10 @@ export default class AccountRecoveryEntity {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = false;
 
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
 	id!: number;
 
-	@Column('bigint', { unsigned: false, nullable: false })
+	@Column('int', { unsigned: false, nullable: false })
 	@Index('IDX_account_recovery_user_id')
 	user_id!: number;
 

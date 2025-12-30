@@ -20,13 +20,13 @@ export default class ArticleTrackEntity {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = false;
 
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
 	id!: number;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	article_id!: number;
 
-	@Column('bigint', { nullable: false, default: 0 })
+	@Column('int', { nullable: false, default: 0 })
 	views!: number;
 
 	@Column('int', { nullable: true })

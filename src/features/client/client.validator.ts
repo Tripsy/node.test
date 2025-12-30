@@ -167,7 +167,7 @@ export function ClientUpdateValidator() {
 	return z
 		.union([ClientUpdateCompanyValidator, ClientUpdatePersonValidator])
 		.refine((data) => hasAtLeastOneValue(data), {
-			message: lang('shared.error.params_at_least_one', {
+			message: lang('shared.validation.params_at_least_one', {
 				params: paramsUpdateList.join(', '),
 			}),
 			path: ['_global'],
@@ -193,10 +193,10 @@ export function ClientFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('shared.error.invalid_number') })
+				.number({ message: lang('shared.validation.invalid_number') })
 				.optional(),
 			term: z
-				.string({ message: lang('shared.error.invalid_string') })
+				.string({ message: lang('shared.validation.invalid_string') })
 				.optional(),
 			client_type: z.enum(ClientTypeEnum).optional(),
 			status: z.enum(ClientStatusEnum).optional(),
@@ -212,7 +212,7 @@ export function ClientFindValidator() {
 		) {
 			ctx.addIssue({
 				path: ['filter', 'create_date_start'],
-				message: lang('shared.error.invalid_date_range'),
+				message: lang('shared.validation.invalid_date_range'),
 				code: 'custom',
 			});
 		}

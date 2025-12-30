@@ -32,7 +32,7 @@ class PlaceController {
 		}
 
 		const entry = await dataSource.transaction(async (manager) => {
-			const repository = manager.getRepository(PlaceEntity);
+			const repository = manager.getRepository(PlaceEntity); // We use the manager -> `getPlaceRepository` is not bound to the transaction
 
 			const entryEntity = new PlaceEntity();
 			entryEntity.type = validated.data.type;
@@ -43,8 +43,8 @@ class PlaceController {
 
 			await PlaceContentRepository.saveContent(
 				manager,
-				entrySaved.id,
 				validated.data.content,
+				entrySaved.id,
 			);
 
 			return entrySaved;
@@ -167,7 +167,7 @@ class PlaceController {
 		}
 
 		const entry = await dataSource.transaction(async (manager) => {
-			const repository = manager.getRepository(PlaceEntity);
+			const repository = manager.getRepository(PlaceEntity); // We use the manager -> `getPlaceRepository` is not bound to the transaction
 
 			const updatedEntity: Partial<PlaceEntity> = {
 				id: place.id,
@@ -183,8 +183,8 @@ class PlaceController {
 			if (validated.data.content) {
 				await PlaceContentRepository.saveContent(
 					manager,
-					place.id,
 					validated.data.content,
+					place.id,
 				);
 			}
 

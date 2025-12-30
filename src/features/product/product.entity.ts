@@ -58,7 +58,7 @@ export default class ProductEntity extends EntityAbstract {
 	@Index('IDX_product_sku', { unique: true })
 	sku!: string;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	@Index('IDX_product_brand_id')
 	brand_id!: number;
 

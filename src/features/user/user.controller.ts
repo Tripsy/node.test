@@ -254,11 +254,6 @@ class UserController {
 
 		user.status = res.locals.validated.status;
 
-		// Set `contextData` for usage in subscriber
-		user.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		await getUserRepository().save(user);
 
 		res.locals.output.message(lang('user.success.status_update'));

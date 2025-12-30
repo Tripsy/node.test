@@ -673,11 +673,6 @@ class AccountController {
 		user.name = validated.data.name;
 		user.language = validated.data.language;
 
-		// Set `contextData` for usage in subscriber
-		user.contextData = {
-			auth_id: user_id,
-		};
-
 		await getUserRepository().save(user);
 
 		res.locals.output.message(lang('account.success.edit'));

@@ -24,7 +24,7 @@ export default class OrderShippingEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	@Index('IDX_order_shipping_order_id')
 	order_id!: number;
 
@@ -44,7 +44,7 @@ export default class OrderShippingEntity extends EntityAbstract {
 	@Index('IDX_order_shipping_method')
 	method!: string | null;
 
-	@Column('bigint', { nullable: true })
+	@Column('int', { nullable: true })
 	@Index('IDX_order_shipping_carrier_id')
 	carrier_id!: number | null;
 

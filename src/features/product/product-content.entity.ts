@@ -16,7 +16,7 @@ export default class ProductContentEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	product_id!: number;
 
 	@Column('varchar', {

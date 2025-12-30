@@ -1,10 +1,13 @@
 import {
 	Brackets,
+	type EntityTarget,
 	type ObjectLiteral,
 	type QueryBuilder,
+	QueryFailedError,
 	type SelectQueryBuilder,
 } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
+import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import CustomError from '@/lib/exceptions/custom.error';
@@ -526,6 +529,14 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		}
 
 		return this;
+	}
+
+	static isUniqueViolation(e: unknown): boolean {
+		return e instanceof QueryFailedError && e.driverError?.code === '23505';
+	}
+
+	static getTreeRepository(entity: EntityTarget<ObjectLiteral>) {
+		return dataSource.getTreeRepository(entity);
 	}
 }
 

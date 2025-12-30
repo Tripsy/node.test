@@ -25,10 +25,10 @@ export default class SubscriptionEntity extends EntityAbstract {
 	static readonly HAS_CACHE: boolean = true;
 
 	@Index('IDX_subscription_order_id', { unique: true })
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	order_id!: number;
 
-	@Column('bigint', {
+	@Column('int', {
 		nullable: true,
 		comment: 'When subscription is assigned to a user (virtual services)',
 	})

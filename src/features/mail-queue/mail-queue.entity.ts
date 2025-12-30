@@ -28,11 +28,11 @@ export default class MailQueueEntity {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int' })
 	id!: number;
 
-	@Column({ type: 'bigint', unsigned: false, nullable: true })
-	@Index('IDX_mail_queue_template_id', { unique: false })
+	@Column({ type: 'int', unsigned: false, nullable: true })
+	@Index('IDX_mail_queue_template_id')
 	template_id?: number | null;
 
 	@Column('char', { length: 2, nullable: false })

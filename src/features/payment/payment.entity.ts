@@ -34,7 +34,7 @@ export default class PaymentEntity {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
 	id!: number;
 
 	@CreateDateColumn({ type: 'timestamp', nullable: false })
@@ -43,7 +43,7 @@ export default class PaymentEntity {
 	@UpdateDateColumn({ type: 'timestamp', nullable: true })
 	updated_at!: Date | null;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	@Index('IDX_payment_invoice_id')
 	invoice_id!: number;
 

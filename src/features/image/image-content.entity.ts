@@ -35,7 +35,7 @@ export default class ImageContentEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	image_id!: number;
 
 	@Column('varchar', {

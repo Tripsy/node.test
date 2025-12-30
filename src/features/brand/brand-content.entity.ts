@@ -14,7 +14,7 @@ export default class BrandContentEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	brand_id!: number;
 
 	@Column('varchar', {

@@ -17,10 +17,10 @@ export default class ArticleTagEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = false;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	article_id!: number;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	@Index('IDX_article_tag_tag_id')
 	tag_id!: number;
 

@@ -126,11 +126,6 @@ class PermissionController {
 		permission.entity = validated.data.entity;
 		permission.operation = validated.data.operation;
 
-		// Set `contextData` for usage in subscriber
-		permission.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		await getPermissionRepository().save(permission);
 
 		res.locals.output.message(lang('permission.success.update'));

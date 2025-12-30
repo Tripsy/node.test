@@ -42,19 +42,19 @@ export default class LogHistoryEntity {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
 	id!: number;
 
 	@Column('varchar', { nullable: false })
 	entity!: string;
 
-	@Column({ type: 'bigint', nullable: false })
+	@Column({ type: 'int', nullable: false })
 	entity_id!: number;
 
 	@Column({ type: 'varchar', nullable: false })
 	action!: LogHistoryAction;
 
-	@Column({ type: 'bigint', nullable: true })
+	@Column({ type: 'int', nullable: true })
 	@Index('IDX_log_history_auth_id', { unique: false })
 	auth_id!: number | null;
 

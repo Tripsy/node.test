@@ -23,7 +23,7 @@ export default class ImageEntity extends EntityAbstract {
 	})
 	entity_type!: ImageEntityType;
 
-	@Column('bigint', {
+	@Column('int', {
 		nullable: false,
 		comment: 'ID of the entity this image is linked to',
 	})

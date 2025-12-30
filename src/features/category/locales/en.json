@@ -1,0 +1,39 @@
+{
+	"validation": {
+		"language_invalid": "Invalid language",
+		"label_invalid": "Invalid label",
+		"slug_invalid": "Invalid slug",
+		"type_invalid": "Select type",
+		"invalid_parent_id": "Invalid parent id value"
+	},
+	"error": {
+		"not_found": "Category not found",
+		"already_exist": "Category with slug `{{slug}}` for language `{{language}}` already exist",
+		"parent_not_found": "Parent category not found",
+		"parent_deleted": "Parent category is marked as deleted",
+		"parent_same": "Cannot move category under itself",
+		"parent_type_invalid": "New parent category type doesn't match category type (e.g.: {{type}})",
+		"parent_descendant": "Cannot move category under its own descendant",
+		"already_deleted": "Category is already marked as deleted",
+		"has_descendants": "Category has active descendants",
+		"not_deleted": "Category is not marked as deleted",
+		"parent_not_active": "Parent category is not active",
+		"status_unchanged": "Category status is unchanged",
+		"has_active_descendants": "Category has active descendants"
+	},
+	"success": {
+		"create": "Category created successfully",
+		"update": "Category updated successfully",
+		"delete": "Category deleted successfully",
+		"restore": "Category restored successfully",
+		"status_update": "Category status updated successfully"
+	},
+	"history": {
+		"created": "Category #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Category #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Category(s) {{entity_ids}} marked as deleted by user #{{auth_id}}",
+		"removed": "Category(s) {{entity_ids}} removed by user #{{auth_id}}",
+		"restored": "Category(s) {{entity_ids}} restored by user #{{auth_id}}",
+		"status": "Category #{{entity_id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}"
+	}
+}

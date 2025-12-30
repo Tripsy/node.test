@@ -1,6 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract, type PageMeta } from '@/lib/abstracts/entity.abstract';
 import type CategoryEntity from './category.entity';
+import { CategoryTypeEnum } from './category.entity';
 
 const ENTITY_TABLE_NAME = 'category_content';
 
@@ -9,13 +10,19 @@ const ENTITY_TABLE_NAME = 'category_content';
 	schema: 'public',
 	comment: 'Language-specific category content (slug, description, metadata)',
 })
-@Index('IDX_category_content_unique', ['category_id', 'language'])
-@Index('IDX_category_content_slug_lang', ['slug', 'language'], { unique: true })
+@Index(
+	'IDX_category_content_category_id_language',
+	['category_id', 'language'],
+	{ unique: true },
+)
+@Index('IDX_category_content_slug_language', ['type', 'slug', 'language'], {
+	unique: true,
+})
 export default class CategoryContentEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	category_id!: number;
 
 	@Column('varchar', {
@@ -24,8 +31,18 @@ export default class CategoryContentEntity extends EntityAbstract {
 	})
 	language!: string;
 
+	@Column({
+		type: 'enum',
+		enum: CategoryTypeEnum,
+		nullable: false,
+		select: false,
+		comment:
+			'The type is duplicated here from category to be used as unique index',
+	})
+	type!: CategoryTypeEnum;
+
 	@Column('varchar', { nullable: false })
-	label!: number;
+	label!: string;
 
 	@Column('varchar', { nullable: false })
 	slug!: string;
@@ -37,7 +54,7 @@ export default class CategoryContentEntity extends EntityAbstract {
 		nullable: true,
 		comment: 'SEO metadata, canonical URL, images, structured data, etc.',
 	})
-	meta!: Record<string, number> | null;
+	meta!: PageMeta | null;
 
 	@Column('jsonb', {
 		nullable: true,

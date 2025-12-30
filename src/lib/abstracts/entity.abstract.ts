@@ -11,9 +11,15 @@ export enum OrderDirectionEnum {
 	DESC = 'DESC',
 }
 
+export type PageMeta = {
+	title: string;
+	description?: string;
+	keywords?: string;
+};
+
 @Entity()
 export abstract class EntityAbstract {
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
 	id!: number;
 
 	@CreateDateColumn({ type: 'timestamp', nullable: false })

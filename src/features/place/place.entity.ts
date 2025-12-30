@@ -39,7 +39,7 @@ export default class PlaceEntity extends EntityAbstract {
 	})
 	type!: PlaceTypeEnum;
 
-	@Column('bigint', { nullable: true })
+	@Column('int', { nullable: true })
 	@Index('IDX_place_parent_id')
 	parent_id?: number; // country -> null, region -> country_id, city -> region_id or country_id
 

@@ -7,11 +7,20 @@ import { makeFindValidator, validateDate } from '@/lib/helpers';
 
 export function MailQueueDeleteValidator() {
 	return z.object({
-		ids: z.array(z.number(), {
-			message: lang('shared.error.invalid_ids', {
-				name: 'ids',
-			}),
-		}),
+		ids: z.array(
+			z.coerce
+				.number({
+					message: lang('shared.validation.invalid_ids', {
+						name: 'ids',
+					}),
+				})
+				.positive(),
+			{
+				message: lang('shared.validation.invalid_ids', {
+					name: 'ids',
+				}),
+			},
+		),
 	});
 }
 
@@ -34,7 +43,7 @@ export function MailQueueFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('shared.error.invalid_number') })
+				.number({ message: lang('shared.validation.invalid_number') })
 				.optional(),
 			template: z.union([z.string(), z.number()]).optional(),
 			language: z
@@ -45,18 +54,18 @@ export function MailQueueFindValidator() {
 				.optional(),
 			status: z.enum(MailQueueStatusEnum).optional(),
 			content: z
-				.string({ message: lang('shared.error.invalid_string') })
+				.string({ message: lang('shared.validation.invalid_string') })
 				.min(cfg('filter.termMinLength') as number, {
-					message: lang('shared.error.string_min', {
+					message: lang('shared.validation.string_min', {
 						min: cfg('filter.termMinLength') as string,
 						field: 'content',
 					}),
 				})
 				.optional(),
 			to: z
-				.string({ message: lang('shared.error.invalid_string') })
+				.string({ message: lang('shared.validation.invalid_string') })
 				.min(cfg('filter.termMinLength') as number, {
-					message: lang('shared.error.string_min', {
+					message: lang('shared.validation.string_min', {
 						min: cfg('filter.termMinLength') as string,
 						field: 'to',
 					}),
@@ -73,7 +82,7 @@ export function MailQueueFindValidator() {
 		) {
 			ctx.addIssue({
 				path: ['filter', 'sent_date_start'],
-				message: lang('shared.error.invalid_date_range'),
+				message: lang('shared.validation.invalid_date_range'),
 				code: 'custom',
 			});
 		}

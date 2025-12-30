@@ -17,10 +17,10 @@ export default class ProductCategoryEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	product_id!: number;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	@Index('IDX_product_category_category_id')
 	category_id!: number;
 

@@ -31,7 +31,9 @@ export function makeJsonFilterSchema<T extends z.ZodRawShape>(shape: T) {
 	return z.preprocess(
 		(val) =>
 			parseJsonFilter(val, () => {
-				throw new BadRequestError(lang('shared.error.invalid_filter'));
+				throw new BadRequestError(
+					lang('shared.validation.invalid_filter'),
+				);
 			}),
 		z.object(shape).partial(),
 	);
@@ -81,7 +83,7 @@ export function validateNumber(
  * @description Convert string to boolean and validate
  */
 export function validateBoolean(
-	message = lang('shared.error.invalid_boolean'),
+	message = lang('shared.validation.invalid_boolean'),
 ) {
 	return z.preprocess((val) => {
 		if (val === 'true' || val === true) {
@@ -100,7 +102,7 @@ export function validateBoolean(
  * @description Validate date string and convert to `Date` object
  */
 export function validateDate(
-	message = lang('shared.error.invalid_date'),
+	message = lang('shared.validation.invalid_date'),
 	optional = true,
 ) {
 	const schema = z
@@ -166,13 +168,13 @@ export function makeFindValidator<
 		direction: z.enum(directionEnum).optional().default(defaultDirection),
 
 		limit: z.coerce
-			.number({ message: lang('shared.error.invalid_number') })
+			.number({ message: lang('shared.validation.invalid_number') })
 			.min(1)
 			.optional()
 			.default(defaultLimit),
 
 		page: z.coerce
-			.number({ message: lang('shared.error.invalid_number') })
+			.number({ message: lang('shared.validation.invalid_number') })
 			.min(1)
 			.optional()
 			.default(defaultPage),
@@ -232,3 +234,14 @@ export const validateAddressPlaceTypes =
 			}
 		}
 	};
+
+export const validateMeta = () =>
+	z.object({
+		title: validateString(lang('shared.validation.meta_title_invalid')),
+		description: validateString(
+			lang('shared.validation.meta_description_invalid'),
+		).optional(),
+		keywords: validateString(
+			lang('shared.validation.meta_keywords_invalid'),
+		).optional(),
+	});

@@ -27,14 +27,14 @@ export default class OrderShippingProductEntity {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
 	id!: number;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	@Index('IDX_order_shipping_product_order_product_id')
 	order_product_id!: number;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	order_shipping_id!: number;
 
 	@Column('numeric', { precision: 12, scale: 2, nullable: false })

@@ -12,10 +12,10 @@ import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
 	unique: true,
 })
 export default class ArticleCategoryEntity extends EntityAbstract {
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	article_id!: number;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	@Index('IDX_article_category_category_id')
 	category_id!: number;
 

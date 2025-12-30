@@ -308,11 +308,6 @@ class ClientController {
 
 		client.status = res.locals.validated.status;
 
-		// Set `contextData` for usage in subscriber
-		client.contextData = {
-			auth_id: policy.getUserId(),
-		};
-
 		await getClientRepository().save(client);
 
 		res.locals.output.message(lang('client.success.status_update'));

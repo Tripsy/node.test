@@ -7,6 +7,7 @@ import {
 	makeFindValidator,
 	nullableString,
 	validateBoolean,
+	validateString,
 } from '@/lib/helpers';
 
 export const paramsUpdateList: string[] = [
@@ -19,11 +20,7 @@ export const paramsUpdateList: string[] = [
 
 export function CarrierCreateValidator() {
 	return z.object({
-		name: z
-			.string({ message: lang('carrier.validation.name_invalid') })
-			.nonempty({
-				message: lang('carrier.validation.name_invalid'),
-			}),
+		name: validateString(lang('carrier.validation.name_invalid')),
 		website: z.preprocess(
 			(val) => (val === '' ? null : val),
 			z
@@ -46,12 +43,9 @@ export function CarrierCreateValidator() {
 export function CarrierUpdateValidator() {
 	return z
 		.object({
-			name: z
-				.string({ message: lang('carrier.validation.name_invalid') })
-				.nonempty({
-					message: lang('carrier.validation.name_invalid'),
-				})
-				.optional(),
+			name: validateString(
+				lang('carrier.validation.name_invalid'),
+			).optional(),
 			website: z.preprocess(
 				(val) => (val === '' ? null : val),
 				z
@@ -74,7 +68,7 @@ export function CarrierUpdateValidator() {
 			notes: nullableString(lang('carrier.validation.notes_invalid')),
 		})
 		.refine((data) => hasAtLeastOneValue(data), {
-			message: lang('shared.error.params_at_least_one', {
+			message: lang('shared.validation.params_at_least_one', {
 				params: paramsUpdateList.join(', '),
 			}),
 			path: ['_global'],
@@ -101,10 +95,10 @@ export function CarrierFindValidator() {
 
 		filterShape: {
 			id: z.coerce
-				.number({ message: lang('shared.error.invalid_number') })
+				.number({ message: lang('shared.validation.invalid_number') })
 				.optional(),
 			term: z
-				.string({ message: lang('shared.error.invalid_string') })
+				.string({ message: lang('shared.validation.invalid_string') })
 				.optional(),
 			is_deleted: validateBoolean().default(false),
 		},

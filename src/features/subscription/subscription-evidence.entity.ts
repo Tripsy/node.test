@@ -25,15 +25,15 @@ export default class SubscriptionEvidenceEntity {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
 	id!: number;
 
-	@Column('bigint', { nullable: false })
-	@Index('IDX_subscription_renewals_subscription_id')
+	@Column('int', { nullable: false })
+	@Index('IDX_subscription_evidence_subscription_id')
 	subscription_id!: number;
 
-	@Column('bigint', { nullable: false })
-	@Index('IDX_subscription_renewals_invoice_id')
+	@Column('int', { nullable: false })
+	@Index('IDX_subscription_evidence_invoice_id')
 	invoice_id!: number;
 
 	@Column({
@@ -41,7 +41,7 @@ export default class SubscriptionEvidenceEntity {
 		enum: SubscriptionEvidenceStatusEnum,
 		nullable: false,
 	})
-	@Index('IDX_subscription_renewals_status')
+	@Index('IDX_subscription_evidence_status')
 	status!: SubscriptionEvidenceStatusEnum;
 
 	@Column('jsonb', {

@@ -23,8 +23,8 @@ export const PlaceContentRepository = dataSource
 
 		async saveContent(
 			manager: EntityManager,
-			place_id: number,
 			contents: PlaceContentInput[],
+			place_id: number,
 		) {
 			if (!contents.length) {
 				return;

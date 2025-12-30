@@ -92,13 +92,7 @@ export const getClientRepository = () =>
 					},
 				]);
 			} else {
-				query.filterAny([
-					{
-						column: 'person_cnp',
-						value: data.person_cnp,
-						operator: '=',
-					},
-				]);
+				query.filterBy('person_cnp', data.person_cnp);
 			}
 
 			return (await query.count()) > 0;

@@ -25,13 +25,13 @@ export default class UserPermissionEntity {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@PrimaryGeneratedColumn({ type: 'bigint', unsigned: false })
+	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
 	id!: number;
 
-	@Column('bigint', { unsigned: false, nullable: false })
+	@Column('int', { unsigned: false, nullable: false })
 	user_id!: number;
 
-	@Column('bigint', { unsigned: false, nullable: false })
+	@Column('int', { unsigned: false, nullable: false })
 	permission_id!: number;
 
 	@CreateDateColumn({ type: 'timestamp', nullable: false })

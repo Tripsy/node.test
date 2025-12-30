@@ -10,11 +10,20 @@ import {
 
 export function UserPermissionCreateValidator() {
 	return z.object({
-		permission_ids: z.array(z.number(), {
-			message: lang('shared.error.invalid_ids', {
-				name: 'ids',
-			}),
-		}),
+		permission_ids: z.array(
+			z.coerce
+				.number({
+					message: lang('shared.validation.invalid_ids', {
+						name: 'ids',
+					}),
+				})
+				.positive(),
+			{
+				message: lang('shared.validation.invalid_ids', {
+					name: 'ids',
+				}),
+			},
+		),
 	});
 }
 
@@ -38,19 +47,19 @@ export function UserPermissionFindValidator() {
 
 		filterShape: {
 			user_id: z.coerce
-				.number({ message: lang('shared.error.invalid_number') })
+				.number({ message: lang('shared.validation.invalid_number') })
 				.optional(),
 			entity: validateStringMin(
-				lang('shared.error.invalid_string'),
+				lang('shared.validation.invalid_string'),
 				cfg('filter.termMinLength') as number,
-				lang('shared.error.string_min', {
+				lang('shared.validation.string_min', {
 					min: cfg('filter.termMinLength') as string,
 				}),
 			).optional(),
 			operation: validateStringMin(
-				lang('shared.error.invalid_string'),
+				lang('shared.validation.invalid_string'),
 				cfg('filter.termMinLength') as number,
-				lang('shared.error.string_min', {
+				lang('shared.validation.string_min', {
 					min: cfg('filter.termMinLength') as string,
 				}),
 			).optional(),

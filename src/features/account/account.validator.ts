@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import { validateStringMin } from '@/lib/helpers';
+import { validateString, validateStringMin } from '@/lib/helpers';
 
 export function AccountRegisterValidator() {
 	return z
@@ -125,14 +125,9 @@ export function AccountPasswordRecoverChangeValidator() {
 export function AccountPasswordUpdateValidator() {
 	return z
 		.object({
-			password_current: z
-				.string({
-					message: lang('account.validation.password_invalid'),
-				})
-				.trim()
-				.nonempty({
-					message: lang('account.validation.password_invalid'),
-				}),
+			password_current: validateString(
+				lang('account.validation.password_invalid'),
+			),
 			password_new: z
 				.string({
 					message: lang('account.validation.password_invalid'),
@@ -204,14 +199,9 @@ export function AccountEditValidator() {
 
 export function AccountDeleteValidator() {
 	return z.object({
-		password_current: z
-			.string({
-				message: lang('account.validation.password_invalid'),
-			})
-			.trim()
-			.nonempty({
-				message: lang('account.validation.password_invalid'),
-			}),
+		password_current: validateString(
+			lang('account.validation.password_invalid'),
+		),
 	});
 }
 

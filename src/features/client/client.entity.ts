@@ -110,13 +110,13 @@ export default class ClientEntity extends EntityAbstract {
 	contact_phone!: string | null;
 
 	// ADDRESS
-	@Column('bigint', { nullable: true })
+	@Column('int', { nullable: true })
 	address_country!: number | null;
 
-	@Column('bigint', { nullable: true })
+	@Column('int', { nullable: true })
 	address_region!: number | null;
 
-	@Column('bigint', { nullable: true })
+	@Column('int', { nullable: true })
 	address_city!: number | null;
 
 	@Column('text', { nullable: true })

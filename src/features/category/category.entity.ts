@@ -2,14 +2,14 @@ import {
 	Column,
 	Entity,
 	Index,
+	JoinColumn,
 	OneToMany,
 	Tree,
 	TreeChildren,
 	TreeParent,
 } from 'typeorm';
 import type CategoryContentEntity from '@/features/category/category-content.entity';
-import type ProductCategoryEntity from '@/features/product/product-category.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract, type PageMeta } from '@/lib/abstracts/entity.abstract';
 
 export enum CategoryStatusEnum {
 	ACTIVE = 'active',
@@ -21,6 +21,14 @@ export enum CategoryTypeEnum {
 	PRODUCT = 'product',
 	ARTICLE = 'article',
 }
+
+export type CategoryContentInput = {
+	language: string;
+	label: string;
+	slug: string;
+	description?: string;
+	meta: PageMeta;
+};
 
 const ENTITY_TABLE_NAME = 'category';
 
@@ -62,6 +70,7 @@ export default class CategoryEntity extends EntityAbstract {
 	 * Hierarchy
 	 */
 	@TreeParent()
+	@JoinColumn({ name: 'parent_id' })
 	parent!: CategoryEntity | null;
 
 	@TreeChildren()
@@ -79,10 +88,4 @@ export default class CategoryEntity extends EntityAbstract {
 		(content: CategoryContentEntity) => content.category,
 	)
 	contents?: CategoryContentEntity[];
-
-	@OneToMany(
-		'ProductCategoryEntity',
-		(productCategory: ProductCategoryEntity) => productCategory.category,
-	)
-	products?: ProductCategoryEntity[];
 }

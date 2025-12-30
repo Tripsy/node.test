@@ -45,7 +45,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 			password: process.env.REDIS_PASSWORD || '',
 		},
 		cache: {
-			ttl: Number(process.env.CACHE_TTL) || 60,
+			ttl: Number(process.env.CACHE_TTL) ?? 60,
 		},
 		/**
 		 * For `app.env` === test OR `app.debug` === true logs will always be printed to console

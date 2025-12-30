@@ -23,7 +23,7 @@ export default class ArticleContentEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@Column('bigint', { nullable: false })
+	@Column('int', { nullable: false })
 	article_id!: number;
 
 	@Column('varchar', {
