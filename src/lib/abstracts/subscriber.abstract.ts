@@ -7,7 +7,6 @@ import type {
 } from 'typeorm';
 import { eventEmitter } from '@/config/event.config';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
 
 interface BaseEntity {
 	id: number;
@@ -81,12 +80,9 @@ abstract class SubscriberAbstract<T extends BaseEntity>
 			return;
 		}
 
-		const cacheProvider = getCacheProvider();
-
-		// TODO use event
-		void cacheProvider.deleteByPattern(
-			`${cacheProvider.buildKey(cachedEntity.NAME, identString)}*`,
-		);
+		eventEmitter.emit('cacheClean', {
+			cacheKeyArgs: [cachedEntity.NAME, identString],
+		});
 	}
 
 	logHistory(

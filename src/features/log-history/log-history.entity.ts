@@ -21,13 +21,6 @@ export enum LogHistoryAction {
 	PASSWORD_CHANGE = 'password_change',
 }
 
-export type LogHistoryEventPayload = {
-	entity: string;
-	entity_ids: number[];
-	action: LogHistoryAction;
-	data?: Record<string, string | number>;
-};
-
 const ENTITY_TABLE_NAME = 'log_history';
 
 @Entity({

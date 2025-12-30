@@ -27,15 +27,32 @@
    - login based on JWT tokens (managed by `account-token.repository`)
    - password recovery (managed by `account-recovery.repository`)
 - [x] Policies (based on user roles and permissions)
-- [x] Controllers (eg: REST Api)
-    - user.controller (create, read, update, delete, restore, find, statusUpdate)
-    - account.controller (register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate)
-    - permission.controller (create, read, update, delete, restore, find      
-    - user-permission.controller (create, delete, restore, find)
+- [x] Features (eg: REST Api)
+    - account.controller: register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate, me, sessions, edit, delete
+    - article: 
+    - brand: 
+    - carrier: create, read, update, delete, restore, find
+    - category: create, read, update, delete, restore, find, statusUpdate
+    - client: create, read, update, delete, restore, find, statusUpdate
+    - cron-history.controller: read, delete, find
+    - discount: create, read, update, delete, restore, find
+    - image: 
+    - invoice: 
+    - log-data.controller: read, delete, find
+    - log-history.controller: read, delete, find
+    - mail-queue.controller: read, delete, find
+    - order: 
+    - order-shipping: 
+    - payment: 
+    - permission.controller (create, read, update, delete, restore, find
+    - place: create, read, update, delete, restore, find
+    - product: 
+    - subscription:
     - template.controller (create, read, update, delete, restore, find)
-    - log-data.controller (read, delete, find)
-    - log-history.controller (read, delete, find)
-    - cron-history.controller (read, delete, find)
+    - term: 
+    - user.controller (create, read, update, delete, restore, find, statusUpdate)
+    - user-permission.controller (create, delete, restore, find)
+
 - [x] Tests (powered by Jest & Supertest)
 
 # Setup
@@ -74,7 +91,7 @@ $ pnpm run dev
 
 # Notes & Limitations
 
-- res object contains additional properties - check /src/types/express.d.ts
+- res object contains additional properties - check /src/types/express.d.ts (is in .gitignore)
 - workers are not set run on separate process (updates will be required to workers if they are set to run on separate process)
 - /providers - Reusable utilities, external integrations; Encapsulates infrastructure (e.g., Redis, DB connections)
 
@@ -111,23 +128,6 @@ $ pnpx tsx /var/www/html/src/database/seed-data/template.seed.ts
 $ pnpx tsx /var/www/html/src/database/seed-data/permission.seed.ts
 ```
 
-# Dependencies
-
-- [Pino](https://github.com/pinojs/pino)
-- [Mysql2](https://github.com/sidorares/node-mysql2)
-- [TypeORM](https://github.com/typeorm/typeorm)
-- [i18next](https://github.com/i18next/i18next)
-- [nodemailer](https://nodemailer.com/)
-- [zod](https://zod.dev)
-- [helmet](https://helmetjs.github.io/)
-- [ioredis](https://github.com/luin/ioredis)
-- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
-- [node-cron](https://github.com/node-cron/node-cron)
-- [BullMQ](https://docs.bullmq.io/)
-- [jest](https://jestjs.io/)
-- [supertest](https://www.npmjs.com/package/supertest)
-- [nunjucks](https://github.com/mozilla/nunjucks)
-
 # TESTS
 
 ```
@@ -139,19 +139,21 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. image > category ( + route images) > brand ( + route images)
-2. 1. make features as package
-3. Recap Jest; Tests are failing
-4. wip entities:
+1. Review "ideas"
+2. make features as package
+3. category > brand 
+4. images 
+5. Go on FE → category, place, brand, client
+6. Go on FE #2 → carrier, discount, 
+7. Go on FE #3 → image (multer - File upload handling)
+8. wip entities:
     - article
         - article-category
         - article-content
         - article-tag  
         - article-track
     - brand
-        - brand-content
-    - category
-        - category-content     - 
+        - brand-content 
     - image  
       - image-content
     - invoice
@@ -168,33 +170,46 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-evidence
     - term
-5. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+
+# IDEAS
+
+1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
+2. Rate limiting > express-rate-limit & rate-limiter-flexible - API rate limiting
+3. API documentation > swagger-ui-express - API documentation
+4. https://expressjs.com/en/advanced/best-practice-performance.html
+5. settings saved in DB
+6. cron hanging / delaying / semaphore ?!
+7. CI/CD
 
 # BUGS & ISSUES
 
-1. Some missing tests
-    - account.controller - emailConfirmSend
-    - user.controller - find, statusUpdate missing tests
-    - log-data.controller - find missing tests
-    - template.controller
-    - permission.controller
-    - user-permission.controller
-    - mail-queue controller
+1. For "Star" use category for "cars"
+2. Missing tests
+    - controllers
     - validators
     - middleware
         - output-handler.middleware
         - validate-params.middleware
     - providers
-2. src/tests/middleware/auth.unit.ts is broken
-3. types/express.d.ts - is in .gitignore   
+3. Recap Jest; Tests are failing
 
-# IDEAS
+# Dependencies
 
-1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
-2. https://expressjs.com/en/advanced/best-practice-performance.html
-3. settings saved in DB
-4. cron hanging / delaying / semaphore ?!
-5. CI/CD
+- [Pino](https://github.com/pinojs/pino) - Fast, low-overhead Node.js logger
+- [Mysql2](https://github.com/sidorares/node-mysql2) - MySQL client for Node.js with TypeScript support
+- [TypeORM](https://github.com/typeorm/typeorm) - ORM for TypeScript and JavaScript with support for multiple databases
+- [i18next](https://github.com/i18next/i18next) - Internationalization framework for JavaScript/Node.js
+- [nodemailer](https://nodemailer.com/) - Email sending library for Node.js
+- [zod](https://zod.dev) - TypeScript-first schema validation with static type inference
+- [helmet](https://helmetjs.github.io/) - Security middleware for Express.js
+- [ioredis](https://github.com/luin/ioredis) - Robust Redis client for Node.js
+- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - JSON Web Token implementation
+- [node-cron](https://github.com/node-cron/node-cron) - Task scheduler for Node.js
+- [BullMQ](https://docs.bullmq.io/) - Redis-based message queue for Node.js
+- [jest](https://jestjs.io/) - JavaScript testing framework
+- [supertest](https://www.npmjs.com/package/supertest) - HTTP assertion library for testing Node.js servers
+- [nunjucks](https://github.com/mozilla/nunjucks) - Templating engine for JavaScript
 
 # DEVELOPMENT STEPS
 

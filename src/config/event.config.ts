@@ -1,8 +1,20 @@
 import { EventEmitter } from 'node:events';
-import type { LogHistoryEventPayload } from '@/features/log-history/log-history.entity';
+import type { LogHistoryAction } from '@/features/log-history/log-history.entity';
+
+export type LogHistoryEventPayload = {
+	entity: string;
+	entity_ids: number[];
+	action: LogHistoryAction;
+	data?: Record<string, string | number>;
+};
+
+export type CacheCleanEventPayload = {
+	cacheKeyArgs: string[];
+};
 
 type Events = {
 	history: LogHistoryEventPayload;
+	cacheClean: CacheCleanEventPayload;
 };
 
 class TypedEmitter extends EventEmitter {

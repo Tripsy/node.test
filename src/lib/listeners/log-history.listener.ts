@@ -1,11 +1,13 @@
-import { eventEmitter } from '@/config/event.config';
+import {
+	eventEmitter,
+	type LogHistoryEventPayload,
+} from '@/config/event.config';
 import { lang } from '@/config/i18n.setup';
 import { RequestContextSource, requestContext } from '@/config/request.context';
 import { cfg } from '@/config/settings.config';
 import {
 	LogHistoryAction,
 	type LogHistoryDestination,
-	type LogHistoryEventPayload,
 } from '@/features/log-history/log-history.entity';
 import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import { getHistoryLogger } from '@/lib/providers/logger.provider';

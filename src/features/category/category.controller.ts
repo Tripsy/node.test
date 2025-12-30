@@ -106,6 +106,13 @@ class CategoryController {
 		const cacheKey = cacheProvider.buildKey(
 			CategoryEntity.NAME,
 			res.locals.validated.id,
+			res.locals.validated.with_ancestors
+				? 'with_ancestors'
+				: 'no_ancestors',
+			res.locals.validated.with_children
+				? 'with_children'
+				: 'no_children',
+			res.locals.language,
 			'read',
 		);
 
