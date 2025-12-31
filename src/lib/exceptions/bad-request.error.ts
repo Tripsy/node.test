@@ -1,4 +1,4 @@
-import {CustomError} from "@/lib/exceptions/custom.error";
+import { CustomError } from '@/lib/exceptions/custom.error';
 
 export class BadRequestError extends CustomError {
 	constructor(message?: string) {

@@ -9,9 +9,9 @@ import {
 	MailQueueDeleteValidator,
 	MailQueueFindValidator,
 } from '@/features/mail-queue/mail-queue.validator';
+import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
-import {BadRequestError} from "@/lib/exceptions";
 
 class MailQueueController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {

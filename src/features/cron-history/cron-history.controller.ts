@@ -7,9 +7,9 @@ import {
 	CronHistoryDeleteValidator,
 	CronHistoryFindValidator,
 } from '@/features/cron-history/cron-history.validator';
+import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
-import {BadRequestError} from "@/lib/exceptions";
 
 class CronHistoryController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {

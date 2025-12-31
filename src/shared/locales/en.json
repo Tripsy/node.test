@@ -29,11 +29,11 @@
 		"email_sent": "Email with subject `{{subject}}` sent successfully to `{{to}}`",
 		"email_log_subject": "{{app}} - Log {{level}}"
 	},
-    "rate_limit": {
-      "error": "Too Many Requests",
-      "message": {
-        "default": "Too many attempts. Please try again later.",
-        "login": "Too many login attempts. Please try again later."
-      }
-    }
+	"rate_limit": {
+		"error": "Too Many Requests",
+		"message": {
+			"default": "Too many attempts. Please try again later.",
+			"login": "Too many login attempts. Please try again later."
+		}
+	}
 }

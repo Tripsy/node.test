@@ -9,9 +9,9 @@ import {
 	DiscountUpdateValidator,
 	paramsUpdateList,
 } from '@/features/discount/discount.validator';
+import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
-import {BadRequestError} from "@/lib/exceptions";
 
 class DiscountController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

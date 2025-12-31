@@ -1,5 +1,5 @@
 import { cfg } from '@/config/settings.config';
-import {CustomError} from "@/lib/exceptions/custom.error";
+import { CustomError } from '@/lib/exceptions/custom.error';
 
 export class UnauthorizedError extends CustomError {
 	constructor(message?: string) {

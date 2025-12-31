@@ -30,6 +30,13 @@ import AccountTokenRepository from '@/features/account/account-token.repository'
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
 import { getUserRepository } from '@/features/user/user.repository';
 import {
+	BadRequestError,
+	CustomError,
+	NotAllowedError,
+	NotFoundError,
+	UnauthorizedError,
+} from '@/lib/exceptions';
+import {
 	compareMetaDataValue,
 	createPastDate,
 	getClientIp,
@@ -42,7 +49,6 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/lib/types/token.type';
-import {BadRequestError, CustomError, NotAllowedError, NotFoundError, UnauthorizedError} from "@/lib/exceptions";
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {

@@ -11,9 +11,9 @@ import {
 	TemplateUpdateValidator,
 } from '@/features/template/template.validator';
 import { paramsUpdateList } from '@/features/user/user.validator';
+import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
-import {BadRequestError, CustomError} from "@/lib/exceptions";
 
 class TemplateController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

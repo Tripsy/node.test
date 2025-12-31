@@ -11,12 +11,12 @@ import CronHistoryEntity, {
 	CronHistoryStatusEnum,
 } from '@/features/cron-history/cron-history.entity';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
+import { NotFoundError } from '@/lib/exceptions';
 import { dateDiffInSeconds } from '@/lib/helpers';
 import {
 	getCronLogger,
 	getSystemLogger,
 } from '@/lib/providers/logger.provider';
-import {NotFoundError} from "@/lib/exceptions";
 
 /**
  * Execute a cron job and save history

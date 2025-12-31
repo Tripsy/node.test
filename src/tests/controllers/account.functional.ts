@@ -21,9 +21,9 @@ import {
 	getUserRepository,
 	type UserQuery,
 } from '@/features/user/user.repository';
+import { NotAllowedError } from '@/lib/exceptions';
 import { createFutureDate, type ObjectValue } from '@/lib/helpers';
 import * as metaDataHelper from '@/lib/helpers/meta-data.helper';
-import {NotAllowedError} from "@/lib/exceptions";
 
 beforeEach(() => {
 	jest.clearAllMocks();

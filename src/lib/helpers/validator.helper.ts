@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { PlaceTypeEnum } from '@/features/place/place.entity';
 import { getPlaceRepository } from '@/features/place/place.repository';
+import { BadRequestError } from '@/lib/exceptions';
 import { isValidDate, stringToDate } from '@/lib/helpers/date.helper';
-import {BadRequestError} from "@/lib/exceptions";
 
 /**
  * @description Utility function used to parse JSON filter string to object

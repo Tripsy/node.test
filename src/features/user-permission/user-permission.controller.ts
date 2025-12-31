@@ -7,8 +7,8 @@ import {
 	UserPermissionCreateValidator,
 	UserPermissionFindValidator,
 } from '@/features/user-permission/user-permission.validator';
+import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {BadRequestError} from "@/lib/exceptions";
 
 class UserPermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

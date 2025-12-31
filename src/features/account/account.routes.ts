@@ -1,6 +1,9 @@
+import {
+	authDefaultRateLimiter,
+	authLoginRateLimiter,
+} from '@/config/rate-limit.config';
 import AccountController from '@/features/account/account.controller';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
-import {authDefaultRateLimiter, authLoginRateLimiter} from "@/config/rate-limit.config";
 
 export default {
 	basePath: '/account',
@@ -11,13 +14,13 @@ export default {
 			path: '/register',
 			method: 'post',
 			action: 'register',
-            handlers: [authDefaultRateLimiter],
+			handlers: [authDefaultRateLimiter],
 		},
 		login: {
 			path: '/login',
 			method: 'post',
 			action: 'login',
-            handlers: [authLoginRateLimiter],
+			handlers: [authLoginRateLimiter],
 		},
 		'remove-token': {
 			path: '/token',
@@ -33,7 +36,7 @@ export default {
 			path: '/password-recover',
 			method: 'post',
 			action: 'passwordRecover',
-            handlers: [authDefaultRateLimiter],
+			handlers: [authDefaultRateLimiter],
 		},
 		'password-recover-change': {
 			path: '/password-recover-change/:ident',
@@ -54,7 +57,7 @@ export default {
 			path: '/email-confirm-send',
 			method: 'post',
 			action: 'emailConfirmSend',
-            handlers: [authDefaultRateLimiter],
+			handlers: [authDefaultRateLimiter],
 		},
 		'email-update': {
 			path: '/email-update',

@@ -11,7 +11,7 @@ import {
 	getUserRepository,
 	type UserQuery,
 } from '@/features/user/user.repository';
-import {NotFoundError} from "@/lib/exceptions";
+import { NotFoundError } from '@/lib/exceptions';
 
 beforeEach(() => {
 	jest.clearAllMocks();

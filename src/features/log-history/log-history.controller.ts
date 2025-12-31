@@ -6,8 +6,8 @@ import {
 	LogHistoryDeleteValidator,
 	LogHistoryFindValidator,
 } from '@/features/log-history/log-history.validator';
+import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {BadRequestError} from "@/lib/exceptions";
 
 class LogHistoryController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {

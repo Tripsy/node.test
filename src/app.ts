@@ -214,8 +214,8 @@ app.use(
 	}),
 );
 
-// Trust proxy for correct client IP
-app.set('trust proxy', true);
+// Configuration
+app.set('trust proxy', false);
 
 // CORS handling
 app.use(corsHandler);
@@ -351,14 +351,14 @@ async function initializeApp(): Promise<void> {
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('uncaughtException', (error) => {
-    getSystemLogger().fatal(error, 'Uncaught exception');
+	getSystemLogger().fatal(error, 'Uncaught exception');
 
-    process.exit(1);
+	process.exit(1);
 });
 process.on('unhandledRejection', (reason) => {
-    getSystemLogger().fatal(reason, 'Unhandled rejection');
+	getSystemLogger().fatal(reason, 'Unhandled rejection');
 
-    process.exit(1);
+	process.exit(1);
 });
 
 // ========== START APPLICATION ==========

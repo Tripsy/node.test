@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import { type RequestHandler, Router } from 'express';
+import { apiRateLimiter } from '@/config/rate-limit.config';
 import { cfg } from '@/config/settings.config';
 import { buildSrcPath, getObjectValue } from '@/lib/helpers';
 import metaDocumentation from '@/lib/middleware/meta-documentation.middleware';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
-import {apiRateLimiter} from "@/config/rate-limit.config";
 
 const FEATURES_FOLDER = 'features';
 
@@ -58,22 +58,20 @@ function buildRoutes<C>({
 		const { path, method, action, handlers = [] } = config;
 
 		const fullPath = `${basePath}${path}`;
-		const middleware = [
-			...handlers,
-		];
+		const middleware = [...handlers];
 
-        // Check if any handler / middleware name ends with "RateLimiter"
-        const hasRateLimiter = middleware.some(f => {
-            const functionName = f.name || '';
+		// Check if any handler / middleware name ends with "RateLimiter"
+		const hasRateLimiter = middleware.some((f) => {
+			const functionName = f.name || '';
 
-            return functionName.endsWith('RateLimiter');
-        });
+			return functionName.endsWith('RateLimiter');
+		});
 
-        if (!hasRateLimiter) {
-            middleware.push(apiRateLimiter);
-        }
+		if (!hasRateLimiter) {
+			middleware.push(apiRateLimiter);
+		}
 
-        middleware.push(metaDocumentation(documentation, action as string));
+		middleware.push(metaDocumentation(documentation, action as string));
 
 		router[method](
 			fullPath,
