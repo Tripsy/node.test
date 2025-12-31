@@ -139,14 +139,13 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. Review "ideas"
-2. make features as package
-3. category > brand 
-4. images 
-5. Go on FE → category, place, brand, client
-6. Go on FE #2 → carrier, discount, 
-7. Go on FE #3 → image (multer - File upload handling)
-8. wip entities:
+1. make features as package
+2. category > brand 
+3. images 
+4. Go on FE → category, place, brand, client
+5. Go on FE #2 → carrier, discount, 
+6. Go on FE #3 → image (multer - File upload handling)
+7. wip entities:
     - article
         - article-category
         - article-content
@@ -170,15 +169,15 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-evidence
     - term
-9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+8. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+9. Review "ideas"
 
 # IDEAS
 
-1. API documentation > swagger-ui-express - API documentation
-2. https://expressjs.com/en/advanced/best-practice-performance.html
-3. settings saved in DB
-4. cron hanging / delaying / semaphore ?!
-5. CI/CD
+1. API documentation > swagger-ui-express
+2. settings saved in DB
+3. cron hanging / delaying / semaphore ?!
+4. CI/CD (once tests are working)
 
 # BUGS & ISSUES
 

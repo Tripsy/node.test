@@ -14,11 +14,9 @@ import {
 	ClientUpdateValidator,
 	paramsUpdateList,
 } from '@/features/client/client.validator';
-import BadRequestError from '@/lib/exceptions/bad-request.error';
-import CustomError from '@/lib/exceptions/custom.error';
-import NotFoundError from '@/lib/exceptions/not-found.error';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {BadRequestError, CustomError, NotFoundError} from "@/lib/exceptions";
 
 class ClientController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

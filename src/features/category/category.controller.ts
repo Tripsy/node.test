@@ -15,10 +15,9 @@ import {
 } from '@/features/category/category.validator';
 import CategoryContentRepository from '@/features/category/category-content.repository';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
-import BadRequestError from '@/lib/exceptions/bad-request.error';
-import CustomError from '@/lib/exceptions/custom.error';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {BadRequestError, CustomError} from "@/lib/exceptions";
 
 class CategoryController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

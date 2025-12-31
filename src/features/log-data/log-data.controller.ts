@@ -7,9 +7,9 @@ import {
 	LogDataDeleteValidator,
 	LogDataFindValidator,
 } from '@/features/log-data/log-data.validator';
-import BadRequestError from '@/lib/exceptions/bad-request.error';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {BadRequestError} from "@/lib/exceptions";
 
 class LogDataController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {

@@ -1,8 +1,7 @@
 import { UserRoleEnum } from '@/features/user/user.entity';
 import PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import NotAllowedError from '@/lib/exceptions/not-allowed.error';
-import UnauthorizedError from '@/lib/exceptions/unauthorized.error';
 import { createAuthContext } from '@/tests/jest-functional.setup';
+import {NotAllowedError, UnauthorizedError} from "@/lib/exceptions";
 
 describe('PolicyAbstract', () => {
 	describe('checks around admin role', () => {

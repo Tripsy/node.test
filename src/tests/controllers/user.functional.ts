@@ -4,7 +4,6 @@ import AccountTokenRepository from '@/features/account/account-token.repository'
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import UserPolicy from '@/features/user/user.policy';
-import NotFoundError from '@/lib/exceptions/not-found.error';
 import * as cacheProvider from '@/lib/providers/cache.provider';
 import '../jest-functional.setup';
 import { routeLink } from '@/config/routes.setup';
@@ -12,6 +11,7 @@ import {
 	getUserRepository,
 	type UserQuery,
 } from '@/features/user/user.repository';
+import {NotFoundError} from "@/lib/exceptions";
 
 beforeEach(() => {
 	jest.clearAllMocks();

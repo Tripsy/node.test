@@ -7,7 +7,6 @@ import AccountRecoveryRepository from '@/features/account/account-recovery.repos
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
-import NotAllowedError from '@/lib/exceptions/not-allowed.error';
 import * as emailProvider from '@/lib/providers/email.provider';
 import type {
 	AuthValidToken,
@@ -24,6 +23,7 @@ import {
 } from '@/features/user/user.repository';
 import { createFutureDate, type ObjectValue } from '@/lib/helpers';
 import * as metaDataHelper from '@/lib/helpers/meta-data.helper';
+import {NotAllowedError} from "@/lib/exceptions";
 
 beforeEach(() => {
 	jest.clearAllMocks();

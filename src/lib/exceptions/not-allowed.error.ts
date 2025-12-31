@@ -1,7 +1,7 @@
 import { cfg } from '@/config/settings.config';
-import CustomError from '@/lib/exceptions/custom.error';
+import {CustomError} from "@/lib/exceptions/custom.error";
 
-class NotAllowedError extends CustomError {
+export class NotAllowedError extends CustomError {
 	constructor(message?: string) {
 		super(403);
 
@@ -12,5 +12,3 @@ class NotAllowedError extends CustomError {
 		}
 	}
 }
-
-export default NotAllowedError;

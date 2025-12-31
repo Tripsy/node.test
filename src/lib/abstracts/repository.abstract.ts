@@ -10,9 +10,8 @@ import type { Repository } from 'typeorm/repository/Repository';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
-import CustomError from '@/lib/exceptions/custom.error';
-import NotFoundError from '@/lib/exceptions/not-found.error';
 import { formatDate, toKebabCase } from '@/lib/helpers';
+import {CustomError, NotFoundError} from "@/lib/exceptions";
 
 type QueryValue = string | number | (string | number)[] | null;
 type QueryParams = Record<string, QueryValue>;

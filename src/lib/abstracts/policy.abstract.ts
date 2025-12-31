@@ -1,7 +1,6 @@
 import { UserRoleEnum } from '@/features/user/user.entity';
-import NotAllowedError from '@/lib/exceptions/not-allowed.error';
-import UnauthorizedError from '@/lib/exceptions/unauthorized.error';
 import type { AuthContext } from '@/lib/types/express';
+import {NotAllowedError, UnauthorizedError} from "@/lib/exceptions";
 
 class PolicyAbstract {
 	protected entity: string;

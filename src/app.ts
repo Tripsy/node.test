@@ -351,11 +351,14 @@ async function initializeApp(): Promise<void> {
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('uncaughtException', (error) => {
-	getSystemLogger().fatal(error, 'Uncaught exception:');
-	shutdown('UNCAUGHT_EXCEPTION');
+    getSystemLogger().fatal(error, 'Uncaught exception');
+
+    process.exit(1);
 });
-process.on('unhandledRejection', (reason, _promise) => {
-	getSystemLogger().error(reason, 'Unhandled rejection');
+process.on('unhandledRejection', (reason) => {
+    getSystemLogger().fatal(reason, 'Unhandled rejection');
+
+    process.exit(1);
 });
 
 // ========== START APPLICATION ==========

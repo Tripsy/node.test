@@ -11,9 +11,9 @@ import {
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
-import BadRequestError from '@/lib/exceptions/bad-request.error';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {BadRequestError} from "@/lib/exceptions";
 
 class PlaceController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

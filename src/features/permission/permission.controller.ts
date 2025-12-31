@@ -7,10 +7,9 @@ import {
 	PermissionFindValidator,
 	PermissionManageValidator,
 } from '@/features/permission/permission.validator';
-import BadRequestError from '@/lib/exceptions/bad-request.error';
-import CustomError from '@/lib/exceptions/custom.error';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {BadRequestError, CustomError} from "@/lib/exceptions";
 
 class PermissionController {
 	public create = asyncHandler(async (req: Request, res: Response) => {

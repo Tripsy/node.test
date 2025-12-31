@@ -13,7 +13,7 @@ export type HttpStatusCode =
 	| 429 // Too Many Requests
 	| 500; // Internal Server Error
 
-class CustomError extends Error {
+export class CustomError extends Error {
 	public statusCode: HttpStatusCode;
 
 	constructor(statusCode: HttpStatusCode, message?: string) {
@@ -23,5 +23,3 @@ class CustomError extends Error {
 		this.statusCode = statusCode;
 	}
 }
-
-export default CustomError;

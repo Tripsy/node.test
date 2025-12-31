@@ -29,11 +29,6 @@ import AccountRecoveryRepository from '@/features/account/account-recovery.repos
 import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
 import { getUserRepository } from '@/features/user/user.repository';
-import BadRequestError from '@/lib/exceptions/bad-request.error';
-import CustomError from '@/lib/exceptions/custom.error';
-import NotAllowedError from '@/lib/exceptions/not-allowed.error';
-import NotFoundError from '@/lib/exceptions/not-found.error';
-import UnauthorizedError from '@/lib/exceptions/unauthorized.error';
 import {
 	compareMetaDataValue,
 	createPastDate,
@@ -47,6 +42,7 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/lib/types/token.type';
+import {BadRequestError, CustomError, NotAllowedError, NotFoundError, UnauthorizedError} from "@/lib/exceptions";
 
 class AccountController {
 	public register = asyncHandler(async (req: Request, res: Response) => {

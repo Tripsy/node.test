@@ -7,7 +7,7 @@ import type {
 } from '@/features/category/category.entity';
 import CategoryContentEntity from '@/features/category/category-content.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
-import CustomError from '@/lib/exceptions/custom.error';
+import {CustomError} from "@/lib/exceptions";
 
 export class CategoryContentQuery extends RepositoryAbstract<CategoryContentEntity> {
 	constructor(

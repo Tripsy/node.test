@@ -10,10 +10,9 @@ import {
 	UserFindValidator,
 	UserUpdateValidator,
 } from '@/features/user/user.validator';
-import BadRequestError from '@/lib/exceptions/bad-request.error';
-import CustomError from '@/lib/exceptions/custom.error';
 import asyncHandler from '@/lib/helpers/async.handler';
 import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {BadRequestError, CustomError} from "@/lib/exceptions";
 
 class UserController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
