@@ -174,13 +174,11 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # IDEAS
 
-1. Gzip compressing can greatly decrease the size of the response body and hence increase the speed of a web app.
-2. Rate limiting > express-rate-limit & rate-limiter-flexible - API rate limiting
-3. API documentation > swagger-ui-express - API documentation
-4. https://expressjs.com/en/advanced/best-practice-performance.html
-5. settings saved in DB
-6. cron hanging / delaying / semaphore ?!
-7. CI/CD
+1. API documentation > swagger-ui-express - API documentation
+2. https://expressjs.com/en/advanced/best-practice-performance.html
+3. settings saved in DB
+4. cron hanging / delaying / semaphore ?!
+5. CI/CD
 
 # BUGS & ISSUES
 
@@ -203,6 +201,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 - [nodemailer](https://nodemailer.com/) - Email sending library for Node.js
 - [zod](https://zod.dev) - TypeScript-first schema validation with static type inference
 - [helmet](https://helmetjs.github.io/) - Security middleware for Express.js
+- [express-rate-limit](https://express-rate-limit.mintlify.app/overview) - Rate limiting middleware for Express.js
 - [ioredis](https://github.com/luin/ioredis) - Robust Redis client for Node.js
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - JSON Web Token implementation
 - [node-cron](https://github.com/node-cron/node-cron) - Task scheduler for Node.js

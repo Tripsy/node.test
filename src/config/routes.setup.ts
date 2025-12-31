@@ -5,6 +5,7 @@ import { buildSrcPath, getObjectValue } from '@/lib/helpers';
 import metaDocumentation from '@/lib/middleware/meta-documentation.middleware';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
+import {apiRateLimiter} from "@/config/rate-limit.config";
 
 const FEATURES_FOLDER = 'features';
 
@@ -58,9 +59,21 @@ function buildRoutes<C>({
 
 		const fullPath = `${basePath}${path}`;
 		const middleware = [
-			metaDocumentation(documentation, action as string),
 			...handlers,
 		];
+
+        // Check if any handler / middleware name ends with "RateLimiter"
+        const hasRateLimiter = middleware.some(f => {
+            const functionName = f.name || '';
+
+            return functionName.endsWith('RateLimiter');
+        });
+
+        if (!hasRateLimiter) {
+            middleware.push(apiRateLimiter);
+        }
+
+        middleware.push(metaDocumentation(documentation, action as string));
 
 		router[method](
 			fullPath,
