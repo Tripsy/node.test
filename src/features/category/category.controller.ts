@@ -4,7 +4,6 @@ import { lang } from '@/config/i18n.setup';
 import CategoryEntity, {
 	CategoryStatusEnum,
 } from '@/features/category/category.entity';
-import CategoryPolicy from '@/features/category/category.policy';
 import { getCategoryRepository } from '@/features/category/category.repository';
 import {
 	CategoryCreateValidator,
@@ -24,7 +23,7 @@ class CategoryController {
 		const policy = new CategoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.create();
+		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CategoryCreateValidator().safeParse(req.body);
@@ -89,7 +88,7 @@ class CategoryController {
 		const policy = new CategoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CategoryReadValidator().safeParse(req.query);
@@ -128,7 +127,7 @@ class CategoryController {
 					},
 				)
 				.filterById(res.locals.validated.id)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.firstOrFail();
 
 			const treeRepository =
@@ -159,7 +158,9 @@ class CategoryController {
 								},
 							)
 							.filterBy('id', orderedIds, 'IN')
-							.withDeleted(policy.allowDeleted())
+							.withDeleted(
+								this.policy.allowDeleted(res.locals.auth),
+							)
 							.all();
 
 					ancestorsWithContent = orderedIds
@@ -182,7 +183,7 @@ class CategoryController {
 							},
 						)
 						.filterBy('parent_id', categoryEntry.id)
-						.withDeleted(policy.allowDeleted())
+						.withDeleted(this.policy.allowDeleted(res.locals.auth))
 						.all();
 				}
 			}
@@ -198,7 +199,7 @@ class CategoryController {
 			};
 		});
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(category);
 
 		res.json(res.locals.output);
@@ -208,7 +209,7 @@ class CategoryController {
 		const policy = new CategoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.update();
+		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CategoryUpdateValidator().safeParse(req.body);
@@ -233,7 +234,7 @@ class CategoryController {
 			const newParent = await getCategoryRepository()
 				.createQuery()
 				.filterById(validated.data.parent_id)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.first();
 
 			if (!newParent) {
@@ -324,7 +325,7 @@ class CategoryController {
 		const policy = new CategoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		const category = await getCategoryRepository()
 			.createQuery()
@@ -363,7 +364,7 @@ class CategoryController {
 		const policy = new CategoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.restore();
+		this.policy.canRestore(res.locals.auth);
 
 		const category = await getCategoryRepository()
 			.createQuery()
@@ -401,7 +402,7 @@ class CategoryController {
 		const policy = new CategoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CategoryFindValidator().safeParse(req.query);
@@ -455,7 +456,8 @@ class CategoryController {
 			.filterBy('status', validated.data.filter.status)
 			.filterByTerm(validated.data.filter.term)
 			.withDeleted(
-				policy.allowDeleted() && validated.data.filter.is_deleted,
+				this.policy.allowDeleted(res.locals.auth) &&
+					validated.data.filter.is_deleted,
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
@@ -478,7 +480,7 @@ class CategoryController {
 		const policy = new CategoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.update();
+		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CategoryStatusUpdateValidator().safeParse(req.query);

@@ -1,17 +1,50 @@
 import type { NextFunction, Request, Response } from 'express';
 import { cfg } from '@/config/settings.config';
-import { getActiveAuthToken } from '@/features/account/account.service';
+import { accountTokenService } from '@/features/account/account.service';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
-import AccountTokenRepository from '@/features/account/account-token.repository';
-import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
+import { getAccountTokenRepository } from '@/features/account/account-token.repository';
+import UserEntity, {
+	UserRoleEnum,
+	UserStatusEnum,
+} from '@/features/user/user.entity';
 import { getUserRepository } from '@/features/user/user.repository';
-import { getPolicyPermissions } from '@/features/user/user.service';
+import { getUserPermissionRepository } from '@/features/user-permission/user-permission.repository';
 import {
 	compareMetaDataValue,
 	createFutureDate,
 	dateDiffInSeconds,
 	tokenMetaData,
 } from '@/lib/helpers';
+import { cacheProvider } from '@/lib/providers/cache.provider';
+
+async function getUserPermissions(user_id: number): Promise<string[]> {
+	const cacheKey = cacheProvider.buildKey(
+		UserEntity.NAME,
+		user_id.toString(),
+		'permissions',
+	);
+
+	return (await cacheProvider.get(
+		cacheKey,
+		async () => {
+			const userPermissions =
+				await getUserPermissionRepository().getUserPermissions(user_id);
+
+			const results: string[] = [];
+
+			userPermissions.forEach((userPermission) => {
+				results.push(
+					userPermission.permission_entity +
+						'.' +
+						userPermission.permission_operation,
+				);
+			});
+
+			return results;
+		},
+		1800,
+	)) as string[];
+}
 
 async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 	try {
@@ -30,14 +63,14 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 		let activeToken: AccountTokenEntity;
 
 		try {
-			activeToken = await getActiveAuthToken(req);
+			activeToken = await accountTokenService.getActiveAuthToken(req);
 		} catch {
 			return next();
 		}
 
 		// Check if the token is expired
 		if (activeToken.expire_at < new Date()) {
-			AccountTokenRepository.removeTokenById(activeToken.id);
+			getAccountTokenRepository().removeTokenById(activeToken.id);
 
 			return next();
 		}
@@ -74,7 +107,7 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 
 		// User was not found or inactive
 		if (!user || user.status !== UserStatusEnum.ACTIVE) {
-			AccountTokenRepository.removeTokenById(activeToken.id);
+			getAccountTokenRepository().removeTokenById(activeToken.id);
 
 			return next();
 		}
@@ -86,14 +119,14 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 		);
 
 		if (diffInSeconds < (cfg('user.authRefreshExpiresIn') as number)) {
-			await AccountTokenRepository.update(activeToken.id, {
+			await getAccountTokenRepository().update(activeToken.id, {
 				used_at: new Date(),
 				expire_at: createFutureDate(
 					cfg('user.authExpiresIn') as number,
 				),
 			});
 		} else {
-			await AccountTokenRepository.update(activeToken.id, {
+			await getAccountTokenRepository().update(activeToken.id, {
 				used_at: new Date(),
 			});
 		}
@@ -103,7 +136,7 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 			...user,
 			permissions:
 				user.role === UserRoleEnum.OPERATOR
-					? await getPolicyPermissions(user.id)
+					? await getUserPermissions(user.id)
 					: [],
 			activeToken: activeToken.ident,
 		};

@@ -20,7 +20,7 @@ class TemplateController {
 		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.create();
+		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = TemplateCreateValidator().safeParse(req.body);
@@ -36,7 +36,7 @@ class TemplateController {
 			.filterBy('label', validated.data.label)
 			.filterBy('language', validated.data.language)
 			.filterBy('type', validated.data.type)
-			.withDeleted(policy.allowDeleted())
+			.withDeleted(this.policy.allowDeleted(res.locals.auth))
 			.first();
 
 		if (existingTemplate) {
@@ -62,7 +62,7 @@ class TemplateController {
 		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		const cacheProvider = getCacheProvider();
 
@@ -76,11 +76,11 @@ class TemplateController {
 			return getTemplateRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.firstOrFail();
 		});
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(template);
 
 		res.json(res.locals.output);
@@ -90,7 +90,7 @@ class TemplateController {
 		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.update();
+		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = TemplateUpdateValidator().safeParse(req.body);
@@ -113,7 +113,7 @@ class TemplateController {
 			.filterBy('label', validated.data.label || template.label)
 			.filterBy('language', validated.data.language || template.language)
 			.filterBy('type', validated.data.type)
-			.withDeleted(policy.allowDeleted())
+			.withDeleted(this.policy.allowDeleted(res.locals.auth))
 			.first();
 
 		// Return error if the template already exists
@@ -142,7 +142,7 @@ class TemplateController {
 		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		await getTemplateRepository()
 			.createQuery()
@@ -158,7 +158,7 @@ class TemplateController {
 		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.restore();
+		this.policy.canRestore(res.locals.auth);
 
 		await getTemplateRepository()
 			.createQuery()
@@ -174,7 +174,7 @@ class TemplateController {
 		const policy = new TemplatePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = TemplateFindValidator().safeParse(req.query);
@@ -192,7 +192,8 @@ class TemplateController {
 			.filterBy('type', validated.data.filter.type)
 			.filterByTerm(validated.data.filter.term)
 			.withDeleted(
-				policy.allowDeleted() && validated.data.filter.is_deleted,
+				this.policy.allowDeleted(res.locals.auth) &&
+					validated.data.filter.is_deleted,
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)

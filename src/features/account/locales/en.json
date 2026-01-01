@@ -1,13 +1,11 @@
 {
 	"error": {
-		"already_logged_in": "Already logged in",
 		"not_found": "Account not found",
 		"not_active": "Inactive account",
 		"pending_account": "Pending account",
 		"already_active": "Account already active",
 		"not_authorized": "Invalid email or password",
 		"max_active_sessions": "Too many active sessions",
-		"not_logged_in": "Not logged in",
 		"recovery_attempts_exceeded": "Recovery attempts exceeded. Try again later",
 		"recovery_token_expired": "Recovery token expired",
 		"recovery_token_used": "Recovery token already used",

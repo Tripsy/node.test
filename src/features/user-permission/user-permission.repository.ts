@@ -12,9 +12,8 @@ export class UserPermissionQuery extends RepositoryAbstract<UserPermissionEntity
 	}
 }
 
-export const UserPermissionRepository = dataSource
-	.getRepository(UserPermissionEntity)
-	.extend({
+export const getUserPermissionRepository = () =>
+	dataSource.getRepository(UserPermissionEntity).extend({
 		createQuery() {
 			return new UserPermissionQuery(this);
 		},
@@ -27,5 +26,3 @@ export const UserPermissionRepository = dataSource
 				.all(false, true);
 		},
 	});
-
-export default UserPermissionRepository;

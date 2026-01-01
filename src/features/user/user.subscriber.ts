@@ -1,9 +1,10 @@
 import { EventSubscriber, type InsertEvent, type UpdateEvent } from 'typeorm';
 import { cfg } from '@/config/settings.config';
 import {
-	encryptPassword,
-	sendEmailConfirmCreate,
-	sendWelcomeEmail,
+	accountEmailService,
+	accountService,
+	type IAccountEmailService,
+	type IAccountService,
 } from '@/features/account/account.service';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
@@ -12,6 +13,8 @@ import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
 @EventSubscriber()
 export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 	protected readonly Entity = UserEntity;
+	private accountService: IAccountService;
+	private accountEmailService: IAccountEmailService;
 
 	constructor() {
 		super();
@@ -20,12 +23,15 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 			beforeRemove: true,
 			afterSoftRemove: true,
 		};
+
+		this.accountService = accountService;
+		this.accountEmailService = accountEmailService;
 	}
 
 	async beforeInsert(event: InsertEvent<UserEntity>) {
 		// Hash password before inserting a new user.
 		if (event.entity.password) {
-			event.entity.password = await encryptPassword(
+			event.entity.password = await this.accountService.encryptPassword(
 				event.entity.password,
 			);
 		}
@@ -41,7 +47,7 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 	async beforeUpdate(event: UpdateEvent<UserEntity>) {
 		// Hash the password before updating if it has changed.
 		if (event.entity?.password) {
-			event.entity.password = await encryptPassword(
+			event.entity.password = await this.accountService.encryptPassword(
 				event.entity.password,
 			);
 		}
@@ -54,10 +60,12 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 
 		switch (event.entity.status) {
 			case UserStatusEnum.ACTIVE:
-				await sendWelcomeEmail(event.entity);
+				await this.accountEmailService.sendWelcomeEmail(event.entity);
 				break;
 			case UserStatusEnum.PENDING:
-				await sendEmailConfirmCreate(event.entity);
+				await this.accountEmailService.sendEmailConfirmCreate(
+					event.entity,
+				);
 				break;
 		}
 	}
@@ -86,7 +94,7 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 			});
 
 			if (event.entity.status === UserStatusEnum.ACTIVE) {
-				await sendWelcomeEmail({
+				await this.accountEmailService.sendWelcomeEmail({
 					name: event.entity.name || event.databaseEntity.name,
 					email: event.entity.email || event.databaseEntity.email,
 					language:

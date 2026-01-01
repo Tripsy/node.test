@@ -18,9 +18,8 @@ export class AccountRecoveryQuery extends RepositoryAbstract<AccountRecoveryEnti
 	}
 }
 
-export const AccountRecoveryRepository = dataSource
-	.getRepository(AccountRecoveryEntity)
-	.extend({
+export const getAccountRecoveryRepository = () =>
+	dataSource.getRepository(AccountRecoveryEntity).extend({
 		createQuery() {
 			return new AccountRecoveryQuery(this);
 		},
@@ -31,5 +30,3 @@ export const AccountRecoveryRepository = dataSource
 		//         .delete(false);
 		// }
 	});
-
-export default AccountRecoveryRepository;

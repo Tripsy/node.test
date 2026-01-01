@@ -25,108 +25,46 @@ export const paramsUpdateList: string[] = [
 	'operator_type',
 ];
 
-export function UserCreateValidator() {
-	return z
-		.object({
-			name: validateStringMin(
-				lang('user.validation.name_invalid'),
-				cfg('user.nameMinLength') as number,
-				lang('user.validation.name_min', {
-					min: cfg('user.nameMinLength') as string,
-				}),
-			),
-			email: z.email({ message: lang('user.validation.email_invalid') }),
-			password: z
-				.string({ message: lang('user.validation.password_invalid') })
-				.min(cfg('user.passwordMinLength') as number, {
-					message: lang('user.validation.password_min', {
-						min: cfg('user.passwordMinLength') as string,
-					}),
-				})
-				.refine((value) => /[A-Z]/.test(value), {
-					message: lang(
-						'user.validation.password_condition_capital_letter',
-					),
-				})
-				.refine((value) => /[0-9]/.test(value), {
-					message: lang('user.validation.password_condition_number'),
-				})
-				.refine(
-					(value) => /[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]/.test(value),
-					{
-						message: lang(
-							'user.validation.password_condition_special_character',
-						),
-					},
-				),
-			password_confirm: z.string({
-				message: lang('user.validation.password_confirm_required'),
-			}),
-			language: z
-				.string()
-				.length(2, {
-					message: lang('user.validation.language_invalid'),
-				})
-				.optional(),
-			status: z
-				.enum(UserStatusEnum)
-				.optional()
-				.default(UserStatusEnum.PENDING),
-			role: z.enum(UserRoleEnum).optional().default(UserRoleEnum.MEMBER),
-			operator_type: z.enum(UserOperatorTypeEnum).nullable().optional(),
-		})
-		.superRefine(({ password, password_confirm }, ctx) => {
-			if (password !== password_confirm) {
-				ctx.addIssue({
-					path: ['password_confirm'],
-					message: lang('user.validation.password_confirm_mismatch'),
-					code: 'custom',
-				});
-			}
-		})
-		.superRefine(({ role, operator_type }, ctx) => {
-			if (role === UserRoleEnum.OPERATOR && !operator_type) {
-				ctx.addIssue({
-					path: ['operator_type'],
-					message: lang('user.validation.operator_type_required'),
-					code: 'custom',
-				});
-			}
-
-			if (role !== UserRoleEnum.OPERATOR && operator_type) {
-				ctx.addIssue({
-					path: ['operator_type'],
-					message: lang(
-						'user.validation.operator_type_only_for_operator',
-					),
-					code: 'custom',
-				});
-			}
-		});
+enum OrderByEnum {
+	ID = 'id',
+	NAME = 'name',
+	CREATED_AT = 'created_at',
+	UPDATED_AT = 'updated_at',
 }
 
-export function UserUpdateValidator() {
-	return z
-		.object({
-			name: validateStringMin(
-				lang('user.validation.name_invalid'),
-				cfg('user.nameMinLength') as number,
-				lang('user.validation.name_min', {
-					min: cfg('user.nameMinLength') as string,
+export interface IUserValidator {
+	create(): z.ZodTypeAny;
+	update(): z.ZodTypeAny;
+	find(): z.ZodTypeAny;
+}
+
+class UserValidator implements IUserValidator {
+	private readonly nameMinLength = cfg('user.nameMinLength') as number;
+	private readonly passwordMinLength = cfg(
+		'user.passwordMinLength',
+	) as number;
+	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+
+	public create() {
+		return z
+			.object({
+				name: validateStringMin(
+					lang('user.validation.name_invalid'),
+					this.nameMinLength,
+					lang('user.validation.name_min', {
+						min: this.nameMinLength.toString(),
+					}),
+				),
+				email: z.email({
+					message: lang('user.validation.email_invalid'),
 				}),
-			).optional(),
-			email: z
-				.email({ message: lang('user.validation.email_invalid') })
-				.optional(),
-			password: z.preprocess(
-				(val) => (val === '' ? undefined : val),
-				z
+				password: z
 					.string({
 						message: lang('user.validation.password_invalid'),
 					})
-					.min(cfg('user.passwordMinLength') as number, {
+					.min(this.passwordMinLength, {
 						message: lang('user.validation.password_min', {
-							min: cfg('user.passwordMinLength') as string,
+							min: this.passwordMinLength.toString(),
 						}),
 					})
 					.refine((value) => /[A-Z]/.test(value), {
@@ -147,109 +85,219 @@ export function UserUpdateValidator() {
 								'user.validation.password_condition_special_character',
 							),
 						},
-					)
-					.optional(),
-			),
-			password_confirm: nullableString(
-				lang('user.validation.password_confirm_required'),
-			),
-			language: z
-				.string()
-				.length(2, {
-					message: lang('user.validation.language_invalid'),
-				})
-				.optional(),
-			role: z.enum(UserRoleEnum).optional(),
-			operator_type: z.enum(UserOperatorTypeEnum).nullable().optional(),
-		})
-		.refine((data) => hasAtLeastOneValue(data), {
-			message: lang('shared.validation.params_at_least_one', {
-				params: paramsUpdateList.join(', '),
-			}),
-			path: ['_global'],
-		})
-		.superRefine(({ password, password_confirm }, ctx) => {
-			if (password !== password_confirm) {
-				ctx.addIssue({
-					path: ['password_confirm'],
-					message: lang('user.validation.password_confirm_mismatch'),
-					code: 'custom',
-				});
-			}
-		})
-		.superRefine(({ role, operator_type }, ctx) => {
-			// If the role is being set to OPERATOR, operator_type must be provided
-			if (
-				role === UserRoleEnum.OPERATOR &&
-				(operator_type === null || operator_type === undefined)
-			) {
-				ctx.addIssue({
-					path: ['operator_type'],
-					message: lang('user.validation.operator_type_required'),
-					code: 'custom',
-				});
-			}
-
-			// If the role is being set to something other than OPERATOR, operator_type must be null
-			if (
-				role &&
-				role !== UserRoleEnum.OPERATOR &&
-				operator_type !== null &&
-				operator_type !== undefined
-			) {
-				ctx.addIssue({
-					path: ['operator_type'],
-					message: lang(
-						'user.validation.operator_type_only_for_operator',
 					),
+				password_confirm: z.string({
+					message: lang('user.validation.password_confirm_required'),
+				}),
+				language: z
+					.string()
+					.length(2, {
+						message: lang('user.validation.language_invalid'),
+					})
+					.optional(),
+				status: z
+					.enum(UserStatusEnum)
+					.optional()
+					.default(UserStatusEnum.PENDING),
+				role: z
+					.enum(UserRoleEnum)
+					.optional()
+					.default(UserRoleEnum.MEMBER),
+				operator_type: z
+					.enum(UserOperatorTypeEnum)
+					.nullable()
+					.optional(),
+			})
+			.superRefine(({ password, password_confirm }, ctx) => {
+				if (password !== password_confirm) {
+					ctx.addIssue({
+						path: ['password_confirm'],
+						message: lang(
+							'user.validation.password_confirm_mismatch',
+						),
+						code: 'custom',
+					});
+				}
+			})
+			.superRefine(({ role, operator_type }, ctx) => {
+				if (role === UserRoleEnum.OPERATOR && !operator_type) {
+					ctx.addIssue({
+						path: ['operator_type'],
+						message: lang('user.validation.operator_type_required'),
+						code: 'custom',
+					});
+				}
+
+				if (role !== UserRoleEnum.OPERATOR && operator_type) {
+					ctx.addIssue({
+						path: ['operator_type'],
+						message: lang(
+							'user.validation.operator_type_only_for_operator',
+						),
+						code: 'custom',
+					});
+				}
+			});
+	}
+
+	public update() {
+		return z
+			.object({
+				name: validateStringMin(
+					lang('user.validation.name_invalid'),
+					this.nameMinLength,
+					lang('user.validation.name_min', {
+						min: this.nameMinLength.toString(),
+					}),
+				).optional(),
+				email: z
+					.email({ message: lang('user.validation.email_invalid') })
+					.optional(),
+				password: z.preprocess(
+					(val) => (val === '' ? undefined : val),
+					z
+						.string({
+							message: lang('user.validation.password_invalid'),
+						})
+						.min(this.passwordMinLength, {
+							message: lang('user.validation.password_min', {
+								min: this.passwordMinLength.toString(),
+							}),
+						})
+						.refine((value) => /[A-Z]/.test(value), {
+							message: lang(
+								'user.validation.password_condition_capital_letter',
+							),
+						})
+						.refine((value) => /[0-9]/.test(value), {
+							message: lang(
+								'user.validation.password_condition_number',
+							),
+						})
+						.refine(
+							(value) =>
+								/[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]/.test(value),
+							{
+								message: lang(
+									'user.validation.password_condition_special_character',
+								),
+							},
+						)
+						.optional(),
+				),
+				password_confirm: nullableString(
+					lang('user.validation.password_confirm_required'),
+				),
+				language: z
+					.string()
+					.length(2, {
+						message: lang('user.validation.language_invalid'),
+					})
+					.optional(),
+				role: z.enum(UserRoleEnum).optional(),
+				operator_type: z
+					.enum(UserOperatorTypeEnum)
+					.nullable()
+					.optional(),
+			})
+			.refine((data) => hasAtLeastOneValue(data), {
+				message: lang('shared.validation.params_at_least_one', {
+					params: paramsUpdateList.join(', '),
+				}),
+				path: ['_global'],
+			})
+			.superRefine(({ password, password_confirm }, ctx) => {
+				if (password !== password_confirm) {
+					ctx.addIssue({
+						path: ['password_confirm'],
+						message: lang(
+							'user.validation.password_confirm_mismatch',
+						),
+						code: 'custom',
+					});
+				}
+			})
+			.superRefine(({ role, operator_type }, ctx) => {
+				// If the role is being set to OPERATOR, operator_type must be provided
+				if (
+					role === UserRoleEnum.OPERATOR &&
+					(operator_type === null || operator_type === undefined)
+				) {
+					ctx.addIssue({
+						path: ['operator_type'],
+						message: lang('user.validation.operator_type_required'),
+						code: 'custom',
+					});
+				}
+
+				// If the role is being set to something other than OPERATOR, operator_type must be null
+				if (
+					role &&
+					role !== UserRoleEnum.OPERATOR &&
+					operator_type !== null &&
+					operator_type !== undefined
+				) {
+					ctx.addIssue({
+						path: ['operator_type'],
+						message: lang(
+							'user.validation.operator_type_only_for_operator',
+						),
+						code: 'custom',
+					});
+				}
+			});
+	}
+
+	public find() {
+		return makeFindValidator({
+			orderByEnum: OrderByEnum,
+			defaultOrderBy: OrderByEnum.ID,
+
+			directionEnum: OrderDirectionEnum,
+			defaultDirection: OrderDirectionEnum.ASC,
+
+			defaultLimit: this.defaultFilterLimit,
+			defaultPage: 1,
+
+			filterShape: {
+				id: z.coerce
+					.number({
+						message: lang('shared.validation.invalid_number'),
+					})
+					.optional(),
+				term: z
+					.string({
+						message: lang('shared.validation.invalid_string'),
+					})
+					.optional(),
+				status: z.enum(UserStatusEnum).optional(),
+				role: z.enum(UserRoleEnum).optional(),
+				create_date_start: validateDate(),
+				create_date_end: validateDate(),
+				is_deleted: validateBoolean().default(false),
+			},
+		}).superRefine((data, ctx) => {
+			if (
+				data.filter.create_date_start &&
+				data.filter.create_date_end &&
+				data.filter.create_date_start > data.filter.create_date_end
+			) {
+				ctx.addIssue({
+					path: ['filter', 'create_date_start'],
+					message: lang('shared.validation.invalid_date_range'),
 					code: 'custom',
 				});
 			}
 		});
+	}
 }
 
-enum OrderByEnum {
-	ID = 'id',
-	NAME = 'name',
-	CREATED_AT = 'created_at',
-	UPDATED_AT = 'updated_at',
-}
+export const userValidator = new UserValidator();
 
-export function UserFindValidator() {
-	return makeFindValidator({
-		orderByEnum: OrderByEnum,
-		defaultOrderBy: OrderByEnum.ID,
-
-		directionEnum: OrderDirectionEnum,
-		defaultDirection: OrderDirectionEnum.ASC,
-
-		defaultLimit: cfg('filter.limit') as number,
-		defaultPage: 1,
-
-		filterShape: {
-			id: z.coerce
-				.number({ message: lang('shared.validation.invalid_number') })
-				.optional(),
-			term: z
-				.string({ message: lang('shared.validation.invalid_string') })
-				.optional(),
-			status: z.enum(UserStatusEnum).optional(),
-			role: z.enum(UserRoleEnum).optional(),
-			create_date_start: validateDate(),
-			create_date_end: validateDate(),
-			is_deleted: validateBoolean().default(false),
-		},
-	}).superRefine((data, ctx) => {
-		if (
-			data.filter.create_date_start &&
-			data.filter.create_date_end &&
-			data.filter.create_date_start > data.filter.create_date_end
-		) {
-			ctx.addIssue({
-				path: ['filter', 'create_date_start'],
-				message: lang('shared.validation.invalid_date_range'),
-				code: 'custom',
-			});
-		}
-	});
-}
+export type UserValidatorCreateDto = z.infer<
+	ReturnType<UserValidator['create']>
+>;
+export type UserValidatorUpdateDto = z.infer<
+	ReturnType<UserValidator['update']>
+>;
+export type UserValidatorFindDto = z.infer<ReturnType<UserValidator['find']>>;

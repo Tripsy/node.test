@@ -1,4 +1,4 @@
-import UserController from '@/features/user/user.controller';
+import { userController } from '@/features/user/user.controller';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import {
 	validateParamsWhenId,
@@ -9,7 +9,7 @@ import type { RoutesConfigType } from '@/lib/types/routing.type';
 export default {
 	basePath: '/users',
 	documentation: 'users',
-	controller: UserController,
+	controller: userController,
 	routesConfig: {
 		create: {
 			path: '',
@@ -56,5 +56,5 @@ export default {
 				}),
 			],
 		},
-	} as RoutesConfigType<typeof UserController>,
+	} as RoutesConfigType<typeof userController>,
 };

@@ -267,6 +267,11 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		return this;
 	}
 
+	all(): Promise<TEntity[]>;
+	all(withCount: false): Promise<TEntity[]>;
+	all(withCount: true): Promise<[TEntity[], number]>;
+	all(withCount: false, isRaw: true): Promise<any[]>;
+	all(withCount: false, isRaw?: false): Promise<TEntity[]>;
 	all(withCount: boolean = false, isRaw: boolean = false) {
 		if (withCount) {
 			if (isRaw) {

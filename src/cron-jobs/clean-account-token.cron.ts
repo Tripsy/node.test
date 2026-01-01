@@ -1,9 +1,10 @@
-import AccountTokenRepository from '@/features/account/account-token.repository';
+import { getAccountTokenRepository } from '@/features/account/account-token.repository';
 import { createPastDate } from '@/lib/helpers';
 
 // Remove expired account tokens
 export const cleanAccountToken = async () => {
-	const countRemoved = await AccountTokenRepository.createQuery()
+	const countRemoved = await getAccountTokenRepository()
+		.createQuery()
 		.filterByRange('expire_at', undefined, createPastDate(86400))
 		.delete(false, true, true);
 

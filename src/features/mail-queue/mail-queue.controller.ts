@@ -18,7 +18,7 @@ class MailQueueController {
 		const policy = new MailQueuePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		const cacheProvider = getCacheProvider();
 
@@ -35,7 +35,7 @@ class MailQueueController {
 				.firstOrFail();
 		});
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(mailQueue);
 
 		res.json(res.locals.output);
@@ -45,7 +45,7 @@ class MailQueueController {
 		const policy = new MailQueuePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		const validated = MailQueueDeleteValidator().safeParse(req.body);
 
@@ -81,7 +81,7 @@ class MailQueueController {
 		const policy = new MailQueuePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = MailQueueFindValidator().safeParse(req.query);

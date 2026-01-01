@@ -14,7 +14,7 @@ class LogHistoryController {
 		const policy = new LogHistoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		const logHistory = await getLogHistoryRepository()
 			.createQuery()
@@ -31,7 +31,7 @@ class LogHistoryController {
 		const policy = new LogHistoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		const validated = LogHistoryDeleteValidator().safeParse(req.body);
 
@@ -61,7 +61,7 @@ class LogHistoryController {
 		const policy = new LogHistoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = LogHistoryFindValidator().safeParse(req.query);

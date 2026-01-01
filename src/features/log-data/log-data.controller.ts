@@ -16,7 +16,7 @@ class LogDataController {
 		const policy = new LogDataPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		const cacheProvider = getCacheProvider();
 
@@ -30,11 +30,11 @@ class LogDataController {
 			return getLogDataRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.firstOrFail();
 		});
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(logData);
 
 		res.json(res.locals.output);
@@ -44,7 +44,7 @@ class LogDataController {
 		const policy = new LogDataPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		const validated = LogDataDeleteValidator().safeParse(req.body);
 
@@ -74,7 +74,7 @@ class LogDataController {
 		const policy = new LogDataPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = LogDataFindValidator().safeParse(req.query);

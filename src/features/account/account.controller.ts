@@ -2,17 +2,6 @@ import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import AccountPolicy from '@/features/account/account.policy';
-import {
-	getActiveAuthToken,
-	getAuthValidTokens,
-	sendEmailConfirmCreate,
-	sendEmailConfirmUpdate,
-	setupRecovery,
-	setupToken,
-	updateUserPassword,
-	verifyPassword,
-} from '@/features/account/account.service';
 import {
 	AccountDeleteValidator,
 	AccountEditValidator,
@@ -25,8 +14,6 @@ import {
 	AccountRegisterValidator,
 	AccountRemoveTokenValidator,
 } from '@/features/account/account.validator';
-import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
-import AccountTokenRepository from '@/features/account/account-token.repository';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
 import { getUserRepository } from '@/features/user/user.repository';
 import {
@@ -138,7 +125,7 @@ class AccountController {
 			throw new BadRequestError(lang('account.error.not_active'));
 		}
 
-		const isValidPassword: boolean = await verifyPassword(
+		const isValidPassword: boolean = await checkPassword(
 			validated.data.password,
 			user.password,
 		);
@@ -165,7 +152,7 @@ class AccountController {
 				authValidTokens: authValidTokens,
 			});
 		} else {
-			const token = await setupToken(user, req);
+			const token = await setupAuthToken(user, req);
 
 			res.locals.output.message(lang('account.success.login'));
 			res.locals.output.data({
@@ -368,7 +355,7 @@ class AccountController {
 			}
 
 			// Update user password and remove all account tokens
-			await updateUserPassword(user, validated.data.password);
+			await updatePassword(user, validated.data.password);
 
 			// Mark the recovery token as used
 			await AccountRecoveryRepository.update(recovery.id, {
@@ -419,7 +406,7 @@ class AccountController {
 				.filterById(policy.getUserId())
 				.firstOrFail();
 
-			const isValidPassword: boolean = await verifyPassword(
+			const isValidPassword: boolean = await checkPassword(
 				validated.data.password_current,
 				user.password,
 			);
@@ -437,10 +424,10 @@ class AccountController {
 			}
 
 			// Update user password and remove all account tokens
-			await updateUserPassword(user, validated.data.password_new);
+			await updatePassword(user, validated.data.password_new);
 
 			// Generate new token
-			const token = await setupToken(user, req);
+			const token = await setupAuthToken(user, req);
 
 			res.locals.output.message(lang('account.success.password_updated'));
 			res.locals.output.data({
@@ -709,7 +696,7 @@ class AccountController {
 			.filterById(user_id)
 			.firstOrFail();
 
-		const isValidPassword: boolean = await verifyPassword(
+		const isValidPassword: boolean = await checkPassword(
 			validated.data.password_current,
 			user.password,
 		);

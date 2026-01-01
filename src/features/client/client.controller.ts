@@ -23,7 +23,7 @@ class ClientController {
 		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.create();
+		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = await ClientCreateValidator().safeParseAsync(
@@ -138,7 +138,7 @@ class ClientController {
 		});
 
 		res.locals.output.data(client);
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 
 		res.json(res.locals.output);
 	});
@@ -147,7 +147,7 @@ class ClientController {
 		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.update();
+		this.policy.canUpdate(res.locals.auth);
 
 		const client = await getClientRepository()
 			.createQuery()
@@ -210,7 +210,7 @@ class ClientController {
 		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		await getClientRepository()
 			.createQuery()
@@ -226,7 +226,7 @@ class ClientController {
 		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.restore();
+		this.policy.canRestore(res.locals.auth);
 
 		await getClientRepository()
 			.createQuery()
@@ -242,7 +242,7 @@ class ClientController {
 		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = ClientFindValidator().safeParse(req.query);
@@ -265,7 +265,8 @@ class ClientController {
 			)
 			.filterByTerm(validated.data.filter.term)
 			.withDeleted(
-				policy.allowDeleted() && validated.data.filter.is_deleted,
+				this.policy.allowDeleted(res.locals.auth) &&
+					validated.data.filter.is_deleted,
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
@@ -288,7 +289,7 @@ class ClientController {
 		const policy = new ClientPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.update();
+		this.policy.canUpdate(res.locals.auth);
 
 		const client = await getClientRepository()
 			.createQuery()

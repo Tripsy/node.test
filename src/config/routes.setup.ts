@@ -73,10 +73,13 @@ function buildRoutes<C>({
 
 		middleware.push(metaDocumentation(documentation, action as string));
 
+		const resolvedController =
+			typeof controller === 'function' ? controller() : controller;
+
 		router[method](
 			fullPath,
 			...middleware,
-			controller[action] as RequestHandler,
+			resolvedController[action] as RequestHandler,
 		);
 	});
 

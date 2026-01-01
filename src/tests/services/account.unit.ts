@@ -60,10 +60,10 @@
 // 		jest.clearAllMocks();
 // 	});
 //
-// 	// describe('createAuthToken', () => {
+// 	// describe('generateAuthToken', () => {
 // 	// 	it('should return token with ident and expiry', () => {
 // 	// 		// Act
-// 	// 		const result = accountService.createAuthToken(mockUser);
+// 	// 		const result = accountService.generateAuthToken(mockUser);
 // 	//
 // 	// 		// Assert - test YOUR function's output structure
 // 	// 		expect(result).toEqual({
@@ -74,7 +74,7 @@
 // 	// 	});
 // 	// });
 // 	//
-// 	// describe('setupToken', () => {
+// 	// describe('setupAuthToken', () => {
 // 	// 	it('should create token and save to repository', async () => {
 // 	// 		// Arrange
 // 	// 		const mockRequest = createRequest({
@@ -91,7 +91,7 @@
 // 	// 		});
 // 	//
 // 	// 		// Act
-// 	// 		const result = await accountService.setupToken(
+// 	// 		const result = await accountService.setupAuthToken(
 // 	// 			mockUser,
 // 	// 			mockRequest as any,
 // 	// 		);
@@ -110,7 +110,7 @@
 // 	// 				header === 'user-agent' ? 'Custom Agent' : '',
 // 	// 		});
 // 	//
-// 	// 		await accountService.setupToken(mockUser, mockRequest as any);
+// 	// 		await accountService.setupAuthToken(mockUser, mockRequest as any);
 // 	//
 // 	// 		// Here you'd assert that your metadata extraction works
 // 	// 		// But since repository.save is mocked, you can't verify what was saved

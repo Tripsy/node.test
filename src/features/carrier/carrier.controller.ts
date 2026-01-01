@@ -18,7 +18,7 @@ class CarrierController {
 		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.create();
+		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CarrierCreateValidator().safeParse(req.body);
@@ -32,7 +32,7 @@ class CarrierController {
 		const existingCarrier = await getCarrierRepository()
 			.createQuery()
 			.filterBy('name', validated.data.name)
-			.withDeleted(policy.allowDeleted())
+			.withDeleted(this.policy.allowDeleted(res.locals.auth))
 			.first();
 
 		if (existingCarrier) {
@@ -58,7 +58,7 @@ class CarrierController {
 		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		const cacheProvider = getCacheProvider();
 
@@ -72,11 +72,11 @@ class CarrierController {
 			return getCarrierRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.firstOrFail();
 		});
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(carrier);
 
 		res.json(res.locals.output);
@@ -86,7 +86,7 @@ class CarrierController {
 		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.update();
+		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CarrierUpdateValidator().safeParse(req.body);
@@ -109,7 +109,7 @@ class CarrierController {
 				.createQuery()
 				.filterBy('id', res.locals.validated.id, '!=')
 				.filterBy('name', validated.data.name)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.first();
 
 			// Return error if name already in use by another carrier
@@ -142,7 +142,7 @@ class CarrierController {
 		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		await getCarrierRepository()
 			.createQuery()
@@ -158,7 +158,7 @@ class CarrierController {
 		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.restore();
+		this.policy.canRestore(res.locals.auth);
 
 		await getCarrierRepository()
 			.createQuery()
@@ -174,7 +174,7 @@ class CarrierController {
 		const policy = new CarrierPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CarrierFindValidator().safeParse(req.query);
@@ -190,7 +190,8 @@ class CarrierController {
 			.filterById(validated.data.filter.id)
 			.filterByTerm(validated.data.filter.term)
 			.withDeleted(
-				policy.allowDeleted() && validated.data.filter.is_deleted,
+				this.policy.allowDeleted(res.locals.auth) &&
+					validated.data.filter.is_deleted,
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)

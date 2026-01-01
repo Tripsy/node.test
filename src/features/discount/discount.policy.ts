@@ -1,13 +1,12 @@
 import DiscountEntity from '@/features/discount/discount.entity';
 import PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import type { AuthContext } from '@/lib/types/express';
 
 class DiscountPolicy extends PolicyAbstract {
-	constructor(auth: AuthContext | undefined) {
+	constructor() {
 		const entity = DiscountEntity.NAME;
 
-		super(auth, entity);
+		super(entity);
 	}
 }
 
-export default DiscountPolicy;
+export const discountPolicy = new DiscountPolicy();

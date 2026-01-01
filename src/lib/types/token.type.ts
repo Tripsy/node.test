@@ -12,6 +12,6 @@ export type ConfirmationTokenPayload = {
 export type AuthValidToken = {
 	ident: string;
 	label: string;
-	used_at: Date;
+	used_at: Date | null;
 	used_now: false;
 };

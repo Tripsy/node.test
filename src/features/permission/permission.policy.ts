@@ -1,13 +1,12 @@
 import PermissionEntity from '@/features/permission/permission.entity';
 import PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import type { AuthContext } from '@/lib/types/express';
 
 class PermissionPolicy extends PolicyAbstract {
-	constructor(auth: AuthContext | undefined) {
+	constructor() {
 		const entity = PermissionEntity.NAME;
 
-		super(auth, entity);
+		super(entity);
 	}
 }
 
-export default PermissionPolicy;
+export const permissionPolicy = new PermissionPolicy();

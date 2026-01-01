@@ -4,26 +4,11 @@ import { cfg } from '@/config/settings.config';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 type CacheData = unknown;
-// type CacheData = string | string[] | number | boolean | null;
 
-class CacheProvider {
-	private static instance: CacheProvider;
-
+export class CacheProvider {
 	public isCached: boolean = false;
 
-	private constructor() {}
-
-	public static getInstance(): CacheProvider {
-		if (!CacheProvider.instance) {
-			CacheProvider.instance = new CacheProvider();
-		}
-
-		return CacheProvider.instance;
-	}
-
-	private get cache(): Redis {
-		return getRedisClient();
-	}
+	constructor(private readonly cache: Redis) {}
 
 	buildKey(...args: string[]) {
 		return args.join(':');
@@ -193,5 +178,5 @@ class CacheProvider {
 	}
 }
 
-export const getCacheProvider = (): CacheProvider =>
-	CacheProvider.getInstance();
+const redis = getRedisClient();
+export const cacheProvider = new CacheProvider(redis);

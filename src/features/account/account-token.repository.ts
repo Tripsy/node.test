@@ -18,9 +18,8 @@ export class AccountTokenQuery extends RepositoryAbstract<AccountTokenEntity> {
 	}
 }
 
-export const AccountTokenRepository = dataSource
-	.getRepository(AccountTokenEntity)
-	.extend({
+export const getAccountTokenRepository = () =>
+	dataSource.getRepository(AccountTokenEntity).extend({
 		createQuery() {
 			return new AccountTokenQuery(this);
 		},
@@ -29,5 +28,3 @@ export const AccountTokenRepository = dataSource
 			void this.createQuery().filterById(id).delete(false);
 		},
 	});
-
-export default AccountTokenRepository;

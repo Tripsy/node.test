@@ -1,63 +1,43 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import AccountTokenRepository from '@/features/account/account-token.repository';
-import UserEntity, { UserRoleEnum } from '@/features/user/user.entity';
-import UserPolicy from '@/features/user/user.policy';
-import { getUserRepository } from '@/features/user/user.repository';
+import UserEntity from '@/features/user/user.entity';
+import { userPolicy } from '@/features/user/user.policy';
+import { type IUserService, userService } from '@/features/user/user.service';
 import {
-	paramsUpdateList,
-	UserCreateValidator,
-	UserFindValidator,
-	UserUpdateValidator,
+	type IUserValidator,
+	type UserValidatorCreateDto,
+	type UserValidatorFindDto,
+	type UserValidatorUpdateDto,
+	userValidator,
 } from '@/features/user/user.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
-import {BadRequestError, CustomError} from "@/lib/exceptions";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
-class UserController {
+class UserController extends BaseController {
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: IUserValidator,
+		private cache: CacheProvider,
+		private userService: IUserService,
+	) {
+		super();
+	}
+
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(res.locals.auth);
+		this.policy.canCreate(res.locals.auth);
 
-		// Check permission (admin or operator with permission)
-		policy.create();
+		const data = this.validate<UserValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
-		// Validate against the schema
-		const validated = UserCreateValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const existingUser = await getUserRepository()
-			.createQuery()
-			.filterByEmail(validated.data.email)
-			.withDeleted(policy.allowDeleted())
-			.first();
-
-		if (existingUser) {
-			throw new CustomError(409, lang('user.error.email_already_used'));
-		}
-
-		const user = new UserEntity();
-		user.name = validated.data.name;
-		user.email = validated.data.email;
-		user.password = validated.data.password;
-		user.status = validated.data.status;
-		user.role = validated.data.role;
-
-		if (validated.data.role === UserRoleEnum.OPERATOR) {
-			user.operator_type = validated.data.operator_type ?? null;
-		} else {
-			user.operator_type = null;
-		}
-
-		if (validated.data.language) {
-			user.language = validated.data.language;
-		}
-
-		const entry: UserEntity = await getUserRepository().save(user);
+		const entry = await this.userService.create(data);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('user.success.create'));
@@ -66,103 +46,52 @@ class UserController {
 	});
 
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new UserPolicy(res.locals.auth);
+		this.policy.canRead(res.locals.auth);
 
-		// Check permission (admin, operator with permission or owner)
-		policy.read('user', res.locals.auth?.id);
-
-		const cacheProvider = getCacheProvider();
-
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			UserEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const user = await cacheProvider.get(cacheKey, async () => {
-			return (
-				getUserRepository()
-					.createQuery()
-					// .select(['id', 'name', 'email', 'status', 'created_at', 'updated_at'])
-					// .addSelect(['password'])
-					.filterById(res.locals.validated.id)
-					.withDeleted(policy.allowDeleted())
-					.firstOrFail()
-			);
-		});
+		const user = await this.cache.get(cacheKey, async () =>
+			this.userService.findById(
+				res.locals.validated.id,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(user);
 
 		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(res.locals.auth);
+		this.policy.canUpdate(res.locals.auth);
 
-		// Check permission (admin or operator with permission)
-		policy.update();
+		const data = this.validate<UserValidatorUpdateDto>(
+			this.validator.update(),
+			req.body,
+			res,
+		);
 
-		// Validate against the schema
-		const validated = UserUpdateValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const user = await getUserRepository()
-			.createQuery()
-			.select(paramsUpdateList)
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		const existingUser = await getUserRepository()
-			.createQuery()
-			.filterBy('id', res.locals.validated.id, '!=')
-			.filterByEmail(validated.data.email)
-			.first();
-
-		// Return error if email already in use by another account
-		if (existingUser) {
-			throw new CustomError(409, lang('user.error.email_already_used'));
-		}
-
-		// Remove all account tokens
-		if (validated.data.password || validated.data.email !== user.email) {
-			await AccountTokenRepository.createQuery()
-				.filterBy('user_id', user.id)
-				.delete(false, true);
-		}
-
-		const updatedEntity: Partial<UserEntity> = {
-			id: user.id,
-			...(Object.fromEntries(
-				Object.entries(validated.data).filter(([key]) =>
-					paramsUpdateList.includes(key as keyof UserEntity),
-				),
-			) as Partial<UserEntity>),
-		};
-
-		await getUserRepository().save(updatedEntity);
+		const entry = await this.userService.updateData(
+			res.locals.validated.id,
+			this.policy.allowDeleted(res.locals.auth),
+			data,
+		);
 
 		res.locals.output.message(lang('user.success.update'));
-		res.locals.output.data(updatedEntity);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new UserPolicy(res.locals.auth);
+		this.policy.canDelete(res.locals.auth);
 
-		// Check permission (admin or operator with permission)
-		policy.delete();
-
-		await getUserRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.delete();
+		await this.userService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('user.success.delete'));
 
@@ -170,15 +99,9 @@ class UserController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new UserPolicy(res.locals.auth);
+		this.policy.canRestore(res.locals.auth);
 
-		// Check permission (admin or operator with permission)
-		policy.restore();
-
-		await getUserRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.restore();
+		await this.userService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('user.success.restore'));
 
@@ -186,74 +109,41 @@ class UserController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new UserPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
-		const validated = UserFindValidator().safeParse(req.query);
+		const data = this.validate<UserValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const [entries, total] = await getUserRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterByStatus(validated.data.filter.status)
-			.filterBy('role', validated.data.filter.role)
-			.filterByRange(
-				'created_at',
-				validated.data.filter.create_date_start,
-				validated.data.filter.create_date_end,
-			)
-			.filterByTerm(validated.data.filter.term)
-			.withDeleted(
-				policy.allowDeleted() && validated.data.filter.is_deleted,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.userService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
 	});
 
 	public statusUpdate = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new UserPolicy(res.locals.auth);
+		this.policy.canUpdate(res.locals.auth);
 
-		// Check permission (admin or operator with permission)
-		policy.update();
-
-		const user = await getUserRepository()
-			.createQuery()
-			.select(['id', 'status'])
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		if (user.status === res.locals.validated.status) {
-			throw new BadRequestError(
-				lang('user.error.status_unchanged', {
-					status: res.locals.validated.status,
-				}),
-			);
-		}
-
-		user.status = res.locals.validated.status;
-
-		await getUserRepository().save(user);
+		await this.userService.updateStatus(
+			res.locals.validated.id,
+			res.locals.validated.status,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.message(lang('user.success.status_update'));
 
@@ -261,4 +151,23 @@ class UserController {
 	});
 }
 
-export default new UserController();
+export function createUserController(deps: {
+	policy: PolicyAbstract;
+	validator: IUserValidator;
+	cache: CacheProvider;
+	userService: IUserService;
+}) {
+	return new UserController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.userService,
+	);
+}
+
+export const userController = createUserController({
+	policy: userPolicy,
+	validator: userValidator,
+	cache: cacheProvider,
+	userService: userService,
+});

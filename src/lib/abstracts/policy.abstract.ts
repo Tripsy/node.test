@@ -3,71 +3,69 @@ import { NotAllowedError, UnauthorizedError } from '@/lib/exceptions';
 import type { AuthContext } from '@/lib/types/express';
 
 class PolicyAbstract {
-	protected entity: string;
+	constructor(readonly entity: string) {}
 
-	readonly userId: number | null;
-	readonly userRole: UserRoleEnum | 'visitor';
-	readonly userPermissions: string[];
-
-	constructor(auth: AuthContext | undefined, entity: string) {
-		this.entity = entity;
-		this.userId = auth?.id || null;
-		this.userRole = auth?.role || 'visitor';
-		this.userPermissions = auth?.permissions || [];
+	public getId(auth: AuthContext): number | undefined {
+		return auth?.id;
 	}
 
-	public getUserId(): number | null {
-		return this.userId;
+	public getRole(auth: AuthContext): string {
+		return auth?.role || 'visitor';
+	}
+
+	public getPermissions(auth: AuthContext): string[] {
+		return auth?.permissions || [];
 	}
 
 	public permission(operation: string, entity?: string): string {
 		return `${entity || this.entity}.${operation}`;
 	}
 
-	public isAuthenticated(): boolean {
-		return this.userId !== null;
+	public isAuthenticated(auth: AuthContext): boolean {
+		return this.getId(auth) !== null;
 	}
 
-	public isVisitor(): boolean {
-		return this.userRole === 'visitor';
+	public isVisitor(auth: AuthContext): boolean {
+		return this.getRole(auth) === 'visitor';
 	}
 
-	public isAdmin(): boolean {
-		return this.userRole === UserRoleEnum.ADMIN;
+	public isAdmin(auth: AuthContext): boolean {
+		return this.getRole(auth) === UserRoleEnum.ADMIN;
 	}
 
-	protected isOperator(): boolean {
-		return this.userRole === UserRoleEnum.OPERATOR;
+	protected isOperator(auth: AuthContext): boolean {
+		return this.getRole(auth) === UserRoleEnum.OPERATOR;
 	}
 
 	/**
 	 * Returns `true` if is operator and owns the permission
 	 *
+	 * @param auth
 	 * @param permission (e.g.: `user.delete`, `user.update`, etc...)
 	 */
-	public hasPermission(permission: string): boolean {
+	public hasPermission(auth: AuthContext, permission: string): boolean {
 		if (!/^[^.]+\.[^.]+$/.test(permission)) {
 			throw new Error(`Invalid permission format: ${permission}`);
 		}
 
-		return this.userPermissions.includes(permission);
+		return this.getPermissions(auth).includes(permission);
 	}
 
 	/**
 	 * Returns `true` if the user is the owner of the resource
 	 */
-	public isOwner(user_id?: number): boolean {
-		return this.userId === user_id;
+	public isOwner(auth: AuthContext, user_id: number): boolean {
+		return this.getId(auth) === user_id;
 	}
 
 	/**
 	 * Returns `true` if the user is admin or has the `delete` permission on the selected entity.
 	 * This method is used to allow permission `view` of soft deleted resources
 	 */
-	public allowDeleted(): boolean {
+	public allowDeleted(auth: AuthContext): boolean {
 		return (
-			this.isAdmin() ||
-			this.hasPermission(this.permission('delete', this.entity))
+			this.isAdmin(auth) ||
+			this.hasPermission(auth, this.permission('delete'))
 		);
 	}
 
@@ -75,58 +73,66 @@ class PolicyAbstract {
 	 * Check if the user is allowed to perform the operation
 	 * Returns `true` if the user is admin or the user is the owner of the resource or owns the permission
 	 */
-	public isAllowed(permission: string, user_id?: number): boolean {
-		return (
-			this.isOwner(user_id) ||
-			this.isAdmin() ||
-			this.hasPermission(permission)
-		);
+	public isAllowed(auth: AuthContext, permission: string): boolean {
+		return this.isAdmin(auth) || this.hasPermission(auth, permission);
 	}
 
-	public create(entity?: string): void {
-		if (!this.isAuthenticated()) {
+	public requiredAuth(auth: AuthContext): void {
+		if (!this.isAuthenticated(auth)) {
+			throw new UnauthorizedError();
+		}
+	}
+
+	public notAuth(auth: AuthContext): void {
+		if (!this.isVisitor(auth)) {
+			throw new UnauthorizedError();
+		}
+	}
+
+	public canCreate(auth: AuthContext, entity?: string): void {
+		if (!this.isAuthenticated(auth)) {
 			throw new UnauthorizedError();
 		}
 
 		const permission: string = this.permission('create', entity);
 
-		if (!this.isAdmin() && !this.hasPermission(permission)) {
+		if (!this.isAdmin(auth) && !this.hasPermission(auth, permission)) {
 			throw new NotAllowedError();
 		}
 	}
 
-	public read(entity?: string, user_id?: number): void {
-		if (!this.isAuthenticated()) {
+	public canRead(auth: AuthContext, entity?: string): void {
+		if (!this.isAuthenticated(auth)) {
 			throw new UnauthorizedError();
 		}
 
 		const permission: string = this.permission('read', entity);
 
-		if (!this.isAllowed(permission, user_id)) {
+		if (!this.isAllowed(auth, permission)) {
 			throw new NotAllowedError();
 		}
 	}
 
-	public update(entity?: string, user_id?: number): void {
-		if (!this.isAuthenticated()) {
+	public canUpdate(auth: AuthContext, entity?: string): void {
+		if (!this.isAuthenticated(auth)) {
 			throw new UnauthorizedError();
 		}
 
 		const permission: string = this.permission('update', entity);
 
-		if (!this.isAllowed(permission, user_id)) {
+		if (!this.isAllowed(auth, permission)) {
 			throw new NotAllowedError();
 		}
 	}
 
-	public delete(entity?: string, user_id?: number): void {
-		if (!this.isAuthenticated()) {
+	public canDelete(auth: AuthContext, entity?: string): void {
+		if (!this.isAuthenticated(auth)) {
 			throw new UnauthorizedError();
 		}
 
 		const permission: string = this.permission('delete', entity);
 
-		if (!this.isAllowed(permission, user_id)) {
+		if (!this.isAllowed(auth, permission)) {
 			throw new NotAllowedError();
 		}
 	}
@@ -134,21 +140,21 @@ class PolicyAbstract {
 	/**
 	 * Restore action is the same as delete
 	 *
+	 * @param auth
 	 * @param entity
-	 * @param user_id
 	 */
-	public restore(entity?: string, user_id?: number): void {
-		this.delete(entity, user_id);
+	public canRestore(auth: AuthContext, entity?: string): void {
+		this.canDelete(auth, entity);
 	}
 
-	public find(entity?: string): void {
-		if (!this.isAuthenticated()) {
+	public canFind(auth: AuthContext, entity?: string): void {
+		if (!this.isAuthenticated(auth)) {
 			throw new UnauthorizedError();
 		}
 
 		const permission: string = this.permission('find', entity);
 
-		if (!this.isAllowed(permission)) {
+		if (!this.isAllowed(auth, permission)) {
 			throw new NotAllowedError();
 		}
 	}

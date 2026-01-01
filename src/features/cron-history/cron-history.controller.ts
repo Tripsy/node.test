@@ -13,10 +13,7 @@ import { getCacheProvider } from '@/lib/providers/cache.provider';
 
 class CronHistoryController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new CronHistoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		const cacheProvider = getCacheProvider();
 
@@ -30,11 +27,11 @@ class CronHistoryController {
 			return getCronHistoryRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.firstOrFail();
 		});
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(cronHistory);
 
 		res.json(res.locals.output);
@@ -44,7 +41,7 @@ class CronHistoryController {
 		const policy = new CronHistoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		const validated = CronHistoryDeleteValidator().safeParse(req.body);
 
@@ -74,7 +71,7 @@ class CronHistoryController {
 		const policy = new CronHistoryPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = CronHistoryFindValidator().safeParse(req.query);

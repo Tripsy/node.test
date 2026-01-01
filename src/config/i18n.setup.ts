@@ -6,7 +6,7 @@ import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
 import { cfg } from '@/config/settings.config';
 import { buildSrcPath } from '@/lib/helpers';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import { cacheProvider } from '@/lib/providers/cache.provider';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 async function getNamespaces(): Promise<string[]> {
@@ -59,8 +59,6 @@ async function resolveNamespaces(): Promise<string[]> {
 	if (cfg('app.env') === 'test') {
 		return getNamespaces();
 	}
-
-	const cacheProvider = getCacheProvider();
 
 	const cacheKey = cacheProvider.buildKey('i18next', 'ns');
 

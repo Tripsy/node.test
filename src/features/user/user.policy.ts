@@ -1,13 +1,12 @@
 import UserEntity from '@/features/user/user.entity';
 import PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import type { AuthContext } from '@/lib/types/express';
 
 class UserPolicy extends PolicyAbstract {
-	constructor(auth: AuthContext | undefined) {
+	constructor() {
 		const entity = UserEntity.NAME;
 
-		super(auth, entity);
+		super(entity);
 	}
 }
 
-export default UserPolicy;
+export const userPolicy = new UserPolicy();

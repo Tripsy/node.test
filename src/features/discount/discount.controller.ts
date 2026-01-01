@@ -18,7 +18,7 @@ class DiscountController {
 		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.create();
+		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = DiscountCreateValidator().safeParse(req.body);
@@ -54,7 +54,7 @@ class DiscountController {
 		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		const cacheProvider = getCacheProvider();
 
@@ -68,11 +68,11 @@ class DiscountController {
 			return getDiscountRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.firstOrFail();
 		});
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(discount);
 
 		res.json(res.locals.output);
@@ -82,7 +82,7 @@ class DiscountController {
 		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.update();
+		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = DiscountUpdateValidator().safeParse(req.body);
@@ -120,7 +120,7 @@ class DiscountController {
 		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		await getDiscountRepository()
 			.createQuery()
@@ -136,7 +136,7 @@ class DiscountController {
 		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.restore();
+		this.policy.canRestore(res.locals.auth);
 
 		await getDiscountRepository()
 			.createQuery()
@@ -152,7 +152,7 @@ class DiscountController {
 		const policy = new DiscountPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = DiscountFindValidator().safeParse(req.query);
@@ -176,7 +176,8 @@ class DiscountController {
 			)
 			.filterByTerm(validated.data.filter.term)
 			.withDeleted(
-				policy.allowDeleted() && validated.data.filter.is_deleted,
+				this.policy.allowDeleted(res.locals.auth) &&
+					validated.data.filter.is_deleted,
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)

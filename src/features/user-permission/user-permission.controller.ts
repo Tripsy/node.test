@@ -15,7 +15,7 @@ class UserPermissionController {
 		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.create();
+		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = UserPermissionCreateValidator().safeParse(req.body);
@@ -84,7 +84,7 @@ class UserPermissionController {
 		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		await UserPermissionRepository.createQuery()
 			.filterBy('user_id', res.locals.validated.user_id)
@@ -100,7 +100,7 @@ class UserPermissionController {
 		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.restore();
+		this.policy.canRestore(res.locals.auth);
 
 		await UserPermissionRepository.createQuery()
 			.filterById(res.locals.validated.id)
@@ -116,7 +116,7 @@ class UserPermissionController {
 		const policy = new PermissionPolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = UserPermissionFindValidator().safeParse(req.query);
@@ -138,7 +138,8 @@ class UserPermissionController {
 				'LIKE',
 			)
 			.withDeleted(
-				policy.allowDeleted() && validated.data.filter.is_deleted,
+				this.policy.allowDeleted(res.locals.auth) &&
+					validated.data.filter.is_deleted,
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)

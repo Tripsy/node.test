@@ -1,13 +1,12 @@
 import PlaceEntity from '@/features/place/place.entity';
 import PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import type { AuthContext } from '@/lib/types/express';
 
 class PlacePolicy extends PolicyAbstract {
-	constructor(auth: AuthContext | undefined) {
+	constructor() {
 		const entity = PlaceEntity.NAME;
 
-		super(auth, entity);
+		super(entity);
 	}
 }
 
-export default PlacePolicy;
+export const placePolicy = new PlacePolicy();

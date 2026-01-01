@@ -20,7 +20,7 @@ class PlaceController {
 		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.create();
+		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = PlaceCreateValidator().safeParse(req.body);
@@ -60,7 +60,7 @@ class PlaceController {
 		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.read();
+		this.policy.canRead(res.locals.auth);
 
 		const cacheProvider = getCacheProvider();
 
@@ -93,7 +93,7 @@ class PlaceController {
 					},
 				)
 				.filterById(res.locals.validated.id)
-				.withDeleted(policy.allowDeleted())
+				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.firstOrFail();
 
 			const content = placeData.contents?.[0];
@@ -122,7 +122,7 @@ class PlaceController {
 			};
 		});
 
-		res.locals.output.meta(cacheProvider.isCached, 'isCached');
+		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(place);
 
 		res.json(res.locals.output);
@@ -132,7 +132,7 @@ class PlaceController {
 		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.update();
+		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
 		const validated = PlaceUpdateValidator().safeParse(req.body);
@@ -201,7 +201,7 @@ class PlaceController {
 		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.delete();
+		this.policy.canDelete(res.locals.auth);
 
 		const hasChildren = await getPlaceRepository()
 			.createQuery()
@@ -228,7 +228,7 @@ class PlaceController {
 		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.restore();
+		this.policy.canRestore(res.locals.auth);
 
 		await getPlaceRepository()
 			.createQuery()
@@ -244,7 +244,7 @@ class PlaceController {
 		const policy = new PlacePolicy(res.locals.auth);
 
 		// Check permission (admin or operator with permission)
-		policy.find();
+		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
 		const validated = PlaceFindValidator().safeParse(req.query);
@@ -301,7 +301,8 @@ class PlaceController {
 			.filterByTerm(validated.data.filter.term)
 			.filterBy('place.type', validated.data.filter.type)
 			.withDeleted(
-				policy.allowDeleted() && validated.data.filter.is_deleted,
+				this.policy.allowDeleted(res.locals.auth) &&
+					validated.data.filter.is_deleted,
 			)
 			.orderBy(validated.data.order_by, validated.data.direction)
 			.pagination(validated.data.page, validated.data.limit)
