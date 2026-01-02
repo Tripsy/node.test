@@ -16,13 +16,21 @@ import CategoryContentRepository from '@/features/category/category-content.repo
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {categoryPolicy} from "@/features/category/category.policy";
 
-class CategoryController {
+class CategoryController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: ICategoryValidator,
+        private cache: CacheProvider,
+        private categoryService: ICategoryService,
+    ) {
+        super();
+    }
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CategoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
@@ -85,9 +93,6 @@ class CategoryController {
 	});
 
 	public read = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CategoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
 
 		// Validate against the schema
@@ -98,8 +103,6 @@ class CategoryController {
 
 			throw new BadRequestError();
 		}
-
-		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
 			CategoryEntity.NAME,
@@ -206,9 +209,6 @@ class CategoryController {
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CategoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
@@ -322,9 +322,6 @@ class CategoryController {
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new CategoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		const category = await getCategoryRepository()
@@ -361,9 +358,6 @@ class CategoryController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new CategoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRestore(res.locals.auth);
 
 		const category = await getCategoryRepository()
@@ -399,9 +393,6 @@ class CategoryController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CategoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
@@ -477,9 +468,6 @@ class CategoryController {
 	});
 
 	public statusUpdate = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CategoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
@@ -560,4 +548,23 @@ class CategoryController {
 	});
 }
 
-export default new CategoryController();
+export function createCategoryController(deps: {
+    policy: PolicyAbstract;
+    validator: ICategoryValidator;
+    cache: CacheProvider;
+    categoryService: ICategoryService;
+}) {
+    return new CategoryController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.categoryService,
+    );
+}
+
+export const categoryController = createCategoryController({
+    policy: categoryPolicy,
+    validator: categoryValidator,
+    cache: cacheProvider,
+    categoryService: categoryService,
+});

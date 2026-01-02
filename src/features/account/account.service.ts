@@ -14,7 +14,7 @@ import {
 	type AccountTokenQuery,
 	getAccountTokenRepository,
 } from '@/features/account/account-token.repository';
-import type UserEntity from '@/features/user/user.entity';
+import UserEntity, {UserStatusEnum} from '@/features/user/user.entity';
 import { type IUserService, userService } from '@/features/user/user.service';
 import {
 	createFutureDate,
@@ -30,6 +30,10 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/lib/types/token.type';
+import {AccountValidatorRegisterDto} from "@/features/account/account.validator";
+import {getUserRepository} from "@/features/user/user.repository";
+import {BadRequestError, CustomError, NotFoundError} from "@/lib/exceptions";
+import {lang} from "@/config/i18n.setup";
 
 export interface IAccountRecoveryService {
 	setupRecovery(
@@ -38,6 +42,10 @@ export interface IAccountRecoveryService {
 	): Promise<[string, Date]>;
 
 	removeAccountRecoveryForUser(user_id: number): Promise<void>;
+
+    countRecoveryAttempts(user_id: number, sinceDate: Date): Promise<number>;
+
+    findByIdent(ident: string, fields?: string[]): Promise<AccountRecoveryEntity | null>;
 }
 
 class AccountRecoveryService implements IAccountRecoveryService {
@@ -79,19 +87,35 @@ class AccountRecoveryService implements IAccountRecoveryService {
 			.filterBy('user_id', user_id)
 			.delete(false, true);
 	}
+
+    public async countRecoveryAttempts(user_id: number, sinceDate: Date) {
+        return this.accountRecoveryRepository
+            .createQuery()
+            .filterBy('user_id', user_id)
+            .filterByRange('created_at', sinceDate)
+            .count();
+    }
+
+    public async findByIdent(ident: string, fields = ['id', 'user_id', 'metadata', 'used_at', 'expire_at']) {
+        return this.accountRecoveryRepository
+            .createQuery()
+            .select(fields)
+            .filterByIdent(ident)
+            .first();
+    }
 }
 
 export interface IAccountService {
 	encryptPassword(password: string): Promise<string>;
-
 	checkPassword(password: string, hashedPassword: string): Promise<boolean>;
-
 	updatePassword(user: UserEntity, password: string): Promise<void>;
+    register(data: AccountValidatorRegisterDto, language: string): Promise<UserEntity>;
 }
 
 class AccountService implements IAccountService {
 	constructor(
 		private userService: IUserService,
+        private userRepository: Repository<UserEntity>,
 		private accountRecoveryService: IAccountRecoveryService,
 	) {}
 
@@ -130,6 +154,32 @@ class AccountService implements IAccountService {
 
 		await this.accountRecoveryService.removeAccountRecoveryForUser(user.id);
 	}
+
+    public async register(data: AccountValidatorRegisterDto, language: string): Promise<UserEntity> {
+        const existingUser = await this.userService.checkIfExistByEmail(data.email, true);
+
+        if (existingUser) {
+            if (existingUser.status === UserStatusEnum.PENDING) {
+                throw new CustomError(
+                    409,
+                    lang('account.error.pending_account'),
+                );
+            } else {
+                throw new BadRequestError(
+                    lang('account.error.email_already_used'),
+                );
+            }
+        }
+
+        const entry = {
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            language: data.language || language
+        };
+
+        return this.userRepository.save(entry);
+    }
 }
 
 export interface IAccountEmailService {
@@ -155,6 +205,15 @@ export interface IAccountEmailService {
 		email: string;
 		language: string;
 	}): Promise<void>;
+
+    sendEmailPasswordRecover(user: {
+        name: string;
+        email: string;
+        language: string;
+    }, token: {
+        ident: string;
+        expire_at: Date;
+    }): Promise<void>;
 }
 
 class AccountEmailService implements IAccountEmailService {
@@ -238,6 +297,34 @@ class AccountEmailService implements IAccountEmailService {
 			address: user.email,
 		});
 	}
+
+    public async sendEmailPasswordRecover(
+        user: Partial<UserEntity> & {
+            name: string;
+            email: string;
+            language: string;
+        },
+        token: Partial<AccountRecoveryEntity> & {
+            ident: string,
+            expire_at: Date,
+        }
+    ): Promise<void> {
+        const emailTemplate: EmailTemplate = await loadEmailTemplate(
+            'password-recover',
+            user.language,
+        );
+
+        emailTemplate.content.vars = {
+            name: user.name,
+            ident: token.ident,
+            expire_at: token.expire_at.toISOString(),
+        };
+
+        await queueEmail(emailTemplate, {
+            name: user.name,
+            address: user.email,
+        });
+    }
 }
 
 export interface IAccountTokenService {
@@ -257,6 +344,8 @@ export interface IAccountTokenService {
 	): Promise<string>;
 
 	removeAccountTokenForUser(user_id: number): Promise<void>;
+
+    removeAccountTokenByIdent(ident: string): Promise<void>;
 
 	getAuthValidTokens(user_id: number): Promise<AuthValidToken[]>;
 
@@ -304,7 +393,7 @@ class AccountTokenService implements IAccountTokenService {
 				cfg('user.authSecret') as string,
 			) as AuthTokenPayload;
 		} catch (err) {
-			throw new Error(`Unable to verify token ${getErrorMessage(err)}`);
+			throw new CustomError(406, `Unable to verify token ${getErrorMessage(err)}`);
 		}
 
 		const activeToken = await this.accountTokenRepository
@@ -314,7 +403,7 @@ class AccountTokenService implements IAccountTokenService {
 			.first();
 
 		if (!activeToken) {
-			throw new Error('No active token found');
+			throw new NotFoundError('No active token found');
 		}
 
 		return activeToken;
@@ -419,6 +508,16 @@ class AccountTokenService implements IAccountTokenService {
 			.delete(false, true);
 	}
 
+    /**
+     * @description Removes a single auth token for a user
+     */
+    public async removeAccountTokenByIdent(ident: string): Promise<void> {
+        await this.accountTokenRepository
+            .createQuery()
+            .filterByIdent(ident)
+            .delete(false);
+    }
+
 	/**
 	 * This method has a double utility:
 	 *  - creates a JWT token which is used to confirm the email address of the user on account creation
@@ -472,6 +571,7 @@ export const accountRecoveryService = new AccountRecoveryService(
 
 export const accountService = new AccountService(
 	userService,
+    getUserRepository(),
 	accountRecoveryService,
 );
 

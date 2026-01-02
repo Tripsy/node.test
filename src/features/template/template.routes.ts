@@ -1,4 +1,4 @@
-import TemplateController from '@/features/template/template.controller';
+import {templateController} from '@/features/template/template.controller';
 import {
 	validateParamsWhenId,
 	validateParamsWhenString,
@@ -8,7 +8,7 @@ import type { RoutesConfigType } from '@/lib/types/routing.type';
 export default {
 	basePath: '/templates',
 	documentation: 'templates',
-	controller: TemplateController,
+	controller: templateController,
 	routesConfig: {
 		create: {
 			path: '',
@@ -50,5 +50,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof TemplateController>,
+	} as RoutesConfigType<typeof templateController>,
 };

@@ -1,11 +1,11 @@
-import DiscountController from '@/features/discount/discount.controller';
+import {discountController} from '@/features/discount/discount.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/discounts',
 	documentation: 'discounts',
-	controller: DiscountController,
+	controller: discountController,
 	routesConfig: {
 		create: {
 			path: '',
@@ -41,5 +41,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof DiscountController>,
+	} as RoutesConfigType<typeof discountController>,
 };

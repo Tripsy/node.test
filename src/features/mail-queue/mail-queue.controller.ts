@@ -3,7 +3,6 @@ import { eventEmitter } from '@/config/event.config';
 import { lang } from '@/config/i18n.setup';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
-import MailQueuePolicy from '@/features/mail-queue/mail-queue.policy';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import {
 	MailQueueDeleteValidator,
@@ -11,16 +10,23 @@ import {
 } from '@/features/mail-queue/mail-queue.validator';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {mailQueuePolicy} from "@/features/mail-queue/mail-queue.policy";
 
-class MailQueueController {
+class MailQueueController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: IMailQueueValidator,
+        private cache: CacheProvider,
+        private mailQueueService: IMailQueueService,
+    ) {
+        super();
+    }
+    
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
-
-		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
 			MailQueueEntity.NAME,
@@ -42,9 +48,6 @@ class MailQueueController {
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		const validated = MailQueueDeleteValidator().safeParse(req.body);
@@ -78,9 +81,6 @@ class MailQueueController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
@@ -139,4 +139,23 @@ class MailQueueController {
 	});
 }
 
-export default new MailQueueController();
+export function createMailQueueController(deps: {
+    policy: PolicyAbstract;
+    validator: IMailQueueValidator;
+    cache: CacheProvider;
+    mailQueueService: IMailQueueService;
+}) {
+    return new MailQueueController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.mailQueueService,
+    );
+}
+
+export const mailQueueController = createMailQueueController({
+    policy: mailQueuePolicy,
+    validator: mailQueueValidator,
+    cache: cacheProvider,
+    mailQueueService: mailQueueService,
+});

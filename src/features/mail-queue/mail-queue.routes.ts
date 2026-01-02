@@ -1,11 +1,11 @@
-import MailQueueController from '@/features/mail-queue/mail-queue.controller';
+import {mailQueueController} from '@/features/mail-queue/mail-queue.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/mail-queue',
 	documentation: 'mail-queue',
-	controller: MailQueueController,
+	controller: mailQueueController,
 	routesConfig: {
 		read: {
 			path: '/:id',
@@ -23,5 +23,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof MailQueueController>,
+	} as RoutesConfigType<typeof mailQueueController>,
 };

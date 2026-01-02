@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import DiscountEntity from '@/features/discount/discount.entity';
-import DiscountPolicy from '@/features/discount/discount.policy';
 import { getDiscountRepository } from '@/features/discount/discount.repository';
 import {
 	DiscountCreateValidator,
@@ -11,13 +10,21 @@ import {
 } from '@/features/discount/discount.validator';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {discountPolicy} from "@/features/discount/discount.policy";
 
-class DiscountController {
+class DiscountController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: IDiscountValidator,
+        private cache: CacheProvider,
+        private discountService: IDiscountService,
+    ) {
+        super();
+    }
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
@@ -51,12 +58,7 @@ class DiscountController {
 	});
 
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new DiscountPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
-
-		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
 			DiscountEntity.NAME,
@@ -79,9 +81,6 @@ class DiscountController {
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
 		// Validate against the schema
@@ -117,9 +116,6 @@ class DiscountController {
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new DiscountPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		await getDiscountRepository()
@@ -133,9 +129,6 @@ class DiscountController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new DiscountPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRestore(res.locals.auth);
 
 		await getDiscountRepository()
@@ -149,9 +142,6 @@ class DiscountController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new DiscountPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
@@ -197,4 +187,23 @@ class DiscountController {
 	});
 }
 
-export default new DiscountController();
+export function createDiscountController(deps: {
+    policy: PolicyAbstract;
+    validator: IDiscountValidator;
+    cache: CacheProvider;
+    discountService: IDiscountService;
+}) {
+    return new DiscountController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.discountService,
+    );
+}
+
+export const discountController = createDiscountController({
+    policy: discountPolicy,
+    validator: discountValidator,
+    cache: cacheProvider,
+    discountService: discountService,
+});

@@ -38,6 +38,7 @@ export interface IUserService
 		withDeleted: boolean,
 		excludeId?: number,
 	): Promise<UserEntity | null>;
+    findByEmail(email: string, fields?: string[]): Promise<UserEntity | null>;
 }
 
 class UserService implements IUserService {
@@ -176,6 +177,14 @@ class UserService implements IUserService {
 			.withDeleted(withDeleted)
 			.firstOrFail();
 	}
+
+    public findByEmail(email: string, fields: string[] = ['id', 'password', 'status']) {
+        return this.userRepository
+            .createQuery()
+            .select(fields)
+            .filterByEmail(email)
+            .first();
+    }
 
 	public findByFilter(data: UserValidatorFindDto, withDeleted: boolean) {
 		return this.userRepository

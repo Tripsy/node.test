@@ -1,4 +1,4 @@
-import ClientController from '@/features/client/client.controller';
+import {clientController} from '@/features/client/client.controller';
 import { ClientStatusEnum } from '@/features/client/client.entity';
 import {
 	validateParamsWhenId,
@@ -9,7 +9,7 @@ import type { RoutesConfigType } from '@/lib/types/routing.type';
 export default {
 	basePath: '/clients',
 	documentation: 'clients',
-	controller: ClientController,
+	controller: clientController,
 	routesConfig: {
 		create: {
 			path: '',
@@ -59,5 +59,5 @@ export default {
 				}),
 			],
 		},
-	} as RoutesConfigType<typeof ClientController>,
+	} as RoutesConfigType<typeof clientController>,
 };

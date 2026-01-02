@@ -1,11 +1,13 @@
-import UserPermissionController from '@/features/user-permission/user-permission.controller';
+import {
+    userPermissionController
+} from '@/features/user-permission/user-permission.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/users',
 	documentation: 'user-permission',
-	controller: UserPermissionController,
+	controller: userPermissionController,
 	routesConfig: {
 		create: {
 			path: '/:user_id/permissions',
@@ -31,5 +33,5 @@ export default {
 			action: 'find',
 			handlers: [validateParamsWhenId('user_id')],
 		},
-	} as RoutesConfigType<typeof UserPermissionController>,
+	} as RoutesConfigType<typeof userPermissionController>,
 };

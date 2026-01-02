@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
-import CronHistoryPolicy from '@/features/cron-history/cron-history.policy';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import {
 	CronHistoryDeleteValidator,
@@ -9,13 +8,22 @@ import {
 } from '@/features/cron-history/cron-history.validator';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {cronHistoryPolicy} from "@/features/cron-history/cron-history.policy";
 
-class CronHistoryController {
+class CronHistoryController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: ICronHistoryValidator,
+        private cache: CacheProvider,
+        private cronHistoryService: ICronHistoryService,
+    ) {
+        super();
+    }
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
-
-		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
 			CronHistoryEntity.NAME,
@@ -38,9 +46,6 @@ class CronHistoryController {
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CronHistoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		const validated = CronHistoryDeleteValidator().safeParse(req.body);
@@ -68,9 +73,6 @@ class CronHistoryController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CronHistoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
@@ -110,4 +112,23 @@ class CronHistoryController {
 	});
 }
 
-export default new CronHistoryController();
+export function createCronHistoryController(deps: {
+    policy: PolicyAbstract;
+    validator: ICronHistoryValidator;
+    cache: CacheProvider;
+    cronHistoryService: ICronHistoryService;
+}) {
+    return new CronHistoryController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.cronHistoryService,
+    );
+}
+
+export const cronHistoryController = createCronHistoryController({
+    policy: cronHistoryPolicy,
+    validator: cronHistoryValidator,
+    cache: cacheProvider,
+    cronHistoryService: cronHistoryService,
+});

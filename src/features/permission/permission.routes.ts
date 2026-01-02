@@ -1,11 +1,11 @@
-import PermissionController from '@/features/permission/permission.controller';
+import {permissionController} from '@/features/permission/permission.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/permissions',
 	documentation: 'permissions',
-	controller: PermissionController,
+	controller: permissionController,
 	routesConfig: {
 		create: {
 			path: '',
@@ -41,5 +41,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof PermissionController>,
+	} as RoutesConfigType<typeof permissionController>,
 };

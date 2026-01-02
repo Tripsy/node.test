@@ -1,4 +1,4 @@
-import CategoryController from '@/features/category/category.controller';
+import {categoryController} from '@/features/category/category.controller';
 import { CategoryStatusEnum } from '@/features/category/category.entity';
 import {
 	validateParamsWhenId,
@@ -9,7 +9,7 @@ import type { RoutesConfigType } from '@/lib/types/routing.type';
 export default {
 	basePath: '/categories',
 	documentation: 'categories',
-	controller: CategoryController,
+	controller: categoryController,
 	routesConfig: {
 		create: {
 			path: '',
@@ -59,5 +59,5 @@ export default {
 				}),
 			],
 		},
-	} as RoutesConfigType<typeof CategoryController>,
+	} as RoutesConfigType<typeof categoryController>,
 };

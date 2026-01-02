@@ -2,20 +2,7 @@ import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import {
-	AccountDeleteValidator,
-	AccountEditValidator,
-	AccountEmailConfirmSendValidator,
-	AccountEmailUpdateValidator,
-	AccountLoginValidator,
-	AccountPasswordRecoverChangeValidator,
-	AccountPasswordRecoverValidator,
-	AccountPasswordUpdateValidator,
-	AccountRegisterValidator,
-	AccountRemoveTokenValidator,
-} from '@/features/account/account.validator';
-import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
-import { getUserRepository } from '@/features/user/user.repository';
+import { UserStatusEnum } from '@/features/user/user.entity';
 import {
 	BadRequestError,
 	CustomError,
@@ -26,7 +13,6 @@ import {
 import {
 	compareMetaDataValue,
 	createPastDate,
-	getClientIp,
 	tokenMetaData,
 } from '@/lib/helpers';
 import asyncHandler from '@/lib/helpers/async.handler';
@@ -36,48 +22,47 @@ import type {
 	AuthValidToken,
 	ConfirmationTokenPayload,
 } from '@/lib/types/token.type';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {
+    accountEmailService,
+    accountRecoveryService,
+    accountService,
+    accountTokenService, IAccountEmailService, IAccountRecoveryService,
+    IAccountService,
+    IAccountTokenService
+} from "@/features/account/account.service";
+import {accountPolicy} from "@/features/account/account.policy";
+import {
+    accountValidator,
+    AccountValidatorLoginDto, AccountValidatorPasswordRecoverChangeDto, AccountValidatorPasswordRecoverDto,
+    AccountValidatorRegisterDto, AccountValidatorRemoveTokenDto,
+    IAccountValidator
+} from "@/features/account/account.validator";
+import {IUserService, userService} from "@/features/user/user.service";
 
-class AccountController {
+class AccountController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: IAccountValidator,
+        private accountService: IAccountService,
+        private accountTokenService: IAccountTokenService,
+        private accountRecoveryService: IAccountRecoveryService,
+        private accountEmailService: IAccountEmailService,
+        private userService: IUserService,
+    ) {
+        super();
+    }
 	public register = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(res.locals.auth);
+        this.policy.notAuth(res.locals.auth);
 
-		// Check permission (should not be authenticated)
-		policy.register();
+        const data = this.validate<AccountValidatorRegisterDto>(
+            this.validator.register(),
+            req.body,
+            res,
+        );
 
-		// Validate against the schema
-		const validated = AccountRegisterValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const existingUser = await getUserRepository()
-			.createQuery()
-			.filterByEmail(validated.data.email)
-			.first();
-
-		if (existingUser) {
-			if (existingUser.status === UserStatusEnum.PENDING) {
-				throw new CustomError(
-					409,
-					lang('account.error.pending_account'),
-				);
-			} else {
-				throw new BadRequestError(
-					lang('account.error.email_already_used'),
-				);
-			}
-		}
-
-		const user = new UserEntity();
-		user.name = validated.data.name;
-		user.email = validated.data.email;
-		user.password = validated.data.password;
-		user.language = validated.data.language || res.locals.lang;
-
-		const entry: UserEntity = await getUserRepository().save(user);
+        const entry = await this.accountService.register(data, res.locals.lang);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('account.success.register'));
@@ -86,58 +71,38 @@ class AccountController {
 	});
 
 	public login = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(res.locals.auth);
+        this.policy.notAuth(res.locals.auth);
 
-		// Check permission (should not be authenticated)
-		policy.login();
+        const data = this.validate<AccountValidatorLoginDto>(
+            this.validator.login(),
+            req.body,
+            res,
+        );
 
-		// Validate against the schema
-		const validated = AccountLoginValidator().safeParse(req.body);
+        const user = await this.userService.findByEmail(data.email);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const ipKey = `failed_login:ip:${getClientIp(req)}`;
-		const emailKey = `failed_login:email:${validated.data.email}`;
-
-		await policy.checkRateLimitOnLogin(ipKey, emailKey);
-
-		const user = await getUserRepository()
-			.createQuery()
-			.select(['id', 'password', 'status'])
-			.filterByEmail(validated.data.email)
-			.firstOrFail();
+        if (!user) {
+            throw new NotFoundError(lang('account.error.not_found'));
+        }
 
 		if (user.status === UserStatusEnum.PENDING) {
-			// Update failed login attempts
-			await policy.updateFailedAttemptsOnLogin(ipKey, emailKey);
-
 			throw new CustomError(409, lang('account.error.pending_account'));
 		}
 
 		if (user.status === UserStatusEnum.INACTIVE) {
-			// Update failed login attempts
-			await policy.updateFailedAttemptsOnLogin(ipKey, emailKey);
-
 			throw new BadRequestError(lang('account.error.not_active'));
 		}
 
-		const isValidPassword: boolean = await checkPassword(
-			validated.data.password,
-			user.password,
-		);
+		const isValidPassword: boolean = await this.accountService.checkPassword(
+            data.password,
+            user.password,
+        );
 
 		if (!isValidPassword) {
-			// Update failed login attempts
-			await policy.updateFailedAttemptsOnLogin(ipKey, emailKey);
-
 			throw new UnauthorizedError(lang('account.error.not_authorized'));
 		}
 
-		const authValidTokens: AuthValidToken[] = await getAuthValidTokens(
+		const authValidTokens: AuthValidToken[] = await this.accountTokenService.getAuthValidTokens(
 			user.id,
 		);
 
@@ -152,7 +117,7 @@ class AccountController {
 				authValidTokens: authValidTokens,
 			});
 		} else {
-			const token = await setupAuthToken(user, req);
+			const token = await this.accountTokenService.setupAuthToken(user, req);
 
 			res.locals.output.message(lang('account.success.login'));
 			res.locals.output.data({
@@ -173,18 +138,13 @@ class AccountController {
 	 *      - From his account page the user could see all active tokens and allow removal
 	 */
 	public removeToken = asyncHandler(async (req: Request, res: Response) => {
-		// Validate against the schema
-		const validated = AccountRemoveTokenValidator().safeParse(req.body);
+        const data = this.validate<AccountValidatorRemoveTokenDto>(
+            this.validator.removeToken(),
+            req.body,
+            res,
+        );
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		await AccountTokenRepository.createQuery()
-			.filterByIdent(validated.data.ident)
-			.delete(false);
+        await this.accountTokenService.removeAccountTokenByIdent(data.ident);
 
 		res.locals.output.message(lang('account.success.token_deleted'));
 
@@ -192,29 +152,13 @@ class AccountController {
 	});
 
 	public logout = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(res.locals.auth);
+        this.policy.requiredAuth(res.locals.auth);
 
-		// Check permission (should be authenticated)
-		policy.logout();
+        const activeToken = await this.accountTokenService.getActiveAuthToken(req);
 
-		try {
-			const activeToken = await getActiveAuthToken(req);
-
-			if (activeToken) {
-				// // This will actually remove all sessions - keep it for further implementation
-				// await AccountTokenRepository.createQuery()
-				//     .filterBy('user_id', policy.getUserId())
-				//     .delete(false, true);
-
-				await AccountTokenRepository.createQuery()
-					.filterBy('ident', activeToken.ident)
-					.delete(false, false, true);
-			}
-		} catch (error) {
-			if (!(error instanceof NotFoundError)) {
-				throw error;
-			}
-		}
+        if (activeToken) {
+            await this.accountTokenService.removeAccountTokenByIdent(activeToken.ident);
+        }
 
 		res.locals.output.message(lang('account.success.logout'));
 
@@ -223,38 +167,25 @@ class AccountController {
 
 	public passwordRecover = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(res.locals.auth);
+            this.policy.notAuth(res.locals.auth);
 
-			// Check permission (should not be authenticated)
-			policy.passwordRecover();
+            const data = this.validate<AccountValidatorPasswordRecoverDto>(
+                this.validator.passwordRecover(),
+                req.body,
+                res,
+            );
 
-			// Validate against the schema
-			const validated = AccountPasswordRecoverValidator().safeParse(
-				req.body,
-			);
+            const user = await this.userService.findByEmail(data.email, ['id', 'name', 'email', 'language', 'status']);
 
-			if (!validated.success) {
-				res.locals.output.errors(validated.error.issues);
-
-				throw new BadRequestError();
-			}
-
-			const user = await getUserRepository()
-				.createQuery()
-				.select(['id', 'name', 'email', 'language', 'status'])
-				.filterByEmail(validated.data.email)
-				.firstOrFail();
+            if (!user) {
+                throw new NotFoundError(lang('account.error.not_found'));
+            }
 
 			if (user.status !== UserStatusEnum.ACTIVE) {
 				throw new NotFoundError(lang('account.error.not_active'));
 			}
 
-			const countRecoveryAttempts: number =
-				await AccountRecoveryRepository.createQuery()
-					.select(['id'])
-					.filterBy('user_id', user.id)
-					.filterByRange('created_at', createPastDate(6 * 60 * 60)) // Last 6 hours
-					.count();
+			const countRecoveryAttempts: number = await this.accountRecoveryService.countRecoveryAttempts(user.id, createPastDate(6 * 60 * 60));
 
 			if (
 				countRecoveryAttempts >=
@@ -267,23 +198,15 @@ class AccountController {
 			}
 
 			const metadata = tokenMetaData(req);
-			const [ident, expire_at] = await setupRecovery(user, metadata);
+			const [ident, expire_at] = await this.accountRecoveryService.setupRecovery(user, metadata);
 
-			const emailTemplate: EmailTemplate = await loadEmailTemplate(
-				'password-recover',
-				user.language || res.locals.lang,
-			);
-
-			emailTemplate.content.vars = {
-				name: user.name,
-				ident: ident,
-				expire_at: expire_at.toISOString(),
-			};
-
-			await queueEmail(emailTemplate, {
-				name: user.name,
-				address: user.email,
-			});
+            await this.accountEmailService.sendEmailPasswordRecover({
+                ...user,
+                language: user.language || res.locals.lang,
+            }, {
+                ident: ident,
+                expire_at: expire_at,
+            });
 
 			res.locals.output.message(lang('account.success.password_recover'));
 
@@ -293,28 +216,19 @@ class AccountController {
 
 	public passwordRecoverChange = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(res.locals.auth);
+            this.policy.notAuth(res.locals.auth);
 
-			// Check permission (should not be authenticated)
-			policy.passwordRecoverChange();
+            const data = this.validate<AccountValidatorPasswordRecoverChangeDto>(
+                this.validator.passwordRecoverChange(),
+                req.body,
+                res,
+            );
 
-			const ident = req.params.ident;
+            const recovery = await this.accountRecoveryService.findByIdent(res.locals.validate.ident);
 
-			// Validate against the schema
-			const validated = AccountPasswordRecoverChangeValidator().safeParse(
-				req.body,
-			);
-
-			if (!validated.success) {
-				res.locals.output.errors(validated.error.issues);
-
-				throw new BadRequestError();
-			}
-
-			const recovery = await AccountRecoveryRepository.createQuery()
-				.select(['id', 'user_id', 'metadata', 'used_at', 'expire_at'])
-				.filterByIdent(ident)
-				.firstOrFail();
+            if (!recovery) {
+                throw new NotFoundError(lang('account.error.recovery_token_not_authorized'));
+            }
 
 			if (recovery.used_at) {
 				throw new BadRequestError(
@@ -331,6 +245,7 @@ class AccountController {
 			if (cfg('user.recoveryEnableMetadataCheck')) {
 				// Validate metadata (e.g., user-agent check)
 				if (
+                    !recovery.metadata ||
 					!compareMetaDataValue(
 						recovery.metadata,
 						tokenMetaData(req),
@@ -343,19 +258,20 @@ class AccountController {
 				}
 			}
 
-			const user = await getUserRepository()
-				.createQuery()
-				.select(['id', 'name', 'email', 'language', 'status'])
-				.filterById(recovery.user_id)
-				.first();
+            const user = await this.userService.findById(recovery.user_id, false);
 
-			// User was not found or inactive
-			if (!user || user.status !== UserStatusEnum.ACTIVE) {
-				throw new NotFoundError(lang('account.error.not_found'));
-			}
+            if (!user) {
+                throw new NotFoundError(lang('account.error.not_found'));
+            }
 
-			// Update user password and remove all account tokens
-			await updatePassword(user, validated.data.password);
+            if (user.status !== UserStatusEnum.ACTIVE) {
+                throw new NotFoundError(lang('account.error.not_active'));
+            }
+
+            // Update user password and remove all account tokens
+            await this.accountService.updatePassword(user, data.password);
+
+            ???
 
 			// Mark the recovery token as used
 			await AccountRecoveryRepository.update(recovery.id, {
@@ -384,10 +300,7 @@ class AccountController {
 
 	public passwordUpdate = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(res.locals.auth);
-
-			// Check permission (needs to be authenticated)
-			policy.me();
+            this.policy.requiredAuth(res.locals.auth);
 
 			// Validate against the schema
 			const validated = AccountPasswordUpdateValidator().safeParse(
@@ -443,8 +356,8 @@ class AccountController {
 	 * It is allowed to be used authenticated or not
 	 * ...and "Yes" - based on implementation (maybe auto-login after registration) - confirmation can take place even if logged in
 	 */
-	public emailConfirm = asyncHandler(async (req: Request, res: Response) => {
-		const token = decodeURIComponent(req.params.token);
+	public emailConfirm = asyncHandler(async (_req: Request, res: Response) => {
+		const token = decodeURIComponent(res.locals.validated.token);
 
 		// Verify JWT and extract payload
 		let payload: ConfirmationTokenPayload;
@@ -508,10 +421,7 @@ class AccountController {
 	 */
 	public emailConfirmSend = asyncHandler(
 		async (req: Request, res: Response) => {
-			const policy = new AccountPolicy(res.locals.auth);
-
-			// Check permission (should not be authenticated)
-			policy.emailConfirmSend();
+            this.policy.notAuth(res.locals.auth);
 
 			// Validate against the schema
 			const validated = AccountEmailConfirmSendValidator().safeParse(
@@ -550,10 +460,7 @@ class AccountController {
 	);
 
 	public emailUpdate = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(res.locals.auth);
-
-		// Check permission (needs to be authenticated)
-		policy.me();
+        this.policy.requiredAuth(res.locals.auth);
 
 		// Validate against the schema
 		const validated = AccountEmailUpdateValidator().safeParse(req.body);
@@ -592,10 +499,7 @@ class AccountController {
 	});
 
 	public me = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new AccountPolicy(res.locals.auth);
-
-		// Check permission (needs to be authenticated)
-		policy.me();
+        this.policy.requiredAuth(res.locals.auth);
 
 		res.locals.output.data(res.locals.auth);
 
@@ -606,16 +510,13 @@ class AccountController {
 	 * Returns a list of all active sessions for the current user
 	 */
 	public sessions = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new AccountPolicy(res.locals.auth);
-
-		// Check permission (needs to be authenticated)
-		policy.me();
+        this.policy.requiredAuth(res.locals.auth);
 
 		const user_id = policy.getUserId();
 
-		if (!user_id) {
-			throw new NotAllowedError();
-		}
+		// if (!user_id) {
+		// 	throw new NotAllowedError();
+		// }
 
 		const authValidTokens: AuthValidToken[] =
 			await getAuthValidTokens(user_id);
@@ -633,18 +534,8 @@ class AccountController {
 	});
 
 	public edit = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(res.locals.auth);
+        this.policy.requiredAuth(res.locals.auth);
 
-		// Check permission (needs to be authenticated)
-		policy.me();
-
-		const user_id = policy.getUserId();
-
-		if (!user_id) {
-			throw new NotAllowedError();
-		}
-
-		// Validate against the schema
 		const validated = AccountEditValidator().safeParse(req.body);
 
 		if (!validated.success) {
@@ -656,7 +547,7 @@ class AccountController {
 		const user = await getUserRepository()
 			.createQuery()
 			.select(['name', 'language'])
-			.filterById(user_id)
+			.filterById(this.policy.getId(res.locals.auth))
 			.firstOrFail();
 
 		user.name = validated.data.name;
@@ -670,16 +561,9 @@ class AccountController {
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new AccountPolicy(res.locals.auth);
+        this.policy.requiredAuth(res.locals.auth);
 
-		// Check permission (needs to be authenticated)
-		policy.me();
-
-		const user_id = policy.getUserId();
-
-		if (!user_id) {
-			throw new NotAllowedError();
-		}
+		const user_id = this.policy.getId(res.locals.auth);
 
 		// Validate against the schema
 		const validated = AccountDeleteValidator().safeParse(req.body);
@@ -721,4 +605,32 @@ class AccountController {
 	});
 }
 
-export default new AccountController();
+export function createAccountController(deps: {
+    policy: PolicyAbstract;
+    validator: IAccountValidator;
+    accountService: IAccountService;
+    accountTokenService: IAccountTokenService;
+    accountRecoveryService: IAccountRecoveryService;
+    accountEmailService: IAccountEmailService;
+    userService: IUserService;
+}) {
+    return new AccountController(
+        deps.policy,
+        deps.validator,
+        deps.accountService,
+        deps.accountTokenService,
+        deps.accountRecoveryService,
+        deps.accountEmailService,
+        deps.userService,
+    );
+}
+
+export const accountController = createAccountController({
+    policy: accountPolicy,
+    validator: accountValidator,
+    accountService: accountService,
+    accountTokenService: accountTokenService,
+    accountRecoveryService: accountRecoveryService,
+    accountEmailService: accountEmailService,
+    userService: userService,
+});

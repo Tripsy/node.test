@@ -1,23 +1,30 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import PermissionPolicy from '@/features/permission/permission.policy';
+import {permissionPolicy} from '@/features/permission/permission.policy';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
-import UserPermissionRepository from '@/features/user-permission/user-permission.repository';
 import {
 	UserPermissionCreateValidator,
 	UserPermissionFindValidator,
 } from '@/features/user-permission/user-permission.validator';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {cacheProvider, CacheProvider} from "@/lib/providers/cache.provider";
 
-class UserPermissionController {
+class UserPermissionController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: IUserPermissionValidator,
+        private cache: CacheProvider,
+        private userPermissionService: IUserPermissionService,
+    ) {
+        super();
+    }
+
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canCreate(res.locals.auth);
 
-		// Validate against the schema
 		const validated = UserPermissionCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
@@ -81,9 +88,6 @@ class UserPermissionController {
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		await UserPermissionRepository.createQuery()
@@ -97,9 +101,6 @@ class UserPermissionController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRestore(res.locals.auth);
 
 		await UserPermissionRepository.createQuery()
@@ -113,12 +114,8 @@ class UserPermissionController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
 		const validated = UserPermissionFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
@@ -159,4 +156,23 @@ class UserPermissionController {
 	});
 }
 
-export default new UserPermissionController();
+export function createUserPermissionController(deps: {
+    policy: PolicyAbstract;
+    validator: IUserPermissionValidator;
+    cache: CacheProvider;
+    userPermissionService: IUserPermissionService;
+}) {
+    return new UserPermissionController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.userPermissionService,
+    );
+}
+
+export const userPermissionController = createUserPermissionController({
+    policy: permissionPolicy,
+    validator: userPermissionValidator,
+    cache: cacheProvider,
+    userPermissionService: userPermissionService,
+});

@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import PlaceEntity from '@/features/place/place.entity';
-import PlacePolicy from '@/features/place/place.policy';
 import { getPlaceRepository } from '@/features/place/place.repository';
 import {
 	PlaceCreateValidator,
@@ -13,13 +12,21 @@ import {
 import PlaceContentRepository from '@/features/place/place-content.repository';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
 
-class PlaceController {
+class PlaceController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: IPlaceValidator,
+        private cache: CacheProvider,
+        private placeService: IPlaceService,
+    ) {
+        super();
+    }
+    
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
@@ -57,12 +64,7 @@ class PlaceController {
 	});
 
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new PlacePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
-
-		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
 			PlaceEntity.NAME,
@@ -129,12 +131,8 @@ class PlaceController {
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
-		// Validate against the schema
 		const validated = PlaceUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
@@ -198,9 +196,6 @@ class PlaceController {
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new PlacePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		const hasChildren = await getPlaceRepository()
@@ -225,9 +220,6 @@ class PlaceController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new PlacePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRestore(res.locals.auth);
 
 		await getPlaceRepository()
@@ -241,12 +233,8 @@ class PlaceController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PlacePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
 		const validated = PlaceFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
@@ -322,4 +310,23 @@ class PlaceController {
 	});
 }
 
-export default new PlaceController();
+export function createPlaceController(deps: {
+    policy: PolicyAbstract;
+    validator: IPlaceValidator;
+    cache: CacheProvider;
+    placeService: IPlaceService;
+}) {
+    return new PlaceController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.placeService,
+    );
+}
+
+export const placeController = createPlaceController({
+    policy: placePolicy,
+    validator: placeValidator,
+    cache: cacheProvider,
+    placeService: placeService,
+});

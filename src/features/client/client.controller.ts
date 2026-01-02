@@ -6,7 +6,6 @@ import ClientEntity, {
 	ClientStatusEnum,
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
-import ClientPolicy from '@/features/client/client.policy';
 import { getClientRepository } from '@/features/client/client.repository';
 import {
 	ClientCreateValidator,
@@ -16,13 +15,21 @@ import {
 } from '@/features/client/client.validator';
 import { BadRequestError, CustomError, NotFoundError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {clientPolicy} from "@/features/client/client.policy";
 
-class ClientController {
+class ClientController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: IClientValidator,
+        private cache: CacheProvider,
+        private clientService: IClientService,
+    ) {
+        super();
+    }
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canCreate(res.locals.auth);
 
 		// Validate against the schema
@@ -69,12 +76,7 @@ class ClientController {
 	});
 
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new ClientPolicy(res.locals.auth);
-
-		// Check permission (admin, operator with permission)
-		policy.read('client');
-
-		const cacheProvider = getCacheProvider();
+		this.policy.canRead(res.locals.auth);
 
 		const cacheKey = cacheProvider.buildKey(
 			ClientEntity.NAME,
@@ -144,9 +146,6 @@ class ClientController {
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
 		const client = await getClientRepository()
@@ -207,9 +206,6 @@ class ClientController {
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new ClientPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		await getClientRepository()
@@ -223,9 +219,6 @@ class ClientController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new ClientPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRestore(res.locals.auth);
 
 		await getClientRepository()
@@ -239,9 +232,6 @@ class ClientController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new ClientPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
@@ -286,9 +276,6 @@ class ClientController {
 	});
 
 	public statusUpdate = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new ClientPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
 		const client = await getClientRepository()
@@ -315,4 +302,23 @@ class ClientController {
 	});
 }
 
-export default new ClientController();
+export function createClientController(deps: {
+    policy: PolicyAbstract;
+    validator: IClientValidator;
+    cache: CacheProvider;
+    clientService: IClientService;
+}) {
+    return new ClientController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.clientService,
+    );
+}
+
+export const clientController = createClientController({
+    policy: clientPolicy,
+    validator: clientValidator,
+    cache: cacheProvider,
+    clientService: clientService,
+});

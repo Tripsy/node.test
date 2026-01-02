@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import LogHistoryPolicy from '@/features/log-history/log-history.policy';
 import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import {
 	LogHistoryDeleteValidator,
@@ -8,12 +7,22 @@ import {
 } from '@/features/log-history/log-history.validator';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {cacheProvider, CacheProvider} from "@/lib/providers/cache.provider";
+import {logHistoryPolicy} from "@/features/log-history/log-history.policy";
 
-class LogHistoryController {
+class LogHistoryController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: ILogHistoryValidator,
+        private cache: CacheProvider,
+        private logHistoryService: ILogHistoryService,
+    ) {
+        super();
+    }
+
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new LogHistoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
 
 		const logHistory = await getLogHistoryRepository()
@@ -28,9 +37,6 @@ class LogHistoryController {
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogHistoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		const validated = LogHistoryDeleteValidator().safeParse(req.body);
@@ -58,9 +64,6 @@ class LogHistoryController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogHistoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
 		// Validate against the schema
@@ -103,4 +106,23 @@ class LogHistoryController {
 	});
 }
 
-export default new LogHistoryController();
+export function createLogHistoryController(deps: {
+    policy: PolicyAbstract;
+    validator: ILogHistoryValidator;
+    cache: CacheProvider;
+    logHistoryService: ILogHistoryService;
+}) {
+    return new LogHistoryController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.logHistoryService,
+    );
+}
+
+export const logHistoryController = createLogHistoryController({
+    policy: logHistoryPolicy,
+    validator: logHistoryValidator,
+    cache: cacheProvider,
+    logHistoryService: logHistoryService,
+});

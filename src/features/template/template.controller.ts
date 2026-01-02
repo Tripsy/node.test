@@ -3,26 +3,31 @@ import { lang } from '@/config/i18n.setup';
 import TemplateEntity, {
 	TemplateTypeEnum,
 } from '@/features/template/template.entity';
-import TemplatePolicy from '@/features/template/template.policy';
 import { getTemplateRepository } from '@/features/template/template.repository';
 import {
 	TemplateCreateValidator,
 	TemplateFindValidator,
 	TemplateUpdateValidator,
 } from '@/features/template/template.validator';
-import { paramsUpdateList } from '@/features/user/user.validator';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
+import {BaseController} from "@/lib/abstracts/controller.abstract";
+import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
 
-class TemplateController {
+class TemplateController extends BaseController {
+    constructor(
+        private policy: PolicyAbstract,
+        private validator: ITemplateValidator,
+        private cache: CacheProvider,
+        private templateService: ITemplateService,
+    ) {
+        super();
+    }
+    
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canCreate(res.locals.auth);
 
-		// Validate against the schema
 		const validated = TemplateCreateValidator().safeParse(req.body);
 
 		if (!validated.success) {
@@ -59,12 +64,7 @@ class TemplateController {
 	});
 
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new TemplatePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
-
-		const cacheProvider = getCacheProvider();
 
 		const cacheKey = cacheProvider.buildKey(
 			TemplateEntity.NAME,
@@ -87,12 +87,8 @@ class TemplateController {
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
-		// Validate against the schema
 		const validated = TemplateUpdateValidator().safeParse(req.body);
 
 		if (!validated.success) {
@@ -139,9 +135,6 @@ class TemplateController {
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new TemplatePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
 		await getTemplateRepository()
@@ -155,9 +148,6 @@ class TemplateController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new TemplatePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRestore(res.locals.auth);
 
 		await getTemplateRepository()
@@ -171,12 +161,8 @@ class TemplateController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new TemplatePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
 		const validated = TemplateFindValidator().safeParse(req.query);
 
 		if (!validated.success) {
@@ -213,8 +199,6 @@ class TemplateController {
 	});
 
 	public readPage = asyncHandler(async (_req: Request, res: Response) => {
-		const cacheProvider = getCacheProvider();
-
 		const cacheKey = cacheProvider.buildKey(
 			TemplateEntity.NAME,
 			res.locals.validated.label,
@@ -237,4 +221,23 @@ class TemplateController {
 	});
 }
 
-export default new TemplateController();
+export function createTemplateController(deps: {
+    policy: PolicyAbstract;
+    validator: ITemplateValidator;
+    cache: CacheProvider;
+    templateService: ITemplateService;
+}) {
+    return new TemplateController(
+        deps.policy,
+        deps.validator,
+        deps.cache,
+        deps.templateService,
+    );
+}
+
+export const templateController = createTemplateController({
+    policy: templatePolicy,
+    validator: templateValidator,
+    cache: cacheProvider,
+    templateService: templateService,
+});
