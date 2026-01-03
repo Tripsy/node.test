@@ -1,13 +1,11 @@
 import { lang } from '@/config/i18n.setup';
 import {
-	accountTokenService,
 	type AccountTokenService,
+	accountTokenService,
 } from '@/features/account/account-token.service';
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, type UserStatusEnum } from '@/features/user/user.entity';
-import {
-    getUserRepository
-} from '@/features/user/user.repository';
+import { getUserRepository } from '@/features/user/user.repository';
 import {
 	paramsUpdateList,
 	type UserValidatorCreateDto,
@@ -52,19 +50,19 @@ export class UserService {
 		return this.repository.save(entry);
 	}
 
-    /**
-     * @description Used in `register` method from controller;
-     */
-    public async register(user: Partial<UserEntity>): Promise<UserEntity> {
-        const entry = {
-            name: user.name,
-            email: user.email,
-            password: user.password,
-            language: user.language,
-        };
+	/**
+	 * @description Used in `register` method from controller;
+	 */
+	public async register(user: Partial<UserEntity>): Promise<UserEntity> {
+		const entry = {
+			name: user.name,
+			email: user.email,
+			password: user.password,
+			language: user.language,
+		};
 
-        return this.repository.save(entry);
-    }
+		return this.repository.save(entry);
+	}
 
 	/**
 	 * @description Update any data
@@ -88,7 +86,7 @@ export class UserService {
 				data.email,
 				true,
 				undefined,
-                id
+				id,
 			);
 
 			if (existingUser) {
@@ -141,35 +139,35 @@ export class UserService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-    public findById(id: number, withDeleted: boolean) {
-        return this.repository
-            .createQuery()
-            .filterById(id)
-            .withDeleted(withDeleted)
-            .firstOrFail();
-    }
+	public findById(id: number, withDeleted: boolean) {
+		return this.repository
+			.createQuery()
+			.filterById(id)
+			.withDeleted(withDeleted)
+			.firstOrFail();
+	}
 
-    public findByEmail(
-        email: string,
-        withDeleted: boolean,
-        fields?: string[],
-        excludeId?: number,
-    ) {
-        const q = this.repository
-            .createQuery()
-            .filterByEmail(email)
-            .withDeleted(withDeleted);
+	public findByEmail(
+		email: string,
+		withDeleted: boolean,
+		fields?: string[],
+		excludeId?: number,
+	) {
+		const q = this.repository
+			.createQuery()
+			.filterByEmail(email)
+			.withDeleted(withDeleted);
 
-        if (excludeId) {
-            q.filterBy('id', excludeId, '!=');
-        }
+		if (excludeId) {
+			q.filterBy('id', excludeId, '!=');
+		}
 
-        if (fields) {
-            q.select(fields);
-        }
+		if (fields) {
+			q.select(fields);
+		}
 
-        return q.first();
-    }
+		return q.first();
+	}
 
 	public findByFilter(data: UserValidatorFindDto, withDeleted: boolean) {
 		return this.repository

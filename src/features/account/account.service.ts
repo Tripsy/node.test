@@ -4,16 +4,16 @@ import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import type { AccountValidatorRegisterDto } from '@/features/account/account.validator';
 import {
-	accountEmailService,
 	type AccountEmailService,
+	accountEmailService,
 } from '@/features/account/account-email.service';
 import {
-	accountRecoveryService,
 	type AccountRecoveryService,
+	accountRecoveryService,
 } from '@/features/account/account-recovery.service';
 import type UserEntity from '@/features/user/user.entity';
 import { UserStatusEnum } from '@/features/user/user.entity';
-import {UserService, userService} from '@/features/user/user.service';
+import { type UserService, userService } from '@/features/user/user.service';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 import { createFutureDate } from '@/lib/helpers';
 

@@ -4,9 +4,9 @@ import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
 import { accountPolicy } from '@/features/account/account.policy';
 import {
+	type AccountService,
 	accountService,
 	type ConfirmationTokenPayload,
-	type AccountService,
 } from '@/features/account/account.service';
 import {
 	type AccountValidatorDeleteDto,
@@ -23,17 +23,17 @@ import {
 	type IAccountValidator,
 } from '@/features/account/account.validator';
 import {
-	accountEmailService,
 	type AccountEmailService,
+	accountEmailService,
 } from '@/features/account/account-email.service';
 import {
-	accountRecoveryService,
 	type AccountRecoveryService,
+	accountRecoveryService,
 } from '@/features/account/account-recovery.service';
 import {
+	type AccountTokenService,
 	type AuthValidToken,
 	accountTokenService,
-	type AccountTokenService,
 } from '@/features/account/account-token.service';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { type UserService, userService } from '@/features/user/user.service';
@@ -503,7 +503,10 @@ class AccountController extends BaseController {
 			res,
 		);
 
-		const existingUser = await this.userService.findByEmail(data.email_new, true);
+		const existingUser = await this.userService.findByEmail(
+			data.email_new,
+			true,
+		);
 
 		// Return error if email already in use by another account
 		if (existingUser) {
@@ -655,13 +658,13 @@ class AccountController extends BaseController {
 }
 
 export function createAccountController(deps: {
-    policy: PolicyAbstract;
-    validator: IAccountValidator;
-    accountService: AccountService;
-    accountTokenService: AccountTokenService;
-    accountRecoveryService: AccountRecoveryService;
-    accountEmailService: AccountEmailService;
-    userService: UserService;
+	policy: PolicyAbstract;
+	validator: IAccountValidator;
+	accountService: AccountService;
+	accountTokenService: AccountTokenService;
+	accountRecoveryService: AccountRecoveryService;
+	accountEmailService: AccountEmailService;
+	userService: UserService;
 }) {
 	return new AccountController(
 		deps.policy,

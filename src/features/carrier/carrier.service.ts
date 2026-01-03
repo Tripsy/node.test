@@ -1,8 +1,6 @@
 import { lang } from '@/config/i18n.setup';
 import type CarrierEntity from '@/features/carrier/carrier.entity';
-import {
-	getCarrierRepository,
-} from '@/features/carrier/carrier.repository';
+import { getCarrierRepository } from '@/features/carrier/carrier.repository';
 import {
 	type CarrierValidatorCreateDto,
 	type CarrierValidatorFindDto,
@@ -12,9 +10,7 @@ import {
 import { CustomError } from '@/lib/exceptions';
 
 export class CarrierService {
-    constructor(
-        private repository: ReturnType<typeof getCarrierRepository>,
-    ) {}
+	constructor(private repository: ReturnType<typeof getCarrierRepository>) {}
 
 	/**
 	 * @description Used in `create` method from controller;
@@ -57,11 +53,7 @@ export class CarrierService {
 		const carrier = await this.findById(id, withDeleted);
 
 		if (data.name) {
-			const existingCarrier = await this.findByName(
-				data.name,
-				true,
-				id,
-			);
+			const existingCarrier = await this.findByName(data.name, true, id);
 
 			if (existingCarrier) {
 				throw new CustomError(
@@ -91,30 +83,26 @@ export class CarrierService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-    public findById(id: number, withDeleted: boolean) {
-        return this.repository
-            .createQuery()
-            .filterById(id)
-            .withDeleted(withDeleted)
-            .firstOrFail();
-    }
+	public findById(id: number, withDeleted: boolean) {
+		return this.repository
+			.createQuery()
+			.filterById(id)
+			.withDeleted(withDeleted)
+			.firstOrFail();
+	}
 
-    public findByName(
-        name: string,
-        withDeleted: boolean,
-        excludeId?: number,
-    ) {
-        const q = this.repository
-            .createQuery()
-            .filterBy('name', name)
-            .withDeleted(withDeleted);
+	public findByName(name: string, withDeleted: boolean, excludeId?: number) {
+		const q = this.repository
+			.createQuery()
+			.filterBy('name', name)
+			.withDeleted(withDeleted);
 
-        if (excludeId) {
-            q.filterBy('id', excludeId, '!=');
-        }
+		if (excludeId) {
+			q.filterBy('id', excludeId, '!=');
+		}
 
-        return q.first();
-    }
+		return q.first();
+	}
 
 	public findByFilter(data: CarrierValidatorFindDto, withDeleted: boolean) {
 		return this.repository

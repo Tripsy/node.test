@@ -1,18 +1,25 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import CarrierEntity from '@/features/carrier/carrier.entity';
+import { carrierPolicy } from '@/features/carrier/carrier.policy';
+import {
+	type CarrierService,
+	carrierService,
+} from '@/features/carrier/carrier.service';
+import {
+	type CarrierValidatorCreateDto,
+	type CarrierValidatorFindDto,
+	type CarrierValidatorUpdateDto,
+	carrierValidator,
+	type ICarrierValidator,
+} from '@/features/carrier/carrier.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
 import {
-    carrierValidator,
-    CarrierValidatorCreateDto, CarrierValidatorFindDto,
-    CarrierValidatorUpdateDto,
-    ICarrierValidator
-} from "@/features/carrier/carrier.validator";
-import {cacheProvider, CacheProvider} from "@/lib/providers/cache.provider";
-import {CarrierService, carrierService} from "@/features/carrier/carrier.service";
-import {carrierPolicy} from "@/features/carrier/carrier.policy";
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class CarrierController extends BaseController {
 	constructor(
@@ -50,10 +57,12 @@ class CarrierController extends BaseController {
 			'read',
 		);
 
-		const entry = await this.cache.get(cacheKey, async () => this.carrierService.findById(
-            res.locals.validated.id,
-            this.policy.allowDeleted(res.locals.auth),
-        ));
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.carrierService.findById(
+				res.locals.validated.id,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(entry);
@@ -64,17 +73,17 @@ class CarrierController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-        const data = this.validate<CarrierValidatorUpdateDto>(
-            this.validator.update(),
-            req.body,
-            res,
-        );
+		const data = this.validate<CarrierValidatorUpdateDto>(
+			this.validator.update(),
+			req.body,
+			res,
+		);
 
-        const entry = await this.carrierService.updateData(
-            res.locals.validated.id,
-            this.policy.allowDeleted(res.locals.auth),
-            data,
-        );
+		const entry = await this.carrierService.updateData(
+			res.locals.validated.id,
+			this.policy.allowDeleted(res.locals.auth),
+			data,
+		);
 
 		res.locals.output.message(lang('carrier.success.update'));
 		res.locals.output.data(entry);
@@ -85,7 +94,7 @@ class CarrierController extends BaseController {
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-        await this.carrierService.delete(res.locals.validated.id);
+		await this.carrierService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('carrier.success.delete'));
 
@@ -95,7 +104,7 @@ class CarrierController extends BaseController {
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRestore(res.locals.auth);
 
-        await this.carrierService.restore(res.locals.validated.id);
+		await this.carrierService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('carrier.success.restore'));
 
@@ -105,16 +114,16 @@ class CarrierController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-        const data = this.validate<CarrierValidatorFindDto>(
-            this.validator.find(),
-            req.query,
-            res,
-        );
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-        const [entries, total] = await this.carrierService.findByFilter(
-            data,
-            this.policy.allowDeleted(res.locals.auth),
-        );
+		const [entries, total] = await this.carrierService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,

@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import UserEntity from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
-import {UserService, userService} from '@/features/user/user.service';
+import { type UserService, userService } from '@/features/user/user.service';
 import {
 	type IUserValidator,
 	type UserValidatorCreateDto,
@@ -58,7 +58,7 @@ class UserController extends BaseController {
 			this.userService.findById(
 				res.locals.validated.id,
 				this.policy.allowDeleted(res.locals.auth),
-			)
+			),
 		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
