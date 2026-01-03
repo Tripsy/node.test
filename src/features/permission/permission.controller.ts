@@ -74,13 +74,13 @@ class PermissionController extends BaseController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			PermissionEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const permission = await cacheProvider.get(cacheKey, async () => {
+		const permission = await this.cache.get(cacheKey, async () => {
 			return getPermissionRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)

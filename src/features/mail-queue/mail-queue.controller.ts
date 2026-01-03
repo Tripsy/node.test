@@ -31,13 +31,13 @@ class MailQueueController extends BaseController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			MailQueueEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const mailQueue = await cacheProvider.get(cacheKey, async () => {
+		const mailQueue = await this.cache.get(cacheKey, async () => {
 			return getMailQueueRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)

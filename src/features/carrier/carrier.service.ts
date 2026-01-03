@@ -18,7 +18,7 @@ import type {
 	IEntityRestoreService,
 	IEntityUpdateService,
 } from '@/lib/abstracts/service.abstract';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
+import { CustomError } from '@/lib/exceptions';
 
 export interface ICarrierService
 	extends IEntityCreateService<CarrierEntity>,
@@ -26,10 +26,10 @@ export interface ICarrierService
 		IEntityDeleteService<CarrierEntity>,
 		IEntityRestoreService<CarrierEntity>,
 		IEntityFindService<CarrierEntity, CarrierValidatorFindDto> {
-	checkIfExistByEmail(
-		email: string,
-		withDeleted: boolean,
-		excludeId?: number,
+    findByName(
+        name: string,
+        withDeleted: boolean,
+        excludeId?: number,
 	): Promise<CarrierEntity | null>;
 }
 
@@ -40,7 +40,7 @@ class CarrierService implements ICarrierService {
 		},
 	) {}
 
-	public checkIfExistByName(
+	public findByName(
 		name: string,
 		withDeleted: boolean,
 		excludeId?: number,
@@ -63,17 +63,11 @@ class CarrierService implements ICarrierService {
 	public async create(
 		data: CarrierValidatorCreateDto,
 	): Promise<CarrierEntity> {
-		const existingCarrier = await this.checkIfExistByName(data.name, true);
+		const existingCarrier = await this.findByName(data.name, true);
 
 		if (existingCarrier) {
 			throw new CustomError(409, lang('carrier.error.name_already_used'));
 		}
-
-		// carrier.name = validated.data.name;
-		// carrier.website = validated.data.website ?? null;
-		// carrier.phone = validated.data.phone ?? null;
-		// carrier.email = validated.data.email ?? null;
-		// carrier.notes = validated.data.notes ?? null;
 
 		const entry = {
 			name: data.name,
@@ -81,22 +75,21 @@ class CarrierService implements ICarrierService {
 			phone: data.phone,
 			email: data.email,
 			notes: data.notes,
-
-			...(data.role === CarrierRoleEnum.OPERATOR &&
-				data.operator_type && {
-					operator_type: data.operator_type,
-				}),
-
-			...(data.language && {
-				language: data.language,
-			}),
 		};
 
 		return this.carrierRepository.save(entry);
 	}
 
+    public findById(id: number, withDeleted: boolean) {
+        return this.carrierRepository
+            .createQuery()
+            .filterById(id)
+            .withDeleted(withDeleted)
+            .firstOrFail();
+    }
+
 	/**
-	 * @description Update any carrier data
+	 * @description Update any data
 	 */
 	public update(data: Partial<CarrierEntity> & { id: number }) {
 		return this.carrierRepository.save(data);
@@ -112,9 +105,9 @@ class CarrierService implements ICarrierService {
 	) {
 		const carrier = await this.findById(id, withDeleted);
 
-		if (data.email) {
-			const existingCarrier = await this.checkIfExistByEmail(
-				data.email,
+		if (data.name) {
+			const existingCarrier = await this.findByName(
+				data.name,
 				true,
 				id,
 			);
@@ -122,15 +115,9 @@ class CarrierService implements ICarrierService {
 			if (existingCarrier) {
 				throw new CustomError(
 					409,
-					lang('carrier.error.email_already_used'),
+					lang('carrier.error.name_already_used'),
 				);
 			}
-		}
-
-		if (data.password || data.email !== carrier.email) {
-			await this.accountTokenService.removeAccountTokenForCarrier(
-				carrier.id,
-			); // Note: Removes all account tokens for the carrier
 		}
 
 		const updateData = {
@@ -145,24 +132,6 @@ class CarrierService implements ICarrierService {
 		return this.update(updateData);
 	}
 
-	public async updateStatus(
-		id: number,
-		status: CarrierStatusEnum,
-		withDeleted: boolean,
-	) {
-		const carrier = await this.findById(id, withDeleted);
-
-		if (carrier.status === status) {
-			throw new BadRequestError(
-				lang('carrier.error.status_unchanged', { status }),
-			);
-		}
-
-		carrier.status = status;
-
-		return this.carrierRepository.save(carrier);
-	}
-
 	public async delete(id: number) {
 		await this.carrierRepository.createQuery().filterById(id).delete();
 	}
@@ -171,25 +140,10 @@ class CarrierService implements ICarrierService {
 		await this.carrierRepository.createQuery().filterById(id).restore();
 	}
 
-	public findById(id: number, withDeleted: boolean) {
-		return this.carrierRepository
-			.createQuery()
-			.filterById(id)
-			.withDeleted(withDeleted)
-			.firstOrFail();
-	}
-
 	public findByFilter(data: CarrierValidatorFindDto, withDeleted: boolean) {
 		return this.carrierRepository
 			.createQuery()
 			.filterById(data.filter.id)
-			.filterByStatus(data.filter.status)
-			.filterBy('role', data.filter.role)
-			.filterByRange(
-				'created_at',
-				data.filter.create_date_start,
-				data.filter.create_date_end,
-			)
 			.filterByTerm(data.filter.term)
 			.withDeleted(withDeleted && data.filter.is_deleted)
 			.orderBy(data.order_by, data.direction)

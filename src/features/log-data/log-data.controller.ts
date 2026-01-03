@@ -29,13 +29,13 @@ class LogDataController extends BaseController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			LogDataEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const logData = await cacheProvider.get(cacheKey, async () => {
+		const logData = await this.cache.get(cacheKey, async () => {
 			return getLogDataRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)

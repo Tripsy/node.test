@@ -63,13 +63,13 @@ class DiscountController extends BaseController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			DiscountEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const discount = await cacheProvider.get(cacheKey, async () => {
+		const discount = await this.cache.get(cacheKey, async () => {
 			return getDiscountRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)

@@ -91,7 +91,7 @@ class AccountController extends BaseController {
 			res,
 		);
 
-		const user = await this.userService.findByEmail(data.email);
+		const user = await this.userService.findByEmail(data.email, false);
 
 		if (!user) {
 			throw new NotFoundError(lang('account.error.not_found'));
@@ -193,7 +193,7 @@ class AccountController extends BaseController {
 				res,
 			);
 
-			const user = await this.userService.findByEmail(data.email, [
+			const user = await this.userService.findByEmail(data.email, false, [
 				'id',
 				'name',
 				'email',
@@ -468,7 +468,7 @@ class AccountController extends BaseController {
 				res,
 			);
 
-			const user = await this.userService.findByEmail(data.email, [
+			const user = await this.userService.findByEmail(data.email, false, [
 				'id',
 				'name',
 				'email',
@@ -503,7 +503,7 @@ class AccountController extends BaseController {
 			res,
 		);
 
-		const existingUser = await this.userService.findByEmail(data.email_new);
+		const existingUser = await this.userService.findByEmail(data.email_new, true);
 
 		// Return error if email already in use by another account
 		if (existingUser) {

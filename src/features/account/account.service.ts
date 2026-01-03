@@ -105,7 +105,7 @@ class AccountService implements IAccountService {
 		data: AccountValidatorRegisterDto,
 		language: string,
 	): Promise<UserEntity> {
-		const existingUser = await this.userService.checkIfExistByEmail(
+		const existingUser = await this.userService.findByEmail(
 			data.email,
 			true,
 		);

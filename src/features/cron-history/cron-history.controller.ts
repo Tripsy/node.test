@@ -28,13 +28,13 @@ class CronHistoryController extends BaseController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			CronHistoryEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const cronHistory = await cacheProvider.get(cacheKey, async () => {
+		const cronHistory = await this.cache.get(cacheKey, async () => {
 			return getCronHistoryRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)

@@ -69,13 +69,13 @@ class PlaceController extends BaseController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			PlaceEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const place = await cacheProvider.get(cacheKey, async () => {
+		const place = await this.cache.get(cacheKey, async () => {
 			const placeData = await getPlaceRepository()
 				.createQuery()
 				.joinAndSelect(

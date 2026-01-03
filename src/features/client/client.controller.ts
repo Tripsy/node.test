@@ -81,13 +81,13 @@ class ClientController extends BaseController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			ClientEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const client = await cacheProvider.get(cacheKey, async () => {
+		const client = await this.cache.get(cacheKey, async () => {
 			const result = await dataSource
 				.createQueryBuilder()
 				.select([

@@ -69,13 +69,13 @@ class TemplateController extends BaseController {
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			TemplateEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const template = await cacheProvider.get(cacheKey, async () => {
+		const template = await this.cache.get(cacheKey, async () => {
 			return getTemplateRepository()
 				.createQuery()
 				.filterById(res.locals.validated.id)
@@ -202,13 +202,13 @@ class TemplateController extends BaseController {
 	});
 
 	public readPage = asyncHandler(async (_req: Request, res: Response) => {
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			TemplateEntity.NAME,
 			res.locals.validated.label,
 			'read',
 		);
 
-		const template = await cacheProvider.get(cacheKey, async () => {
+		const template = await this.cache.get(cacheKey, async () => {
 			return getTemplateRepository()
 				.createQuery()
 				.filterBy('label', res.locals.validated.label)

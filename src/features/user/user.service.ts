@@ -33,12 +33,12 @@ export interface IUserService
 		IEntityDeleteService<UserEntity>,
 		IEntityRestoreService<UserEntity>,
 		IEntityFindService<UserEntity, UserValidatorFindDto> {
-	checkIfExistByEmail(
+	findByEmail(
 		email: string,
 		withDeleted: boolean,
-		excludeId?: number,
+        fields?: string[],
+        excludeId?: number,
 	): Promise<UserEntity | null>;
-	findByEmail(email: string, fields?: string[]): Promise<UserEntity | null>;
 	register(data: Partial<UserEntity>): Promise<UserEntity>;
 }
 
@@ -50,9 +50,10 @@ class UserService implements IUserService {
 		private accountTokenService: IAccountTokenService,
 	) {}
 
-	public checkIfExistByEmail(
+	public findByEmail(
 		email: string,
 		withDeleted: boolean,
+        fields?: string[],
 		excludeId?: number,
 	) {
 		const q = this.userRepository
@@ -64,14 +65,32 @@ class UserService implements IUserService {
 			q.filterBy('id', excludeId, '!=');
 		}
 
+        if (fields) {
+            q.select(fields);
+        }
+
 		return q.first();
 	}
+
+    /**
+     * @description Used in `register` method from controller;
+     */
+    public async register(user: Partial<UserEntity>): Promise<UserEntity> {
+        const entry = {
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            language: user.language,
+        };
+
+        return this.userRepository.save(entry);
+    }
 
 	/**
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(data: UserValidatorCreateDto): Promise<UserEntity> {
-		const existingUser = await this.checkIfExistByEmail(data.email, true);
+		const existingUser = await this.findByEmail(data.email, true);
 
 		if (existingUser) {
 			throw new CustomError(409, lang('user.error.email_already_used'));
@@ -97,19 +116,13 @@ class UserService implements IUserService {
 		return this.userRepository.save(entry);
 	}
 
-	/**
-	 * @description Used in `register` method from controller;
-	 */
-	public async register(user: Partial<UserEntity>): Promise<UserEntity> {
-		const entry = {
-			name: user.name,
-			email: user.email,
-			password: user.password,
-			language: user.language,
-		};
-
-		return this.userRepository.save(entry);
-	}
+    public findById(id: number, withDeleted: boolean) {
+        return this.userRepository
+            .createQuery()
+            .filterById(id)
+            .withDeleted(withDeleted)
+            .firstOrFail();
+    }
 
 	/**
 	 * @description Update any data
@@ -129,10 +142,11 @@ class UserService implements IUserService {
 		const user = await this.findById(id, withDeleted);
 
 		if (data.email) {
-			const existingUser = await this.checkIfExistByEmail(
+			const existingUser = await this.findByEmail(
 				data.email,
 				true,
-				id,
+				undefined,
+                id
 			);
 
 			if (existingUser) {
@@ -183,25 +197,6 @@ class UserService implements IUserService {
 
 	public async restore(id: number) {
 		await this.userRepository.createQuery().filterById(id).restore();
-	}
-
-	public findById(id: number, withDeleted: boolean) {
-		return this.userRepository
-			.createQuery()
-			.filterById(id)
-			.withDeleted(withDeleted)
-			.firstOrFail();
-	}
-
-	public findByEmail(
-		email: string,
-		fields: string[] = ['id', 'password', 'status'],
-	) {
-		return this.userRepository
-			.createQuery()
-			.select(fields)
-			.filterByEmail(email)
-			.first();
 	}
 
 	public findByFilter(data: UserValidatorFindDto, withDeleted: boolean) {

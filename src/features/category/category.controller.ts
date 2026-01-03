@@ -107,7 +107,7 @@ class CategoryController extends BaseController {
 			throw new BadRequestError();
 		}
 
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			CategoryEntity.NAME,
 			res.locals.validated.id,
 			res.locals.validated.with_ancestors
@@ -120,7 +120,7 @@ class CategoryController extends BaseController {
 			'read',
 		);
 
-		const category = await cacheProvider.get(cacheKey, async () => {
+		const category = await this.cache.get(cacheKey, async () => {
 			const categoryEntry = await getCategoryRepository()
 				.createQuery()
 				.joinAndSelect(

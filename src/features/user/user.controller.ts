@@ -54,15 +54,15 @@ class UserController extends BaseController {
 			'read',
 		);
 
-		const user = await this.cache.get(cacheKey, async () =>
+		const entry = await this.cache.get(cacheKey, async () =>
 			this.userService.findById(
 				res.locals.validated.id,
 				this.policy.allowDeleted(res.locals.auth),
-			),
+			)
 		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(user);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -111,7 +111,6 @@ class UserController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
 		const data = this.validate<UserValidatorFindDto>(
 			this.validator.find(),
 			req.query,
