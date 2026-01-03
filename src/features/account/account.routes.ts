@@ -2,9 +2,9 @@ import {
 	authDefaultRateLimiter,
 	authLoginRateLimiter,
 } from '@/config/rate-limit.config';
-import {accountController} from '@/features/account/account.controller';
+import { accountController } from '@/features/account/account.controller';
+import { validateParamsWhenString } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
-import {validateParamsWhenString} from "@/lib/middleware/validate-params.middleware";
 
 export default {
 	basePath: '/account',
@@ -43,7 +43,7 @@ export default {
 			path: '/password-recover-change/:ident',
 			method: 'post',
 			action: 'passwordRecoverChange',
-            handlers: [validateParamsWhenString('ident')],
+			handlers: [validateParamsWhenString('ident')],
 		},
 		'password-update': {
 			path: '/password-update',
@@ -54,7 +54,7 @@ export default {
 			path: '/email-confirm/:token',
 			method: 'post',
 			action: 'emailConfirm',
-            handlers: [validateParamsWhenString('token')],
+			handlers: [validateParamsWhenString('token')],
 		},
 		'email-confirm-send': {
 			path: '/email-confirm-send',

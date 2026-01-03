@@ -1,4 +1,4 @@
-import {cronHistoryController} from '@/features/cron-history/cron-history.controller';
+import { cronHistoryController } from '@/features/cron-history/cron-history.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 

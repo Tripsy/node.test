@@ -1,4 +1,4 @@
-import {logDataController} from '@/features/log-data/log-data.controller';
+import { logDataController } from '@/features/log-data/log-data.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 

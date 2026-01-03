@@ -1,6 +1,4 @@
-import {
-    userPermissionController
-} from '@/features/user-permission/user-permission.controller';
+import { userPermissionController } from '@/features/user-permission/user-permission.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 

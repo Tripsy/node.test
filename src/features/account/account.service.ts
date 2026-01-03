@@ -1,122 +1,68 @@
 import bcrypt from 'bcrypt';
-import type { Request } from 'express';
 import jwt from 'jsonwebtoken';
-import type { Repository } from 'typeorm/repository/Repository';
-import { v4 as uuid } from 'uuid';
+import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
+import type { AccountValidatorRegisterDto } from '@/features/account/account.validator';
 import {
-	type AccountRecoveryQuery,
-	getAccountRecoveryRepository,
-} from '@/features/account/account-recovery.repository';
-import type AccountTokenEntity from '@/features/account/account-token.entity';
+	accountEmailService,
+	type IAccountEmailService,
+} from '@/features/account/account-email.service';
 import {
-	type AccountTokenQuery,
-	getAccountTokenRepository,
-} from '@/features/account/account-token.repository';
-import UserEntity, {UserStatusEnum} from '@/features/user/user.entity';
+	accountRecoveryService,
+	type IAccountRecoveryService,
+} from '@/features/account/account-recovery.service';
+import type UserEntity from '@/features/user/user.entity';
+import { UserStatusEnum } from '@/features/user/user.entity';
 import { type IUserService, userService } from '@/features/user/user.service';
-import {
-	createFutureDate,
-	getErrorMessage,
-	getMetaDataValue,
-	type TokenMetadata,
-	tokenMetaData,
-} from '@/lib/helpers';
-import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
-import type { EmailTemplate } from '@/lib/types/template.type';
-import type {
-	AuthTokenPayload,
-	AuthValidToken,
-	ConfirmationTokenPayload,
-} from '@/lib/types/token.type';
-import {AccountValidatorRegisterDto} from "@/features/account/account.validator";
-import {getUserRepository} from "@/features/user/user.repository";
-import {BadRequestError, CustomError, NotFoundError} from "@/lib/exceptions";
-import {lang} from "@/config/i18n.setup";
+import { BadRequestError, CustomError } from '@/lib/exceptions';
+import { createFutureDate } from '@/lib/helpers';
 
-export interface IAccountRecoveryService {
-	setupRecovery(
-		user: Partial<UserEntity> & { id: number },
-		metadata: TokenMetadata,
-	): Promise<[string, Date]>;
-
-	removeAccountRecoveryForUser(user_id: number): Promise<void>;
-
-    countRecoveryAttempts(user_id: number, sinceDate: Date): Promise<number>;
-
-    findByIdent(ident: string, fields?: string[]): Promise<AccountRecoveryEntity | null>;
-}
-
-class AccountRecoveryService implements IAccountRecoveryService {
-	constructor(
-		private accountRecoveryRepository: Repository<AccountRecoveryEntity> & {
-			createQuery(): AccountRecoveryQuery;
-		},
-	) {}
-
-	/**
-	 * @description Creates a new recovery token via repository
-	 */
-	public async setupRecovery(
-		user: Partial<UserEntity> & { id: number },
-		metadata: TokenMetadata,
-	): Promise<[string, Date]> {
-		const ident: string = uuid();
-		const expire_at = createFutureDate(
-			cfg('user.recoveryIdentExpiresIn') as number,
-		);
-
-		const accountRecoveryEntity = new AccountRecoveryEntity();
-		accountRecoveryEntity.user_id = user.id;
-		accountRecoveryEntity.ident = ident;
-		accountRecoveryEntity.metadata = metadata;
-		accountRecoveryEntity.expire_at = expire_at;
-
-		await this.accountRecoveryRepository.save(accountRecoveryEntity);
-
-		return [ident, expire_at];
-	}
-
-	/**
-	 * @description Removes all recovery tokens for a user
-	 */
-	public async removeAccountRecoveryForUser(user_id: number): Promise<void> {
-		await this.accountRecoveryRepository
-			.createQuery()
-			.filterBy('user_id', user_id)
-			.delete(false, true);
-	}
-
-    public async countRecoveryAttempts(user_id: number, sinceDate: Date) {
-        return this.accountRecoveryRepository
-            .createQuery()
-            .filterBy('user_id', user_id)
-            .filterByRange('created_at', sinceDate)
-            .count();
-    }
-
-    public async findByIdent(ident: string, fields = ['id', 'user_id', 'metadata', 'used_at', 'expire_at']) {
-        return this.accountRecoveryRepository
-            .createQuery()
-            .select(fields)
-            .filterByIdent(ident)
-            .first();
-    }
-}
+export type ConfirmationTokenPayload = {
+	user_id: number;
+	user_email: string;
+	user_email_new?: string;
+};
 
 export interface IAccountService {
 	encryptPassword(password: string): Promise<string>;
 	checkPassword(password: string, hashedPassword: string): Promise<boolean>;
 	updatePassword(user: UserEntity, password: string): Promise<void>;
-    register(data: AccountValidatorRegisterDto, language: string): Promise<UserEntity>;
+	register(
+		data: AccountValidatorRegisterDto,
+		language: string,
+	): Promise<UserEntity>;
+	processEmailConfirmCreate(
+		user: Partial<UserEntity> & {
+			id: number;
+			name: string;
+			email: string;
+			language: string;
+			status: UserStatusEnum;
+		},
+	): void;
+	processRegistration(
+		user: Partial<UserEntity> & {
+			id: number;
+			name: string;
+			email: string;
+			language: string;
+			status: UserStatusEnum;
+		},
+	): void;
+	createConfirmationToken(
+		user: Partial<UserEntity> & { id: number; email: string },
+		email_new?: string,
+	): {
+		token: string;
+		expire_at: Date;
+	};
 }
 
 class AccountService implements IAccountService {
 	constructor(
 		private userService: IUserService,
-        private userRepository: Repository<UserEntity>,
 		private accountRecoveryService: IAccountRecoveryService,
+		private accountEmailService: IAccountEmailService,
 	) {}
 
 	/**
@@ -155,368 +101,35 @@ class AccountService implements IAccountService {
 		await this.accountRecoveryService.removeAccountRecoveryForUser(user.id);
 	}
 
-    public async register(data: AccountValidatorRegisterDto, language: string): Promise<UserEntity> {
-        const existingUser = await this.userService.checkIfExistByEmail(data.email, true);
-
-        if (existingUser) {
-            if (existingUser.status === UserStatusEnum.PENDING) {
-                throw new CustomError(
-                    409,
-                    lang('account.error.pending_account'),
-                );
-            } else {
-                throw new BadRequestError(
-                    lang('account.error.email_already_used'),
-                );
-            }
-        }
-
-        const entry = {
-            name: data.name,
-            email: data.email,
-            password: data.password,
-            language: data.language || language
-        };
-
-        return this.userRepository.save(entry);
-    }
-}
-
-export interface IAccountEmailService {
-	sendEmailConfirmCreate(user: {
-		id: number;
-		name: string;
-		email: string;
-		language: string;
-	}): Promise<void>;
-
-	sendEmailConfirmUpdate(
-		user: {
-			id: number;
-			name: string;
-			email: string;
-			language: string;
-		},
-		email_new: string,
-	): Promise<void>;
-
-	sendWelcomeEmail(user: {
-		name: string;
-		email: string;
-		language: string;
-	}): Promise<void>;
-
-    sendEmailPasswordRecover(user: {
-        name: string;
-        email: string;
-        language: string;
-    }, token: {
-        ident: string;
-        expire_at: Date;
-    }): Promise<void>;
-}
-
-class AccountEmailService implements IAccountEmailService {
-	constructor(private accountTokenService: IAccountTokenService) {}
-
-	public async sendEmailConfirmUpdate(
-		user: Partial<UserEntity> & {
-			id: number;
-			name: string;
-			email: string;
-			language: string;
-		},
-		email_new: string,
-	): Promise<void> {
-		const { token, expire_at } =
-			this.accountTokenService.createConfirmationToken(user, email_new);
-
-		const emailTemplate: EmailTemplate = await loadEmailTemplate(
-			'email-confirm-update',
-			user.language,
+	public async register(
+		data: AccountValidatorRegisterDto,
+		language: string,
+	): Promise<UserEntity> {
+		const existingUser = await this.userService.checkIfExistByEmail(
+			data.email,
+			true,
 		);
 
-		emailTemplate.content.vars = {
-			name: user.name,
-			token: encodeURIComponent(token),
-			expire_at: expire_at.toISOString(),
-		};
-
-		await queueEmail(emailTemplate, {
-			name: user.name,
-			address: email_new,
-		});
-	}
-
-	public async sendWelcomeEmail(
-		user: Partial<UserEntity> & {
-			name: string;
-			email: string;
-			language: string;
-		},
-	): Promise<void> {
-		const emailTemplate: EmailTemplate = await loadEmailTemplate(
-			'email-welcome',
-			user.language,
-		);
-
-		emailTemplate.content.vars = {
-			name: user.name,
-		};
-
-		await queueEmail(emailTemplate, {
-			name: user.name,
-			address: user.email,
-		});
-	}
-
-	public async sendEmailConfirmCreate(
-		user: Partial<UserEntity> & {
-			id: number;
-			name: string;
-			email: string;
-			language: string;
-		},
-	): Promise<void> {
-		const { token, expire_at } =
-			this.accountTokenService.createConfirmationToken(user);
-
-		const emailTemplate: EmailTemplate = await loadEmailTemplate(
-			'email-confirm-create',
-			user.language,
-		);
-
-		emailTemplate.content.vars = {
-			name: user.name,
-			token: encodeURIComponent(token),
-			expire_at: expire_at.toISOString(),
-		};
-
-		await queueEmail(emailTemplate, {
-			name: user.name,
-			address: user.email,
-		});
-	}
-
-    public async sendEmailPasswordRecover(
-        user: Partial<UserEntity> & {
-            name: string;
-            email: string;
-            language: string;
-        },
-        token: Partial<AccountRecoveryEntity> & {
-            ident: string,
-            expire_at: Date,
-        }
-    ): Promise<void> {
-        const emailTemplate: EmailTemplate = await loadEmailTemplate(
-            'password-recover',
-            user.language,
-        );
-
-        emailTemplate.content.vars = {
-            name: user.name,
-            ident: token.ident,
-            expire_at: token.expire_at.toISOString(),
-        };
-
-        await queueEmail(emailTemplate, {
-            name: user.name,
-            address: user.email,
-        });
-    }
-}
-
-export interface IAccountTokenService {
-	getAuthTokenFromHeaders(req: Request): string | undefined;
-
-	getActiveAuthToken(req: Request): Promise<AccountTokenEntity>;
-
-	generateAuthToken(user: Partial<UserEntity> & { id: number }): {
-		token: string;
-		ident: string;
-		expire_at: Date;
-	};
-
-	setupAuthToken(
-		user: Partial<UserEntity> & { id: number },
-		req: Request,
-	): Promise<string>;
-
-	removeAccountTokenForUser(user_id: number): Promise<void>;
-
-    removeAccountTokenByIdent(ident: string): Promise<void>;
-
-	getAuthValidTokens(user_id: number): Promise<AuthValidToken[]>;
-
-	createConfirmationToken(
-		user: Partial<UserEntity> & { id: number; email: string },
-		email_new?: string,
-	): {
-		token: string;
-		expire_at: Date;
-	};
-}
-
-class AccountTokenService implements IAccountTokenService {
-	constructor(
-		private accountTokenRepository: Repository<AccountTokenEntity> & {
-			createQuery(): AccountTokenQuery;
-		},
-	) {}
-
-	/**
-	 * @description Gets the auth token from the request headers
-	 * @param req
-	 */
-	public getAuthTokenFromHeaders(req: Request): string | undefined {
-		return req.headers.authorization?.split(' ')[1];
-	}
-
-	/**
-	 * @description Gets the active auth token from the request headers
-	 */
-	public async getActiveAuthToken(req: Request): Promise<AccountTokenEntity> {
-		// Read the token from the request
-		const token: string | undefined = this.getAuthTokenFromHeaders(req);
-
-		if (!token) {
-			throw new Error('Token not found');
+		if (existingUser) {
+			if (existingUser.status === UserStatusEnum.PENDING) {
+				throw new CustomError(
+					409,
+					lang('account.error.pending_account'),
+				);
+			} else {
+				throw new BadRequestError(
+					lang('account.error.email_already_used'),
+				);
+			}
 		}
 
-		// Verify JWT and extract payload
-		let payload: AuthTokenPayload;
-
-		try {
-			payload = jwt.verify(
-				token,
-				cfg('user.authSecret') as string,
-			) as AuthTokenPayload;
-		} catch (err) {
-			throw new CustomError(406, `Unable to verify token ${getErrorMessage(err)}`);
-		}
-
-		const activeToken = await this.accountTokenRepository
-			.createQuery()
-			.filterByIdent(payload.ident)
-			.filterBy('user_id', payload.user_id)
-			.first();
-
-		if (!activeToken) {
-			throw new NotFoundError('No active token found');
-		}
-
-		return activeToken;
-	}
-
-	/**
-	 * @description Generates a new auth token
-	 */
-	public generateAuthToken(user: Partial<UserEntity> & { id: number }): {
-		token: string;
-		ident: string;
-		expire_at: Date;
-	} {
-		if (!user.id) {
-			throw new Error('User object must contain `id` property.');
-		}
-
-		const ident: string = uuid();
-		const expire_at: Date = createFutureDate(
-			cfg('user.authExpiresIn') as number,
-		);
-
-		const payload: AuthTokenPayload = {
-			user_id: user.id,
-			ident: ident,
-		};
-
-		const token = jwt.sign(payload, cfg('user.authSecret') as string);
-
-		return { token, ident, expire_at };
-	}
-
-	/**
-	 * @description Gets the valid auth tokens for a user via repository
-	 */
-	public async getAuthValidTokens(
-		user_id: number,
-	): Promise<AuthValidToken[]> {
-		const authValidTokens = await this.accountTokenRepository
-			.createQuery()
-			.select(['id', 'ident', 'metadata', 'used_at'])
-			.filterBy('user_id', user_id)
-			.filterByRange('expire_at', new Date())
-			.all();
-
-		return authValidTokens.map((token) => {
-			return {
-				ident: token.ident,
-				label: token.metadata
-					? getMetaDataValue(token.metadata, 'user-agent')
-					: '',
-				used_at: token.used_at,
-				used_now: false,
-			};
+		return this.userService.register({
+			name: data.name,
+			email: data.email,
+			password: data.password,
+			language: data.language || language,
 		});
 	}
-
-	/**
-	 * @description Creates a new auth token via repository
-	 */
-	private createAuthToken(
-		data: Partial<AccountTokenEntity>,
-	): Promise<AccountTokenEntity> {
-		const entry = {
-			user_id: data.user_id,
-			ident: data.ident,
-			metadata: data.metadata,
-			used_at: data.used_at,
-			expire_at: data.expire_at,
-		};
-
-		return this.accountTokenRepository.save(entry);
-	}
-
-	/**
-	 * @description Generate a new auth token and returns the token
-	 */
-	public async setupAuthToken(
-		user: Partial<UserEntity> & { id: number },
-		req: Request,
-	): Promise<string> {
-		const { token, ident, expire_at } = this.generateAuthToken(user);
-
-		await this.createAuthToken({
-			user_id: user.id,
-			ident: ident,
-			metadata: tokenMetaData(req),
-			used_at: new Date(),
-			expire_at: expire_at,
-		});
-
-		return token;
-	}
-
-	/**
-	 * @description Removes all auth tokens for a user
-	 */
-	public async removeAccountTokenForUser(user_id: number): Promise<void> {
-		await this.accountTokenRepository
-			.createQuery()
-			.filterBy('user_id', user_id)
-			.delete(false, true);
-	}
-
-    /**
-     * @description Removes a single auth token for a user
-     */
-    public async removeAccountTokenByIdent(ident: string): Promise<void> {
-        await this.accountTokenRepository
-            .createQuery()
-            .filterByIdent(ident)
-            .delete(false);
-    }
 
 	/**
 	 * This method has a double utility:
@@ -563,20 +176,47 @@ class AccountTokenService implements IAccountTokenService {
 
 		return { token, expire_at };
 	}
-}
 
-export const accountRecoveryService = new AccountRecoveryService(
-	getAccountRecoveryRepository(),
-);
+	public processEmailConfirmCreate(
+		user: Partial<UserEntity> & {
+			id: number;
+			name: string;
+			email: string;
+			language: string;
+			status: UserStatusEnum;
+		},
+	): void {
+		const { token, expire_at } = this.createConfirmationToken(user);
+
+		void this.accountEmailService.sendEmailConfirmCreate(
+			user,
+			token,
+			expire_at,
+		);
+	}
+
+	public processRegistration(
+		user: Partial<UserEntity> & {
+			id: number;
+			name: string;
+			email: string;
+			language: string;
+			status: UserStatusEnum;
+		},
+	): void {
+		switch (user.status) {
+			case UserStatusEnum.ACTIVE:
+				void this.accountEmailService.sendWelcomeEmail(user);
+				break;
+			case UserStatusEnum.PENDING:
+				void this.processEmailConfirmCreate(user);
+				break;
+		}
+	}
+}
 
 export const accountService = new AccountService(
 	userService,
-    getUserRepository(),
 	accountRecoveryService,
+	accountEmailService,
 );
-
-export const accountTokenService = new AccountTokenService(
-	getAccountTokenRepository(),
-);
-
-export const accountEmailService = new AccountEmailService(accountTokenService);

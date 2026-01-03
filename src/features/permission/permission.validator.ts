@@ -31,7 +31,7 @@ export function PermissionFindValidator() {
 		directionEnum: OrderDirectionEnum,
 		defaultDirection: OrderDirectionEnum.ASC,
 
-		defaultLimit: cfg('filter.limit') as number,
+		defaultLimit: this.defaultFilterLimit,
 		defaultPage: 1,
 
 		filterShape: {

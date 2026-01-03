@@ -1,27 +1,30 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
+import { cronHistoryPolicy } from '@/features/cron-history/cron-history.policy';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import {
 	CronHistoryDeleteValidator,
 	CronHistoryFindValidator,
 } from '@/features/cron-history/cron-history.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import {cronHistoryPolicy} from "@/features/cron-history/cron-history.policy";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class CronHistoryController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: ICronHistoryValidator,
-        private cache: CacheProvider,
-        private cronHistoryService: ICronHistoryService,
-    ) {
-        super();
-    }
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: ICronHistoryValidator,
+		private cache: CacheProvider,
+		private cronHistoryService: ICronHistoryService,
+	) {
+		super();
+	}
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
@@ -113,22 +116,22 @@ class CronHistoryController extends BaseController {
 }
 
 export function createCronHistoryController(deps: {
-    policy: PolicyAbstract;
-    validator: ICronHistoryValidator;
-    cache: CacheProvider;
-    cronHistoryService: ICronHistoryService;
+	policy: PolicyAbstract;
+	validator: ICronHistoryValidator;
+	cache: CacheProvider;
+	cronHistoryService: ICronHistoryService;
 }) {
-    return new CronHistoryController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.cronHistoryService,
-    );
+	return new CronHistoryController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.cronHistoryService,
+	);
 }
 
 export const cronHistoryController = createCronHistoryController({
-    policy: cronHistoryPolicy,
-    validator: cronHistoryValidator,
-    cache: cacheProvider,
-    cronHistoryService: cronHistoryService,
+	policy: cronHistoryPolicy,
+	validator: cronHistoryValidator,
+	cache: cacheProvider,
+	cronHistoryService: cronHistoryService,
 });

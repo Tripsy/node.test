@@ -1,1134 +1,772 @@
+// // __tests__/unit/account.controller.test.ts
+// import type { Request, Response } from 'express';
 // import jwt from 'jsonwebtoken';
-// import request from 'supertest';
-// import AccountPolicy from '@/features/account/account.policy';
-// import * as accountService from '@/features/account/account.service';
-// import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
-// import AccountRecoveryRepository from '@/features/account/account-recovery.repository';
-// import AccountTokenRepository from '@/features/account/account-token.repository';
-// import type UserEntity from '@/features/user/user.entity';
-// import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
-// import * as emailProvider from '@/lib/providers/email.provider';
+// import { UserStatusEnum } from '@/features/user/user.entity';
+// import {  createAccountController } from '@/features/account/account.controller';
 // import type {
-// 	AuthValidToken,
-// 	ConfirmationTokenPayload,
-// } from '@/lib/types/token.type';
-// import '../jest-functional.setup';
-//
-// import app from '@/app';
-// import { routeLink } from '@/config/routes.setup';
-// import * as settingsModule from '@/config/settings.config';
-// import {
-// 	getUserRepository,
-// 	type UserQuery,
-// } from '@/features/user/user.repository';
-// import { NotAllowedError } from '@/lib/exceptions';
-// import { createFutureDate, type ObjectValue } from '@/lib/helpers';
-// import * as metaDataHelper from '@/lib/helpers/meta-data.helper';
-//
-// beforeEach(() => {
-// 	jest.clearAllMocks();
-// 	jest.restoreAllMocks();
-// });
-//
-// describe('AccountController - register', () => {
-// 	const accountRegisterLink = routeLink('account.register', {}, false);
-//
-// 	const testData = {
-// 		name: 'John Doe',
-// 		email: 'john.doe@example.com',
-// 		password: 'Password123!',
-// 		password_confirm: 'Password123!',
-// 		language: 'en',
-// 	};
-//
-// 	const mockUser: UserEntity = {
-// 		id: 1,
-// 		name: 'John Doe',
-// 		password: 'hashed-password',
-// 		password_updated_at: new Date(),
-// 		email: 'john.doe@example.com',
-// 		email_verified_at: new Date(),
-// 		status: UserStatusEnum.PENDING,
-// 		language: 'en',
-// 		role: UserRoleEnum.MEMBER,
-// 		operator_type: null,
-// 		created_at: new Date(),
-// 		updated_at: null,
-// 		deleted_at: null,
-// 	};
-//
-// 	it('simulate existing user', async () => {
-// 		const mockQueryBuilderUser = {
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountRegisterLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(409);
-// 		expect(response.body.message).toBe('account.error.email_already_used');
-// 	});
-//
-// 	it('should register a new user', async () => {
-// 		const mockQueryBuilderUser = {
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(null),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		jest.spyOn(getUserRepository(), 'save').mockResolvedValue(mockUser);
-//
-// 		const response = await request(app)
-// 			.post(accountRegisterLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.register');
-// 		expect(response.body.data).toHaveProperty('name', mockUser.name);
-// 	});
-// });
-//
-// describe('AccountController - login', () => {
-// 	const accountLoginLink = routeLink('account.login', {}, false);
-//
-// 	const testData = {
-// 		email: 'john.doe@example.com',
-// 		password: 'password123',
-// 	};
-//
-// 	const mockUser: Partial<UserEntity> = {
-// 		id: 1,
-// 		email: 'john.doe@example.com',
-// 		password: 'password123',
-// 		status: UserStatusEnum.ACTIVE,
-// 	};
-//
-// 	const mockToken = 'test-token';
-//
-// 	const mockAuthValidTokens: AuthValidToken[] = [
-// 		{
-// 			ident: 'afa6b787-x123-x456-x789-b9a840284bb5',
-// 			label: '',
-// 			used_at: new Date(),
-// 			used_now: false,
-// 		},
-// 	];
-//
-// 	it('should fail if authenticated', async () => {
-// 		jest.spyOn(AccountPolicy.prototype, 'login').mockImplementation(() => {
-// 			throw new NotAllowedError('account.error.already_logged_in');
-// 		});
-//
-// 		const response = await request(app)
-// 			.post(accountLoginLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(403);
-// 	});
-//
-// 	it('when user is not found', async () => {
-// 		jest.spyOn(
-// 			AccountPolicy.prototype,
-// 			'checkRateLimitOnLogin',
-// 		).mockImplementation();
-//
-// 		const response = await request(app)
-// 			.post(accountLoginLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(404);
-// 		expect(response.body.message).toBe('user.error.not_found');
-// 	});
-//
-// 	it('simulate user is not active', async () => {
-// 		jest.spyOn(
-// 			AccountPolicy.prototype,
-// 			'checkRateLimitOnLogin',
-// 		).mockImplementation();
-//
-// 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.PENDING);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountLoginLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 		expect(response.body.message).toBe('account.error.not_active');
-// 	});
-//
-// 	it('should return 401 Unauthorized with invalid credentials', async () => {
-// 		jest.spyOn(
-// 			AccountPolicy.prototype,
-// 			'checkRateLimitOnLogin',
-// 		).mockImplementation();
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		jest.spyOn(accountService, 'checkPassword').mockResolvedValue(false);
-//
-// 		const response = await request(app)
-// 			.post(accountLoginLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(401);
-// 	});
-//
-// 	it('should login successfully with valid credentials', async () => {
-// 		jest.spyOn(
-// 			AccountPolicy.prototype,
-// 			'checkRateLimitOnLogin',
-// 		).mockImplementation();
-//
-// 		const originalCfg = settingsModule.cfg;
-//
-// 		jest.spyOn(settingsModule, 'cfg').mockImplementation(
-// 			(key: string): ObjectValue => {
-// 				if (key === 'user.maxActiveSessions') {
-// 					return 3;
-// 				}
-//
-// 				return originalCfg(key);
-// 			},
-// 		);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		jest.spyOn(accountService, 'checkPassword').mockResolvedValue(true);
-// 		jest.spyOn(accountService, 'getAuthValidTokens').mockResolvedValue(
-// 			mockAuthValidTokens,
-// 		);
-// 		jest.spyOn(accountService, 'setupAuthToken').mockResolvedValue(mockToken);
-//
-// 		const response = await request(app)
-// 			.post(accountLoginLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.login');
-// 		expect(response.body.data.token).toBe(mockToken);
-// 	});
-//
-// 	it('simulate too many active sessions', async () => {
-// 		jest.spyOn(
-// 			AccountPolicy.prototype,
-// 			'checkRateLimitOnLogin',
-// 		).mockImplementation();
-//
-// 		// Set a number lower or equal than mockAuthValidTokens.length to trigger condition authValidTokens.length >= settings.user.maxActiveSessions
-// 		const originalCfg = settingsModule.cfg;
-//
-// 		jest.spyOn(settingsModule, 'cfg').mockImplementation(
-// 			(key: string): ObjectValue => {
-// 				if (key === 'user.maxActiveSessions') {
-// 					return 1;
-// 				}
-//
-// 				return originalCfg(key);
-// 			},
-// 		);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		jest.spyOn(accountService, 'checkPassword').mockResolvedValue(true);
-// 		jest.spyOn(accountService, 'getAuthValidTokens').mockResolvedValue(
-// 			mockAuthValidTokens,
-// 		);
-// 		jest.spyOn(accountService, 'setupAuthToken').mockResolvedValue(mockToken);
-//
-// 		const response = await request(app)
-// 			.post(accountLoginLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(403);
-// 		expect(response.body.message).toBe('account.error.max_active_sessions');
-// 		expect(
-// 			response.body.data.authValidTokens.map((item: AuthValidToken) => ({
-// 				...item,
-// 				used_at: new Date(item.used_at),
-// 			})),
-// 		).toEqual(mockAuthValidTokens);
-// 	});
-// });
-//
-// describe('AccountController - removeToken', () => {
-// 	const accountRemoveTokenLink = routeLink('account.removeToken', {}, false);
-//
-// 	const testData = {
-// 		ident: 'c451f415-d8cc-4639-86bb-ec7779cb8eed',
-// 	};
-//
-// 	it('should throw bad request on invalid ident', async () => {
-// 		jest.replaceProperty(testData, 'ident', 'invalid-ident');
-//
-// 		const response = await request(app)
-// 			.delete(accountRemoveTokenLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 	});
-//
-// 	it('should return success', async () => {
-// 		const mockQueryBuilderAccountToken = {
-// 			filterByIdent: jest.fn().mockReturnThis(),
-// 			delete: jest.fn().mockResolvedValue(1),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountTokenRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountToken,
-// 		);
-//
-// 		const response = await request(app)
-// 			.delete(accountRemoveTokenLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.token_deleted');
-// 	});
-// });
-//
-// describe('AccountController - logout', () => {
-// 	const accountLogoutLink = routeLink('account.logout', {}, false);
-//
-// 	it('should fail if not authenticated', async () => {
-// 		const response = await request(app).delete(accountLogoutLink).send();
-//
-// 		// Assertions
-// 		expect(response.status).toBe(401);
-// 	});
-//
-// 	it('should return success', async () => {
-// 		jest.spyOn(AccountPolicy.prototype, 'logout').mockImplementation();
-//
-// 		jest.spyOn(accountService, 'getActiveAuthToken').mockResolvedValue({
-// 			id: 1,
-// 			ident: 'test-ident-123',
-// 			user_id: 1,
-// 			created_at: new Date(),
-// 			used_at: new Date(),
-// 			expire_at: new Date(Date.now() + 86400000),
-// 		});
-//
-// 		const mockQueryBuilderAccountToken = {
-// 			filterBy: jest.fn().mockReturnThis(),
-// 			delete: jest.fn().mockResolvedValue(1),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountTokenRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountToken,
-// 		);
-//
-// 		const response = await request(app).delete(accountLogoutLink).send();
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.logout');
-// 	});
-// });
-//
-// describe('AccountController - passwordRecover', () => {
-// 	const accountPasswordRecoverLink = routeLink(
-// 		'account.passwordRecover',
-// 		{},
-// 		false,
-// 	);
-//
-// 	const testData = {
-// 		email: 'sample@email.com',
-// 	};
-//
-// 	const mockUser: Partial<UserEntity> = {
-// 		id: 1,
-// 		name: 'John Doe',
-// 		email: 'john.doe@example.com',
-// 		language: 'en',
-// 		status: UserStatusEnum.PENDING,
-// 	};
-//
-// 	it('should return not found for pending user', async () => {
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordRecoverLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(404);
-// 		expect(response.body.message).toBe('account.error.not_active');
-// 	});
-//
-// 	it('should simulate recovery attempts exceeded', async () => {
-// 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const originalCfg = settingsModule.cfg;
-//
-// 		jest.spyOn(settingsModule, 'cfg').mockImplementation(
-// 			(key: string): ObjectValue => {
-// 				if (key === 'user.recoveryAttemptsInLastSixHours') {
-// 					return 3;
-// 				}
-//
-// 				return originalCfg(key);
-// 			},
-// 		);
-//
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterBy: jest.fn().mockReturnThis(),
-// 			filterByRange: jest.fn().mockReturnThis(),
-// 			count: jest.fn().mockResolvedValue(10),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordRecoverLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 		expect(response.body.message).toBe(
-// 			'account.error.recovery_attempts_exceeded',
-// 		);
-// 	});
-//
-// 	it('should return success', async () => {
-// 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterBy: jest.fn().mockReturnThis(),
-// 			filterByRange: jest.fn().mockReturnThis(),
-// 			count: jest.fn().mockResolvedValue(0),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		jest.spyOn(accountService, 'setupRecovery').mockResolvedValue([
-// 			'random-ident',
-// 			new Date('2025-01-01T00:00:00Z'),
-// 		]);
-// 		jest.spyOn(emailProvider, 'loadEmailTemplate').mockResolvedValue({
-// 			id: 1,
-// 			language: 'en',
-// 			content: {
-// 				subject: 'Recover password',
-// 				text: 'Recover password',
-// 				html: 'Recover password',
-// 			},
-// 		});
-// 		jest.spyOn(emailProvider, 'queueEmail').mockImplementation();
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordRecoverLink)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.password_recover');
-// 	});
-// });
-//
-// describe('AccountController - passwordRecoverChange', () => {
-// 	const accountPasswordRecoverChange = routeLink(
-// 		'account.passwordRecoverChange',
-// 		{
-// 			ident: 'random-ident',
-// 		},
-// 		false,
-// 	);
-//
-// 	const testData = {
-// 		password: 'StrongP@ssw0rd',
-// 		password_confirm: 'StrongP@ssw0rd',
-// 	};
-//
-// 	const mockAccountRecovery: Partial<AccountRecoveryEntity> = {
-// 		id: 1,
-// 		ident: 'random-ident',
-// 		user_id: 1,
-// 		metadata: {
-// 			email: 'john.doe@example.com',
-// 		},
-// 		used_at: undefined,
-// 		expire_at: createFutureDate(3000),
-// 	};
-//
-// 	const mockUser: Partial<UserEntity> = {
-// 		id: 1,
-// 		name: 'John Doe',
-// 		email: 'john.doe@example.com',
-// 		language: 'en',
-// 		status: UserStatusEnum.PENDING,
-// 	};
-//
-// 	it('should throw bad request when recovery token was already used', async () => {
-// 		jest.replaceProperty(
-// 			mockAccountRecovery,
-// 			'used_at',
-// 			new Date('2025-01-01T00:00:00Z'),
-// 		);
-//
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByIdent: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordRecoverChange)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 		expect(response.body.message).toBe('account.error.recovery_token_used');
-// 	});
-//
-// 	it('should throw bad request when recovery token is expired', async () => {
-// 		jest.replaceProperty(
-// 			mockAccountRecovery,
-// 			'expire_at',
-// 			new Date('2024-01-01T00:00:00Z'),
-// 		);
-//
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByIdent: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordRecoverChange)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 		expect(response.body.message).toBe(
-// 			'account.error.recovery_token_expired',
-// 		);
-// 	});
-//
-// 	it("should throw bad request when token meta doesn't match", async () => {
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByIdent: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		const originalCfg = settingsModule.cfg;
-//
-// 		jest.spyOn(settingsModule, 'cfg').mockImplementation(
-// 			(key: string): ObjectValue => {
-// 				if (key === 'user.recoveryEnableMetadataCheck') {
-// 					return true;
-// 				}
-//
-// 				return originalCfg(key);
-// 			},
-// 		);
-//
-// 		jest.spyOn(metaDataHelper, 'compareMetaDataValue').mockReturnValue(
-// 			false,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordRecoverChange)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 		expect(response.body.message).toBe(
-// 			'account.error.recovery_token_not_authorized',
-// 		);
-// 	});
-//
-// 	it('should throw not found if user is not active', async () => {
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByIdent: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		const originalCfg = settingsModule.cfg;
-//
-// 		jest.spyOn(settingsModule, 'cfg').mockImplementation(
-// 			(key: string): ObjectValue => {
-// 				if (key === 'user.recoveryEnableMetadataCheck') {
-// 					return false;
-// 				}
-//
-// 				return originalCfg(key);
-// 			},
-// 		);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordRecoverChange)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(404);
-// 		expect(response.body.message).toBe('account.error.not_found');
-// 	});
-//
-// 	it('should return success', async () => {
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterByIdent: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockAccountRecovery),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		const originalCfg = settingsModule.cfg;
-//
-// 		jest.spyOn(settingsModule, 'cfg').mockImplementation(
-// 			(key: string): ObjectValue => {
-// 				if (key === 'user.recoveryEnableMetadataCheck') {
-// 					return false;
-// 				}
-//
-// 				return originalCfg(key);
-// 			},
-// 		);
-//
-// 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		jest.spyOn(getUserRepository(), 'save').mockImplementation();
-//
-// 		const mockQueryBuilderAccountToken = {
-// 			filterBy: jest.fn().mockReturnThis(),
-// 			delete: jest.fn().mockResolvedValue(1),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountTokenRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountToken,
-// 		);
-//
-// 		jest.spyOn(emailProvider, 'loadEmailTemplate').mockResolvedValue({
-// 			id: 1,
-// 			language: 'en',
-// 			content: {
-// 				subject: 'Password changed',
-// 				text: 'Password changed',
-// 				html: 'Password changed',
-// 			},
-// 		});
-// 		jest.spyOn(emailProvider, 'queueEmail').mockImplementation();
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordRecoverChange)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.password_changed');
-// 	});
-// });
-//
-// describe('AccountController - passwordUpdate', () => {
-// 	const accountPasswordUpdate = routeLink(
-// 		'account.passwordUpdate',
-// 		{},
-// 		false,
-// 	);
-//
-// 	const testData = {
-// 		password_current: '1OldP@ssw0rd',
-// 		password_new: 'StrongP@ssw0rd',
-// 		password_confirm: 'StrongP@ssw0rd',
-// 	};
-//
-// 	const mockUser: Partial<UserEntity> = {
-// 		id: 1,
-// 		name: 'John Doe',
-// 		email: 'john.doe@example.com',
-// 		language: 'en',
-// 		status: UserStatusEnum.ACTIVE,
-// 	};
-//
-// 	it('should fail if not authenticated', async () => {
-// 		const response = await request(app)
-// 			.post(accountPasswordUpdate)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(401);
-// 	});
-//
-// 	it('should simulate invalid password', async () => {
-// 		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
-//
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		jest.spyOn(accountService, 'checkPassword').mockResolvedValue(false);
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordUpdate)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 		expect(response.body).toMatchObject({
-// 			errors: expect.arrayContaining([
-// 				{ password_current: 'account.validation.password_invalid' },
-// 			]),
-// 		});
-// 	});
-//
-// 	it('should return success', async () => {
-// 		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
-//
-// 		const mockQueryBuilderAccountRecovery = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountRecoveryRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountRecoveryRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountRecovery,
-// 		);
-//
-// 		jest.spyOn(accountService, 'checkPassword').mockResolvedValue(true);
-//
-// 		jest.spyOn(getUserRepository(), 'save').mockImplementation();
-//
-// 		const mockQueryBuilderAccountToken = {
-// 			filterBy: jest.fn().mockReturnThis(),
-// 			delete: jest.fn().mockResolvedValue(1),
-// 		} as jest.MockedObject<
-// 			ReturnType<typeof AccountTokenRepository.createQuery>
-// 		>;
-//
-// 		jest.spyOn(AccountTokenRepository, 'createQuery').mockReturnValue(
-// 			mockQueryBuilderAccountToken,
-// 		);
-//
-// 		jest.spyOn(getUserRepository(), 'save').mockImplementation();
-//
-// 		const mockToken = 'test-token';
-//
-// 		jest.spyOn(accountService, 'setupAuthToken').mockResolvedValue(mockToken);
-//
-// 		const response = await request(app)
-// 			.post(accountPasswordUpdate)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.password_updated');
-// 		expect(response.body.data.token).toBe(mockToken);
-// 	});
-// });
-//
-// describe('AccountController - emailConfirm', () => {
-// 	const accountEmailConfirm = routeLink(
-// 		'account.emailConfirm',
-// 		{
-// 			token: 'test-token',
-// 		},
-// 		false,
-// 	);
-//
-// 	const mockUser: Partial<UserEntity> = {
-// 		id: 1,
-// 		status: UserStatusEnum.PENDING,
-// 	};
-//
-// 	const confirmationTokenPayload: ConfirmationTokenPayload = {
-// 		user_id: 1,
-// 		user_email: 'some@email.test',
-// 		user_email_new: undefined,
-// 	};
-//
-// 	it('should simulate invalid payload', async () => {
-// 		(jwt.verify as jest.Mock).mockImplementation(() => {
-// 			throw new Error('Invalid token');
-// 		});
-//
-// 		const response = await request(app).post(accountEmailConfirm).send();
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 		expect(response.body.message).toBe(
-// 			'account.error.confirmation_token_invalid',
-// 		);
-// 	});
-//
-// 	it('should simulate user is not found', async () => {
-// 		(jwt.verify as jest.Mock).mockReturnValue(confirmationTokenPayload);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(null),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app).post(accountEmailConfirm).send();
-//
-// 		// Assertions
-// 		expect(response.status).toBe(404);
-// 		expect(response.body.message).toBe('account.error.not_found');
-// 	});
-//
-// 	it('should return success with new email', async () => {
-// 		(jwt.verify as jest.Mock).mockReturnValue(confirmationTokenPayload);
-//
-// 		jest.replaceProperty(
-// 			confirmationTokenPayload,
-// 			'user_email_new',
-// 			'some-new@email.test',
-// 		);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		jest.spyOn(getUserRepository(), 'save').mockImplementation();
-//
-// 		const response = await request(app).post(accountEmailConfirm).send();
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.email_updated');
-// 	});
-//
-// 	it('should return bad request when account is already active', async () => {
-// 		(jwt.verify as jest.Mock).mockReturnValue(confirmationTokenPayload);
-//
-// 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.ACTIVE);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app).post(accountEmailConfirm).send();
-//
-// 		// Assertions
-// 		expect(response.status).toBe(400);
-// 		expect(response.body.message).toBe('account.error.already_active');
-// 	});
-//
-// 	it('should return bad request when account is inactive', async () => {
-// 		(jwt.verify as jest.Mock).mockReturnValue(confirmationTokenPayload);
-//
-// 		jest.replaceProperty(mockUser, 'status', UserStatusEnum.INACTIVE);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app).post(accountEmailConfirm).send();
-//
-// 		// Assertions
-// 		expect(response.status).toBe(403);
-// 	});
-//
-// 	it('should return success', async () => {
-// 		(jwt.verify as jest.Mock).mockReturnValue(confirmationTokenPayload);
-//
-// 		const mockQueryBuilderUser = {
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		jest.spyOn(getUserRepository(), 'save').mockImplementation();
-//
-// 		const response = await request(app).post(accountEmailConfirm).send();
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.email_confirmed');
-// 	});
-// });
-//
-// describe('AccountController - emailUpdate', () => {
-// 	const accountEmailUpdate = routeLink('account.emailUpdate', {}, false);
-//
-// 	const testData = {
-// 		email: 'some-new@email.com',
-// 	};
-//
-// 	const mockUser: Partial<UserEntity> = {
-// 		id: 1,
-// 		name: 'John Doe',
-// 		email: 'some@email.test',
-// 		language: 'en',
-// 	};
-//
-// 	it('should fail if not authenticated', async () => {
-// 		const response = await request(app)
-// 			.post(accountEmailUpdate)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(401);
-// 	});
-//
-// 	it('should return error if (new) email is already used by another account', async () => {
-// 		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
-//
-// 		jest.replaceProperty(mockUser, 'id', 2);
-//
-// 		// Mock - query for existing user
-// 		const mockQueryBuilderUser = {
-// 			filterBy: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountEmailUpdate)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(409);
-// 		expect(response.body.message).toBe('account.error.email_already_used');
-// 	});
-//
-// 	it('should return error if (new) email is the same', async () => {
-// 		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
-//
-// 		jest.replaceProperty(mockUser, 'email', 'some-new@email.com');
-//
-// 		const mockQueryBuilderUser = {
-// 			filterBy: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(null),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		const response = await request(app)
-// 			.post(accountEmailUpdate)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(409);
-// 		expect(response.body.message).toBe('account.error.email_same');
-// 	});
-//
-// 	it('should return success', async () => {
-// 		jest.spyOn(AccountPolicy.prototype, 'me').mockImplementation();
-//
-// 		const mockQueryBuilderUser = {
-// 			filterBy: jest.fn().mockReturnThis(),
-// 			filterByEmail: jest.fn().mockReturnThis(),
-// 			select: jest.fn().mockReturnThis(),
-// 			filterById: jest.fn().mockReturnThis(),
-// 			first: jest.fn().mockResolvedValue(null),
-// 			firstOrFail: jest.fn().mockResolvedValue(mockUser),
-// 		} as unknown as UserQuery;
-//
-// 		jest.spyOn(getUserRepository(), 'createQuery').mockReturnValue(
-// 			mockQueryBuilderUser,
-// 		);
-//
-// 		jest.spyOn(
-// 			accountService,
-// 			'sendEmailConfirmUpdate',
-// 		).mockImplementation();
-//
-// 		const response = await request(app)
-// 			.post(accountEmailUpdate)
-// 			.send(testData);
-//
-// 		// Assertions
-// 		expect(response.status).toBe(200);
-// 		expect(response.body.message).toBe('account.success.email_update');
-// 	});
+//     IAccountService,
+//     ConfirmationTokenPayload,
+// } from '@/features/account/account.service';
+// import type { IAccountValidator } from '@/features/account/account.validator';
+// import type { IAccountEmailService } from '@/features/account/account-email.service';
+// import type { IAccountRecoveryService } from '@/features/account/account-recovery.service';
+// import type {
+//     IAccountTokenService,
+//     AuthValidToken,
+// } from '@/features/account/account-token.service';
+// import type { IUserService } from '@/features/user/user.service';
+// import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
+//
+// // Mock dependencies
+// const mockPolicy = {
+//     notAuth: jest.fn(),
+//     requiredAuth: jest.fn(),
+//     getId: jest.fn(),
+// };
+//
+// const mockValidator = {
+//     register: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     login: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     removeToken: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     passwordRecover: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     passwordRecoverChange: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     passwordUpdate: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     emailConfirmSend: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     emailUpdate: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     edit: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+//     delete: jest.fn(() => ({ validate: jest.fn(() => ({ isValid: true })) })),
+// };
+//
+// const mockAccountService = {
+//     register: jest.fn(),
+//     checkPassword: jest.fn(() => Promise.resolve(true)),
+//     updatePassword: jest.fn(),
+//     processEmailConfirmCreate: jest.fn(),
+//     createConfirmationToken: jest.fn(),
+// };
+//
+// const mockAccountTokenService = {
+//     getAuthValidTokens: jest.fn(),
+//     setupAuthToken: jest.fn(),
+//     removeAccountTokenByIdent: jest.fn(),
+//     getActiveAuthToken: jest.fn(),
+// };
+//
+// const mockAccountRecoveryService = {
+//     countRecoveryAttempts: jest.fn(),
+//     setupRecovery: jest.fn(),
+//     findByIdent: jest.fn(),
+//     update: jest.fn(),
+// };
+//
+// const mockAccountEmailService = {
+//     sendEmailPasswordRecover: jest.fn(),
+//     sendEmailPasswordChange: jest.fn(),
+//     sendEmailConfirmUpdate: jest.fn(),
+// };
+//
+// const mockUserService = {
+//     findByEmail: jest.fn(),
+//     findById: jest.fn(),
+//     update: jest.fn(),
+//     delete: jest.fn(),
+// };
+//
+// // Mock configuration
+// jest.mock('@/config/settings.config', () => ({
+//     cfg: jest.fn((key: string) => {
+//         const configs: Record<string, any> = {
+//             'user.maxActiveSessions': 5,
+//             'user.recoveryAttemptsInLastSixHours': 3,
+//             'user.recoveryEnableMetadataCheck': true,
+//             'user.emailConfirmationSecret': 'test-secret',
+//         };
+//         return configs[key];
+//     }),
+// }));
+//
+// // Mock i18n
+// jest.mock('@/config/i18n.setup', () => ({
+//     lang: jest.fn((key: string) => key),
+// }));
+//
+// // Mock helpers
+// jest.mock('@/lib/helpers', () => ({
+//     compareMetaDataValue: jest.fn(() => true),
+//     createPastDate: jest.fn(() => new Date()),
+//     tokenMetaData: jest.fn(() => ({ 'user-agent': 'test-agent' })),
+// }));
+//
+// // Mock BaseController validate method
+// const mockValidate = jest.fn((validator, data, res) => data);
+//
+// describe('AccountController - Happy Path Tests', () => {
+//     let controller: AccountController;
+//     let req: Partial<Request>;
+//     let res: Partial<Response>;
+//
+//     beforeEach(() => {
+//         jest.clearAllMocks();
+//
+//         controller = new AccountController(
+//             mockPolicy as unknown as PolicyAbstract,
+//             mockValidator as unknown as IAccountValidator,
+//             mockAccountService as unknown as IAccountService,
+//             mockAccountTokenService as unknown as IAccountTokenService,
+//             mockAccountRecoveryService as unknown as IAccountRecoveryService,
+//             mockAccountEmailService as unknown as IAccountEmailService,
+//             mockUserService as unknown as IUserService,
+//         );
+//
+//         // Mock the validate method
+//         controller.validate = mockValidate;
+//
+//         req = {
+//             body: {},
+//             headers: {},
+//         };
+//
+//         res = {
+//             locals: {
+//                 auth: null,
+//                 lang: 'en',
+//                 output: {
+//                     data: jest.fn(function(this: any, data: any) {
+//                         this.data = data;
+//                         return this;
+//                     }),
+//                     message: jest.fn(function(this: any, message: string) {
+//                         this.message = message;
+//                         return this;
+//                     }),
+//                     errors: jest.fn(function(this: any, errors: any[]) {
+//                         this.errors = errors;
+//                         return this;
+//                     }),
+//                     data: undefined,
+//                     message: undefined,
+//                     errors: undefined,
+//                 },
+//                 validated: {},
+//             },
+//             json: jest.fn(),
+//             status: jest.fn(() => res as Response),
+//         };
+//     });
+//
+//     describe('register', () => {
+//         it('should successfully register a new user', async () => {
+//             // Arrange
+//             const registerData = {
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//                 password: 'password123',
+//                 language: 'en',
+//             };
+//
+//             req.body = registerData;
+//             const mockUser = { id: 1, ...registerData };
+//             mockAccountService.register.mockResolvedValue(mockUser);
+//
+//             // Act
+//             await controller.register(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.notAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.register(),
+//                 registerData,
+//                 res
+//             );
+//             expect(mockAccountService.register).toHaveBeenCalledWith(
+//                 registerData,
+//                 'en'
+//             );
+//             expect(res.locals.output.data).toBe(mockUser);
+//             expect(res.locals.output.message).toBe('account.success.register');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('login', () => {
+//         it('should successfully login with valid credentials', async () => {
+//             // Arrange
+//             const loginData = {
+//                 email: 'test@example.com',
+//                 password: 'password123',
+//             };
+//
+//             req.body = loginData;
+//             const mockUser = {
+//                 id: 1,
+//                 email: 'test@example.com',
+//                 password: 'hashedpassword',
+//                 status: UserStatusEnum.ACTIVE,
+//             };
+//
+//             const mockToken = 'jwt-token';
+//             const mockAuthTokens: AuthValidToken[] = [
+//                 { id: 1, ident: 'token1', device_info: 'Device 1' },
+//                 { id: 2, ident: 'token2', device_info: 'Device 2' },
+//             ];
+//
+//             mockUserService.findByEmail.mockResolvedValue(mockUser);
+//             mockAccountTokenService.getAuthValidTokens.mockResolvedValue(mockAuthTokens);
+//             mockAccountTokenService.setupAuthToken.mockResolvedValue(mockToken);
+//
+//             // Act
+//             await controller.login(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.notAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.login(),
+//                 loginData,
+//                 res
+//             );
+//             expect(mockUserService.findByEmail).toHaveBeenCalledWith(loginData.email);
+//             expect(mockAccountService.checkPassword).toHaveBeenCalledWith(
+//                 loginData.password,
+//                 mockUser.password
+//             );
+//             expect(mockAccountTokenService.getAuthValidTokens).toHaveBeenCalledWith(mockUser.id);
+//             expect(mockAccountTokenService.setupAuthToken).toHaveBeenCalledWith(mockUser, req);
+//             expect(res.locals.output.message).toBe('account.success.login');
+//             expect(res.locals.output.data).toEqual({ token: mockToken });
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('removeToken', () => {
+//         it('should successfully remove a token', async () => {
+//             // Arrange
+//             const tokenData = { ident: 'token-ident' };
+//             req.body = tokenData;
+//
+//             // Act
+//             await controller.removeToken(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.removeToken(),
+//                 tokenData,
+//                 res
+//             );
+//             expect(mockAccountTokenService.removeAccountTokenByIdent).toHaveBeenCalledWith(
+//                 tokenData.ident
+//             );
+//             expect(res.locals.output.message).toBe('account.success.token_deleted');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('logout', () => {
+//         it('should successfully logout and remove active token', async () => {
+//             // Arrange
+//             res.locals.auth = { id: 1 } as AuthUser;
+//             const mockActiveToken = { ident: 'active-token' };
+//             mockAccountTokenService.getActiveAuthToken.mockResolvedValue(mockActiveToken);
+//
+//             // Act
+//             await controller.logout(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.requiredAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockAccountTokenService.getActiveAuthToken).toHaveBeenCalledWith(req);
+//             expect(mockAccountTokenService.removeAccountTokenByIdent).toHaveBeenCalledWith(
+//                 mockActiveToken.ident
+//             );
+//             expect(res.locals.output.message).toBe('account.success.logout');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('passwordRecover', () => {
+//         it('should successfully initiate password recovery', async () => {
+//             // Arrange
+//             const recoveryData = { email: 'test@example.com' };
+//             req.body = recoveryData;
+//
+//             const mockUser = {
+//                 id: 1,
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//                 language: 'en',
+//                 status: UserStatusEnum.ACTIVE,
+//             };
+//
+//             const mockRecoveryData = ['recovery-ident', new Date()];
+//
+//             mockUserService.findByEmail.mockResolvedValue(mockUser);
+//             mockAccountRecoveryService.countRecoveryAttempts.mockResolvedValue(0);
+//             mockAccountRecoveryService.setupRecovery.mockResolvedValue(mockRecoveryData);
+//
+//             // Act
+//             await controller.passwordRecover(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.notAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.passwordRecover(),
+//                 recoveryData,
+//                 res
+//             );
+//             expect(mockUserService.findByEmail).toHaveBeenCalledWith(
+//                 recoveryData.email,
+//                 ['id', 'name', 'email', 'language', 'status']
+//             );
+//             expect(mockAccountRecoveryService.countRecoveryAttempts).toHaveBeenCalled();
+//             expect(mockAccountRecoveryService.setupRecovery).toHaveBeenCalledWith(
+//                 mockUser,
+//                 expect.any(Object)
+//             );
+//             expect(mockAccountEmailService.sendEmailPasswordRecover).toHaveBeenCalledWith(
+//                 { ...mockUser, language: 'en' },
+//                 { ident: mockRecoveryData[0], expire_at: mockRecoveryData[1] }
+//             );
+//             expect(res.locals.output.message).toBe('account.success.password_recover');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('passwordRecoverChange', () => {
+//         it('should successfully change password via recovery token', async () => {
+//             // Arrange
+//             const passwordData = { password: 'newpassword123' };
+//             req.body = passwordData;
+//
+//             res.locals.validated = { ident: 'recovery-ident' };
+//
+//             const mockRecovery = {
+//                 id: 1,
+//                 user_id: 1,
+//                 used_at: null,
+//                 expire_at: new Date(Date.now() + 3600000), // 1 hour in future
+//                 metadata: { 'user-agent': 'test-agent' },
+//             };
+//
+//             const mockUser = {
+//                 id: 1,
+//                 email: 'test@example.com',
+//                 language: 'en',
+//                 status: UserStatusEnum.ACTIVE,
+//             };
+//
+//             mockAccountRecoveryService.findByIdent.mockResolvedValue(mockRecovery);
+//             mockUserService.findById.mockResolvedValue(mockUser);
+//
+//             // Act
+//             await controller.passwordRecoverChange(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.notAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.passwordRecoverChange(),
+//                 passwordData,
+//                 res
+//             );
+//             expect(mockAccountRecoveryService.findByIdent).toHaveBeenCalledWith('recovery-ident');
+//             expect(mockUserService.findById).toHaveBeenCalledWith(1, false);
+//             expect(mockAccountService.updatePassword).toHaveBeenCalledWith(
+//                 mockUser,
+//                 passwordData.password
+//             );
+//             expect(mockAccountRecoveryService.update).toHaveBeenCalledWith({
+//                 id: mockRecovery.id,
+//                 used_at: expect.any(Date),
+//             });
+//             expect(mockAccountEmailService.sendEmailPasswordChange).toHaveBeenCalledWith({
+//                 ...mockUser,
+//                 language: 'en',
+//             });
+//             expect(res.locals.output.message).toBe('account.success.password_changed');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('passwordUpdate', () => {
+//         it('should successfully update password when authenticated', async () => {
+//             // Arrange
+//             const passwordData = {
+//                 password_current: 'oldpassword',
+//                 password_new: 'newpassword123',
+//             };
+//
+//             req.body = passwordData;
+//             res.locals.auth = { id: 1 } as AuthUser;
+//
+//             const mockUser = {
+//                 id: 1,
+//                 email: 'test@example.com',
+//                 password: 'hashed-old-password',
+//             };
+//
+//             const mockToken = 'new-jwt-token';
+//
+//             mockPolicy.getId.mockReturnValue(1);
+//             mockUserService.findById.mockResolvedValue(mockUser);
+//             mockAccountTokenService.setupAuthToken.mockResolvedValue(mockToken);
+//
+//             // Act
+//             await controller.passwordUpdate(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.requiredAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.passwordUpdate(),
+//                 passwordData,
+//                 res
+//             );
+//             expect(mockPolicy.getId).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockUserService.findById).toHaveBeenCalledWith(1, false);
+//             expect(mockAccountService.checkPassword).toHaveBeenCalledWith(
+//                 passwordData.password_current,
+//                 mockUser.password
+//             );
+//             expect(mockAccountService.updatePassword).toHaveBeenCalledWith(
+//                 mockUser,
+//                 passwordData.password_new
+//             );
+//             expect(mockAccountTokenService.setupAuthToken).toHaveBeenCalledWith(
+//                 mockUser,
+//                 req
+//             );
+//             expect(res.locals.output.message).toBe('account.success.password_updated');
+//             expect(res.locals.output.data).toEqual({ token: mockToken });
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('emailConfirm', () => {
+//         it('should successfully confirm email for new registration', async () => {
+//             // Arrange
+//             const mockPayload: ConfirmationTokenPayload = {
+//                 user_id: 1,
+//                 user_email: 'test@example.com',
+//             };
+//
+//             const mockUser = {
+//                 id: 1,
+//                 email: 'test@example.com',
+//                 status: UserStatusEnum.PENDING,
+//                 email_verified_at: null,
+//             };
+//
+//             res.locals.validated = { token: 'encoded-jwt-token' };
+//
+//             // Mock jwt.verify
+//             const mockVerify = jest.spyOn(jwt, 'verify').mockImplementation(() => mockPayload);
+//             mockUserService.findById.mockResolvedValue(mockUser);
+//
+//             // Act
+//             await controller.emailConfirm({} as Request, res as Response);
+//
+//             // Assert
+//             expect(mockVerify).toHaveBeenCalledWith(
+//                 'encoded-jwt-token',
+//                 'test-secret'
+//             );
+//             expect(mockUserService.findById).toHaveBeenCalledWith(1, false);
+//             expect(mockUserService.update).toHaveBeenCalledWith({
+//                 id: 1,
+//                 status: UserStatusEnum.ACTIVE,
+//                 email_verified_at: expect.any(Date),
+//             });
+//             expect(res.locals.output.message).toBe('account.success.email_confirmed');
+//             expect(res.json).toHaveBeenCalled();
+//
+//             mockVerify.mockRestore();
+//         });
+//
+//         it('should successfully confirm email update', async () => {
+//             // Arrange
+//             const mockPayload: ConfirmationTokenPayload = {
+//                 user_id: 1,
+//                 user_email: 'old@example.com',
+//                 user_email_new: 'new@example.com',
+//             };
+//
+//             const mockUser = {
+//                 id: 1,
+//                 email: 'old@example.com',
+//                 email_verified_at: null,
+//             };
+//
+//             res.locals.validated = { token: 'encoded-jwt-token' };
+//
+//             // Mock jwt.verify
+//             const mockVerify = jest.spyOn(jwt, 'verify').mockImplementation(() => mockPayload);
+//             mockUserService.findById.mockResolvedValue(mockUser);
+//
+//             // Act
+//             await controller.emailConfirm({} as Request, res as Response);
+//
+//             // Assert
+//             expect(mockVerify).toHaveBeenCalledWith(
+//                 'encoded-jwt-token',
+//                 'test-secret'
+//             );
+//             expect(mockUserService.findById).toHaveBeenCalledWith(1, false);
+//             expect(mockUserService.update).toHaveBeenCalledWith({
+//                 id: 1,
+//                 email: 'new@example.com',
+//                 email_verified_at: expect.any(Date),
+//             });
+//             expect(res.locals.output.message).toBe('account.success.email_updated');
+//
+//             mockVerify.mockRestore();
+//         });
+//     });
+//
+//     describe('emailConfirmSend', () => {
+//         it('should successfully resend confirmation email', async () => {
+//             // Arrange
+//             const emailData = { email: 'test@example.com' };
+//             req.body = emailData;
+//
+//             const mockUser = {
+//                 id: 1,
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//                 language: 'en',
+//                 status: UserStatusEnum.PENDING,
+//             };
+//
+//             mockUserService.findByEmail.mockResolvedValue(mockUser);
+//
+//             // Act
+//             await controller.emailConfirmSend(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.notAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.emailConfirmSend(),
+//                 emailData,
+//                 res
+//             );
+//             expect(mockUserService.findByEmail).toHaveBeenCalledWith(
+//                 emailData.email,
+//                 ['id', 'name', 'email', 'language', 'status']
+//             );
+//             expect(mockAccountService.processEmailConfirmCreate).toHaveBeenCalledWith(mockUser);
+//             expect(res.locals.output.message).toBe('account.success.email_confirmation_sent');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('emailUpdate', () => {
+//         it('should successfully initiate email update', async () => {
+//             // Arrange
+//             const emailData = { email_new: 'new@example.com' };
+//             req.body = emailData;
+//             res.locals.auth = { id: 1 } as AuthUser;
+//
+//             const mockUser = {
+//                 id: 1,
+//                 name: 'Test User',
+//                 email: 'old@example.com',
+//                 language: 'en',
+//             };
+//
+//             const mockTokenData = {
+//                 token: 'confirmation-token',
+//                 expire_at: new Date(),
+//             };
+//
+//             mockPolicy.getId.mockReturnValue(1);
+//             mockUserService.findByEmail.mockResolvedValue(null); // No existing user with new email
+//             mockUserService.findById.mockResolvedValue(mockUser);
+//             mockAccountService.createConfirmationToken.mockReturnValue(mockTokenData);
+//
+//             // Act
+//             await controller.emailUpdate(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.requiredAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.emailUpdate(),
+//                 emailData,
+//                 res
+//             );
+//             expect(mockUserService.findByEmail).toHaveBeenCalledWith(emailData.email_new);
+//             expect(mockPolicy.getId).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockUserService.findById).toHaveBeenCalledWith(1, false);
+//             expect(mockAccountService.createConfirmationToken).toHaveBeenCalledWith(
+//                 mockUser,
+//                 emailData.email_new
+//             );
+//             expect(mockAccountEmailService.sendEmailConfirmUpdate).toHaveBeenCalledWith(
+//                 mockUser,
+//                 mockTokenData.token,
+//                 mockTokenData.expire_at,
+//                 emailData.email_new
+//             );
+//             expect(res.locals.output.message).toBe('account.success.email_update_request');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('me', () => {
+//         it('should return current authenticated user data', async () => {
+//             // Arrange
+//             const mockAuthUser = {
+//                 id: 1,
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//             };
+//
+//             res.locals.auth = mockAuthUser as AuthUser;
+//
+//             // Act
+//             await controller.me({} as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.requiredAuth).toHaveBeenCalledWith(mockAuthUser);
+//             expect(res.locals.output.data).toBe(mockAuthUser);
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('sessions', () => {
+//         it('should return list of active sessions', async () => {
+//             // Arrange
+//             const mockAuthUser = {
+//                 id: 1,
+//                 name: 'Test User',
+//                 activeToken: 'current-token',
+//             };
+//
+//             res.locals.auth = mockAuthUser as AuthUser;
+//
+//             const mockTokens: AuthValidToken[] = [
+//                 { id: 1, ident: 'token1', device_info: 'Device 1', created_at: new Date() },
+//                 { id: 2, ident: 'current-token', device_info: 'Current Device', created_at: new Date() },
+//                 { id: 3, ident: 'token3', device_info: 'Device 3', created_at: new Date() },
+//             ];
+//
+//             mockPolicy.getId.mockReturnValue(1);
+//             mockAccountTokenService.getAuthValidTokens.mockResolvedValue(mockTokens);
+//
+//             // Act
+//             await controller.sessions({} as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.requiredAuth).toHaveBeenCalledWith(mockAuthUser);
+//             expect(mockPolicy.getId).toHaveBeenCalledWith(mockAuthUser);
+//             expect(mockAccountTokenService.getAuthValidTokens).toHaveBeenCalledWith(1);
+//
+//             const expectedResponse = mockTokens.map(token => ({
+//                 ...token,
+//                 used_now: token.ident === 'current-token',
+//             }));
+//
+//             expect(res.locals.output.data).toEqual(expectedResponse);
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('edit', () => {
+//         it('should successfully update user profile', async () => {
+//             // Arrange
+//             const editData = {
+//                 name: 'Updated Name',
+//                 language: 'fr',
+//             };
+//
+//             req.body = editData;
+//             res.locals.auth = { id: 1 } as AuthUser;
+//
+//             const mockUser = {
+//                 id: 1,
+//                 name: 'Old Name',
+//                 email: 'test@example.com',
+//             };
+//
+//             mockPolicy.getId.mockReturnValue(1);
+//             mockUserService.findById.mockResolvedValue(mockUser);
+//
+//             // Act
+//             await controller.edit(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.requiredAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.edit(),
+//                 editData,
+//                 res
+//             );
+//             expect(mockPolicy.getId).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockUserService.findById).toHaveBeenCalledWith(1, false);
+//             expect(mockUserService.update).toHaveBeenCalledWith({
+//                 id: 1,
+//                 name: editData.name,
+//                 language: editData.language,
+//             });
+//             expect(res.locals.output.message).toBe('account.success.edit');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('delete', () => {
+//         it('should successfully delete user account', async () => {
+//             // Arrange
+//             const deleteData = {
+//                 password_current: 'password123',
+//             };
+//
+//             req.body = deleteData;
+//             res.locals.auth = { id: 1 } as AuthUser;
+//
+//             const mockUser = {
+//                 id: 1,
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//                 password: 'hashedpassword',
+//             };
+//
+//             mockPolicy.getId.mockReturnValue(1);
+//             mockUserService.findById.mockResolvedValue(mockUser);
+//
+//             // Act
+//             await controller.delete(req as Request, res as Response);
+//
+//             // Assert
+//             expect(mockPolicy.requiredAuth).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockValidate).toHaveBeenCalledWith(
+//                 mockValidator.delete(),
+//                 deleteData,
+//                 res
+//             );
+//             expect(mockPolicy.getId).toHaveBeenCalledWith(res.locals.auth);
+//             expect(mockUserService.findById).toHaveBeenCalledWith(1, false);
+//             expect(mockAccountService.checkPassword).toHaveBeenCalledWith(
+//                 deleteData.password_current,
+//                 mockUser.password
+//             );
+//             expect(mockUserService.delete).toHaveBeenCalledWith(1);
+//             expect(res.locals.output.message).toBe('account.success.delete');
+//             expect(res.json).toHaveBeenCalled();
+//         });
+//     });
+//
+//     describe('createAccountController factory', () => {
+//         it('should create controller with dependencies', () => {
+//             // Arrange
+//             const deps = {
+//                 policy: mockPolicy as unknown as PolicyAbstract,
+//                 validator: mockValidator as unknown as IAccountValidator,
+//                 accountService: mockAccountService as unknown as IAccountService,
+//                 accountTokenService: mockAccountTokenService as unknown as IAccountTokenService,
+//                 accountRecoveryService: mockAccountRecoveryService as unknown as IAccountRecoveryService,
+//                 accountEmailService: mockAccountEmailService as unknown as IAccountEmailService,
+//                 userService: mockUserService as unknown as IUserService,
+//             };
+//
+//             // Act
+//             const controller = createAccountController(deps);
+//
+//             // Assert
+//             expect(controller).toBeInstanceOf(AccountController);
+//         });
+//     });
 // });

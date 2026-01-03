@@ -10,22 +10,25 @@ import {
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class PlaceController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: IPlaceValidator,
-        private cache: CacheProvider,
-        private placeService: IPlaceService,
-    ) {
-        super();
-    }
-    
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: IPlaceValidator,
+		private cache: CacheProvider,
+		private placeService: IPlaceService,
+	) {
+		super();
+	}
+
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
@@ -311,22 +314,22 @@ class PlaceController extends BaseController {
 }
 
 export function createPlaceController(deps: {
-    policy: PolicyAbstract;
-    validator: IPlaceValidator;
-    cache: CacheProvider;
-    placeService: IPlaceService;
+	policy: PolicyAbstract;
+	validator: IPlaceValidator;
+	cache: CacheProvider;
+	placeService: IPlaceService;
 }) {
-    return new PlaceController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.placeService,
-    );
+	return new PlaceController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.placeService,
+	);
 }
 
 export const placeController = createPlaceController({
-    policy: placePolicy,
-    validator: placeValidator,
-    cache: cacheProvider,
-    placeService: placeService,
+	policy: placePolicy,
+	validator: placeValidator,
+	cache: cacheProvider,
+	placeService: placeService,
 });

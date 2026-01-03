@@ -1,4 +1,4 @@
-import {categoryController} from '@/features/category/category.controller';
+import { categoryController } from '@/features/category/category.controller';
 import { CategoryStatusEnum } from '@/features/category/category.entity';
 import {
 	validateParamsWhenId,

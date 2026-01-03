@@ -1,4 +1,4 @@
-import {logHistoryController} from '@/features/log-history/log-history.controller';
+import { logHistoryController } from '@/features/log-history/log-history.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 

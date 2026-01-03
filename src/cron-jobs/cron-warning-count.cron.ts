@@ -2,7 +2,6 @@ import { cfg } from '@/config/settings.config';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import { createPastDate } from '@/lib/helpers';
 import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
-import type { EmailTemplate } from '@/lib/types/template.type';
 
 // Report cron warnings in the last 7 days
 export const cronWarningCount = async () => {
@@ -29,7 +28,7 @@ export const cronWarningCount = async () => {
 		);
 
 		if (warningCount > 0) {
-			const emailTemplate: EmailTemplate = await loadEmailTemplate(
+			const emailTemplate = await loadEmailTemplate(
 				'cron-warning-count',
 				cfg('app.language') as string,
 			);

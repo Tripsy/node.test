@@ -1,26 +1,29 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import {permissionPolicy} from '@/features/permission/permission.policy';
+import { permissionPolicy } from '@/features/permission/permission.policy';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 import {
 	UserPermissionCreateValidator,
 	UserPermissionFindValidator,
 } from '@/features/user-permission/user-permission.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import {cacheProvider, CacheProvider} from "@/lib/providers/cache.provider";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class UserPermissionController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: IUserPermissionValidator,
-        private cache: CacheProvider,
-        private userPermissionService: IUserPermissionService,
-    ) {
-        super();
-    }
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: IUserPermissionValidator,
+		private cache: CacheProvider,
+		private userPermissionService: IUserPermissionService,
+	) {
+		super();
+	}
 
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
@@ -157,22 +160,22 @@ class UserPermissionController extends BaseController {
 }
 
 export function createUserPermissionController(deps: {
-    policy: PolicyAbstract;
-    validator: IUserPermissionValidator;
-    cache: CacheProvider;
-    userPermissionService: IUserPermissionService;
+	policy: PolicyAbstract;
+	validator: IUserPermissionValidator;
+	cache: CacheProvider;
+	userPermissionService: IUserPermissionService;
 }) {
-    return new UserPermissionController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.userPermissionService,
-    );
+	return new UserPermissionController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.userPermissionService,
+	);
 }
 
 export const userPermissionController = createUserPermissionController({
-    policy: permissionPolicy,
-    validator: userPermissionValidator,
-    cache: cacheProvider,
-    userPermissionService: userPermissionService,
+	policy: permissionPolicy,
+	validator: userPermissionValidator,
+	cache: cacheProvider,
+	userPermissionService: userPermissionService,
 });

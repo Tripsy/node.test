@@ -6,22 +6,25 @@ import {
 	PermissionFindValidator,
 	PermissionManageValidator,
 } from '@/features/permission/permission.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class PermissionController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: IPermissionValidator,
-        private cache: CacheProvider,
-        private userPermissionService: IPermissionService,
-    ) {
-        super();
-    }
-    
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: IPermissionValidator,
+		private cache: CacheProvider,
+		private userPermissionService: IPermissionService,
+	) {
+		super();
+	}
+
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
@@ -194,22 +197,22 @@ class PermissionController extends BaseController {
 }
 
 export function createPermissionController(deps: {
-    policy: PolicyAbstract;
-    validator: IPermissionValidator;
-    cache: CacheProvider;
-    permissionService: IPermissionService;
+	policy: PolicyAbstract;
+	validator: IPermissionValidator;
+	cache: CacheProvider;
+	permissionService: IPermissionService;
 }) {
-    return new PermissionController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.permissionService,
-    );
+	return new PermissionController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.permissionService,
+	);
 }
 
 export const permissionController = createPermissionController({
-    policy: permissionPolicy,
-    validator: permissionValidator,
-    cache: cacheProvider,
-    permissionService: permissionService,
+	policy: permissionPolicy,
+	validator: permissionValidator,
+	cache: cacheProvider,
+	permissionService: permissionService,
 });

@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import DiscountEntity from '@/features/discount/discount.entity';
+import { discountPolicy } from '@/features/discount/discount.policy';
 import { getDiscountRepository } from '@/features/discount/discount.repository';
 import {
 	DiscountCreateValidator,
@@ -8,22 +9,24 @@ import {
 	DiscountUpdateValidator,
 	paramsUpdateList,
 } from '@/features/discount/discount.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import {discountPolicy} from "@/features/discount/discount.policy";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class DiscountController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: IDiscountValidator,
-        private cache: CacheProvider,
-        private discountService: IDiscountService,
-    ) {
-        super();
-    }
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: IDiscountValidator,
+		private cache: CacheProvider,
+		private discountService: IDiscountService,
+	) {
+		super();
+	}
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
@@ -188,22 +191,22 @@ class DiscountController extends BaseController {
 }
 
 export function createDiscountController(deps: {
-    policy: PolicyAbstract;
-    validator: IDiscountValidator;
-    cache: CacheProvider;
-    discountService: IDiscountService;
+	policy: PolicyAbstract;
+	validator: IDiscountValidator;
+	cache: CacheProvider;
+	discountService: IDiscountService;
 }) {
-    return new DiscountController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.discountService,
-    );
+	return new DiscountController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.discountService,
+	);
 }
 
 export const discountController = createDiscountController({
-    policy: discountPolicy,
-    validator: discountValidator,
-    cache: cacheProvider,
-    discountService: discountService,
+	policy: discountPolicy,
+	validator: discountValidator,
+	cache: cacheProvider,
+	discountService: discountService,
 });

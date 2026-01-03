@@ -1,4 +1,4 @@
-import {placeController} from '@/features/place/place.controller';
+import { placeController } from '@/features/place/place.controller';
 import {
 	validateParamsWhenId,
 	validateParamsWhenString,

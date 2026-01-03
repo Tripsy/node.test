@@ -1,4 +1,4 @@
-import {carrierController} from '@/features/carrier/carrier.controller';
+import { carrierController } from '@/features/carrier/carrier.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 

@@ -6,6 +6,7 @@ import ClientEntity, {
 	ClientStatusEnum,
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
+import { clientPolicy } from '@/features/client/client.policy';
 import { getClientRepository } from '@/features/client/client.repository';
 import {
 	ClientCreateValidator,
@@ -13,22 +14,24 @@ import {
 	ClientUpdateValidator,
 	paramsUpdateList,
 } from '@/features/client/client.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError, CustomError, NotFoundError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import {clientPolicy} from "@/features/client/client.policy";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class ClientController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: IClientValidator,
-        private cache: CacheProvider,
-        private clientService: IClientService,
-    ) {
-        super();
-    }
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: IClientValidator,
+		private cache: CacheProvider,
+		private clientService: IClientService,
+	) {
+		super();
+	}
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
@@ -303,22 +306,22 @@ class ClientController extends BaseController {
 }
 
 export function createClientController(deps: {
-    policy: PolicyAbstract;
-    validator: IClientValidator;
-    cache: CacheProvider;
-    clientService: IClientService;
+	policy: PolicyAbstract;
+	validator: IClientValidator;
+	cache: CacheProvider;
+	clientService: IClientService;
 }) {
-    return new ClientController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.clientService,
-    );
+	return new ClientController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.clientService,
+	);
 }
 
 export const clientController = createClientController({
-    policy: clientPolicy,
-    validator: clientValidator,
-    cache: cacheProvider,
-    clientService: clientService,
+	policy: clientPolicy,
+	validator: clientValidator,
+	cache: cacheProvider,
+	clientService: clientService,
 });

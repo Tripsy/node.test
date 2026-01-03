@@ -1,4 +1,4 @@
-import {clientController} from '@/features/client/client.controller';
+import { clientController } from '@/features/client/client.controller';
 import { ClientStatusEnum } from '@/features/client/client.entity';
 import {
 	validateParamsWhenId,

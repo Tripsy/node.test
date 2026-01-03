@@ -1,4 +1,4 @@
-import {templateController} from '@/features/template/template.controller';
+import { templateController } from '@/features/template/template.controller';
 import {
 	validateParamsWhenId,
 	validateParamsWhenString,

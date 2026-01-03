@@ -3,7 +3,7 @@ import { lang } from '@/config/i18n.setup';
 import {
 	accountTokenService,
 	type IAccountTokenService,
-} from '@/features/account/account.service';
+} from '@/features/account/account-token.service';
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, type UserStatusEnum } from '@/features/user/user.entity';
 import {
@@ -38,7 +38,8 @@ export interface IUserService
 		withDeleted: boolean,
 		excludeId?: number,
 	): Promise<UserEntity | null>;
-    findByEmail(email: string, fields?: string[]): Promise<UserEntity | null>;
+	findByEmail(email: string, fields?: string[]): Promise<UserEntity | null>;
+	register(data: Partial<UserEntity>): Promise<UserEntity>;
 }
 
 class UserService implements IUserService {
@@ -97,7 +98,21 @@ class UserService implements IUserService {
 	}
 
 	/**
-	 * @description Update any user data
+	 * @description Used in `register` method from controller;
+	 */
+	public async register(user: Partial<UserEntity>): Promise<UserEntity> {
+		const entry = {
+			name: user.name,
+			email: user.email,
+			password: user.password,
+			language: user.language,
+		};
+
+		return this.userRepository.save(entry);
+	}
+
+	/**
+	 * @description Update any data
 	 */
 	public update(data: Partial<UserEntity> & { id: number }) {
 		return this.userRepository.save(data);
@@ -178,13 +193,16 @@ class UserService implements IUserService {
 			.firstOrFail();
 	}
 
-    public findByEmail(email: string, fields: string[] = ['id', 'password', 'status']) {
-        return this.userRepository
-            .createQuery()
-            .select(fields)
-            .filterByEmail(email)
-            .first();
-    }
+	public findByEmail(
+		email: string,
+		fields: string[] = ['id', 'password', 'status'],
+	) {
+		return this.userRepository
+			.createQuery()
+			.select(fields)
+			.filterByEmail(email)
+			.first();
+	}
 
 	public findByFilter(data: UserValidatorFindDto, withDeleted: boolean) {
 		return this.userRepository

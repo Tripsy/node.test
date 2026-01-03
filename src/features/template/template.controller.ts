@@ -9,22 +9,25 @@ import {
 	TemplateFindValidator,
 	TemplateUpdateValidator,
 } from '@/features/template/template.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class TemplateController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: ITemplateValidator,
-        private cache: CacheProvider,
-        private templateService: ITemplateService,
-    ) {
-        super();
-    }
-    
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: ITemplateValidator,
+		private cache: CacheProvider,
+		private templateService: ITemplateService,
+	) {
+		super();
+	}
+
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
@@ -222,22 +225,22 @@ class TemplateController extends BaseController {
 }
 
 export function createTemplateController(deps: {
-    policy: PolicyAbstract;
-    validator: ITemplateValidator;
-    cache: CacheProvider;
-    templateService: ITemplateService;
+	policy: PolicyAbstract;
+	validator: ITemplateValidator;
+	cache: CacheProvider;
+	templateService: ITemplateService;
 }) {
-    return new TemplateController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.templateService,
-    );
+	return new TemplateController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.templateService,
+	);
 }
 
 export const templateController = createTemplateController({
-    policy: templatePolicy,
-    validator: templateValidator,
-    cache: cacheProvider,
-    templateService: templateService,
+	policy: templatePolicy,
+	validator: templateValidator,
+	cache: cacheProvider,
+	templateService: templateService,
 });

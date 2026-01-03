@@ -8,33 +8,36 @@ import {
 	CarrierUpdateValidator,
 	paramsUpdateList,
 } from '@/features/carrier/carrier.validator';
+import type { UserValidatorCreateDto } from '@/features/user/user.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import type {UserValidatorCreateDto} from "@/features/user/user.validator";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class CarrierController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: ICarrierValidator,
-        private cache: CacheProvider,
-        private carrierService: ICarrierService,
-    ) {
-        super();
-    }
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: ICarrierValidator,
+		private cache: CacheProvider,
+		private carrierService: ICarrierService,
+	) {
+		super();
+	}
 
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-        const data = this.validate<CarrierValidatorCreateDto>(
-            this.validator.create(),
-            req.body,
-            res,
-        );
+		const data = this.validate<CarrierValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
-        const entry = await this.carrierService.create(data);
+		const entry = await this.carrierService.create(data);
 
 		const carrier = new CarrierEntity();
 		carrier.name = validated.data.name;
@@ -192,22 +195,22 @@ class CarrierController extends BaseController {
 }
 
 export function createCarrierController(deps: {
-    policy: PolicyAbstract;
-    validator: ICarrierValidator;
-    cache: CacheProvider;
-    carrierService: ICarrierService;
+	policy: PolicyAbstract;
+	validator: ICarrierValidator;
+	cache: CacheProvider;
+	carrierService: ICarrierService;
 }) {
-    return new CarrierController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.carrierService,
-    );
+	return new CarrierController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.carrierService,
+	);
 }
 
 export const carrierController = createCarrierController({
-    policy: carrierPolicy,
-    validator: carrierValidator,
-    cache: cacheProvider,
-    carrierService: carrierService,
+	policy: carrierPolicy,
+	validator: carrierValidator,
+	cache: cacheProvider,
+	carrierService: carrierService,
 });

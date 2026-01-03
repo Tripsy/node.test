@@ -1,4 +1,4 @@
-import {permissionController} from '@/features/permission/permission.controller';
+import { permissionController } from '@/features/permission/permission.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 

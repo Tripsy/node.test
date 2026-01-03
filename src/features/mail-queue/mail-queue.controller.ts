@@ -3,28 +3,31 @@ import { eventEmitter } from '@/config/event.config';
 import { lang } from '@/config/i18n.setup';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
+import { mailQueuePolicy } from '@/features/mail-queue/mail-queue.policy';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import {
 	MailQueueDeleteValidator,
 	MailQueueFindValidator,
 } from '@/features/mail-queue/mail-queue.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import {mailQueuePolicy} from "@/features/mail-queue/mail-queue.policy";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class MailQueueController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: IMailQueueValidator,
-        private cache: CacheProvider,
-        private mailQueueService: IMailQueueService,
-    ) {
-        super();
-    }
-    
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: IMailQueueValidator,
+		private cache: CacheProvider,
+		private mailQueueService: IMailQueueService,
+	) {
+		super();
+	}
+
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
@@ -140,22 +143,22 @@ class MailQueueController extends BaseController {
 }
 
 export function createMailQueueController(deps: {
-    policy: PolicyAbstract;
-    validator: IMailQueueValidator;
-    cache: CacheProvider;
-    mailQueueService: IMailQueueService;
+	policy: PolicyAbstract;
+	validator: IMailQueueValidator;
+	cache: CacheProvider;
+	mailQueueService: IMailQueueService;
 }) {
-    return new MailQueueController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.mailQueueService,
-    );
+	return new MailQueueController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.mailQueueService,
+	);
 }
 
 export const mailQueueController = createMailQueueController({
-    policy: mailQueuePolicy,
-    validator: mailQueueValidator,
-    cache: cacheProvider,
-    mailQueueService: mailQueueService,
+	policy: mailQueuePolicy,
+	validator: mailQueueValidator,
+	cache: cacheProvider,
+	mailQueueService: mailQueueService,
 });

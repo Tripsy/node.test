@@ -10,7 +10,7 @@ import {
 	UpdateDateColumn,
 } from 'typeorm';
 import type TemplateEntity from '@/features/template/template.entity';
-import type { EmailContent } from '@/lib/types/template.type';
+import type { EmailContent } from '@/features/template/template.entity';
 
 export enum MailQueueStatusEnum {
 	PENDING = 'pending',

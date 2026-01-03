@@ -2,14 +2,14 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { lang } from '@/config/i18n.setup';
 import type CarrierEntity from '@/features/carrier/carrier.entity';
 import {
-	getCarrierRepository,
 	type CarrierQuery,
+	getCarrierRepository,
 } from '@/features/carrier/carrier.repository';
 import {
-	paramsUpdateList,
 	type CarrierValidatorCreateDto,
 	type CarrierValidatorFindDto,
 	type CarrierValidatorUpdateDto,
+	paramsUpdateList,
 } from '@/features/carrier/carrier.validator';
 import type {
 	IEntityCreateService,
@@ -47,7 +47,7 @@ class CarrierService implements ICarrierService {
 	) {
 		const q = this.carrierRepository
 			.createQuery()
-            .filterBy('name', name)
+			.filterBy('name', name)
 			.withDeleted(withDeleted);
 
 		if (excludeId) {
@@ -60,25 +60,27 @@ class CarrierService implements ICarrierService {
 	/**
 	 * @description Used in `create` method from controller;
 	 */
-	public async create(data: CarrierValidatorCreateDto): Promise<CarrierEntity> {
+	public async create(
+		data: CarrierValidatorCreateDto,
+	): Promise<CarrierEntity> {
 		const existingCarrier = await this.checkIfExistByName(data.name, true);
 
 		if (existingCarrier) {
 			throw new CustomError(409, lang('carrier.error.name_already_used'));
 		}
 
-        // carrier.name = validated.data.name;
-        // carrier.website = validated.data.website ?? null;
-        // carrier.phone = validated.data.phone ?? null;
-        // carrier.email = validated.data.email ?? null;
-        // carrier.notes = validated.data.notes ?? null;
+		// carrier.name = validated.data.name;
+		// carrier.website = validated.data.website ?? null;
+		// carrier.phone = validated.data.phone ?? null;
+		// carrier.email = validated.data.email ?? null;
+		// carrier.notes = validated.data.notes ?? null;
 
 		const entry = {
 			name: data.name,
-            website: data.website,
-            phone: data.phone,
-            email: data.email,
-            notes: data.notes,
+			website: data.website,
+			phone: data.phone,
+			email: data.email,
+			notes: data.notes,
 
 			...(data.role === CarrierRoleEnum.OPERATOR &&
 				data.operator_type && {
@@ -126,7 +128,9 @@ class CarrierService implements ICarrierService {
 		}
 
 		if (data.password || data.email !== carrier.email) {
-			await this.accountTokenService.removeAccountTokenForCarrier(carrier.id); // Note: Removes all account tokens for the carrier
+			await this.accountTokenService.removeAccountTokenForCarrier(
+				carrier.id,
+			); // Note: Removes all account tokens for the carrier
 		}
 
 		const updateData = {
@@ -194,6 +198,4 @@ class CarrierService implements ICarrierService {
 	}
 }
 
-export const carrierService = new CarrierService(
-	getCarrierRepository(),
-);
+export const carrierService = new CarrierService(getCarrierRepository());

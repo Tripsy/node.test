@@ -1,28 +1,31 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import LogDataEntity from '@/features/log-data/log-data.entity';
+import { logDataPolicy } from '@/features/log-data/log-data.policy';
 import { getLogDataRepository } from '@/features/log-data/log-data.repository';
 import {
 	LogDataDeleteValidator,
 	LogDataFindValidator,
 } from '@/features/log-data/log-data.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import {logDataPolicy} from "@/features/log-data/log-data.policy";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class LogDataController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: ILogDataValidator,
-        private cache: CacheProvider,
-        private logDataService: ILogDataService,
-    ) {
-        super();
-    }
-    
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: ILogDataValidator,
+		private cache: CacheProvider,
+		private logDataService: ILogDataService,
+	) {
+		super();
+	}
+
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
@@ -114,22 +117,22 @@ class LogDataController extends BaseController {
 }
 
 export function createLogDataController(deps: {
-    policy: PolicyAbstract;
-    validator: ILogDataValidator;
-    cache: CacheProvider;
-    logDataService: ILogDataService;
+	policy: PolicyAbstract;
+	validator: ILogDataValidator;
+	cache: CacheProvider;
+	logDataService: ILogDataService;
 }) {
-    return new LogDataController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.logDataService,
-    );
+	return new LogDataController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.logDataService,
+	);
 }
 
 export const logDataController = createLogDataController({
-    policy: logDataPolicy,
-    validator: logDataValidator,
-    cache: cacheProvider,
-    logDataService: logDataService,
+	policy: logDataPolicy,
+	validator: logDataValidator,
+	cache: cacheProvider,
+	logDataService: logDataService,
 });

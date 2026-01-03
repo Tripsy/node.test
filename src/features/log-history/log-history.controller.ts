@@ -1,26 +1,29 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
+import { logHistoryPolicy } from '@/features/log-history/log-history.policy';
 import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import {
 	LogHistoryDeleteValidator,
 	LogHistoryFindValidator,
 } from '@/features/log-history/log-history.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import {cacheProvider, CacheProvider} from "@/lib/providers/cache.provider";
-import {logHistoryPolicy} from "@/features/log-history/log-history.policy";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class LogHistoryController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: ILogHistoryValidator,
-        private cache: CacheProvider,
-        private logHistoryService: ILogHistoryService,
-    ) {
-        super();
-    }
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: ILogHistoryValidator,
+		private cache: CacheProvider,
+		private logHistoryService: ILogHistoryService,
+	) {
+		super();
+	}
 
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
@@ -107,22 +110,22 @@ class LogHistoryController extends BaseController {
 }
 
 export function createLogHistoryController(deps: {
-    policy: PolicyAbstract;
-    validator: ILogHistoryValidator;
-    cache: CacheProvider;
-    logHistoryService: ILogHistoryService;
+	policy: PolicyAbstract;
+	validator: ILogHistoryValidator;
+	cache: CacheProvider;
+	logHistoryService: ILogHistoryService;
 }) {
-    return new LogHistoryController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.logHistoryService,
-    );
+	return new LogHistoryController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.logHistoryService,
+	);
 }
 
 export const logHistoryController = createLogHistoryController({
-    policy: logHistoryPolicy,
-    validator: logHistoryValidator,
-    cache: cacheProvider,
-    logHistoryService: logHistoryService,
+	policy: logHistoryPolicy,
+	validator: logHistoryValidator,
+	cache: cacheProvider,
+	logHistoryService: logHistoryService,
 });

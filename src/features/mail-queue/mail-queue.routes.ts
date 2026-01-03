@@ -1,4 +1,4 @@
-import {mailQueueController} from '@/features/mail-queue/mail-queue.controller';
+import { mailQueueController } from '@/features/mail-queue/mail-queue.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 

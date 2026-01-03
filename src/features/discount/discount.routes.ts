@@ -1,4 +1,4 @@
-import {discountController} from '@/features/discount/discount.controller';
+import { discountController } from '@/features/discount/discount.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 

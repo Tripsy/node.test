@@ -1,9 +1,7 @@
 import { EventSubscriber, type InsertEvent, type UpdateEvent } from 'typeorm';
 import { cfg } from '@/config/settings.config';
 import {
-	accountEmailService,
 	accountService,
-	type IAccountEmailService,
 	type IAccountService,
 } from '@/features/account/account.service';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
@@ -14,7 +12,6 @@ import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
 export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 	protected readonly Entity = UserEntity;
 	private accountService: IAccountService;
-	private accountEmailService: IAccountEmailService;
 
 	constructor() {
 		super();
@@ -25,7 +22,6 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 		};
 
 		this.accountService = accountService;
-		this.accountEmailService = accountEmailService;
 	}
 
 	async beforeInsert(event: InsertEvent<UserEntity>) {
@@ -58,16 +54,7 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 
 		this.logHistory(id, LogHistoryAction.CREATED);
 
-		switch (event.entity.status) {
-			case UserStatusEnum.ACTIVE:
-				await this.accountEmailService.sendWelcomeEmail(event.entity);
-				break;
-			case UserStatusEnum.PENDING:
-				await this.accountEmailService.sendEmailConfirmCreate(
-					event.entity,
-				);
-				break;
-		}
+		void this.accountService.processRegistration(event.entity);
 	}
 
 	async afterUpdate(event: UpdateEvent<UserEntity>) {
@@ -94,11 +81,13 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 			});
 
 			if (event.entity.status === UserStatusEnum.ACTIVE) {
-				await this.accountEmailService.sendWelcomeEmail({
+				await this.accountService.processRegistration({
+					id: id,
 					name: event.entity.name || event.databaseEntity.name,
 					email: event.entity.email || event.databaseEntity.email,
 					language:
 						event.entity.language || event.databaseEntity.language,
+					status: event.entity.status,
 				});
 			}
 		}

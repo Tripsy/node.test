@@ -4,6 +4,7 @@ import { lang } from '@/config/i18n.setup';
 import CategoryEntity, {
 	CategoryStatusEnum,
 } from '@/features/category/category.entity';
+import { categoryPolicy } from '@/features/category/category.policy';
 import { getCategoryRepository } from '@/features/category/category.repository';
 import {
 	CategoryCreateValidator,
@@ -13,23 +14,25 @@ import {
 	CategoryUpdateValidator,
 } from '@/features/category/category.validator';
 import CategoryContentRepository from '@/features/category/category-content.repository';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {cacheProvider, type CacheProvider} from '@/lib/providers/cache.provider';
-import {BaseController} from "@/lib/abstracts/controller.abstract";
-import type PolicyAbstract from "@/lib/abstracts/policy.abstract";
-import {categoryPolicy} from "@/features/category/category.policy";
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
 class CategoryController extends BaseController {
-    constructor(
-        private policy: PolicyAbstract,
-        private validator: ICategoryValidator,
-        private cache: CacheProvider,
-        private categoryService: ICategoryService,
-    ) {
-        super();
-    }
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: ICategoryValidator,
+		private cache: CacheProvider,
+		private categoryService: ICategoryService,
+	) {
+		super();
+	}
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
@@ -549,22 +552,22 @@ class CategoryController extends BaseController {
 }
 
 export function createCategoryController(deps: {
-    policy: PolicyAbstract;
-    validator: ICategoryValidator;
-    cache: CacheProvider;
-    categoryService: ICategoryService;
+	policy: PolicyAbstract;
+	validator: ICategoryValidator;
+	cache: CacheProvider;
+	categoryService: ICategoryService;
 }) {
-    return new CategoryController(
-        deps.policy,
-        deps.validator,
-        deps.cache,
-        deps.categoryService,
-    );
+	return new CategoryController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.categoryService,
+	);
 }
 
 export const categoryController = createCategoryController({
-    policy: categoryPolicy,
-    validator: categoryValidator,
-    cache: cacheProvider,
-    categoryService: categoryService,
+	policy: categoryPolicy,
+	validator: categoryValidator,
+	cache: cacheProvider,
+	categoryService: categoryService,
 });
