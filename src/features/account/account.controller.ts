@@ -6,7 +6,7 @@ import { accountPolicy } from '@/features/account/account.policy';
 import {
 	accountService,
 	type ConfirmationTokenPayload,
-	type IAccountService,
+	type AccountService,
 } from '@/features/account/account.service';
 import {
 	type AccountValidatorDeleteDto,
@@ -24,19 +24,19 @@ import {
 } from '@/features/account/account.validator';
 import {
 	accountEmailService,
-	type IAccountEmailService,
+	type AccountEmailService,
 } from '@/features/account/account-email.service';
 import {
 	accountRecoveryService,
-	type IAccountRecoveryService,
+	type AccountRecoveryService,
 } from '@/features/account/account-recovery.service';
 import {
 	type AuthValidToken,
 	accountTokenService,
-	type IAccountTokenService,
+	type AccountTokenService,
 } from '@/features/account/account-token.service';
 import { UserStatusEnum } from '@/features/user/user.entity';
-import { type IUserService, userService } from '@/features/user/user.service';
+import { type UserService, userService } from '@/features/user/user.service';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import {
@@ -57,11 +57,11 @@ class AccountController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
 		private validator: IAccountValidator,
-		private accountService: IAccountService,
-		private accountTokenService: IAccountTokenService,
-		private accountRecoveryService: IAccountRecoveryService,
-		private accountEmailService: IAccountEmailService,
-		private userService: IUserService,
+		private accountService: AccountService,
+		private accountTokenService: AccountTokenService,
+		private accountRecoveryService: AccountRecoveryService,
+		private accountEmailService: AccountEmailService,
+		private userService: UserService,
 	) {
 		super();
 	}
@@ -657,11 +657,11 @@ class AccountController extends BaseController {
 export function createAccountController(deps: {
     policy: PolicyAbstract;
     validator: IAccountValidator;
-    accountService: IAccountService;
-    accountTokenService: IAccountTokenService;
-    accountRecoveryService: IAccountRecoveryService;
-    accountEmailService: IAccountEmailService;
-    userService: IUserService;
+    accountService: AccountService;
+    accountTokenService: AccountTokenService;
+    accountRecoveryService: AccountRecoveryService;
+    accountEmailService: AccountEmailService;
+    userService: UserService;
 }) {
 	return new AccountController(
 		deps.policy,

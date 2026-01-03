@@ -23,7 +23,7 @@ export interface IEntityRestoreService<E> {
 	restore(id: number): Promise<void>;
 }
 
-export interface IEntityFindService<E, F> {
+export interface IEntityFindService<E, VDto> {
 	findById(id: number, withDeleted: boolean): Promise<E>;
-	findByFilter(data: F, withDeleted: boolean): Promise<[E[], number]>;
+	findByFilter(data: VDto, withDeleted: boolean): Promise<[E[], number]>;
 }

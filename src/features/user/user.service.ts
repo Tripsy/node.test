@@ -1,14 +1,12 @@
-import type { Repository } from 'typeorm/repository/Repository';
 import { lang } from '@/config/i18n.setup';
 import {
 	accountTokenService,
-	type IAccountTokenService,
+	type AccountTokenService,
 } from '@/features/account/account-token.service';
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, type UserStatusEnum } from '@/features/user/user.entity';
 import {
-	getUserRepository,
-	type UserQuery,
+    getUserRepository
 } from '@/features/user/user.repository';
 import {
 	paramsUpdateList,
@@ -16,75 +14,13 @@ import {
 	type UserValidatorFindDto,
 	type UserValidatorUpdateDto,
 } from '@/features/user/user.validator';
-import type {
-	IEntityCreateService,
-	IEntityDeleteService,
-	IEntityFindService,
-	IEntityRestoreService,
-	IEntityUpdateService,
-	IEntityUpdateStatusService,
-} from '@/lib/abstracts/service.abstract';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 
-export interface IUserService
-	extends IEntityCreateService<UserEntity>,
-		IEntityUpdateService<UserEntity>,
-		IEntityUpdateStatusService<UserEntity, UserStatusEnum>,
-		IEntityDeleteService<UserEntity>,
-		IEntityRestoreService<UserEntity>,
-		IEntityFindService<UserEntity, UserValidatorFindDto> {
-	findByEmail(
-		email: string,
-		withDeleted: boolean,
-        fields?: string[],
-        excludeId?: number,
-	): Promise<UserEntity | null>;
-	register(data: Partial<UserEntity>): Promise<UserEntity>;
-}
-
-class UserService implements IUserService {
+export class UserService {
 	constructor(
-		private userRepository: Repository<UserEntity> & {
-			createQuery(): UserQuery;
-		},
-		private accountTokenService: IAccountTokenService,
+		private repository: ReturnType<typeof getUserRepository>,
+		private accountTokenService: AccountTokenService,
 	) {}
-
-	public findByEmail(
-		email: string,
-		withDeleted: boolean,
-        fields?: string[],
-		excludeId?: number,
-	) {
-		const q = this.userRepository
-			.createQuery()
-			.filterByEmail(email)
-			.withDeleted(withDeleted);
-
-		if (excludeId) {
-			q.filterBy('id', excludeId, '!=');
-		}
-
-        if (fields) {
-            q.select(fields);
-        }
-
-		return q.first();
-	}
-
-    /**
-     * @description Used in `register` method from controller;
-     */
-    public async register(user: Partial<UserEntity>): Promise<UserEntity> {
-        const entry = {
-            name: user.name,
-            email: user.email,
-            password: user.password,
-            language: user.language,
-        };
-
-        return this.userRepository.save(entry);
-    }
 
 	/**
 	 * @description Used in `create` method from controller;
@@ -113,22 +49,28 @@ class UserService implements IUserService {
 			}),
 		};
 
-		return this.userRepository.save(entry);
+		return this.repository.save(entry);
 	}
 
-    public findById(id: number, withDeleted: boolean) {
-        return this.userRepository
-            .createQuery()
-            .filterById(id)
-            .withDeleted(withDeleted)
-            .firstOrFail();
+    /**
+     * @description Used in `register` method from controller;
+     */
+    public async register(user: Partial<UserEntity>): Promise<UserEntity> {
+        const entry = {
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            language: user.language,
+        };
+
+        return this.repository.save(entry);
     }
 
 	/**
 	 * @description Update any data
 	 */
 	public update(data: Partial<UserEntity> & { id: number }) {
-		return this.userRepository.save(data);
+		return this.repository.save(data);
 	}
 
 	/**
@@ -188,19 +130,49 @@ class UserService implements IUserService {
 
 		user.status = status;
 
-		return this.userRepository.save(user);
+		return this.repository.save(user);
 	}
 
 	public async delete(id: number) {
-		await this.userRepository.createQuery().filterById(id).delete();
+		await this.repository.createQuery().filterById(id).delete();
 	}
 
 	public async restore(id: number) {
-		await this.userRepository.createQuery().filterById(id).restore();
+		await this.repository.createQuery().filterById(id).restore();
 	}
 
+    public findById(id: number, withDeleted: boolean) {
+        return this.repository
+            .createQuery()
+            .filterById(id)
+            .withDeleted(withDeleted)
+            .firstOrFail();
+    }
+
+    public findByEmail(
+        email: string,
+        withDeleted: boolean,
+        fields?: string[],
+        excludeId?: number,
+    ) {
+        const q = this.repository
+            .createQuery()
+            .filterByEmail(email)
+            .withDeleted(withDeleted);
+
+        if (excludeId) {
+            q.filterBy('id', excludeId, '!=');
+        }
+
+        if (fields) {
+            q.select(fields);
+        }
+
+        return q.first();
+    }
+
 	public findByFilter(data: UserValidatorFindDto, withDeleted: boolean) {
-		return this.userRepository
+		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)
 			.filterByStatus(data.filter.status)

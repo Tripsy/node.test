@@ -11,7 +11,7 @@ import {
     ICarrierValidator
 } from "@/features/carrier/carrier.validator";
 import {cacheProvider, CacheProvider} from "@/lib/providers/cache.provider";
-import {carrierService, ICarrierService} from "@/features/carrier/carrier.service";
+import {CarrierService, carrierService} from "@/features/carrier/carrier.service";
 import {carrierPolicy} from "@/features/carrier/carrier.policy";
 
 class CarrierController extends BaseController {
@@ -19,7 +19,7 @@ class CarrierController extends BaseController {
 		private policy: PolicyAbstract,
 		private validator: ICarrierValidator,
 		private cache: CacheProvider,
-		private carrierService: ICarrierService,
+		private carrierService: CarrierService,
 	) {
 		super();
 	}
@@ -134,7 +134,7 @@ export function createCarrierController(deps: {
 	policy: PolicyAbstract;
 	validator: ICarrierValidator;
 	cache: CacheProvider;
-	carrierService: ICarrierService;
+	carrierService: CarrierService;
 }) {
 	return new CarrierController(
 		deps.policy,

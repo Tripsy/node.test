@@ -9,23 +9,7 @@ import {
 import type UserEntity from '@/features/user/user.entity';
 import { createFutureDate, type TokenMetadata } from '@/lib/helpers';
 
-export interface IAccountRecoveryService {
-	update(
-		data: Partial<AccountRecoveryEntity> & { id: number },
-	): Promise<AccountRecoveryEntity>;
-	setupRecovery(
-		user: Partial<UserEntity> & { id: number },
-		metadata: TokenMetadata,
-	): Promise<[string, Date]>;
-	removeAccountRecoveryForUser(user_id: number): Promise<void>;
-	countRecoveryAttempts(user_id: number, sinceDate: Date): Promise<number>;
-	findByIdent(
-		ident: string,
-		fields?: string[],
-	): Promise<AccountRecoveryEntity | null>;
-}
-
-class AccountRecoveryService implements IAccountRecoveryService {
+export class AccountRecoveryService {
 	constructor(
 		private accountRecoveryRepository: Repository<AccountRecoveryEntity> & {
 			createQuery(): AccountRecoveryQuery;

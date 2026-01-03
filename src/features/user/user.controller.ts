@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import UserEntity from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
-import { type IUserService, userService } from '@/features/user/user.service';
+import {UserService, userService} from '@/features/user/user.service';
 import {
 	type IUserValidator,
 	type UserValidatorCreateDto,
@@ -23,7 +23,7 @@ class UserController extends BaseController {
 		private policy: PolicyAbstract,
 		private validator: IUserValidator,
 		private cache: CacheProvider,
-		private userService: IUserService,
+		private userService: UserService,
 	) {
 		super();
 	}
@@ -154,7 +154,7 @@ export function createUserController(deps: {
 	policy: PolicyAbstract;
 	validator: IUserValidator;
 	cache: CacheProvider;
-	userService: IUserService;
+	userService: UserService;
 }) {
 	return new UserController(
 		deps.policy,

@@ -5,15 +5,15 @@ import { cfg } from '@/config/settings.config';
 import type { AccountValidatorRegisterDto } from '@/features/account/account.validator';
 import {
 	accountEmailService,
-	type IAccountEmailService,
+	type AccountEmailService,
 } from '@/features/account/account-email.service';
 import {
 	accountRecoveryService,
-	type IAccountRecoveryService,
+	type AccountRecoveryService,
 } from '@/features/account/account-recovery.service';
 import type UserEntity from '@/features/user/user.entity';
 import { UserStatusEnum } from '@/features/user/user.entity';
-import { type IUserService, userService } from '@/features/user/user.service';
+import {UserService, userService} from '@/features/user/user.service';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 import { createFutureDate } from '@/lib/helpers';
 
@@ -23,46 +23,11 @@ export type ConfirmationTokenPayload = {
 	user_email_new?: string;
 };
 
-export interface IAccountService {
-	encryptPassword(password: string): Promise<string>;
-	checkPassword(password: string, hashedPassword: string): Promise<boolean>;
-	updatePassword(user: UserEntity, password: string): Promise<void>;
-	register(
-		data: AccountValidatorRegisterDto,
-		language: string,
-	): Promise<UserEntity>;
-	processEmailConfirmCreate(
-		user: Partial<UserEntity> & {
-			id: number;
-			name: string;
-			email: string;
-			language: string;
-			status: UserStatusEnum;
-		},
-	): void;
-	processRegistration(
-		user: Partial<UserEntity> & {
-			id: number;
-			name: string;
-			email: string;
-			language: string;
-			status: UserStatusEnum;
-		},
-	): void;
-	createConfirmationToken(
-		user: Partial<UserEntity> & { id: number; email: string },
-		email_new?: string,
-	): {
-		token: string;
-		expire_at: Date;
-	};
-}
-
-class AccountService implements IAccountService {
+export class AccountService {
 	constructor(
-		private userService: IUserService,
-		private accountRecoveryService: IAccountRecoveryService,
-		private accountEmailService: IAccountEmailService,
+		private userService: UserService,
+		private accountRecoveryService: AccountRecoveryService,
+		private accountEmailService: AccountEmailService,
 	) {}
 
 	/**

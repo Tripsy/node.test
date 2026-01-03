@@ -1,8 +1,6 @@
-import type { Repository } from 'typeorm/repository/Repository';
 import { lang } from '@/config/i18n.setup';
 import type CarrierEntity from '@/features/carrier/carrier.entity';
 import {
-	type CarrierQuery,
 	getCarrierRepository,
 } from '@/features/carrier/carrier.repository';
 import {
@@ -11,51 +9,12 @@ import {
 	type CarrierValidatorUpdateDto,
 	paramsUpdateList,
 } from '@/features/carrier/carrier.validator';
-import type {
-	IEntityCreateService,
-	IEntityDeleteService,
-	IEntityFindService,
-	IEntityRestoreService,
-	IEntityUpdateService,
-} from '@/lib/abstracts/service.abstract';
 import { CustomError } from '@/lib/exceptions';
 
-export interface ICarrierService
-	extends IEntityCreateService<CarrierEntity>,
-		IEntityUpdateService<CarrierEntity>,
-		IEntityDeleteService<CarrierEntity>,
-		IEntityRestoreService<CarrierEntity>,
-		IEntityFindService<CarrierEntity, CarrierValidatorFindDto> {
-    findByName(
-        name: string,
-        withDeleted: boolean,
-        excludeId?: number,
-	): Promise<CarrierEntity | null>;
-}
-
-class CarrierService implements ICarrierService {
-	constructor(
-		private carrierRepository: Repository<CarrierEntity> & {
-			createQuery(): CarrierQuery;
-		},
-	) {}
-
-	public findByName(
-		name: string,
-		withDeleted: boolean,
-		excludeId?: number,
-	) {
-		const q = this.carrierRepository
-			.createQuery()
-			.filterBy('name', name)
-			.withDeleted(withDeleted);
-
-		if (excludeId) {
-			q.filterBy('id', excludeId, '!=');
-		}
-
-		return q.first();
-	}
+export class CarrierService {
+    constructor(
+        private repository: ReturnType<typeof getCarrierRepository>,
+    ) {}
 
 	/**
 	 * @description Used in `create` method from controller;
@@ -77,22 +36,14 @@ class CarrierService implements ICarrierService {
 			notes: data.notes,
 		};
 
-		return this.carrierRepository.save(entry);
+		return this.repository.save(entry);
 	}
-
-    public findById(id: number, withDeleted: boolean) {
-        return this.carrierRepository
-            .createQuery()
-            .filterById(id)
-            .withDeleted(withDeleted)
-            .firstOrFail();
-    }
 
 	/**
 	 * @description Update any data
 	 */
 	public update(data: Partial<CarrierEntity> & { id: number }) {
-		return this.carrierRepository.save(data);
+		return this.repository.save(data);
 	}
 
 	/**
@@ -133,15 +84,40 @@ class CarrierService implements ICarrierService {
 	}
 
 	public async delete(id: number) {
-		await this.carrierRepository.createQuery().filterById(id).delete();
+		await this.repository.createQuery().filterById(id).delete();
 	}
 
 	public async restore(id: number) {
-		await this.carrierRepository.createQuery().filterById(id).restore();
+		await this.repository.createQuery().filterById(id).restore();
 	}
 
+    public findById(id: number, withDeleted: boolean) {
+        return this.repository
+            .createQuery()
+            .filterById(id)
+            .withDeleted(withDeleted)
+            .firstOrFail();
+    }
+
+    public findByName(
+        name: string,
+        withDeleted: boolean,
+        excludeId?: number,
+    ) {
+        const q = this.repository
+            .createQuery()
+            .filterBy('name', name)
+            .withDeleted(withDeleted);
+
+        if (excludeId) {
+            q.filterBy('id', excludeId, '!=');
+        }
+
+        return q.first();
+    }
+
 	public findByFilter(data: CarrierValidatorFindDto, withDeleted: boolean) {
-		return this.carrierRepository
+		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)
 			.filterByTerm(data.filter.term)

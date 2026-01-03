@@ -29,30 +29,7 @@ export type AuthValidToken = {
 	used_now: false;
 };
 
-export interface IAccountTokenService {
-	getAuthTokenFromHeaders(req: Request): string | undefined;
-
-	getActiveAuthToken(req: Request): Promise<AccountTokenEntity>;
-
-	generateAuthToken(user: Partial<UserEntity> & { id: number }): {
-		token: string;
-		ident: string;
-		expire_at: Date;
-	};
-
-	setupAuthToken(
-		user: Partial<UserEntity> & { id: number },
-		req: Request,
-	): Promise<string>;
-
-	removeAccountTokenForUser(user_id: number): Promise<void>;
-
-	removeAccountTokenByIdent(ident: string): Promise<void>;
-
-	getAuthValidTokens(user_id: number): Promise<AuthValidToken[]>;
-}
-
-class AccountTokenService implements IAccountTokenService {
+export class AccountTokenService {
 	constructor(
 		private accountTokenRepository: Repository<AccountTokenEntity> & {
 			createQuery(): AccountTokenQuery;
