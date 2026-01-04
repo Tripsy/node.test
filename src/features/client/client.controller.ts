@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
+import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import ClientEntity, {
 	type ClientIdentityData,
 	ClientStatusEnum,
@@ -237,14 +238,11 @@ class ClientController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = ClientFindValidator().safeParse(req.query);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
 		const [entries, total] = await getClientRepository()
 			.createQuery()

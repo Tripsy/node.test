@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { eventEmitter } from '@/config/event.config';
 import { lang } from '@/config/i18n.setup';
+import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import { mailQueuePolicy } from '@/features/mail-queue/mail-queue.policy';
@@ -9,6 +10,7 @@ import {
 	MailQueueDeleteValidator,
 	MailQueueFindValidator,
 } from '@/features/mail-queue/mail-queue.validator';
+import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
@@ -53,13 +55,11 @@ class MailQueueController extends BaseController {
 	public delete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		const validated = MailQueueDeleteValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<UserValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
 		const countDelete: number = await getMailQueueRepository()
 			.createQuery()
@@ -86,14 +86,11 @@ class MailQueueController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = MailQueueFindValidator().safeParse(req.query);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
 		const querySelect = [
 			'id',

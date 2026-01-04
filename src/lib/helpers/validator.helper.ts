@@ -245,3 +245,8 @@ export const validateMeta = () =>
 			lang('shared.validation.meta_keywords_invalid'),
 		).optional(),
 	});
+
+export const validateLanguage = () =>
+	z.string().length(2, {
+		message: lang('shared.validation.language_invalid'),
+	});

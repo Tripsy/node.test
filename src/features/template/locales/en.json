@@ -1,7 +1,6 @@
 {
 	"validation": {
 		"label_invalid": "Label is invalid",
-		"language_invalid": "Invalid language",
 		"type_invalid": "Invalid type",
 		"email_subject_invalid": "Content / Invalid subject",
 		"email_text_invalid": "Content / Invalid text",

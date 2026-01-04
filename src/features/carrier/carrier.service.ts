@@ -50,8 +50,6 @@ export class CarrierService {
 		withDeleted: boolean,
 		data: CarrierValidatorUpdateDto,
 	) {
-		const carrier = await this.findById(id, withDeleted);
-
 		if (data.name) {
 			const existingCarrier = await this.findByName(data.name, true, id);
 

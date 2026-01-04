@@ -65,7 +65,7 @@ abstract class SubscriberAbstract<T extends BaseEntity>
 	}
 
 	cacheClean<E extends { NAME: string; HAS_CACHE: boolean }>(
-		ident: number | string,
+		ident: number | string | string[],
 		entity?: E,
 	) {
 		const cachedEntity = entity || this.Entity;
@@ -74,14 +74,14 @@ abstract class SubscriberAbstract<T extends BaseEntity>
 			return;
 		}
 
-		const identString = ident.toString();
-
-		if (!identString) {
+		if (!ident || (Array.isArray(ident) && ident.length === 0)) {
 			return;
 		}
 
+		const identArray = Array.isArray(ident) ? ident : [ident.toString()];
+
 		eventEmitter.emit('cacheClean', {
-			cacheKeyArgs: [cachedEntity.NAME, identString],
+			cacheKeyArgs: [cachedEntity.NAME, ...identArray],
 		});
 	}
 

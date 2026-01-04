@@ -1,6 +1,5 @@
 {
 	"validation": {
-		"language_invalid": "Invalid language",
 		"label_invalid": "Invalid label",
 		"slug_invalid": "Invalid slug",
 		"type_invalid": "Select type",

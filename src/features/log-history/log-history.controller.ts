@@ -1,11 +1,13 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
+import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import { logHistoryPolicy } from '@/features/log-history/log-history.policy';
 import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import {
 	LogHistoryDeleteValidator,
 	LogHistoryFindValidator,
 } from '@/features/log-history/log-history.validator';
+import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
@@ -42,13 +44,11 @@ class LogHistoryController extends BaseController {
 	public delete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		const validated = LogHistoryDeleteValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<UserValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
 		const countDelete: number = await getLogHistoryRepository()
 			.createQuery()
@@ -69,14 +69,11 @@ class LogHistoryController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = LogHistoryFindValidator().safeParse(req.query);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
 		const [entries, total] = await getLogHistoryRepository()
 			.createQuery()

@@ -13,6 +13,7 @@ import {
 	nullableString,
 	validateBoolean,
 	validateDate,
+	validateLanguage,
 	validateStringMin,
 } from '@/lib/helpers';
 
@@ -32,13 +33,7 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export interface IUserValidator {
-	create(): z.ZodTypeAny;
-	update(): z.ZodTypeAny;
-	find(): z.ZodTypeAny;
-}
-
-class UserValidator implements IUserValidator {
+export class UserValidator {
 	private readonly nameMinLength = cfg('user.nameMinLength') as number;
 	private readonly passwordMinLength = cfg(
 		'user.passwordMinLength',
@@ -89,12 +84,7 @@ class UserValidator implements IUserValidator {
 				password_confirm: z.string({
 					message: lang('user.validation.password_confirm_required'),
 				}),
-				language: z
-					.string()
-					.length(2, {
-						message: lang('user.validation.language_invalid'),
-					})
-					.optional(),
+				language: validateLanguage().optional(),
 				status: z
 					.enum(UserStatusEnum)
 					.optional()
@@ -188,12 +178,7 @@ class UserValidator implements IUserValidator {
 				password_confirm: nullableString(
 					lang('user.validation.password_confirm_required'),
 				),
-				language: z
-					.string()
-					.length(2, {
-						message: lang('user.validation.language_invalid'),
-					})
-					.optional(),
+				language: validateLanguage().optional(),
 				role: z.enum(UserRoleEnum).optional(),
 				operator_type: z
 					.enum(UserOperatorTypeEnum)

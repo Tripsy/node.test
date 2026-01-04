@@ -25,13 +25,7 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export interface ICarrierValidator {
-	create(): z.ZodTypeAny;
-	update(): z.ZodTypeAny;
-	find(): z.ZodTypeAny;
-}
-
-class CarrierValidator implements ICarrierValidator {
+export class CarrierValidator {
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
 	public create() {

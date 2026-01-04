@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
+import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import { permissionPolicy } from '@/features/permission/permission.policy';
+import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 import {
 	UserPermissionCreateValidator,
@@ -28,13 +30,11 @@ class UserPermissionController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const validated = UserPermissionCreateValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<UserValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
 		const results: {
 			permission_id: number;
@@ -119,13 +119,11 @@ class UserPermissionController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const validated = UserPermissionFindValidator().safeParse(req.query);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
 		const [entries, total] = await UserPermissionRepository.createQuery()
 			.join('user_permission.user', 'user')

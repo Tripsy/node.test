@@ -4,7 +4,7 @@ import UserEntity from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
 import { type UserService, userService } from '@/features/user/user.service';
 import {
-	type IUserValidator,
+	type UserValidator,
 	type UserValidatorCreateDto,
 	type UserValidatorFindDto,
 	type UserValidatorUpdateDto,
@@ -21,7 +21,7 @@ import {
 class UserController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: IUserValidator,
+		private validator: UserValidator,
 		private cache: CacheProvider,
 		private userService: UserService,
 	) {
@@ -152,7 +152,7 @@ class UserController extends BaseController {
 
 export function createUserController(deps: {
 	policy: PolicyAbstract;
-	validator: IUserValidator;
+	validator: UserValidator;
 	cache: CacheProvider;
 	userService: UserService;
 }) {

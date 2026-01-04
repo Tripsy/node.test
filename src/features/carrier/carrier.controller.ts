@@ -7,11 +7,11 @@ import {
 	carrierService,
 } from '@/features/carrier/carrier.service';
 import {
+	type CarrierValidator,
 	type CarrierValidatorCreateDto,
 	type CarrierValidatorFindDto,
 	type CarrierValidatorUpdateDto,
 	carrierValidator,
-	type ICarrierValidator,
 } from '@/features/carrier/carrier.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
@@ -24,7 +24,7 @@ import {
 class CarrierController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: ICarrierValidator,
+		private validator: CarrierValidator,
 		private cache: CacheProvider,
 		private carrierService: CarrierService,
 	) {
@@ -141,7 +141,7 @@ class CarrierController extends BaseController {
 
 export function createCarrierController(deps: {
 	policy: PolicyAbstract;
-	validator: ICarrierValidator;
+	validator: CarrierValidator;
 	cache: CacheProvider;
 	carrierService: CarrierService;
 }) {

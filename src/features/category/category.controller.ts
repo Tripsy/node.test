@@ -1,19 +1,12 @@
 import type { Request, Response } from 'express';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
+import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import CategoryEntity, {
 	CategoryStatusEnum,
 } from '@/features/category/category.entity';
 import { categoryPolicy } from '@/features/category/category.policy';
-import { getCategoryRepository } from '@/features/category/category.repository';
-import {
-	CategoryCreateValidator,
-	CategoryFindValidator,
-	CategoryReadValidator,
-	CategoryStatusUpdateValidator,
-	CategoryUpdateValidator,
-} from '@/features/category/category.validator';
-import CategoryContentRepository from '@/features/category/category-content.repository';
+import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
@@ -23,45 +16,44 @@ import {
 	type CacheProvider,
 	cacheProvider,
 } from '@/lib/providers/cache.provider';
+import {categoryValidator, CategoryValidator} from "@/features/category/category.validator";
+import {categoryService, CategoryService} from "@/features/category/category.service";
 
 class CategoryController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: ICategoryValidator,
+		private validator: CategoryValidator,
 		private cache: CacheProvider,
-		private categoryService: ICategoryService,
+		private categoryService: CategoryService,
 	) {
 		super();
 	}
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CategoryCreateValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<UserValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
 		const entry = await dataSource.transaction(async (manager) => {
 			const repository = manager.getRepository(CategoryEntity); // We use the manager -> `getCategoryRepository` is not bound to the transaction
 
 			const entryEntity = new CategoryEntity();
-			entryEntity.type = validated.data.type;
+			entryEntity.type = data.type;
 
-			if (validated.data.parent_id) {
+			if (data.parent_id) {
 				const parent = await manager
 					.getRepository(CategoryEntity)
 					.createQueryBuilder()
 					.where('id = :id', {
-						id: validated.data.parent_id,
+						id: data.parent_id,
 					})
 					.getOne();
 
 				if (parent) {
-					if (validated.data.type !== parent.type) {
+					if (data.type !== parent.type) {
 						throw new CustomError(
 							400,
 							lang('category.error.parent_type_invalid'),
@@ -81,7 +73,7 @@ class CategoryController extends BaseController {
 
 			await CategoryContentRepository.saveContent(
 				manager,
-				validated.data.content,
+				data.content,
 				entrySaved.id,
 				entrySaved.type,
 			);
@@ -98,14 +90,11 @@ class CategoryController extends BaseController {
 	public read = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CategoryReadValidator().safeParse(req.query);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
 		const cacheKey = this.cache.buildKey(
 			CategoryEntity.NAME,
@@ -142,11 +131,11 @@ class CategoryController extends BaseController {
 			let ancestorsWithContent: CategoryEntity[] = [];
 			let childrenWithContent: CategoryEntity[] = [];
 
-			if (validated.data.with_ancestors || validated.data.with_children) {
+			if (data.with_ancestors || data.with_children) {
 				const ancestors =
 					await treeRepository.findAncestors(categoryEntry);
 
-				if (validated.data.with_ancestors) {
+				if (data.with_ancestors) {
 					const orderedIds = ancestors
 						.filter((a) => a.id !== categoryEntry.id) // Exclude the current category
 						.map((a) => a.id);
@@ -176,7 +165,7 @@ class CategoryController extends BaseController {
 						.filter((a): a is typeof a => a !== undefined);
 				}
 
-				if (validated.data.with_children) {
+				if (data.with_children) {
 					childrenWithContent = await getCategoryRepository()
 						.createQuery()
 						.joinAndSelect(
@@ -196,10 +185,10 @@ class CategoryController extends BaseController {
 
 			return {
 				...categoryEntry,
-				...(validated.data.with_ancestors && {
+				...(data.with_ancestors && {
 					ancestors: ancestorsWithContent,
 				}),
-				...(validated.data.with_children && {
+				...(data.with_children && {
 					children: childrenWithContent,
 				}),
 			};
@@ -214,14 +203,11 @@ class CategoryController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CategoryUpdateValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<UserValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
 		const category = await getCategoryRepository()
 			.createQuery()
@@ -229,14 +215,14 @@ class CategoryController extends BaseController {
 			.filterById(res.locals.validated.id)
 			.firstOrFail();
 
-		if (validated.data.parent_id) {
-			if (category.parent_id === validated.data.parent_id) {
+		if (data.parent_id) {
+			if (category.parent_id === data.parent_id) {
 				throw new CustomError(400, lang('category.error.parent_same'));
 			}
 
 			const newParent = await getCategoryRepository()
 				.createQuery()
-				.filterById(validated.data.parent_id)
+				.filterById(data.parent_id)
 				.withDeleted(this.policy.allowDeleted(res.locals.auth))
 				.first();
 
@@ -277,7 +263,7 @@ class CategoryController extends BaseController {
 				RepositoryAbstract.getTreeRepository(CategoryEntity);
 			const descendants = await treeRepository.findDescendants(category);
 
-			if (descendants.some((d) => d.id === validated.data.parent_id)) {
+			if (descendants.some((d) => d.id === data.parent_id)) {
 				throw new CustomError(
 					400,
 					lang('category.error.parent_descendant'),
@@ -286,15 +272,15 @@ class CategoryController extends BaseController {
 		}
 
 		const entry = await dataSource.transaction(async (manager) => {
-			if ('parent_id' in validated.data) {
+			if ('parent_id' in data) {
 				let flagUpdate = false;
 
-				if (validated.data.parent_id === null) {
+				if (data.parent_id === null) {
 					category.parent = null;
 					flagUpdate = true;
-				} else if (validated.data.parent_id !== category.parent_id) {
+				} else if (data.parent_id !== category.parent_id) {
 					category.parent = {
-						id: validated.data.parent_id,
+						id: data.parent_id,
 					} as CategoryEntity;
 					flagUpdate = true;
 				}
@@ -306,10 +292,10 @@ class CategoryController extends BaseController {
 				}
 			}
 
-			if (validated.data.content) {
+			if (data.content) {
 				await CategoryContentRepository.saveContent(
 					manager,
-					validated.data.content,
+					data.content,
 					category.id,
 					category.type,
 				);
@@ -398,17 +384,14 @@ class CategoryController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CategoryFindValidator().safeParse(req.query);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
 		const selectedLanguage =
-			validated.data.filter.language ?? res.locals.language;
+			data.filter.language ?? res.locals.language;
 
 		const [entries, total] = await getCategoryRepository()
 			.createQuery()
@@ -446,25 +429,25 @@ class CategoryController extends BaseController {
 
 				'parentContent.label',
 			])
-			.filterBy('type', validated.data.filter.type)
-			.filterBy('status', validated.data.filter.status)
-			.filterByTerm(validated.data.filter.term)
+			.filterBy('type', data.filter.type)
+			.filterBy('status', data.filter.status)
+			.filterByTerm(data.filter.term)
 			.withDeleted(
 				this.policy.allowDeleted(res.locals.auth) &&
-					validated.data.filter.is_deleted,
+					data.filter.is_deleted,
 			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
+			.orderBy(data.order_by, data.direction)
+			.pagination(data.page, data.limit)
 			.all(true);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
@@ -473,14 +456,11 @@ class CategoryController extends BaseController {
 	public statusUpdate = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CategoryStatusUpdateValidator().safeParse(req.query);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
 		await dataSource.transaction(async (manager) => {
 			const category = await manager
@@ -553,9 +533,9 @@ class CategoryController extends BaseController {
 
 export function createCategoryController(deps: {
 	policy: PolicyAbstract;
-	validator: ICategoryValidator;
+	validator: CategoryValidator;
 	cache: CacheProvider;
-	categoryService: ICategoryService;
+	categoryService: CategoryService;
 }) {
 	return new CategoryController(
 		deps.policy,

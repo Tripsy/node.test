@@ -79,7 +79,7 @@ export class UserService {
 		withDeleted: boolean,
 		data: UserValidatorUpdateDto,
 	) {
-		const user = await this.findById(id, withDeleted);
+		const entry = await this.findById(id, withDeleted);
 
 		if (data.email) {
 			const existingUser = await this.findByEmail(
@@ -97,8 +97,8 @@ export class UserService {
 			}
 		}
 
-		if (data.password || data.email !== user.email) {
-			await this.accountTokenService.removeAccountTokenForUser(user.id); // Note: Removes all account tokens for the user
+		if (data.password || data.email !== entry.email) {
+			await this.accountTokenService.removeAccountTokenForUser(entry.id); // Note: Removes all account tokens for the user
 		}
 
 		const updateData = {

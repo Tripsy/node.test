@@ -1,15 +1,18 @@
 import type { Request, Response } from 'express';
-import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import PlaceEntity from '@/features/place/place.entity';
-import { getPlaceRepository } from '@/features/place/place.repository';
+import { placePolicy } from '@/features/place/place.policy';
 import {
-	PlaceCreateValidator,
-	PlaceFindValidator,
-	PlaceUpdateValidator,
-	paramsUpdateList,
+	type PlaceService,
+	placeService,
+} from '@/features/place/place.service';
+import {
+	type PlaceValidator,
+	type PlaceValidatorCreateDto,
+	type PlaceValidatorFindDto,
+	type PlaceValidatorUpdateDto,
+	placeValidator,
 } from '@/features/place/place.validator';
-import PlaceContentRepository from '@/features/place/place-content.repository';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
@@ -22,9 +25,9 @@ import {
 class PlaceController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: IPlaceValidator,
+		private validator: PlaceValidator,
 		private cache: CacheProvider,
-		private placeService: IPlaceService,
+		private placeService: PlaceService,
 	) {
 		super();
 	}
@@ -32,33 +35,13 @@ class PlaceController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = PlaceCreateValidator().safeParse(req.body);
+		const data = this.validate<PlaceValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const entry = await dataSource.transaction(async (manager) => {
-			const repository = manager.getRepository(PlaceEntity); // We use the manager -> `getPlaceRepository` is not bound to the transaction
-
-			const entryEntity = new PlaceEntity();
-			entryEntity.type = validated.data.type;
-			entryEntity.code = validated.data.code;
-			entryEntity.parent_id = validated.data.parent_id;
-
-			const entrySaved = await repository.save(entryEntity);
-
-			await PlaceContentRepository.saveContent(
-				manager,
-				validated.data.content,
-				entrySaved.id,
-			);
-
-			return entrySaved;
-		});
+		const entry = await this.placeService.create(data);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('place.success.create'));
@@ -72,60 +55,19 @@ class PlaceController extends BaseController {
 		const cacheKey = this.cache.buildKey(
 			PlaceEntity.NAME,
 			res.locals.validated.id,
+			res.locals.language,
 			'read',
 		);
 
-		const place = await this.cache.get(cacheKey, async () => {
-			const placeData = await getPlaceRepository()
-				.createQuery()
-				.joinAndSelect(
-					'place.contents',
-					'content',
-					'INNER',
-					'content.language = :language',
-					{
-						language: res.locals.language,
-					},
-				)
-				.joinAndSelect('place.parent', 'parent', 'LEFT')
-				.joinAndSelect(
-					'parent.contents',
-					'parentContent',
-					'LEFT',
-					'parentContent.language = :language',
-					{
-						language: res.locals.language,
-					},
-				)
-				.filterById(res.locals.validated.id)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.firstOrFail();
-
-			const content = placeData.contents?.[0];
-			const parent = placeData.parent ?? null;
-			const parentContent = placeData.parent?.contents?.[0] ?? null;
-
-			return {
-				language: content.language,
-				id: placeData.id,
-				created_at: placeData.created_at,
-				updated_at: placeData.updated_at,
-				deleted_at: placeData.deleted_at,
-				type: placeData.type,
-				type_label: content.type_label,
-				code: placeData.code,
-				name: content.name,
-				parent: parent
-					? {
-							id: parent.id,
-							type: parent.type,
-							type_label: parentContent.type_label,
-							code: parent.code,
-							name: parentContent.name,
-						}
-					: null,
-			};
-		});
+		const place = await this.cache.get(
+			cacheKey,
+			async () =>
+				await this.placeService.getDataById(
+					res.locals.validated.id,
+					res.locals.language,
+					this.policy.allowDeleted(res.locals.auth),
+				),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(place);
@@ -136,29 +78,22 @@ class PlaceController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const validated = PlaceUpdateValidator().safeParse(req.body);
+		const data = this.validate<PlaceValidatorUpdateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const place = await getPlaceRepository()
-			.createQuery()
-			.select(['type', 'code', 'parent_id'])
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
+		const place = await this.placeService.findById(
+			res.locals.validated.id,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		const isTypeChange =
-			validated.data.type !== undefined &&
-			validated.data.type !== place.type;
+			data.type !== undefined && data.type !== place.type;
 
 		if (isTypeChange) {
-			const hasChildren = await getPlaceRepository()
-				.createQuery()
-				.filterBy('parent_id', place.id)
-				.firstRaw();
+			const hasChildren = await this.placeService.hasChildren(place.id);
 
 			if (hasChildren) {
 				throw new BadRequestError(
@@ -167,30 +102,10 @@ class PlaceController extends BaseController {
 			}
 		}
 
-		const entry = await dataSource.transaction(async (manager) => {
-			const repository = manager.getRepository(PlaceEntity); // We use the manager -> `getPlaceRepository` is not bound to the transaction
-
-			const updatedEntity: Partial<PlaceEntity> = {
-				id: place.id,
-				...(Object.fromEntries(
-					Object.entries(validated.data).filter(([key]) =>
-						paramsUpdateList.includes(key as keyof PlaceEntity),
-					),
-				) as Partial<PlaceEntity>),
-			};
-
-			await repository.save(updatedEntity);
-
-			if (validated.data.content) {
-				await PlaceContentRepository.saveContent(
-					manager,
-					validated.data.content,
-					place.id,
-				);
-			}
-
-			return updatedEntity;
-		});
+		const entry = await this.placeService.updateDataWithContent(
+			res.locals.validated.id,
+			data,
+		);
 
 		res.locals.output.message(lang('place.success.update'));
 		res.locals.output.data(entry);
@@ -201,21 +116,17 @@ class PlaceController extends BaseController {
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		const hasChildren = await getPlaceRepository()
-			.createQuery()
-			.filterBy('parent_id', res.locals.validated.id)
-			.firstRaw();
+		const hasChildren = await this.placeService.hasChildren(
+			res.locals.validated.id,
+		);
 
 		if (hasChildren) {
 			throw new BadRequestError(
-				lang('place.error.cannot_delete_type_with_children'),
+				lang('place.error.cannot_delete_with_children'),
 			);
 		}
 
-		await getPlaceRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.delete();
+		await this.placeService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('place.success.delete'));
 
@@ -225,10 +136,7 @@ class PlaceController extends BaseController {
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRestore(res.locals.auth);
 
-		await getPlaceRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.restore();
+		await this.placeService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('place.success.restore'));
 
@@ -238,75 +146,27 @@ class PlaceController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const validated = PlaceFindValidator().safeParse(req.query);
+		const data = this.validate<PlaceValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
+		data.filter.language = data.filter.language ?? res.locals.language;
 
-			throw new BadRequestError();
-		}
-
-		const selectedLanguage =
-			validated.data.filter.language ?? res.locals.language;
-
-		const [entries, total] = await getPlaceRepository()
-			.createQuery()
-			.join(
-				'place.contents',
-				'content',
-				'INNER',
-				'content.language = :language',
-				{
-					language: selectedLanguage,
-				},
-			)
-			.join('place.parent', 'parent', 'LEFT')
-			.join(
-				'parent.contents',
-				'parentContent',
-				'LEFT',
-				'parentContent.language = :language',
-				{
-					language: selectedLanguage,
-				},
-			)
-			.select([
-				'place.id',
-				'place.type',
-				'place.code',
-				'place.created_at',
-				'place.deleted_at',
-
-				'content.language',
-				'content.name',
-				'content.type_label',
-
-				'parent.id',
-				'parent.type',
-				'parent.code',
-
-				'parentContent.name',
-				'parentContent.type_label',
-			])
-			.filterBy('content.language', validated.data.filter.language)
-			.filterByTerm(validated.data.filter.term)
-			.filterBy('place.type', validated.data.filter.type)
-			.withDeleted(
-				this.policy.allowDeleted(res.locals.auth) &&
-					validated.data.filter.is_deleted,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.placeService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
@@ -315,9 +175,9 @@ class PlaceController extends BaseController {
 
 export function createPlaceController(deps: {
 	policy: PolicyAbstract;
-	validator: IPlaceValidator;
+	validator: PlaceValidator;
 	cache: CacheProvider;
-	placeService: IPlaceService;
+	placeService: PlaceService;
 }) {
 	return new PlaceController(
 		deps.policy,

@@ -9,6 +9,7 @@ import {
 	type ConfirmationTokenPayload,
 } from '@/features/account/account.service';
 import {
+	type AccountValidator,
 	type AccountValidatorDeleteDto,
 	type AccountValidatorEditDto,
 	type AccountValidatorEmailConfirmSendDto,
@@ -20,7 +21,6 @@ import {
 	type AccountValidatorRegisterDto,
 	type AccountValidatorRemoveTokenDto,
 	accountValidator,
-	type IAccountValidator,
 } from '@/features/account/account.validator';
 import {
 	type AccountEmailService,
@@ -56,7 +56,7 @@ import asyncHandler from '@/lib/helpers/async.handler';
 class AccountController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: IAccountValidator,
+		private validator: AccountValidator,
 		private accountService: AccountService,
 		private accountTokenService: AccountTokenService,
 		private accountRecoveryService: AccountRecoveryService,
@@ -91,7 +91,7 @@ class AccountController extends BaseController {
 			res,
 		);
 
-		const user = await this.userService.findByEmail(data.email, false);
+		const user = await this.userService.findByEmail(data.email, false, ['id', 'password', 'status']);
 
 		if (!user) {
 			throw new NotFoundError(lang('account.error.not_found'));
@@ -367,7 +367,7 @@ class AccountController extends BaseController {
 			// Update user password and remove all account tokens
 			await this.accountService.updatePassword(user, data.password_new);
 
-			// Generate new token
+			// Generate a new token
 			const token = await this.accountTokenService.setupAuthToken(
 				user,
 				req,
@@ -659,7 +659,7 @@ class AccountController extends BaseController {
 
 export function createAccountController(deps: {
 	policy: PolicyAbstract;
-	validator: IAccountValidator;
+	validator: AccountValidator;
 	accountService: AccountService;
 	accountTokenService: AccountTokenService;
 	accountRecoveryService: AccountRecoveryService;

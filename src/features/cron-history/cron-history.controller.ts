@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
+import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 import { cronHistoryPolicy } from '@/features/cron-history/cron-history.policy';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
@@ -7,6 +8,7 @@ import {
 	CronHistoryDeleteValidator,
 	CronHistoryFindValidator,
 } from '@/features/cron-history/cron-history.validator';
+import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
@@ -51,13 +53,11 @@ class CronHistoryController extends BaseController {
 	public delete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		const validated = CronHistoryDeleteValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<UserValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
 		const countDelete: number = await getCronHistoryRepository()
 			.createQuery()
@@ -78,14 +78,11 @@ class CronHistoryController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CronHistoryFindValidator().safeParse(req.query);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
 		const [entries, total] = await getCronHistoryRepository()
 			.createQuery()

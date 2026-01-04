@@ -22,7 +22,8 @@
 		"params_at_least_one": "At least one parameter is required (eg: {{params}})",
 		"meta_title_invalid": "Meta title must be a string",
 		"meta_description_invalid": "Meta description must be a string",
-		"meta_keywords_invalid": "Meta keywords must be a string"
+		"meta_keywords_invalid": "Meta keywords must be a string",
+		"language_invalid": "Invalid language"
 	},
 	"debug": {
 		"email_error": "Failed to send email with subject `{{subject}}` to `{{to}}` (eg: {{error}})",

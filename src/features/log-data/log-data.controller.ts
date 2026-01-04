@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
+import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import LogDataEntity from '@/features/log-data/log-data.entity';
 import { logDataPolicy } from '@/features/log-data/log-data.policy';
 import { getLogDataRepository } from '@/features/log-data/log-data.repository';
@@ -7,6 +8,7 @@ import {
 	LogDataDeleteValidator,
 	LogDataFindValidator,
 } from '@/features/log-data/log-data.validator';
+import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import { BadRequestError } from '@/lib/exceptions';
@@ -52,13 +54,11 @@ class LogDataController extends BaseController {
 	public delete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		const validated = LogDataDeleteValidator().safeParse(req.body);
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
+		const data = this.validate<UserValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
 		const countDelete: number = await getLogDataRepository()
 			.createQuery()
@@ -79,14 +79,12 @@ class LogDataController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = LogDataFindValidator().safeParse(req.query);
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
 		const [entries, total] = await getLogDataRepository()
 			.createQuery()
 			.filterById(validated.data.filter.id)

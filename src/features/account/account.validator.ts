@@ -1,22 +1,13 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import { validateString, validateStringMin } from '@/lib/helpers';
+import {
+	validateLanguage,
+	validateString,
+	validateStringMin,
+} from '@/lib/helpers';
 
-export interface IAccountValidator {
-	register(): z.ZodTypeAny;
-	login(): z.ZodTypeAny;
-	passwordRecover(): z.ZodTypeAny;
-	passwordRecoverChange(): z.ZodTypeAny;
-	passwordUpdate(): z.ZodTypeAny;
-	emailConfirmSend(): z.ZodTypeAny;
-	emailUpdate(): z.ZodTypeAny;
-	edit(): z.ZodTypeAny;
-	delete(): z.ZodTypeAny;
-	removeToken(): z.ZodTypeAny;
-}
-
-class AccountValidator implements IAccountValidator {
+export class AccountValidator {
 	private readonly nameMinLength = cfg('user.nameMinLength') as number;
 	private readonly passwordMinLength = cfg(
 		'user.passwordMinLength',
@@ -68,12 +59,7 @@ class AccountValidator implements IAccountValidator {
 						'account.validation.password_confirm_required',
 					),
 				}),
-				language: z
-					.string()
-					.length(2, {
-						message: lang('account.validation.language_invalid'),
-					})
-					.optional(),
+				language: validateLanguage().optional(),
 			})
 			.superRefine(({ password, password_confirm }, ctx) => {
 				if (password !== password_confirm) {
@@ -231,9 +217,7 @@ class AccountValidator implements IAccountValidator {
 					min: this.nameMinLength.toString(),
 				}),
 			),
-			language: z.string().length(2, {
-				message: lang('account.validation.language_invalid'),
-			}),
+			language: validateLanguage(),
 		});
 	}
 

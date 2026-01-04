@@ -3,15 +3,20 @@ import { lang } from '@/config/i18n.setup';
 import TemplateEntity, {
 	TemplateTypeEnum,
 } from '@/features/template/template.entity';
-import { getTemplateRepository } from '@/features/template/template.repository';
+import { templatePolicy } from '@/features/template/template.policy';
 import {
-	TemplateCreateValidator,
-	TemplateFindValidator,
-	TemplateUpdateValidator,
+	type TemplateService,
+	templateService,
+} from '@/features/template/template.service';
+import {
+	type TemplateValidator,
+	type TemplateValidatorCreateDto,
+	type TemplateValidatorFindDto,
+	type TemplateValidatorUpdateDto,
+	templateValidator,
 } from '@/features/template/template.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import {
 	type CacheProvider,
@@ -21,9 +26,9 @@ import {
 class TemplateController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: ITemplateValidator,
+		private validator: TemplateValidator,
 		private cache: CacheProvider,
-		private templateService: ITemplateService,
+		private templateService: TemplateService,
 	) {
 		super();
 	}
@@ -31,34 +36,13 @@ class TemplateController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const validated = TemplateCreateValidator().safeParse(req.body);
+		const data = this.validate<TemplateValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const existingTemplate = await getTemplateRepository()
-			.createQuery()
-			.filterBy('label', validated.data.label)
-			.filterBy('language', validated.data.language)
-			.filterBy('type', validated.data.type)
-			.withDeleted(this.policy.allowDeleted(res.locals.auth))
-			.first();
-
-		if (existingTemplate) {
-			throw new CustomError(409, lang('template.error.already_exists'));
-		}
-
-		const template = new TemplateEntity();
-		template.label = validated.data.label;
-		template.language = validated.data.language;
-		template.type = validated.data.type;
-		template.content = validated.data.content;
-
-		const entry: TemplateEntity =
-			await getTemplateRepository().save(template);
+		const entry = await this.templateService.create(data);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('template.success.create'));
@@ -75,16 +59,15 @@ class TemplateController extends BaseController {
 			'read',
 		);
 
-		const template = await this.cache.get(cacheKey, async () => {
-			return getTemplateRepository()
-				.createQuery()
-				.filterById(res.locals.validated.id)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.firstOrFail();
-		});
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.templateService.findById(
+				res.locals.validated.id,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(template);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -92,47 +75,20 @@ class TemplateController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const validated = TemplateUpdateValidator().safeParse(req.body);
+		const data = this.validate<TemplateValidatorUpdateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const template = await getTemplateRepository()
-			.createQuery()
-			.select(paramsUpdateList)
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		const existingTemplate = await getTemplateRepository()
-			.createQuery()
-			.filterBy('id', res.locals.validated.id, '!=')
-			.filterBy('label', validated.data.label || template.label)
-			.filterBy('language', validated.data.language || template.language)
-			.filterBy('type', validated.data.type)
-			.withDeleted(this.policy.allowDeleted(res.locals.auth))
-			.first();
-
-		// Return error if the template already exists
-		if (existingTemplate) {
-			throw new CustomError(409, lang('template.error.already_exists'));
-		}
-
-		const updatedEntity: Partial<TemplateEntity> = {
-			id: template.id,
-			...(Object.fromEntries(
-				Object.entries(validated.data).filter(([key]) =>
-					paramsUpdateList.includes(key as keyof TemplateEntity),
-				),
-			) as Partial<TemplateEntity>),
-		};
-
-		await getTemplateRepository().save(updatedEntity);
+		const entry = await this.templateService.updateData(
+			res.locals.validated.id,
+			this.policy.allowDeleted(res.locals.auth),
+			data,
+		);
 
 		res.locals.output.message(lang('template.success.update'));
-		res.locals.output.data(updatedEntity);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -140,10 +96,7 @@ class TemplateController extends BaseController {
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		await getTemplateRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.delete();
+		await this.templateService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('template.success.delete'));
 
@@ -153,10 +106,7 @@ class TemplateController extends BaseController {
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRestore(res.locals.auth);
 
-		await getTemplateRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.restore();
+		await this.templateService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('template.success.restore'));
 
@@ -166,36 +116,25 @@ class TemplateController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const validated = TemplateFindValidator().safeParse(req.query);
+		const data = this.validate<TemplateValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const [entries, total] = await getTemplateRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterBy('language', validated.data.filter.language)
-			.filterBy('type', validated.data.filter.type)
-			.filterByTerm(validated.data.filter.term)
-			.withDeleted(
-				this.policy.allowDeleted(res.locals.auth) &&
-					validated.data.filter.is_deleted,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.templateService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
@@ -205,20 +144,22 @@ class TemplateController extends BaseController {
 		const cacheKey = this.cache.buildKey(
 			TemplateEntity.NAME,
 			res.locals.validated.label,
+			res.locals.lang,
+			TemplateTypeEnum.PAGE,
 			'read',
 		);
 
-		const template = await this.cache.get(cacheKey, async () => {
-			return getTemplateRepository()
-				.createQuery()
-				.filterBy('label', res.locals.validated.label)
-				.filterBy('language', res.locals.lang)
-				.filterBy('type', TemplateTypeEnum.PAGE)
-				.firstOrFail();
-		});
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.templateService.findByLabel(
+				res.locals.validated.label,
+				res.locals.lang,
+				TemplateTypeEnum.PAGE,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
 		res.locals.output.meta(res.locals.outputder.isCached, 'isCached');
-		res.locals.output.data(template);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -226,9 +167,9 @@ class TemplateController extends BaseController {
 
 export function createTemplateController(deps: {
 	policy: PolicyAbstract;
-	validator: ITemplateValidator;
+	validator: TemplateValidator;
 	cache: CacheProvider;
-	templateService: ITemplateService;
+	templateService: TemplateService;
 }) {
 	return new TemplateController(
 		deps.policy,
