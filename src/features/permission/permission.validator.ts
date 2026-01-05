@@ -14,7 +14,7 @@ enum PermissionOrderByEnum {
 	OPERATION = 'operation',
 }
 
-class PermissionValidator {
+export class PermissionValidator {
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
 	manage() {

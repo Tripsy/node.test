@@ -1,8 +1,9 @@
 {
 	"error": {
 		"not_found": "Permission not found",
-		"already_exists": "Permission already exists"
-	},
+		"already_exists": "Permission already exists",
+        "already_exists_as_deleted": "Permission already exists but marked as deleted"
+    },
 	"success": {
 		"create": "Permission created successfully",
 		"restore": "Permission restored successfully",

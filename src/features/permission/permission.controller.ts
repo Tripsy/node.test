@@ -2,27 +2,27 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import PermissionEntity from '@/features/permission/permission.entity';
-import { getPermissionRepository } from '@/features/permission/permission.repository';
-import {
-	PermissionFindValidator,
-	PermissionManageValidator,
-} from '@/features/permission/permission.validator';
-import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import {
 	type CacheProvider,
 	cacheProvider,
 } from '@/lib/providers/cache.provider';
+import {
+    permissionValidator,
+    PermissionValidator, PermissionValidatorFindDto,
+    PermissionValidatorManageDto
+} from "@/features/permission/permission.validator";
+import {permissionService, PermissionService} from "@/features/permission/permission.service";
+import {permissionPolicy} from "@/features/permission/permission.policy";
 
 class PermissionController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: IPermissionValidator,
+		private validator: PermissionValidator,
 		private cache: CacheProvider,
-		private userPermissionService: IPermissionService,
+		private permissionService: PermissionService,
 	) {
 		super();
 	}
@@ -30,41 +30,22 @@ class PermissionController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<UserValidatorCreateDto>(
-			this.validator.create(),
+		const data = this.validate<PermissionValidatorManageDto>(
+			this.validator.manage(),
 			req.body,
 			res,
 		);
 
-		const existingPermission = await getPermissionRepository()
-			.createQuery()
-			.select(['id', 'entity', 'operation', 'deleted_at'])
-			.filterBy('entity', validated.data.entity)
-			.filterBy('operation', validated.data.operation)
-			.withDeleted()
-			.first();
+        const createResult = await this.permissionService.create(
+            this.policy.allowDeleted(res.locals.auth),
+            data
+        );
 
-		if (existingPermission) {
-			if (existingPermission.deleted_at) {
-				await getPermissionRepository().restore(existingPermission.id);
+        res.locals.output.data(createResult.permission);
 
-				res.locals.output.data(existingPermission);
-				res.locals.output.message(lang('permission.success.restore'));
-			} else {
-				throw new CustomError(
-					409,
-					lang('permission.error.already_exists'),
-				);
-			}
+		if (createResult.action === 'restore') {
+            res.locals.output.message(lang('permission.success.restore'));
 		} else {
-			const permission = new PermissionEntity();
-			permission.entity = validated.data.entity;
-			permission.operation = validated.data.operation;
-
-			const entry: PermissionEntity =
-				await getPermissionRepository().save(permission);
-
-			res.locals.output.data(entry);
 			res.locals.output.message(lang('permission.success.create'));
 		}
 
@@ -80,16 +61,15 @@ class PermissionController extends BaseController {
 			'read',
 		);
 
-		const permission = await this.cache.get(cacheKey, async () => {
-			return getPermissionRepository()
-				.createQuery()
-				.filterById(res.locals.validated.id)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.firstOrFail();
-		});
+        const entry = await this.cache.get(cacheKey, async () =>
+            this.permissionService.findById(
+                res.locals.validated.id,
+                this.policy.allowDeleted(res.locals.auth),
+            ),
+        );
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(permission);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -97,36 +77,19 @@ class PermissionController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<UserValidatorCreateDto>(
-			this.validator.create(),
+		const data = this.validate<PermissionValidatorManageDto>(
+			this.validator.manage(),
 			req.body,
 			res,
 		);
 
-		const existingPermission = await getPermissionRepository()
-			.createQuery()
-			.filterBy('id', res.locals.validated.id, '!=')
-			.filterBy('entity', validated.data.entity)
-			.filterBy('operation', validated.data.operation)
-			.withDeleted()
-			.first();
-
-		if (existingPermission) {
-			throw new CustomError(409, lang('permission.error.already_exists'));
-		}
-
-		const permission = await getPermissionRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		permission.entity = validated.data.entity;
-		permission.operation = validated.data.operation;
-
-		await getPermissionRepository().save(permission);
+        const entry = await this.permissionService.updateData(
+            res.locals.validated.id,
+            data
+        )
 
 		res.locals.output.message(lang('permission.success.update'));
-		res.locals.output.data(permission);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -134,10 +97,7 @@ class PermissionController extends BaseController {
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		await getPermissionRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.delete();
+        await this.permissionService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('permission.success.delete'));
 
@@ -147,10 +107,7 @@ class PermissionController extends BaseController {
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRestore(res.locals.auth);
 
-		await getPermissionRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.restore();
+        await this.permissionService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('permission.success.restore'));
 
@@ -160,32 +117,25 @@ class PermissionController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<CarrierValidatorFindDto>(
+		const data = this.validate<PermissionValidatorFindDto>(
 			this.validator.find(),
 			req.query,
 			res,
 		);
 
-		const [entries, total] = await getPermissionRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterByTerm(validated.data.filter.term)
-			.withDeleted(
-				this.policy.allowDeleted(res.locals.auth) &&
-					validated.data.filter.is_deleted,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+        const [entries, total] = await this.permissionService.findByFilter(
+            data,
+            this.policy.allowDeleted(res.locals.auth),
+        );
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
@@ -194,9 +144,9 @@ class PermissionController extends BaseController {
 
 export function createPermissionController(deps: {
 	policy: PolicyAbstract;
-	validator: IPermissionValidator;
+	validator: PermissionValidator;
 	cache: CacheProvider;
-	permissionService: IPermissionService;
+	permissionService: PermissionService;
 }) {
 	return new PermissionController(
 		deps.policy,
