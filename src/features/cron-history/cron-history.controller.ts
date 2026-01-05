@@ -1,17 +1,19 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 import { cronHistoryPolicy } from '@/features/cron-history/cron-history.policy';
-import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import {
-	CronHistoryDeleteValidator,
-	CronHistoryFindValidator,
+	type CronHistoryService,
+	cronHistoryService,
+} from '@/features/cron-history/cron-history.service';
+import {
+	type CronHistoryValidator,
+	type CronHistoryValidatorDeleteDto,
+	type CronHistoryValidatorFindDto,
+	cronHistoryValidator,
 } from '@/features/cron-history/cron-history.validator';
-import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import {
 	type CacheProvider,
@@ -21,12 +23,13 @@ import {
 class CronHistoryController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: ICronHistoryValidator,
+		private validator: CronHistoryValidator,
 		private cache: CacheProvider,
-		private cronHistoryService: ICronHistoryService,
+		private cronHistoryService: CronHistoryService,
 	) {
 		super();
 	}
+
 	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
@@ -36,16 +39,12 @@ class CronHistoryController extends BaseController {
 			'read',
 		);
 
-		const cronHistory = await this.cache.get(cacheKey, async () => {
-			return getCronHistoryRepository()
-				.createQuery()
-				.filterById(res.locals.validated.id)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.firstOrFail();
-		});
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.cronHistoryService.findById(res.locals.validated.id),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(cronHistory);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -53,16 +52,13 @@ class CronHistoryController extends BaseController {
 	public delete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		const data = this.validate<UserValidatorCreateDto>(
-			this.validator.create(),
+		const data = this.validate<CronHistoryValidatorDeleteDto>(
+			this.validator.delete(),
 			req.body,
 			res,
 		);
 
-		const countDelete: number = await getCronHistoryRepository()
-			.createQuery()
-			.filterBy('id', validated.data.ids, 'IN')
-			.delete(false, true, true);
+		const countDelete = await this.cronHistoryService.delete(data);
 
 		if (countDelete === 0) {
 			res.status(204).locals.output.message(
@@ -78,34 +74,23 @@ class CronHistoryController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<CarrierValidatorFindDto>(
+		const data = this.validate<CronHistoryValidatorFindDto>(
 			this.validator.find(),
 			req.query,
 			res,
 		);
 
-		const [entries, total] = await getCronHistoryRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterByRange(
-				'start_at',
-				validated.data.filter.start_date_start,
-				validated.data.filter.start_date_end,
-			)
-			.filterBy('status', validated.data.filter.status)
-			.filterByTerm(validated.data.filter.term)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] =
+			await this.cronHistoryService.findByFilter(data);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
@@ -114,9 +99,9 @@ class CronHistoryController extends BaseController {
 
 export function createCronHistoryController(deps: {
 	policy: PolicyAbstract;
-	validator: ICronHistoryValidator;
+	validator: CronHistoryValidator;
 	cache: CacheProvider;
-	cronHistoryService: ICronHistoryService;
+	cronHistoryService: CronHistoryService;
 }) {
 	return new CronHistoryController(
 		deps.policy,

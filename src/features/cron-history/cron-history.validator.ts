@@ -11,7 +11,7 @@ enum OrderByEnum {
 	START_AT = 'start_at',
 }
 
-class CronHistoryValidator {
+export class CronHistoryValidator {
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
 	public delete() {
