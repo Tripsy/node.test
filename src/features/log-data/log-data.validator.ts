@@ -16,7 +16,7 @@ enum OrderByEnum {
 	CREATED_AT = 'created_at',
 }
 
-class LogDataValidator {
+export class LogDataValidator {
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
 	public delete() {
