@@ -1,0 +1,64 @@
+import type MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
+import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
+import type {
+	MailQueueValidatorDeleteDto,
+	MailQueueValidatorFindDto,
+} from '@/features/mail-queue/mail-queue.validator';
+
+export class MailQueueService {
+	constructor(
+		private repository: ReturnType<typeof getMailQueueRepository>,
+	) {}
+
+	public async delete(data: MailQueueValidatorDeleteDto) {
+		return await this.repository
+			.createQuery()
+			.filterBy('id', data.ids, 'IN')
+			.delete(false, true, true);
+	}
+
+	public findById(id: number): Promise<MailQueueEntity> {
+		return this.repository
+			.createQuery()
+			.join('log_history.user', 'user', 'LEFT')
+			.filterById(id)
+			.firstOrFail();
+	}
+
+	public findByFilter(data: MailQueueValidatorFindDto) {
+		const querySelect = [
+			'id',
+			'template.id',
+			'template.label',
+			'language',
+			'content',
+			'to',
+			'from',
+			'status',
+			'error',
+			'sent_at',
+			'created_at',
+			'updated_at',
+		];
+
+		return this.repository
+			.createQuery()
+			.select(querySelect)
+			.join('mail_queue.template', 'template', 'LEFT')
+			.filterById(data.filter.id)
+			.filterByRange(
+				'sent_at',
+				data.filter.sent_date_start,
+				data.filter.sent_date_end,
+			)
+			.filterBy('status', data.filter.status)
+			.filterByTemplate(data.filter.template)
+			.filterBy('content::text', data.filter.content, 'ILIKE')
+			.filterBy('to::text', data.filter.to, 'ILIKE')
+			.orderBy(data.order_by, data.direction)
+			.pagination(data.page, data.limit)
+			.all(true);
+	}
+}
+
+export const mailQueueService = new MailQueueService(getMailQueueRepository());

@@ -15,7 +15,7 @@ enum OrderByEnum {
 	SENT_AT = 'sent_at',
 }
 
-class MailQueueValidator {
+export class MailQueueValidator {
 	private readonly termMinLength = cfg('user.termMinLength') as number;
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 

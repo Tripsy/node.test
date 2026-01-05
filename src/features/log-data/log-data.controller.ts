@@ -2,6 +2,16 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import LogDataEntity from '@/features/log-data/log-data.entity';
 import { logDataPolicy } from '@/features/log-data/log-data.policy';
+import {
+	type LogDataService,
+	logDataService,
+} from '@/features/log-data/log-data.service';
+import {
+	type LogDataValidator,
+	type LogDataValidatorDeleteDto,
+	type LogDataValidatorFindDto,
+	logDataValidator,
+} from '@/features/log-data/log-data.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
@@ -9,13 +19,6 @@ import {
 	type CacheProvider,
 	cacheProvider,
 } from '@/lib/providers/cache.provider';
-import {
-    logDataValidator,
-    LogDataValidator,
-    LogDataValidatorDeleteDto,
-    LogDataValidatorFindDto
-} from "@/features/log-data/log-data.validator";
-import {logDataService, LogDataService} from "@/features/log-data/log-data.service";
 
 class LogDataController extends BaseController {
 	constructor(
@@ -36,9 +39,9 @@ class LogDataController extends BaseController {
 			'read',
 		);
 
-        const entry = await this.cache.get(cacheKey, async () =>
-            this.logDataService.findById(res.locals.id),
-        );        
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.logDataService.findById(res.locals.id),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(entry);
@@ -46,27 +49,27 @@ class LogDataController extends BaseController {
 		res.json(res.locals.output);
 	});
 
-    public delete = asyncHandler(async (req: Request, res: Response) => {
-        this.policy.canDelete(res.locals.auth);
+	public delete = asyncHandler(async (req: Request, res: Response) => {
+		this.policy.canDelete(res.locals.auth);
 
-        const data = this.validate<LogDataValidatorDeleteDto>(
-            this.validator.delete(),
-            req.body,
-            res,
-        );
+		const data = this.validate<LogDataValidatorDeleteDto>(
+			this.validator.delete(),
+			req.body,
+			res,
+		);
 
-        const countDelete = await this.logDataService.delete(data);
+		const countDelete = await this.logDataService.delete(data);
 
-        if (countDelete === 0) {
-            res.status(204).locals.output.message(
-                lang('shared.error.db_delete_zero'),
-            ); // Note: By API design the response message is actually not displayed for 204
-        } else {
-            res.locals.output.message(lang('log-data.success.delete'));
-        }
+		if (countDelete === 0) {
+			res.status(204).locals.output.message(
+				lang('shared.error.db_delete_zero'),
+			); // Note: By API design the response message is actually not displayed for 204
+		} else {
+			res.locals.output.message(lang('log-data.success.delete'));
+		}
 
-        res.json(res.locals.output);
-    });
+		res.json(res.locals.output);
+	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
@@ -77,8 +80,7 @@ class LogDataController extends BaseController {
 			res,
 		);
 
-        const [entries, total] =
-            await this.logDataService.findByFilter(data);
+		const [entries, total] = await this.logDataService.findByFilter(data);
 
 		res.locals.output.data({
 			entries: entries,

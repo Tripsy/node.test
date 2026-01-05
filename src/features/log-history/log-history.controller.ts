@@ -2,16 +2,20 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import { logHistoryPolicy } from '@/features/log-history/log-history.policy';
 import {
-     logHistoryValidator, LogHistoryValidator,
+	type LogHistoryService,
+	logHistoryService,
+} from '@/features/log-history/log-history.service';
+import type {
+	LogHistoryValidatorDeleteDto,
+	LogHistoryValidatorFindDto,
+} from '@/features/log-history/log-history.validator';
+import {
+	type LogHistoryValidator,
+	logHistoryValidator,
 } from '@/features/log-history/log-history.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
-import type {
-    LogHistoryValidatorDeleteDto,
-    LogHistoryValidatorFindDto
-} from "@/features/log-history/log-history.validator";
-import {logHistoryService, LogHistoryService} from "@/features/log-history/log-history.service";
 
 class LogHistoryController extends BaseController {
 	constructor(
@@ -33,38 +37,38 @@ class LogHistoryController extends BaseController {
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-        this.policy.canDelete(res.locals.auth);
+		this.policy.canDelete(res.locals.auth);
 
-        const data = this.validate<LogHistoryValidatorDeleteDto>(
-            this.validator.delete(),
-            req.body,
-            res,
-        );
+		const data = this.validate<LogHistoryValidatorDeleteDto>(
+			this.validator.delete(),
+			req.body,
+			res,
+		);
 
-        const countDelete = await this.logHistoryService.delete(data);
+		const countDelete = await this.logHistoryService.delete(data);
 
-        if (countDelete === 0) {
-            res.status(204).locals.output.message(
-                lang('shared.error.db_delete_zero'),
-            ); // Note: By API design the response message is actually not displayed for 204
-        } else {
-            res.locals.output.message(lang('log-history.success.delete'));
-        }
+		if (countDelete === 0) {
+			res.status(204).locals.output.message(
+				lang('shared.error.db_delete_zero'),
+			); // Note: By API design the response message is actually not displayed for 204
+		} else {
+			res.locals.output.message(lang('log-history.success.delete'));
+		}
 
-        res.json(res.locals.output);
+		res.json(res.locals.output);
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-        const data = this.validate<LogHistoryValidatorFindDto>(
-            this.validator.find(),
-            req.query,
-            res,
-        );
+		const data = this.validate<LogHistoryValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-        const [entries, total] =
-            await this.logHistoryService.findByFilter(data);   
+		const [entries, total] =
+			await this.logHistoryService.findByFilter(data);
 
 		res.locals.output.data({
 			entries: entries,
