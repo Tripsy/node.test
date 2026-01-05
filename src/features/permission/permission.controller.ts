@@ -2,6 +2,17 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import PermissionEntity from '@/features/permission/permission.entity';
+import { permissionPolicy } from '@/features/permission/permission.policy';
+import {
+	type PermissionService,
+	permissionService,
+} from '@/features/permission/permission.service';
+import {
+	type PermissionValidator,
+	type PermissionValidatorFindDto,
+	type PermissionValidatorManageDto,
+	permissionValidator,
+} from '@/features/permission/permission.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
@@ -9,13 +20,6 @@ import {
 	type CacheProvider,
 	cacheProvider,
 } from '@/lib/providers/cache.provider';
-import {
-    permissionValidator,
-    PermissionValidator, PermissionValidatorFindDto,
-    PermissionValidatorManageDto
-} from "@/features/permission/permission.validator";
-import {permissionService, PermissionService} from "@/features/permission/permission.service";
-import {permissionPolicy} from "@/features/permission/permission.policy";
 
 class PermissionController extends BaseController {
 	constructor(
@@ -36,15 +40,15 @@ class PermissionController extends BaseController {
 			res,
 		);
 
-        const createResult = await this.permissionService.create(
-            this.policy.allowDeleted(res.locals.auth),
-            data
-        );
+		const createResult = await this.permissionService.create(
+			this.policy.allowDeleted(res.locals.auth),
+			data,
+		);
 
-        res.locals.output.data(createResult.permission);
+		res.locals.output.data(createResult.permission);
 
 		if (createResult.action === 'restore') {
-            res.locals.output.message(lang('permission.success.restore'));
+			res.locals.output.message(lang('permission.success.restore'));
 		} else {
 			res.locals.output.message(lang('permission.success.create'));
 		}
@@ -61,12 +65,12 @@ class PermissionController extends BaseController {
 			'read',
 		);
 
-        const entry = await this.cache.get(cacheKey, async () =>
-            this.permissionService.findById(
-                res.locals.validated.id,
-                this.policy.allowDeleted(res.locals.auth),
-            ),
-        );
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.permissionService.findById(
+				res.locals.validated.id,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
 		res.locals.output.data(entry);
@@ -83,10 +87,10 @@ class PermissionController extends BaseController {
 			res,
 		);
 
-        const entry = await this.permissionService.updateData(
-            res.locals.validated.id,
-            data
-        )
+		const entry = await this.permissionService.updateData(
+			res.locals.validated.id,
+			data,
+		);
 
 		res.locals.output.message(lang('permission.success.update'));
 		res.locals.output.data(entry);
@@ -97,7 +101,7 @@ class PermissionController extends BaseController {
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-        await this.permissionService.delete(res.locals.validated.id);
+		await this.permissionService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('permission.success.delete'));
 
@@ -107,7 +111,7 @@ class PermissionController extends BaseController {
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRestore(res.locals.auth);
 
-        await this.permissionService.restore(res.locals.validated.id);
+		await this.permissionService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('permission.success.restore'));
 
@@ -123,10 +127,10 @@ class PermissionController extends BaseController {
 			res,
 		);
 
-        const [entries, total] = await this.permissionService.findByFilter(
-            data,
-            this.policy.allowDeleted(res.locals.auth),
-        );
+		const [entries, total] = await this.permissionService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,

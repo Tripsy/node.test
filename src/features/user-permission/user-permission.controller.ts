@@ -2,12 +2,18 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import { permissionPolicy } from '@/features/permission/permission.policy';
 import {
-    userPermissionValidator, UserPermissionValidator, UserPermissionValidatorCreateDto, UserPermissionValidatorFindDto,
+	type UserPermissionService,
+	userPermissionService,
+} from '@/features/user-permission/user-permission.service';
+import {
+	type UserPermissionValidator,
+	type UserPermissionValidatorCreateDto,
+	type UserPermissionValidatorFindDto,
+	userPermissionValidator,
 } from '@/features/user-permission/user-permission.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
-import {userPermissionService, UserPermissionService} from "@/features/user-permission/user-permission.service";
 
 class UserPermissionController extends BaseController {
 	constructor(
@@ -27,7 +33,10 @@ class UserPermissionController extends BaseController {
 			res,
 		);
 
-        const results = await this.userPermissionService.create(data, res.locals.validated.user_id);
+		const results = await this.userPermissionService.create(
+			data,
+			res.locals.validated.user_id,
+		);
 
 		res.locals.output.data(results);
 		res.locals.output.message(lang('user-permission.success.update'));
@@ -38,7 +47,10 @@ class UserPermissionController extends BaseController {
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-        await this.userPermissionService.delete(res.locals.validated.user_id, res.locals.validated.permission_id);
+		await this.userPermissionService.delete(
+			res.locals.validated.user_id,
+			res.locals.validated.permission_id,
+		);
 
 		res.locals.output.message(lang('user-permission.success.delete'));
 
@@ -48,7 +60,10 @@ class UserPermissionController extends BaseController {
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRestore(res.locals.auth);
 
-        await this.userPermissionService.restore(res.locals.validated.user_id, res.locals.validated.id);
+		await this.userPermissionService.restore(
+			res.locals.validated.user_id,
+			res.locals.validated.id,
+		);
 
 		res.locals.output.message(lang('user-permission.success.restore'));
 
@@ -64,11 +79,11 @@ class UserPermissionController extends BaseController {
 			res,
 		);
 
-        const [entries, total] = await this.userPermissionService.findByFilter(
-            data,
-            res.locals.validated.user_id,
-            this.policy.allowDeleted(res.locals.auth),
-        );
+		const [entries, total] = await this.userPermissionService.findByFilter(
+			data,
+			res.locals.validated.user_id,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,

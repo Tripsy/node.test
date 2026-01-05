@@ -40,17 +40,17 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-const discountRulesSchema: z.ZodType<DiscountRules> = z.record(
-	z.string(), // Keys are strings
-	z.union([
-		z.number(), // Single number
-		z.array(z.number()), // Array of number
-		z.array(z.string()), // Array of string
-	]),
-);
-
 export class DiscountValidator {
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+
+	discountRulesSchema: z.ZodType<DiscountRules> = z.record(
+		z.string(), // Keys are strings
+		z.union([
+			z.number(), // Single number
+			z.array(z.number()), // Array of number
+			z.array(z.string()), // Array of string
+		]),
+	);
 
 	create() {
 		return z
@@ -73,7 +73,7 @@ export class DiscountValidator {
 					DiscountTypeEnum,
 					lang('discount.validation.type_invalid'),
 				),
-				rules: discountRulesSchema.optional(),
+				rules: this.discountRulesSchema.optional(),
 				value: z.coerce
 					.number({
 						message: lang('discount.validation.value_invalid'),
@@ -142,7 +142,7 @@ export class DiscountValidator {
 					DiscountTypeEnum,
 					lang('discount.validation.type_invalid'),
 				).optional(),
-				rules: discountRulesSchema.optional(),
+				rules: this.discountRulesSchema.optional(),
 				value: z.coerce
 					.number({
 						message: lang('discount.validation.value_invalid'),
@@ -242,3 +242,15 @@ export class DiscountValidator {
 		});
 	}
 }
+
+export const discountValidator = new DiscountValidator();
+
+export type DiscountValidatorCreateDto = z.infer<
+	ReturnType<DiscountValidator['create']>
+>;
+export type DiscountValidatorUpdateDto = z.infer<
+	ReturnType<DiscountValidator['update']>
+>;
+export type DiscountValidatorFindDto = z.infer<
+	ReturnType<DiscountValidator['find']>
+>;

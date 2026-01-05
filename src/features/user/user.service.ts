@@ -53,7 +53,9 @@ export class UserService {
 	/**
 	 * @description Used in `register` method from controller;
 	 */
-	public async register(user: Partial<UserEntity>): Promise<UserEntity> {
+	public async createRegister(
+		user: Partial<UserEntity>,
+	): Promise<UserEntity> {
 		const entry = {
 			name: user.name,
 			email: user.email,

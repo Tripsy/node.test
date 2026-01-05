@@ -1,19 +1,20 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import DiscountEntity from '@/features/discount/discount.entity';
 import { discountPolicy } from '@/features/discount/discount.policy';
-import { getDiscountRepository } from '@/features/discount/discount.repository';
 import {
-	DiscountCreateValidator,
-	DiscountFindValidator,
-	DiscountUpdateValidator,
-	paramsUpdateList,
+	type DiscountService,
+	discountService,
+} from '@/features/discount/discount.service';
+import {
+	type DiscountValidator,
+	type DiscountValidatorCreateDto,
+	type DiscountValidatorFindDto,
+	type DiscountValidatorUpdateDto,
+	discountValidator,
 } from '@/features/discount/discount.validator';
-import type { UserValidatorCreateDto } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import {
 	type CacheProvider,
@@ -23,35 +24,22 @@ import {
 class DiscountController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: IDiscountValidator,
+		private validator: DiscountValidator,
 		private cache: CacheProvider,
-		private discountService: IDiscountService,
+		private discountService: DiscountService,
 	) {
 		super();
 	}
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<UserValidatorCreateDto>(
+		const data = this.validate<DiscountValidatorCreateDto>(
 			this.validator.create(),
 			req.body,
 			res,
 		);
 
-		const discount = new DiscountEntity();
-		discount.label = validated.data.label;
-		discount.scope = validated.data.scope;
-		discount.reason = validated.data.reason;
-		discount.reference = validated.data.reference ?? null;
-		discount.type = validated.data.type;
-		discount.rules = validated.data.rules;
-		discount.value = validated.data.value;
-		discount.start_at = validated.data.start_at ?? null;
-		discount.end_at = validated.data.end_at ?? null;
-		discount.notes = validated.data.notes ?? null;
-
-		const entry: DiscountEntity =
-			await getDiscountRepository().save(discount);
+		const entry = await this.discountService.create(data);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('discount.success.create'));
@@ -64,20 +52,19 @@ class DiscountController extends BaseController {
 
 		const cacheKey = this.cache.buildKey(
 			DiscountEntity.NAME,
-			res.locals.validated.id,
+			res.locals.id,
 			'read',
 		);
 
-		const discount = await this.cache.get(cacheKey, async () => {
-			return getDiscountRepository()
-				.createQuery()
-				.filterById(res.locals.validated.id)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.firstOrFail();
-		});
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.discountService.findById(
+				res.locals.validated.id,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(discount);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -85,31 +72,20 @@ class DiscountController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<UserValidatorCreateDto>(
+		const data = this.validate<DiscountValidatorUpdateDto>(
 			this.validator.create(),
 			req.body,
 			res,
 		);
 
-		const discount = await getDiscountRepository()
-			.createQuery()
-			.select(paramsUpdateList)
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		const updatedEntity: Partial<DiscountEntity> = {
-			id: discount.id,
-			...(Object.fromEntries(
-				Object.entries(validated.data).filter(([key]) =>
-					paramsUpdateList.includes(key as keyof DiscountEntity),
-				),
-			) as Partial<DiscountEntity>),
-		};
-
-		await getDiscountRepository().save(updatedEntity);
+		const entry = await this.discountService.updateData(
+			res.locals.validated.id,
+			this.policy.allowDeleted(res.locals.auth),
+			data,
+		);
 
 		res.locals.output.message(lang('discount.success.update'));
-		res.locals.output.data(updatedEntity);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -117,10 +93,7 @@ class DiscountController extends BaseController {
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		await getDiscountRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.delete();
+		await this.discountService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('discount.success.delete'));
 
@@ -130,10 +103,7 @@ class DiscountController extends BaseController {
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRestore(res.locals.auth);
 
-		await getDiscountRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.restore();
+		await this.discountService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('discount.success.restore'));
 
@@ -143,40 +113,25 @@ class DiscountController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<CarrierValidatorFindDto>(
+		const data = this.validate<DiscountValidatorFindDto>(
 			this.validator.find(),
 			req.query,
 			res,
 		);
 
-		const [entries, total] = await getDiscountRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterBy('scope', validated.data.filter.scope)
-			.filterBy('reason', validated.data.filter.reason)
-			.filterBy('type', validated.data.filter.type)
-			.filterByRange(
-				'start_at',
-				validated.data.filter.start_at_start,
-				validated.data.filter.start_at_end,
-			)
-			.filterByTerm(validated.data.filter.term)
-			.withDeleted(
-				this.policy.allowDeleted(res.locals.auth) &&
-					validated.data.filter.is_deleted,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.discountService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
@@ -185,9 +140,9 @@ class DiscountController extends BaseController {
 
 export function createDiscountController(deps: {
 	policy: PolicyAbstract;
-	validator: IDiscountValidator;
+	validator: DiscountValidator;
 	cache: CacheProvider;
-	discountService: IDiscountService;
+	discountService: DiscountService;
 }) {
 	return new DiscountController(
 		deps.policy,

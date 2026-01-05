@@ -140,7 +140,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 # TODO
 
 1. make features as package
-2. category > brand 
+2. brand 
 3. images 
 4. Go on FE → category, place, brand, client
 5. Go on FE #2 → carrier, discount, 

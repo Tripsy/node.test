@@ -88,7 +88,7 @@ export class AccountService {
 			}
 		}
 
-		return this.userService.register({
+		return this.userService.createRegister({
 			name: data.name,
 			email: data.email,
 			password: data.password,
