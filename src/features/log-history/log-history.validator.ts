@@ -17,7 +17,7 @@ enum OrderByEnum {
 	RECORDED_AT = 'recorded_at',
 }
 
-class LogHistoryValidator {
+export class LogHistoryValidator {
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
 	public delete() {
@@ -88,7 +88,7 @@ class LogHistoryValidator {
 	}
 }
 
-export const userValidator = new LogHistoryValidator();
+export const logHistoryValidator = new LogHistoryValidator();
 
 export type LogHistoryValidatorDeleteDto = z.infer<
 	ReturnType<LogHistoryValidator['delete']>
