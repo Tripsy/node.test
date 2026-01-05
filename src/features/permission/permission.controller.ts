@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
 import PermissionEntity from '@/features/permission/permission.entity';
 import { permissionPolicy } from '@/features/permission/permission.policy';
 import {

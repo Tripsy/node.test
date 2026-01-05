@@ -19,4 +19,21 @@ export abstract class BaseController {
 
 		return validated.data as V;
 	}
+
+	protected async validateAsync<V>(
+		validator: z.ZodType,
+		sourceData: unknown,
+		res: Response,
+	) {
+		// Validate against the schema
+		const validated = await validator.safeParseAsync(sourceData);
+
+		if (!validated.success) {
+			res.locals.output.errors(validated.error.issues);
+
+			throw new BadRequestError();
+		}
+
+		return validated.data as V;
+	}
 }

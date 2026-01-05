@@ -1,23 +1,22 @@
 import type { Request, Response } from 'express';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
-import type { CarrierValidatorFindDto } from '@/features/carrier/carrier.validator';
-import ClientEntity, {
-	type ClientIdentityData,
-	ClientStatusEnum,
-	ClientTypeEnum,
-} from '@/features/client/client.entity';
+import ClientEntity, { ClientTypeEnum } from '@/features/client/client.entity';
 import { clientPolicy } from '@/features/client/client.policy';
-import { getClientRepository } from '@/features/client/client.repository';
 import {
-	ClientCreateValidator,
-	ClientFindValidator,
-	ClientUpdateValidator,
-	paramsUpdateList,
+	type ClientService,
+	clientService,
+} from '@/features/client/client.service';
+import {
+	type ClientValidator,
+	type ClientValidatorCreateDto,
+	type ClientValidatorFindDto,
+	type ClientValidatorUpdateDto,
+	clientValidator,
 } from '@/features/client/client.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { BadRequestError, CustomError, NotFoundError } from '@/lib/exceptions';
+import { NotFoundError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import {
 	type CacheProvider,
@@ -27,51 +26,22 @@ import {
 class ClientController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: IClientValidator,
+		private validator: ClientValidator,
 		private cache: CacheProvider,
-		private clientService: IClientService,
+		private clientService: ClientService,
 	) {
 		super();
 	}
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = await ClientCreateValidator().safeParseAsync(
+		const data = this.validate<ClientValidatorCreateDto>(
+			this.validator.create(),
 			req.body,
+			res,
 		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const clientIdentityData: ClientIdentityData =
-			validated.data.client_type === ClientTypeEnum.COMPANY
-				? {
-						client_type: ClientTypeEnum.COMPANY,
-						company_name: validated.data.company_name,
-						company_cui: validated.data.company_cui,
-						company_reg_com: validated.data.company_reg_com,
-					}
-				: {
-						client_type: ClientTypeEnum.PERSON,
-						person_cnp: validated.data.person_cnp,
-					};
-
-		const isDuplicate =
-			await getClientRepository().isDuplicateIdentity(clientIdentityData);
-
-		if (isDuplicate) {
-			throw new CustomError(409, lang('client.error.already_exists'));
-		}
-
-		const client = new ClientEntity();
-		Object.assign(client, validated.data);
-		client.status = ClientStatusEnum.ACTIVE;
-
-		const entry: ClientEntity = await getClientRepository().save(client);
+		const entry = await this.clientService.create(data);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('client.success.create'));
@@ -84,7 +54,7 @@ class ClientController extends BaseController {
 
 		const cacheKey = this.cache.buildKey(
 			ClientEntity.NAME,
-			res.locals.validated.id,
+			res.locals.id,
 			'read',
 		);
 
@@ -122,7 +92,7 @@ class ClientController extends BaseController {
 					'pciCity.place_id = pci.id AND pciCity.language = :language',
 					{ language: res.locals.lang },
 				)
-				.where('c.id = :id', { id: res.locals.validated.id })
+				.where('c.id = :id', { id: res.locals.id })
 				.getRawOne();
 
 			if (!result) {
@@ -152,59 +122,27 @@ class ClientController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const client = await getClientRepository()
-			.createQuery()
-			.select(paramsUpdateList)
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		// Validate against the schema
-		const validated = await ClientUpdateValidator().safeParseAsync({
-			client_type: req.body.client_type ?? client.client_type,
-			...req.body, // client_type (DB value will be overwritten by the one in the body if it exists)
-		});
-
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const clientIdentityData: ClientIdentityData =
-			validated.data.client_type === ClientTypeEnum.COMPANY
-				? {
-						client_type: ClientTypeEnum.COMPANY,
-						company_name: validated.data.company_name,
-						company_cui: validated.data.company_cui,
-						company_reg_com: validated.data.company_reg_com,
-					}
-				: {
-						client_type: ClientTypeEnum.PERSON,
-						person_cnp: validated.data.person_cnp,
-					};
-
-		const isDuplicate = await getClientRepository().isDuplicateIdentity(
-			clientIdentityData,
+		const client = await this.clientService.findById(
 			res.locals.validated.id,
+			this.policy.allowDeleted(res.locals.auth),
 		);
 
-		if (isDuplicate) {
-			throw new CustomError(409, lang('client.error.already_exists'));
-		}
+		const data = await this.validateAsync<ClientValidatorUpdateDto>(
+			this.validator.update(),
+			{
+				client_type: req.body.client_type ?? client.client_type,
+				...req.body, // client_type (DB value will be overwritten by the one in the body if it exists)
+			},
+			res,
+		);
 
-		const updatedEntity: Partial<ClientEntity> = {
-			id: client.id,
-			...(Object.fromEntries(
-				Object.entries(validated.data).filter(([key]) =>
-					paramsUpdateList.includes(key as keyof ClientEntity),
-				),
-			) as Partial<ClientEntity>),
-		};
-
-		await getClientRepository().save(updatedEntity);
+		const entry = await this.clientService.updateData(
+			res.locals.validated.id,
+			data,
+		);
 
 		res.locals.output.message(lang('client.success.update'));
-		res.locals.output.data(updatedEntity);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -212,10 +150,7 @@ class ClientController extends BaseController {
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		await getClientRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.delete();
+		await this.clientService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('client.success.delete'));
 
@@ -225,10 +160,7 @@ class ClientController extends BaseController {
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRestore(res.locals.auth);
 
-		await getClientRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.restore();
+		await this.clientService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('client.success.restore'));
 
@@ -238,39 +170,25 @@ class ClientController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<CarrierValidatorFindDto>(
+		const data = this.validate<ClientValidatorFindDto>(
 			this.validator.find(),
 			req.query,
 			res,
 		);
 
-		const [entries, total] = await getClientRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterBy('client_type', validated.data.filter.client_type)
-			.filterByStatus(validated.data.filter.status)
-			.filterByRange(
-				'created_at',
-				validated.data.filter.create_date_start,
-				validated.data.filter.create_date_end,
-			)
-			.filterByTerm(validated.data.filter.term)
-			.withDeleted(
-				this.policy.allowDeleted(res.locals.auth) &&
-					validated.data.filter.is_deleted,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.clientService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
@@ -279,23 +197,11 @@ class ClientController extends BaseController {
 	public statusUpdate = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const client = await getClientRepository()
-			.createQuery()
-			.select(['id', 'status'])
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		if (client.status === res.locals.validated.status) {
-			throw new BadRequestError(
-				lang('client.error.status_unchanged', {
-					status: res.locals.validated.status,
-				}),
-			);
-		}
-
-		client.status = res.locals.validated.status;
-
-		await getClientRepository().save(client);
+		await this.clientService.updateStatus(
+			res.locals.validated.id,
+			res.locals.validated.status,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.message(lang('client.success.status_update'));
 
@@ -305,9 +211,9 @@ class ClientController extends BaseController {
 
 export function createClientController(deps: {
 	policy: PolicyAbstract;
-	validator: IClientValidator;
+	validator: ClientValidator;
 	cache: CacheProvider;
-	clientService: IClientService;
+	clientService: ClientService;
 }) {
 	return new ClientController(
 		deps.policy,

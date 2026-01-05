@@ -82,7 +82,7 @@ export class ClientValidator {
 			address_info: validateString(
 				lang('client.validation.address_info_invalid'),
 			).optional(),
-			address_postal_code: validateNumber(
+			address_postal_code: validateString(
 				lang('client.validation.address_postal_code_invalid'),
 			).optional(),
 			notes: nullableString(lang('carrier.validation.notes_invalid')),
@@ -151,7 +151,7 @@ export class ClientValidator {
 			address_info: validateString(
 				lang('client.validation.address_info_invalid'),
 			).optional(),
-			address_postal_code: validateNumber(
+			address_postal_code: validateString(
 				lang('client.validation.address_postal_code_invalid'),
 			).optional(),
 			notes: nullableString(lang('client.validation.notes_invalid')),

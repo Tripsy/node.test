@@ -15,7 +15,6 @@ import {
 } from '@/features/place/place.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { BadRequestError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import {
 	type CacheProvider,

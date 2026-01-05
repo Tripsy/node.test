@@ -1,4 +1,3 @@
-import { lang } from '@/config/i18n.setup';
 import type DiscountEntity from '@/features/discount/discount.entity';
 import { getDiscountRepository } from '@/features/discount/discount.repository';
 import {
@@ -7,7 +6,6 @@ import {
 	type DiscountValidatorUpdateDto,
 	paramsUpdateList,
 } from '@/features/discount/discount.validator';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
 
 export class DiscountService {
 	constructor(private repository: ReturnType<typeof getDiscountRepository>) {}
@@ -49,7 +47,7 @@ export class DiscountService {
 		withDeleted: boolean,
 		data: DiscountValidatorUpdateDto,
 	) {
-		const entry = await this.findById(id, withDeleted);
+		await this.findById(id, withDeleted); // Returns 404 inside if entry is not found
 
 		const updateData = {
 			...Object.fromEntries(

@@ -45,11 +45,7 @@ export class CarrierService {
 	/**
 	 * @description Used in `update` method from controller; `data` is filtered by `paramsUpdateList` - which is declared in validator
 	 */
-	public async updateData(
-		id: number,
-		withDeleted: boolean,
-		data: CarrierValidatorUpdateDto,
-	) {
+	public async updateData(id: number, data: CarrierValidatorUpdateDto) {
 		if (data.name) {
 			const existingCarrier = await this.findByName(data.name, true, id);
 

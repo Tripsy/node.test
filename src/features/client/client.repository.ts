@@ -95,6 +95,8 @@ export const getClientRepository = () =>
 				query.filterBy('person_cnp', data.person_cnp);
 			}
 
+			query.withDeleted();
+
 			return (await query.count()) > 0;
 		},
 	});

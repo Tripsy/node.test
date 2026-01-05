@@ -81,7 +81,6 @@ class CarrierController extends BaseController {
 
 		const entry = await this.carrierService.updateData(
 			res.locals.validated.id,
-			this.policy.allowDeleted(res.locals.auth),
 			data,
 		);
 
