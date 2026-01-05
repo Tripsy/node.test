@@ -59,7 +59,7 @@ class PlaceController extends BaseController {
 			'read',
 		);
 
-		const place = await this.cache.get(
+		const entry = await this.cache.get(
 			cacheKey,
 			async () =>
 				await this.placeService.getDataById(
@@ -70,7 +70,7 @@ class PlaceController extends BaseController {
 		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(place);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -84,27 +84,10 @@ class PlaceController extends BaseController {
 			res,
 		);
 
-		const place = await this.placeService.findById(
-			res.locals.validated.id,
-			this.policy.allowDeleted(res.locals.auth),
-		);
-
-		const isTypeChange =
-			data.type !== undefined && data.type !== place.type;
-
-		if (isTypeChange) {
-			const hasChildren = await this.placeService.hasChildren(place.id);
-
-			if (hasChildren) {
-				throw new BadRequestError(
-					lang('place.error.cannot_change_type_with_children'),
-				);
-			}
-		}
-
 		const entry = await this.placeService.updateDataWithContent(
 			res.locals.validated.id,
 			data,
+			this.policy.allowDeleted(res.locals.auth),
 		);
 
 		res.locals.output.message(lang('place.success.update'));
@@ -115,16 +98,6 @@ class PlaceController extends BaseController {
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
-
-		const hasChildren = await this.placeService.hasChildren(
-			res.locals.validated.id,
-		);
-
-		if (hasChildren) {
-			throw new BadRequestError(
-				lang('place.error.cannot_delete_with_children'),
-			);
-		}
 
 		await this.placeService.delete(res.locals.validated.id);
 

@@ -86,11 +86,11 @@ export class CategoryValidator {
 			defaultPage: 1,
 
 			filterShape: {
-                id: z.coerce
-                    .number({
-                        message: lang('shared.validation.invalid_number'),
-                    })
-                    .optional(),
+				id: z.coerce
+					.number({
+						message: lang('shared.validation.invalid_number'),
+					})
+					.optional(),
 				language: validateLanguage().optional(),
 				type: z
 					.enum(CategoryTypeEnum, {

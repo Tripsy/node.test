@@ -91,7 +91,11 @@ class AccountController extends BaseController {
 			res,
 		);
 
-		const user = await this.userService.findByEmail(data.email, false, ['id', 'password', 'status']);
+		const user = await this.userService.findByEmail(data.email, false, [
+			'id',
+			'password',
+			'status',
+		]);
 
 		if (!user) {
 			throw new NotFoundError(lang('account.error.not_found'));

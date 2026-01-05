@@ -1,10 +1,9 @@
 import type { EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
 import dataSource from '@/config/data-source.config';
+import { lang } from '@/config/i18n.setup';
 import PlaceEntity from '@/features/place/place.entity';
-import {
-	getPlaceRepository
-} from '@/features/place/place.repository';
+import { getPlaceRepository } from '@/features/place/place.repository';
 import {
 	type PlaceValidatorCreateDto,
 	type PlaceValidatorFindDto,
@@ -12,6 +11,7 @@ import {
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
+import { BadRequestError } from '@/lib/exceptions';
 export class PlaceService {
 	constructor(
 		private repository: ReturnType<typeof getPlaceRepository>,
@@ -51,8 +51,24 @@ export class PlaceService {
 	public async updateDataWithContent(
 		id: number,
 		data: PlaceValidatorUpdateDto,
+		withDeleted: boolean,
 	) {
-		return await dataSource.transaction(async (manager) => {
+		const place = await this.findById(id, withDeleted);
+
+		const isTypeChange =
+			data.type !== undefined && data.type !== place.type;
+
+		if (isTypeChange) {
+			const hasChildren = await this.hasChildren(place.id);
+
+			if (hasChildren) {
+				throw new BadRequestError(
+					lang('place.error.cannot_change_type_with_children'),
+				);
+			}
+		}
+
+		return dataSource.transaction(async (manager) => {
 			const repository = manager.getRepository(PlaceEntity); // We use the manager -> `getPlaceRepository` is not bound to the transaction
 
 			const updateData = {
@@ -79,6 +95,14 @@ export class PlaceService {
 	}
 
 	public async delete(id: number) {
+		const hasChildren = await this.hasChildren(id);
+
+		if (hasChildren) {
+			throw new BadRequestError(
+				lang('place.error.cannot_delete_with_children'),
+			);
+		}
+
 		await this.repository.createQuery().filterById(id).delete();
 	}
 
@@ -123,53 +147,28 @@ export class PlaceService {
 					language: language,
 				},
 			)
-            .select([
-                'place.id',
-                'place.type',
-                'place.code',
-                'place.created_at',
-                'place.updated_at',
-                'place.deleted_at',
+			.select([
+				'place.id',
+				'place.type',
+				'place.code',
+				'place.created_at',
+				'place.updated_at',
+				'place.deleted_at',
 
-                'content.language',
-                'content.name',
-                'content.type_label',
+				'content.language',
+				'content.name',
+				'content.type_label',
 
-                'parent.id',
-                'parent.type',
-                'parent.code',
+				'parent.id',
+				'parent.type',
+				'parent.code',
 
-                'parentContent.name',
-                'parentContent.type_label',
-            ])
+				'parentContent.name',
+				'parentContent.type_label',
+			])
 			.filterById(id)
 			.withDeleted(withDeleted)
 			.firstOrFail();
-
-		// const content = data.contents?.[0];
-		// const parent = data.parent ?? null;
-		// const parentContent = data.parent?.contents?.[0] ?? null;
-        //
-		// return {
-		// 	language: content.language,
-		// 	id: data.id,
-		// 	created_at: data.created_at,
-		// 	updated_at: data.updated_at,
-		// 	deleted_at: data.deleted_at,
-		// 	type: data.type,
-		// 	type_label: content.type_label,
-		// 	code: data.code,
-		// 	name: content.name,
-		// 	parent: parent
-		// 		? {
-		// 				id: parent.id,
-		// 				type: parent.type,
-		// 				type_label: parentContent.type_label,
-		// 				code: parent.code,
-		// 				name: parentContent.name,
-		// 			}
-		// 		: null,
-		// };
 	}
 
 	public hasChildren(id: number) {
