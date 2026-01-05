@@ -37,7 +37,7 @@ class MailQueueController extends BaseController {
 
 		const cacheKey = this.cache.buildKey(
 			MailQueueEntity.NAME,
-			res.locals.id,
+			res.locals.validated.id,
 			'read',
 		);
 

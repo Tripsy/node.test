@@ -15,7 +15,7 @@ enum UserPermissionOrderByEnum {
 	OPERATION = 'permission.operation',
 }
 
-class UserPermissionValidator {
+export class UserPermissionValidator {
 	private readonly termMinLength = cfg('user.termMinLength') as number;
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 

@@ -432,7 +432,7 @@ export class CategoryService {
 			.filterBy('type', data.filter.type)
 			.filterBy('status', data.filter.status)
 			.filterByTerm(data.filter.term)
-			.withDeleted(withDeleted)
+			.withDeleted(withDeleted && data.filter.is_deleted)
 			.orderBy(data.order_by, data.direction)
 			.pagination(data.page, data.limit)
 			.all(true);

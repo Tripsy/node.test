@@ -35,12 +35,12 @@ class LogDataController extends BaseController {
 
 		const cacheKey = this.cache.buildKey(
 			LogDataEntity.NAME,
-			res.locals.id,
+			res.locals.validated.id,
 			'read',
 		);
 
 		const entry = await this.cache.get(cacheKey, async () =>
-			this.logDataService.findById(res.locals.id),
+			this.logDataService.findById(res.locals.validated.id),
 		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');

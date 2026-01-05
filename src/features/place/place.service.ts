@@ -222,7 +222,7 @@ export class PlaceService {
 			.filterBy('content.language', data.filter.language)
 			.filterByTerm(data.filter.term)
 			.filterBy('place.type', data.filter.type)
-			.withDeleted(withDeleted)
+			.withDeleted(withDeleted && data.filter.is_deleted)
 			.orderBy(data.order_by, data.direction)
 			.pagination(data.page, data.limit)
 			.all(true);
