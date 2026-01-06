@@ -1,15 +1,15 @@
 import { jest } from '@jest/globals';
 
-jest.mock('i18next', () => ({
-	t: (key: string) => key,
-	language: 'en',
-	options: { ns: [] },
-}));
-
-jest.mock('i18next-fs-backend', () => ({}));
-jest.mock('i18next-http-middleware', () => ({
-	LanguageDetector: jest.fn(),
-}));
+// jest.mock('i18next', () => ({
+// 	t: (key: string) => key,
+// 	language: 'en',
+// 	options: { ns: [] },
+// }));
+//
+// jest.mock('i18next-fs-backend', () => ({}));
+// jest.mock('i18next-http-middleware', () => ({
+// 	LanguageDetector: jest.fn(),
+// }));
 
 // import type UserEntity from '@/features/user/user.entity';
 // import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';

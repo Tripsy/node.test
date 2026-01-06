@@ -17,7 +17,6 @@ export class LogDataService {
 	public findById(id: number): Promise<LogDataEntity> {
 		return this.repository
 			.createQuery()
-			.join('log_history.user', 'user', 'LEFT')
 			.filterById(id)
 			.firstOrFail();
 	}

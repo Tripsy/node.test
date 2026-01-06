@@ -16,7 +16,7 @@ enum OrderByEnum {
 }
 
 export class MailQueueValidator {
-	private readonly termMinLength = cfg('user.termMinLength') as number;
+	private readonly termMinLength = cfg('filter.termMinLength') as number;
 	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
 	public delete() {

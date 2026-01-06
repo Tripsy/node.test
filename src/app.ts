@@ -27,6 +27,7 @@ import {
 } from '@/lib/providers/database.provider';
 import { getSystemLogger, LogStream } from '@/lib/providers/logger.provider';
 import emailQueue from '@/lib/queues/email.queue';
+import qs from 'qs';
 
 const app: express.Application = express();
 export let server: Server | null = null;
@@ -71,6 +72,10 @@ function validateConfig(): void {
 
 // Print startup banner
 function printStartupInfo(): void {
+    if (cfg('app.env') === 'test') {
+        return;
+    }
+
 	const width = 60;
 	const lines = [
 		['Environment:', APP_ENV],
@@ -89,7 +94,7 @@ function printStartupInfo(): void {
 	}
 
 	// Display routes
-	if (cfg('app.env') !== 'production') {
+	if (cfg('app.env') === 'development') {
 		const routes = getRoutesInfo();
 
 		if (routes.length > 0) {
@@ -294,6 +299,9 @@ async function initializeApp(): Promise<void> {
 		await initDatabase();
 
 		// Middleware
+        app.set('query parser', (str: string) =>
+            qs.parse(str, { allowDots: true }),
+        );
 		app.use(languageMiddleware); // Set `res.locals.lang`
 		app.use(authMiddleware); // Set `res.locals.auth`
 		app.use(requestContextMiddleware); // Prepare `requestContext`

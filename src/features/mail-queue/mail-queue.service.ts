@@ -20,7 +20,6 @@ export class MailQueueService {
 	public findById(id: number): Promise<MailQueueEntity> {
 		return this.repository
 			.createQuery()
-			.join('log_history.user', 'user', 'LEFT')
 			.filterById(id)
 			.firstOrFail();
 	}

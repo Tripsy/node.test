@@ -48,7 +48,7 @@ class LogHistoryController extends BaseController {
 		const countDelete = await this.logHistoryService.delete(data);
 
 		if (countDelete === 0) {
-			res.status(204).locals.output.message(
+			res.status(409).locals.output.message(
 				lang('shared.error.db_delete_zero'),
 			); // Note: By API design the response message is actually not displayed for 204
 		} else {
