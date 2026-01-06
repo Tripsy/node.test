@@ -15,7 +15,7 @@
 // } from '@/lib/helpers';
 // import authMiddleware from '@/lib/middleware/auth.middleware';
 // import type { OutputWrapper } from '@/lib/middleware/output-handler.middleware';
-// import { createAuthContext } from '@/tests/jest-functional.setup';
+// import { createAuthContext } from '@/tests/jest-controller.setup';
 //
 // jest.mock('@/features/account/account.service');
 // jest.mock('@/features/account/account-token.repository');

@@ -190,7 +190,6 @@ $ pnpm run test account.unit.ts --detect-open-handles
         - output-handler.middleware
         - validate-params.middleware
     - providers
-3. Recap Jest; Tests are failing
 
 # Dependencies
 

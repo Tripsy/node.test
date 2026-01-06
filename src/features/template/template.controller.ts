@@ -83,8 +83,8 @@ class TemplateController extends BaseController {
 
 		const entry = await this.templateService.updateData(
 			res.locals.validated.id,
-			this.policy.allowDeleted(res.locals.auth),
 			data,
+			this.policy.allowDeleted(res.locals.auth),
 		);
 
 		res.locals.output.message(lang('template.success.update'));

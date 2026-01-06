@@ -38,16 +38,26 @@ export class CarrierService {
 	/**
 	 * @description Update any data
 	 */
-	public update(data: Partial<CarrierEntity> & { id: number }) {
+	public update(
+		data: Partial<CarrierEntity> & { id: number },
+	): Promise<Partial<CarrierEntity>> {
 		return this.repository.save(data);
 	}
 
 	/**
 	 * @description Used in `update` method from controller; `data` is filtered by `paramsUpdateList` - which is declared in validator
 	 */
-	public async updateData(id: number, data: CarrierValidatorUpdateDto) {
+	public async updateData(
+		id: number,
+		data: CarrierValidatorUpdateDto,
+		withDeleted: boolean = true,
+	) {
 		if (data.name) {
-			const existingCarrier = await this.findByName(data.name, true, id);
+			const existingCarrier = await this.findByName(
+				data.name,
+				withDeleted,
+				id,
+			);
 
 			if (existingCarrier) {
 				throw new CustomError(

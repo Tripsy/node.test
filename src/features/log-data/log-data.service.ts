@@ -15,10 +15,7 @@ export class LogDataService {
 	}
 
 	public findById(id: number): Promise<LogDataEntity> {
-		return this.repository
-			.createQuery()
-			.filterById(id)
-			.firstOrFail();
+		return this.repository.createQuery().filterById(id).firstOrFail();
 	}
 
 	public findByFilter(data: LogDataValidatorFindDto) {

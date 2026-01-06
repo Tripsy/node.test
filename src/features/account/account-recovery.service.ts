@@ -19,7 +19,9 @@ export class AccountRecoveryService {
 	/**
 	 * @description Update any data
 	 */
-	public update(data: Partial<AccountRecoveryEntity> & { id: number }) {
+	public update(
+		data: Partial<AccountRecoveryEntity> & { id: number },
+	): Promise<Partial<AccountRecoveryEntity>> {
 		return this.accountRecoveryRepository.save(data);
 	}
 

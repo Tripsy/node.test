@@ -7,6 +7,7 @@ import express from 'express';
 import helmet from 'helmet';
 import i18next from 'i18next';
 import { handle as i18nextMiddleware } from 'i18next-http-middleware';
+import qs from 'qs';
 import { v4 as uuid } from 'uuid';
 import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
@@ -27,7 +28,6 @@ import {
 } from '@/lib/providers/database.provider';
 import { getSystemLogger, LogStream } from '@/lib/providers/logger.provider';
 import emailQueue from '@/lib/queues/email.queue';
-import qs from 'qs';
 
 const app: express.Application = express();
 export let server: Server | null = null;
@@ -72,9 +72,9 @@ function validateConfig(): void {
 
 // Print startup banner
 function printStartupInfo(): void {
-    if (cfg('app.env') === 'test') {
-        return;
-    }
+	if (cfg('app.env') === 'test') {
+		return;
+	}
 
 	const width = 60;
 	const lines = [
@@ -299,9 +299,9 @@ async function initializeApp(): Promise<void> {
 		await initDatabase();
 
 		// Middleware
-        app.set('query parser', (str: string) =>
-            qs.parse(str, { allowDots: true }),
-        );
+		app.set('query parser', (str: string) =>
+			qs.parse(str, { allowDots: true }),
+		);
 		app.use(languageMiddleware); // Set `res.locals.lang`
 		app.use(authMiddleware); // Set `res.locals.auth`
 		app.use(requestContextMiddleware); // Prepare `requestContext`

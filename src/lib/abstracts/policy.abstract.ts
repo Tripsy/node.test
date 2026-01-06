@@ -22,7 +22,7 @@ class PolicyAbstract {
 	}
 
 	public isAuthenticated(auth: AuthContext): boolean {
-        return !!this.getId(auth);
+		return !!this.getId(auth);
 	}
 
 	public isVisitor(auth: AuthContext): boolean {

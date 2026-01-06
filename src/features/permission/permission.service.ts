@@ -70,7 +70,11 @@ export class PermissionService {
 	/**
 	 * @description Used in `update` method from controller
 	 */
-	public async updateData(id: number, data: PermissionValidatorManageDto) {
+	public async updateData(
+		id: number,
+		data: PermissionValidatorManageDto,
+		_withDeleted: boolean = true,
+	) {
 		const existingPermission = await this.checkIfExist(
 			data.entity,
 			data.operation,

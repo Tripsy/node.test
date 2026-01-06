@@ -18,10 +18,7 @@ export class MailQueueService {
 	}
 
 	public findById(id: number): Promise<MailQueueEntity> {
-		return this.repository
-			.createQuery()
-			.filterById(id)
-			.firstOrFail();
+		return this.repository.createQuery().filterById(id).firstOrFail();
 	}
 
 	public findByFilter(data: MailQueueValidatorFindDto) {

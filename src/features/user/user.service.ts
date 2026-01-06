@@ -69,7 +69,9 @@ export class UserService {
 	/**
 	 * @description Update any data
 	 */
-	public update(data: Partial<UserEntity> & { id: number }) {
+	public update(
+		data: Partial<UserEntity> & { id: number },
+	): Promise<Partial<UserEntity>> {
 		return this.repository.save(data);
 	}
 
@@ -78,8 +80,8 @@ export class UserService {
 	 */
 	public async updateData(
 		id: number,
-		withDeleted: boolean,
 		data: UserValidatorUpdateDto,
+		withDeleted: boolean,
 	) {
 		const entry = await this.findById(id, withDeleted);
 

@@ -80,8 +80,8 @@ class DiscountController extends BaseController {
 
 		const entry = await this.discountService.updateData(
 			res.locals.validated.id,
-			this.policy.allowDeleted(res.locals.auth),
 			data,
+			this.policy.allowDeleted(res.locals.auth),
 		);
 
 		res.locals.output.message(lang('discount.success.update'));

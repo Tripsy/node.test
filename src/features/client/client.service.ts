@@ -52,14 +52,20 @@ export class ClientService {
 	/**
 	 * @description Update any data
 	 */
-	public update(data: Partial<ClientEntity> & { id: number }) {
+	public update(
+		data: Partial<ClientEntity> & { id: number },
+	): Promise<Partial<ClientEntity>> {
 		return this.repository.save(data);
 	}
 
 	/**
 	 * @description Used in `update` method from controller; `data` is filtered by `paramsUpdateList` - which is declared in validator
 	 */
-	public async updateData(id: number, data: ClientValidatorUpdateDto) {
+	public async updateData(
+		id: number,
+		data: ClientValidatorUpdateDto,
+		_withDeleted: boolean = true,
+	) {
 		const identityData: ClientIdentityData =
 			data.client_type === ClientTypeEnum.COMPANY
 				? {

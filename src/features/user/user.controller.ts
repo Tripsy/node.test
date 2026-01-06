@@ -78,8 +78,8 @@ class UserController extends BaseController {
 
 		const entry = await this.userService.updateData(
 			res.locals.validated.id,
-			this.policy.allowDeleted(res.locals.auth),
 			data,
+			this.policy.allowDeleted(res.locals.auth),
 		);
 
 		res.locals.output.message(lang('user.success.update'));

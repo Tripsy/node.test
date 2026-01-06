@@ -1,4 +1,30 @@
-import { jest } from '@jest/globals';
+import { createFutureDate, createPastDate } from '@/lib/helpers';
+
+export function mockPastDate(t: number = 86400): Date {
+	return createPastDate(t);
+}
+
+export function mockFutureDate(t: number = 86400): Date {
+	return createFutureDate(t);
+}
+
+// import { jest } from '@jest/globals';
+
+// export function createAuthContext(
+// 	partialAuth?: Partial<AuthContext>,
+// ): AuthContext {
+// 	return {
+// 		id: 0,
+// 		email: '',
+// 		name: '',
+// 		language: 'en',
+// 		role: 'visitor',
+// 		operator_type: null,
+// 		permissions: [],
+// 		activeToken: '',
+// 		...partialAuth,
+// 	};
+// }
 
 // jest.mock('i18next', () => ({
 // 	t: (key: string) => key,
@@ -15,12 +41,6 @@ import { jest } from '@jest/globals';
 // import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 // import {createFutureDate, createPastDate} from '@/lib/helpers';
 
-// export function mockPastDate(): Date {
-// 	return createPastDate(86400);
-// }
-// export function mockFutureDate(): Date {
-// 	return createFutureDate(86400);
-// }
 //
 // export function createMockUser(): UserEntity {
 // 	const pastDate = mockPastDate();

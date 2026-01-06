@@ -43,7 +43,9 @@ export class TemplateService {
 	/**
 	 * @description Update any data
 	 */
-	public update(data: Partial<TemplateEntity> & { id: number }) {
+	public update(
+		data: Partial<TemplateEntity> & { id: number },
+	): Promise<Partial<TemplateEntity>> {
 		return this.repository.save(data);
 	}
 
@@ -52,8 +54,8 @@ export class TemplateService {
 	 */
 	public async updateData(
 		id: number,
-		withDeleted: boolean,
 		data: TemplateValidatorUpdateDto,
+		withDeleted: boolean,
 	) {
 		const entry = await this.findById(id, withDeleted);
 

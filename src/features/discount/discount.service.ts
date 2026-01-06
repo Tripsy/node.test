@@ -35,7 +35,9 @@ export class DiscountService {
 	/**
 	 * @description Update any data
 	 */
-	public update(data: Partial<DiscountEntity> & { id: number }) {
+	public update(
+		data: Partial<DiscountEntity> & { id: number },
+	): Promise<Partial<DiscountEntity>> {
 		return this.repository.save(data);
 	}
 
@@ -44,8 +46,8 @@ export class DiscountService {
 	 */
 	public async updateData(
 		id: number,
-		withDeleted: boolean,
 		data: DiscountValidatorUpdateDto,
+		withDeleted: boolean,
 	) {
 		await this.findById(id, withDeleted); // Returns 404 inside if entry is not found
 
