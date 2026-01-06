@@ -5,7 +5,6 @@
 		"db_restore_one": "Failed to restore just one entry; Based on filters multiple entries were found",
 		"db_delete_missing_filter": "Failed to delete entries; No filter were provided",
 		"db_restore_missing_filter": "Failed to restore entries; No filter were provided",
-		"db_select_count_while_using_raw": "Cannot use count while using raw query",
 		"db_select_count_while_using_groups": "Cannot use count while using groups"
 	},
 	"validation": {
@@ -22,7 +21,8 @@
 		"params_at_least_one": "At least one parameter is required (eg: {{params}})",
 		"meta_title_invalid": "Meta title must be a string",
 		"meta_description_invalid": "Meta description must be a string",
-		"meta_keywords_invalid": "Meta keywords must be a string"
+		"meta_keywords_invalid": "Meta keywords must be a string",
+		"language_invalid": "Invalid language"
 	},
 	"debug": {
 		"email_error": "Failed to send email with subject `{{subject}}` to `{{to}}` (eg: {{error}})",

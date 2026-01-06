@@ -1,75 +1,30 @@
-import type { Repository } from 'typeorm/repository/Repository';
 import { lang } from '@/config/i18n.setup';
 import {
+	type AccountTokenService,
 	accountTokenService,
-	type IAccountTokenService,
-} from '@/features/account/account.service';
+} from '@/features/account/account-token.service';
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, type UserStatusEnum } from '@/features/user/user.entity';
-import {
-	getUserRepository,
-	type UserQuery,
-} from '@/features/user/user.repository';
+import { getUserRepository } from '@/features/user/user.repository';
 import {
 	paramsUpdateList,
 	type UserValidatorCreateDto,
 	type UserValidatorFindDto,
 	type UserValidatorUpdateDto,
 } from '@/features/user/user.validator';
-import type {
-	IEntityCreateService,
-	IEntityDeleteService,
-	IEntityFindService,
-	IEntityRestoreService,
-	IEntityUpdateService,
-	IEntityUpdateStatusService,
-} from '@/lib/abstracts/service.abstract';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
 
-export interface IUserService
-	extends IEntityCreateService<UserEntity>,
-		IEntityUpdateService<UserEntity>,
-		IEntityUpdateStatusService<UserEntity, UserStatusEnum>,
-		IEntityDeleteService<UserEntity>,
-		IEntityRestoreService<UserEntity>,
-		IEntityFindService<UserEntity, UserValidatorFindDto> {
-	checkIfExistByEmail(
-		email: string,
-		withDeleted: boolean,
-		excludeId?: number,
-	): Promise<UserEntity | null>;
-}
-
-class UserService implements IUserService {
+export class UserService {
 	constructor(
-		private userRepository: Repository<UserEntity> & {
-			createQuery(): UserQuery;
-		},
-		private accountTokenService: IAccountTokenService,
+		private repository: ReturnType<typeof getUserRepository>,
+		private accountTokenService: AccountTokenService,
 	) {}
-
-	public checkIfExistByEmail(
-		email: string,
-		withDeleted: boolean,
-		excludeId?: number,
-	) {
-		const q = this.userRepository
-			.createQuery()
-			.filterByEmail(email)
-			.withDeleted(withDeleted);
-
-		if (excludeId) {
-			q.filterBy('id', excludeId, '!=');
-		}
-
-		return q.first();
-	}
 
 	/**
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(data: UserValidatorCreateDto): Promise<UserEntity> {
-		const existingUser = await this.checkIfExistByEmail(data.email, true);
+		const existingUser = await this.findByEmail(data.email, true);
 
 		if (existingUser) {
 			throw new CustomError(409, lang('user.error.email_already_used'));
@@ -92,14 +47,32 @@ class UserService implements IUserService {
 			}),
 		};
 
-		return this.userRepository.save(entry);
+		return this.repository.save(entry);
 	}
 
 	/**
-	 * @description Update any user data
+	 * @description Used in `register` method from controller;
 	 */
-	public update(data: Partial<UserEntity> & { id: number }) {
-		return this.userRepository.save(data);
+	public async createRegister(
+		user: Partial<UserEntity>,
+	): Promise<UserEntity> {
+		const entry = {
+			name: user.name,
+			email: user.email,
+			password: user.password,
+			language: user.language,
+		};
+
+		return this.repository.save(entry);
+	}
+
+	/**
+	 * @description Update any data
+	 */
+	public update(
+		data: Partial<UserEntity> & { id: number },
+	): Promise<Partial<UserEntity>> {
+		return this.repository.save(data);
 	}
 
 	/**
@@ -107,15 +80,16 @@ class UserService implements IUserService {
 	 */
 	public async updateData(
 		id: number,
-		withDeleted: boolean,
 		data: UserValidatorUpdateDto,
+		withDeleted: boolean,
 	) {
-		const user = await this.findById(id, withDeleted);
+		const entry = await this.findById(id, withDeleted);
 
 		if (data.email) {
-			const existingUser = await this.checkIfExistByEmail(
+			const existingUser = await this.findByEmail(
 				data.email,
 				true,
+				undefined,
 				id,
 			);
 
@@ -127,8 +101,8 @@ class UserService implements IUserService {
 			}
 		}
 
-		if (data.password || data.email !== user.email) {
-			await this.accountTokenService.removeAccountTokenForUser(user.id); // Note: Removes all account tokens for the user
+		if (data.password || data.email !== entry.email) {
+			await this.accountTokenService.removeAccountTokenForUser(entry.id); // Note: Removes all account tokens for the user
 		}
 
 		const updateData = {
@@ -158,27 +132,49 @@ class UserService implements IUserService {
 
 		user.status = status;
 
-		return this.userRepository.save(user);
+		return this.repository.save(user);
 	}
 
 	public async delete(id: number) {
-		await this.userRepository.createQuery().filterById(id).delete();
+		await this.repository.createQuery().filterById(id).delete();
 	}
 
 	public async restore(id: number) {
-		await this.userRepository.createQuery().filterById(id).restore();
+		await this.repository.createQuery().filterById(id).restore();
 	}
 
 	public findById(id: number, withDeleted: boolean) {
-		return this.userRepository
+		return this.repository
 			.createQuery()
 			.filterById(id)
 			.withDeleted(withDeleted)
 			.firstOrFail();
 	}
 
+	public findByEmail(
+		email: string,
+		withDeleted: boolean,
+		fields?: string[],
+		excludeId?: number,
+	) {
+		const q = this.repository
+			.createQuery()
+			.filterByEmail(email)
+			.withDeleted(withDeleted);
+
+		if (excludeId) {
+			q.filterBy('id', excludeId, '!=');
+		}
+
+		if (fields) {
+			q.select(fields);
+		}
+
+		return q.first();
+	}
+
 	public findByFilter(data: UserValidatorFindDto, withDeleted: boolean) {
-		return this.userRepository
+		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)
 			.filterByStatus(data.filter.status)

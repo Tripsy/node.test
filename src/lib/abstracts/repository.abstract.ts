@@ -2,7 +2,6 @@ import {
 	Brackets,
 	type EntityTarget,
 	type ObjectLiteral,
-	type QueryBuilder,
 	QueryFailedError,
 	type SelectQueryBuilder,
 } from 'typeorm';
@@ -198,9 +197,9 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	}
 
 	/**
-	 * Return `QueryBuilder` object so further TypeOrm methods can be chained
+	 * Return the ` SelectQueryBuilder ` object so further TypeOrm methods can be chained
 	 */
-	getQuery(): QueryBuilder<TEntity> {
+	getQuery(): SelectQueryBuilder<TEntity> {
 		return this.query;
 	}
 
@@ -270,17 +269,8 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	all(): Promise<TEntity[]>;
 	all(withCount: false): Promise<TEntity[]>;
 	all(withCount: true): Promise<[TEntity[], number]>;
-	all(withCount: false, isRaw: true): Promise<any[]>;
-	all(withCount: false, isRaw?: false): Promise<TEntity[]>;
-	all(withCount: boolean = false, isRaw: boolean = false) {
+	all(withCount: boolean = false) {
 		if (withCount) {
-			if (isRaw) {
-				throw new CustomError(
-					500,
-					lang('shared.error.db_select_count_while_using_raw'),
-				);
-			}
-
 			if (this.hasGroup) {
 				throw new CustomError(
 					500,
@@ -289,10 +279,6 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 			}
 
 			return this.query.getManyAndCount();
-		}
-
-		if (isRaw) {
-			return this.query.getRawMany();
 		}
 
 		return this.query.getMany();

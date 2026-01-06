@@ -2,7 +2,6 @@ import dataSource from '@/config/data-source.config';
 import { cfg } from '@/config/settings.config';
 import { createPastDate, formatDate } from '@/lib/helpers';
 import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
-import type { EmailTemplate } from '@/lib/types/template.type';
 
 // Check if there are cron jobs starting at the same time in the last 24 hours
 export const cronTimeCheck = async () => {
@@ -66,7 +65,7 @@ export const cronTimeCheck = async () => {
 			},
 		);
 
-		const emailTemplate: EmailTemplate = await loadEmailTemplate(
+		const emailTemplate = await loadEmailTemplate(
 			'cron-time-check',
 			cfg('app.language') as string,
 		);

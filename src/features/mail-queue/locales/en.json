@@ -5,9 +5,6 @@
 	"success": {
 		"delete": "Mail queue entry / entries deleted"
 	},
-	"validation": {
-		"language_invalid": "Invalid language"
-	},
 	"history": {
 		"deleted": "Mail queue entry / entries {{entry_ids} removed by user #{{auth_id}}"
 	}

@@ -8,40 +8,59 @@ import {
 	validateString,
 } from '@/lib/helpers';
 
-export function PermissionManageValidator() {
-	return z.object({
-		entity: validateString(lang('permission.validation.entity_invalid')),
-		operation: validateString(
-			lang('permission.validation.operation_invalid'),
-		),
-	});
-}
-
 enum PermissionOrderByEnum {
 	ID = 'id',
 	ENTITY = 'entity',
 	OPERATION = 'operation',
 }
 
-export function PermissionFindValidator() {
-	return makeFindValidator({
-		orderByEnum: PermissionOrderByEnum,
-		defaultOrderBy: PermissionOrderByEnum.ID,
+export class PermissionValidator {
+	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
-		directionEnum: OrderDirectionEnum,
-		defaultDirection: OrderDirectionEnum.ASC,
+	manage() {
+		return z.object({
+			entity: validateString(
+				lang('permission.validation.entity_invalid'),
+			),
+			operation: validateString(
+				lang('permission.validation.operation_invalid'),
+			),
+		});
+	}
 
-		defaultLimit: cfg('filter.limit') as number,
-		defaultPage: 1,
+	find() {
+		return makeFindValidator({
+			orderByEnum: PermissionOrderByEnum,
+			defaultOrderBy: PermissionOrderByEnum.ID,
 
-		filterShape: {
-			id: z.coerce
-				.number({ message: lang('shared.validation.invalid_number') })
-				.optional(),
-			term: z
-				.string({ message: lang('shared.validation.invalid_string') })
-				.optional(),
-			is_deleted: validateBoolean().default(false),
-		},
-	});
+			directionEnum: OrderDirectionEnum,
+			defaultDirection: OrderDirectionEnum.ASC,
+
+			defaultLimit: this.defaultFilterLimit,
+			defaultPage: 1,
+
+			filterShape: {
+				id: z.coerce
+					.number({
+						message: lang('shared.validation.invalid_number'),
+					})
+					.optional(),
+				term: z
+					.string({
+						message: lang('shared.validation.invalid_string'),
+					})
+					.optional(),
+				is_deleted: validateBoolean().default(false),
+			},
+		});
+	}
 }
+
+export const permissionValidator = new PermissionValidator();
+
+export type PermissionValidatorManageDto = z.infer<
+	ReturnType<PermissionValidator['manage']>
+>;
+export type PermissionValidatorFindDto = z.infer<
+	ReturnType<PermissionValidator['find']>
+>;

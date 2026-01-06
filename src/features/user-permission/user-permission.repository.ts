@@ -19,10 +19,12 @@ export const getUserPermissionRepository = () =>
 		},
 
 		getUserPermissions(user_id: number) {
-			return this.createQuery()
+			const q = this.createQuery()
 				.join('user_permission.permission', 'permission')
 				.filterBy('user_permission.user_id', user_id)
 				.select(['permission.entity', 'permission.operation'])
-				.all(false, true);
+				.getQuery();
+
+			return q.getRawMany();
 		},
 	});

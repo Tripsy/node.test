@@ -1,11 +1,11 @@
-import CronHistoryController from '@/features/cron-history/cron-history.controller';
+import { cronHistoryController } from '@/features/cron-history/cron-history.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/cron-history',
 	documentation: 'cron-history',
-	controller: CronHistoryController,
+	controller: cronHistoryController,
 	routesConfig: {
 		read: {
 			path: '/:id',
@@ -23,5 +23,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof CronHistoryController>,
+	} as RoutesConfigType<typeof cronHistoryController>,
 };

@@ -1,52 +1,46 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import CarrierEntity from '@/features/carrier/carrier.entity';
-import CarrierPolicy from '@/features/carrier/carrier.policy';
-import { getCarrierRepository } from '@/features/carrier/carrier.repository';
+import { carrierPolicy } from '@/features/carrier/carrier.policy';
 import {
-	CarrierCreateValidator,
-	CarrierFindValidator,
-	CarrierUpdateValidator,
-	paramsUpdateList,
+	type CarrierService,
+	carrierService,
+} from '@/features/carrier/carrier.service';
+import {
+	type CarrierValidator,
+	type CarrierValidatorCreateDto,
+	type CarrierValidatorFindDto,
+	type CarrierValidatorUpdateDto,
+	carrierValidator,
 } from '@/features/carrier/carrier.validator';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
-class CarrierController {
+class CarrierController extends BaseController {
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: CarrierValidator,
+		private cache: CacheProvider,
+		private carrierService: CarrierService,
+	) {
+		super();
+	}
+
 	public create = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canCreate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CarrierCreateValidator().safeParse(req.body);
+		const data = this.validate<CarrierValidatorCreateDto>(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const existingCarrier = await getCarrierRepository()
-			.createQuery()
-			.filterBy('name', validated.data.name)
-			.withDeleted(this.policy.allowDeleted(res.locals.auth))
-			.first();
-
-		if (existingCarrier) {
-			throw new CustomError(409, lang('carrier.error.name_already_used'));
-		}
-
-		const carrier = new CarrierEntity();
-		carrier.name = validated.data.name;
-		carrier.website = validated.data.website ?? null;
-		carrier.phone = validated.data.phone ?? null;
-		carrier.email = validated.data.email ?? null;
-		carrier.notes = validated.data.notes ?? null;
-
-		const entry: CarrierEntity = await getCarrierRepository().save(carrier);
+		const entry = await this.carrierService.create(data);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('carrier.success.create'));
@@ -55,99 +49,51 @@ class CarrierController {
 	});
 
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new CarrierPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
 
-		const cacheProvider = getCacheProvider();
-
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			CarrierEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const carrier = await cacheProvider.get(cacheKey, async () => {
-			return getCarrierRepository()
-				.createQuery()
-				.filterById(res.locals.validated.id)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.firstOrFail();
-		});
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.carrierService.findById(
+				res.locals.validated.id,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(carrier);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CarrierUpdateValidator().safeParse(req.body);
+		const data = this.validate<CarrierValidatorUpdateDto>(
+			this.validator.update(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const carrier = await getCarrierRepository()
-			.createQuery()
-			.select(paramsUpdateList)
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		// Check name uniqueness only if the name is being updated
-		if (validated.data.name) {
-			const existingCarrier = await getCarrierRepository()
-				.createQuery()
-				.filterBy('id', res.locals.validated.id, '!=')
-				.filterBy('name', validated.data.name)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.first();
-
-			// Return error if name already in use by another carrier
-			if (existingCarrier) {
-				throw new CustomError(
-					409,
-					lang('carrier.error.name_already_used'),
-				);
-			}
-		}
-
-		const updatedEntity: Partial<CarrierEntity> = {
-			id: carrier.id,
-			...(Object.fromEntries(
-				Object.entries(validated.data).filter(([key]) =>
-					paramsUpdateList.includes(key as keyof CarrierEntity),
-				),
-			) as Partial<CarrierEntity>),
-		};
-
-		await getCarrierRepository().save(updatedEntity);
+		const entry = await this.carrierService.updateData(
+			res.locals.validated.id,
+			data,
+		);
 
 		res.locals.output.message(lang('carrier.success.update'));
-		res.locals.output.data(updatedEntity);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new CarrierPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
-		await getCarrierRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.delete();
+		await this.carrierService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('carrier.success.delete'));
 
@@ -155,15 +101,9 @@ class CarrierController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new CarrierPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRestore(res.locals.auth);
 
-		await getCarrierRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.restore();
+		await this.carrierService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('carrier.success.restore'));
 
@@ -171,44 +111,50 @@ class CarrierController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new CarrierPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = CarrierFindValidator().safeParse(req.query);
+		const data = this.validate<CarrierValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const [entries, total] = await getCarrierRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterByTerm(validated.data.filter.term)
-			.withDeleted(
-				this.policy.allowDeleted(res.locals.auth) &&
-					validated.data.filter.is_deleted,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.carrierService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
 	});
 }
 
-export default new CarrierController();
+export function createCarrierController(deps: {
+	policy: PolicyAbstract;
+	validator: CarrierValidator;
+	cache: CacheProvider;
+	carrierService: CarrierService;
+}) {
+	return new CarrierController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.carrierService,
+	);
+}
+
+export const carrierController = createCarrierController({
+	policy: carrierPolicy,
+	validator: carrierValidator,
+	cache: cacheProvider,
+	carrierService: carrierService,
+});

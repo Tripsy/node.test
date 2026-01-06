@@ -1,11 +1,11 @@
-import LogHistoryController from '@/features/log-history/log-history.controller';
+import { logHistoryController } from '@/features/log-history/log-history.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/log-history',
 	documentation: 'log-history',
-	controller: LogHistoryController,
+	controller: logHistoryController,
 	routesConfig: {
 		read: {
 			path: '/:id',
@@ -23,5 +23,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof LogHistoryController>,
+	} as RoutesConfigType<typeof logHistoryController>,
 };

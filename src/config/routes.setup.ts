@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { type RequestHandler, Router } from 'express';
 import { apiRateLimiter } from '@/config/rate-limit.config';
 import { cfg } from '@/config/settings.config';
-import { buildSrcPath, getObjectValue } from '@/lib/helpers';
+import { buildSrcPath } from '@/lib/helpers';
 import metaDocumentation from '@/lib/middleware/meta-documentation.middleware';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
@@ -86,20 +86,6 @@ function buildRoutes<C>({
 	return router;
 }
 
-export const extractRoutesPath = <C>(
-	routes: RoutesConfigType<C>,
-	basePath: string,
-) =>
-	Object.fromEntries(
-		Object.entries(routes).map(([key, config]) => [
-			key,
-			`${basePath}${config.path}`,
-		]),
-	);
-
-// Used by `routeLink` helper
-const cachedRoutesPath: Record<string, Record<string, string>> = {};
-
 const allRoutesInfo: RouteInfo[] = [];
 
 export function getRoutesInfo(): RouteInfo[] {
@@ -141,20 +127,6 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 
 			router.use(apiPrefix, buildRoutes(def));
 
-			const key = feature.replace(/-/g, '');
-
-			if (cachedRoutesPath[key]) {
-				getSystemLogger().fatal(
-					`Duplicate routes detected on "${feature}"`,
-				);
-				continue;
-			}
-
-			cachedRoutesPath[key] = extractRoutesPath(
-				def.routesConfig,
-				def.basePath,
-			);
-
 			if (cfg('app.env') !== 'production') {
 				pushRouteInfo(feature, def);
 			}
@@ -165,35 +137,3 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 
 	return router;
 };
-
-export function getRoutesPath() {
-	return cachedRoutesPath;
-}
-
-export function baseLink(): string {
-	return cfg('app.url') as string;
-}
-
-export function routeLink(
-	route: string,
-	params?: Record<string, string | number>,
-	isAbsolute = false,
-): string {
-	const routesPath = getRoutesPath();
-	let routeLink = getObjectValue(routesPath, route) as string | undefined;
-
-	if (!routeLink) {
-		throw new Error(`Route ${route} not found`);
-	}
-
-	if (params) {
-		Object.keys(params).forEach((key) => {
-			routeLink = (routeLink as string).replace(
-				`:${key}`,
-				String(params[key]),
-			);
-		});
-	}
-
-	return isAbsolute ? `${baseLink()}${routeLink}` : routeLink;
-}

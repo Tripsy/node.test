@@ -4,7 +4,6 @@
 		"code_invalid": "Invalid code",
 		"invalid_parent_id": "Invalid parent ID",
 		"required_parent_id": "Parent ID required for region & city types",
-		"language_invalid": "Invalid language",
 		"name_invalid": "Invalid place name",
 		"type_label_invalid": "Invalid type label",
 		"address_country_invalid": "Invalid address country",
@@ -14,7 +13,7 @@
 	"error": {
 		"not_found": "Place not found",
 		"cannot_change_type_with_children": "Type cannot be changed. This place has children(s).",
-		"cannot_delete_type_with_children": "Type cannot be deleted. This place has children(s)."
+		"cannot_delete_with_children": "This place has children(s) and cannot be deleted."
 	},
 	"success": {
 		"create": "Place created successfully",

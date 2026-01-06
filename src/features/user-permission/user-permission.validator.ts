@@ -8,25 +8,6 @@ import {
 	validateStringMin,
 } from '@/lib/helpers';
 
-export function UserPermissionCreateValidator() {
-	return z.object({
-		permission_ids: z.array(
-			z.coerce
-				.number({
-					message: lang('shared.validation.invalid_ids', {
-						name: 'ids',
-					}),
-				})
-				.positive(),
-			{
-				message: lang('shared.validation.invalid_ids', {
-					name: 'ids',
-				}),
-			},
-		),
-	});
-}
-
 enum UserPermissionOrderByEnum {
 	ID = 'id',
 	PERMISSION_ID = 'permission_id',
@@ -34,36 +15,71 @@ enum UserPermissionOrderByEnum {
 	OPERATION = 'permission.operation',
 }
 
-export function UserPermissionFindValidator() {
-	return makeFindValidator({
-		orderByEnum: UserPermissionOrderByEnum,
-		defaultOrderBy: UserPermissionOrderByEnum.ID,
+export class UserPermissionValidator {
+	private readonly termMinLength = cfg('filter.termMinLength') as number;
+	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
-		directionEnum: OrderDirectionEnum,
-		defaultDirection: OrderDirectionEnum.ASC,
+	public create() {
+		return z.object({
+			permission_ids: z.array(
+				z.coerce
+					.number({
+						message: lang('shared.validation.invalid_ids', {
+							name: 'ids',
+						}),
+					})
+					.positive(),
+				{
+					message: lang('shared.validation.invalid_ids', {
+						name: 'ids',
+					}),
+				},
+			),
+		});
+	}
 
-		defaultLimit: cfg('filter.limit') as number,
-		defaultPage: 1,
+	find() {
+		return makeFindValidator({
+			orderByEnum: UserPermissionOrderByEnum,
+			defaultOrderBy: UserPermissionOrderByEnum.ID,
 
-		filterShape: {
-			user_id: z.coerce
-				.number({ message: lang('shared.validation.invalid_number') })
-				.optional(),
-			entity: validateStringMin(
-				lang('shared.validation.invalid_string'),
-				cfg('filter.termMinLength') as number,
-				lang('shared.validation.string_min', {
-					min: cfg('filter.termMinLength') as string,
-				}),
-			).optional(),
-			operation: validateStringMin(
-				lang('shared.validation.invalid_string'),
-				cfg('filter.termMinLength') as number,
-				lang('shared.validation.string_min', {
-					min: cfg('filter.termMinLength') as string,
-				}),
-			).optional(),
-			is_deleted: validateBoolean().default(false),
-		},
-	});
+			directionEnum: OrderDirectionEnum,
+			defaultDirection: OrderDirectionEnum.ASC,
+
+			defaultLimit: this.defaultFilterLimit,
+			defaultPage: 1,
+
+			filterShape: {
+				user_id: z.coerce
+					.number({
+						message: lang('shared.validation.invalid_number'),
+					})
+					.optional(),
+				entity: validateStringMin(
+					lang('shared.validation.invalid_string'),
+					this.termMinLength,
+					lang('shared.validation.string_min', {
+						min: this.termMinLength.toString(),
+					}),
+				).optional(),
+				operation: validateStringMin(
+					lang('shared.validation.invalid_string'),
+					this.termMinLength,
+					lang('shared.validation.string_min', {
+						min: this.termMinLength.toString(),
+					}),
+				).optional(),
+				is_deleted: validateBoolean().default(false),
+			},
+		});
+	}
 }
+
+export const userPermissionValidator = new UserPermissionValidator();
+
+export type UserPermissionValidatorCreateDto = z.infer<
+	ReturnType<UserPermissionValidator['create']>
+>;
+export type UserPermissionValidatorFindDto = z.infer<
+	ReturnType<UserPermissionValidator['find']>
+>;

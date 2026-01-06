@@ -3,71 +3,73 @@ import { eventEmitter } from '@/config/event.config';
 import { lang } from '@/config/i18n.setup';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
-import MailQueuePolicy from '@/features/mail-queue/mail-queue.policy';
-import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
+import { mailQueuePolicy } from '@/features/mail-queue/mail-queue.policy';
 import {
-	MailQueueDeleteValidator,
-	MailQueueFindValidator,
+	type MailQueueService,
+	mailQueueService,
+} from '@/features/mail-queue/mail-queue.service';
+import {
+	type MailQueueValidator,
+	type MailQueueValidatorDeleteDto,
+	type MailQueueValidatorFindDto,
+	mailQueueValidator,
 } from '@/features/mail-queue/mail-queue.validator';
-import { BadRequestError } from '@/lib/exceptions';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
-class MailQueueController {
+class MailQueueController extends BaseController {
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: MailQueueValidator,
+		private cache: CacheProvider,
+		private mailQueueService: MailQueueService,
+	) {
+		super();
+	}
+
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
 
-		const cacheProvider = getCacheProvider();
-
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			MailQueueEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const mailQueue = await cacheProvider.get(cacheKey, async () => {
-			return getMailQueueRepository()
-				.createQuery()
-				.filterById(res.locals.validated.id)
-				.firstOrFail();
-		});
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.mailQueueService.findById(res.locals.validated.id),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(mailQueue);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
-		const validated = MailQueueDeleteValidator().safeParse(req.body);
+		const data = this.validate<MailQueueValidatorDeleteDto>(
+			this.validator.delete(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const countDelete: number = await getMailQueueRepository()
-			.createQuery()
-			.filterBy('id', validated.data.ids, 'IN')
-			.delete(false, true, true);
+		const countDelete = await this.mailQueueService.delete(data);
 
 		if (countDelete === 0) {
-			res.status(204).locals.output.message(
+			res.status(409).locals.output.message(
 				lang('shared.error.db_delete_zero'),
 			); // Note: By API design the response message is actually not displayed for 204
 		} else {
 			eventEmitter.emit('history', {
 				entity: MailQueueEntity.NAME,
-				entity_ids: validated.data.ids,
+				entity_ids: data.ids,
 				action: LogHistoryAction.DELETED,
 			});
 
@@ -78,65 +80,47 @@ class MailQueueController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new MailQueuePolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = MailQueueFindValidator().safeParse(req.query);
+		const data = this.validate<MailQueueValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const querySelect = [
-			'id',
-			'template.id',
-			'template.label',
-			'language',
-			'content',
-			'to',
-			'from',
-			'status',
-			'error',
-			'sent_at',
-			'created_at',
-			'updated_at',
-		];
-
-		const [entries, total] = await getMailQueueRepository()
-			.createQuery()
-			.select(querySelect)
-			.join('mail_queue.template', 'template', 'LEFT')
-			.filterById(validated.data.filter.id)
-			.filterByRange(
-				'sent_at',
-				validated.data.filter.sent_date_start,
-				validated.data.filter.sent_date_end,
-			)
-			.filterBy('status', validated.data.filter.status)
-			.filterByTemplate(validated.data.filter.template)
-			.filterBy('content::text', validated.data.filter.content, 'ILIKE')
-			.filterBy('to::text', validated.data.filter.to, 'ILIKE')
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.mailQueueService.findByFilter(data);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
 	});
 }
 
-export default new MailQueueController();
+export function createMailQueueController(deps: {
+	policy: PolicyAbstract;
+	validator: MailQueueValidator;
+	cache: CacheProvider;
+	mailQueueService: MailQueueService;
+}) {
+	return new MailQueueController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.mailQueueService,
+	);
+}
+
+export const mailQueueController = createMailQueueController({
+	policy: mailQueuePolicy,
+	validator: mailQueueValidator,
+	cache: cacheProvider,
+	mailQueueService: mailQueueService,
+});

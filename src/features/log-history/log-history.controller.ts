@@ -1,55 +1,56 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
-import LogHistoryPolicy from '@/features/log-history/log-history.policy';
-import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
+import { logHistoryPolicy } from '@/features/log-history/log-history.policy';
 import {
-	LogHistoryDeleteValidator,
-	LogHistoryFindValidator,
+	type LogHistoryService,
+	logHistoryService,
+} from '@/features/log-history/log-history.service';
+import type {
+	LogHistoryValidatorDeleteDto,
+	LogHistoryValidatorFindDto,
 } from '@/features/log-history/log-history.validator';
-import { BadRequestError } from '@/lib/exceptions';
+import {
+	type LogHistoryValidator,
+	logHistoryValidator,
+} from '@/features/log-history/log-history.validator';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
 
-class LogHistoryController {
-	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new LogHistoryPolicy(res.locals.auth);
+class LogHistoryController extends BaseController {
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: LogHistoryValidator,
+		private logHistoryService: LogHistoryService,
+	) {
+		super();
+	}
 
-		// Check permission (admin or operator with permission)
+	public read = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const logHistory = await getLogHistoryRepository()
-			.createQuery()
-			.join('log_history.user', 'user', 'LEFT')
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
+		const entry = await logHistoryService.findById(res.locals.validated.id);
 
-		res.locals.output.data(logHistory);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogHistoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
-		const validated = LogHistoryDeleteValidator().safeParse(req.body);
+		const data = this.validate<LogHistoryValidatorDeleteDto>(
+			this.validator.delete(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const countDelete: number = await getLogHistoryRepository()
-			.createQuery()
-			.filterBy('id', validated.data.ids, 'IN')
-			.delete(false, true, true);
+		const countDelete = await this.logHistoryService.delete(data);
 
 		if (countDelete === 0) {
-			res.status(204).locals.output.message(
+			res.status(409).locals.output.message(
 				lang('shared.error.db_delete_zero'),
-			);
+			); // Note: By API design the response message is actually not displayed for 204
 		} else {
 			res.locals.output.message(lang('log-history.success.delete'));
 		}
@@ -58,49 +59,45 @@ class LogHistoryController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogHistoryPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = LogHistoryFindValidator().safeParse(req.query);
+		const data = this.validate<LogHistoryValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const [entries, total] = await getLogHistoryRepository()
-			.createQuery()
-			.join('log_history.user', 'user', 'LEFT')
-			.filterBy('request_id', validated.data.filter.request_id)
-			.filterBy('entity', validated.data.filter.entity)
-			.filterBy('entity_id', validated.data.filter.entity_id)
-			.filterBy('action', validated.data.filter.action)
-			.filterBy('source', validated.data.filter.source)
-			.filterByRange(
-				'recorded_at',
-				validated.data.filter.recorded_at_start,
-				validated.data.filter.recorded_at_end,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] =
+			await this.logHistoryService.findByFilter(data);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
 	});
 }
 
-export default new LogHistoryController();
+export function createLogHistoryController(deps: {
+	policy: PolicyAbstract;
+	validator: LogHistoryValidator;
+	logHistoryService: LogHistoryService;
+}) {
+	return new LogHistoryController(
+		deps.policy,
+		deps.validator,
+		deps.logHistoryService,
+	);
+}
+
+export const logHistoryController = createLogHistoryController({
+	policy: logHistoryPolicy,
+	validator: logHistoryValidator,
+	logHistoryService: logHistoryService,
+});

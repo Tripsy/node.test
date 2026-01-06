@@ -7,6 +7,7 @@ import express from 'express';
 import helmet from 'helmet';
 import i18next from 'i18next';
 import { handle as i18nextMiddleware } from 'i18next-http-middleware';
+import qs from 'qs';
 import { v4 as uuid } from 'uuid';
 import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
@@ -71,6 +72,10 @@ function validateConfig(): void {
 
 // Print startup banner
 function printStartupInfo(): void {
+	if (cfg('app.env') === 'test') {
+		return;
+	}
+
 	const width = 60;
 	const lines = [
 		['Environment:', APP_ENV],
@@ -89,7 +94,7 @@ function printStartupInfo(): void {
 	}
 
 	// Display routes
-	if (cfg('app.env') !== 'production') {
+	if (cfg('app.env') === 'development') {
 		const routes = getRoutesInfo();
 
 		if (routes.length > 0) {
@@ -294,6 +299,9 @@ async function initializeApp(): Promise<void> {
 		await initDatabase();
 
 		// Middleware
+		app.set('query parser', (str: string) =>
+			qs.parse(str, { allowDots: true }),
+		);
 		app.use(languageMiddleware); // Set `res.locals.lang`
 		app.use(authMiddleware); // Set `res.locals.auth`
 		app.use(requestContextMiddleware); // Prepare `requestContext`

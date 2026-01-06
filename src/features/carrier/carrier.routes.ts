@@ -1,11 +1,11 @@
-import CarrierController from '@/features/carrier/carrier.controller';
+import { carrierController } from '@/features/carrier/carrier.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/carriers',
 	documentation: 'carriers',
-	controller: CarrierController,
+	controller: carrierController,
 	routesConfig: {
 		create: {
 			path: '',
@@ -41,5 +41,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof CarrierController>,
+	} as RoutesConfigType<typeof carrierController>,
 };

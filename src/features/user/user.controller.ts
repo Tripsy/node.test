@@ -2,9 +2,9 @@ import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import UserEntity from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
-import { type IUserService, userService } from '@/features/user/user.service';
+import { type UserService, userService } from '@/features/user/user.service';
 import {
-	type IUserValidator,
+	type UserValidator,
 	type UserValidatorCreateDto,
 	type UserValidatorFindDto,
 	type UserValidatorUpdateDto,
@@ -21,9 +21,9 @@ import {
 class UserController extends BaseController {
 	constructor(
 		private policy: PolicyAbstract,
-		private validator: IUserValidator,
+		private validator: UserValidator,
 		private cache: CacheProvider,
-		private userService: IUserService,
+		private userService: UserService,
 	) {
 		super();
 	}
@@ -54,7 +54,7 @@ class UserController extends BaseController {
 			'read',
 		);
 
-		const user = await this.cache.get(cacheKey, async () =>
+		const entry = await this.cache.get(cacheKey, async () =>
 			this.userService.findById(
 				res.locals.validated.id,
 				this.policy.allowDeleted(res.locals.auth),
@@ -62,7 +62,7 @@ class UserController extends BaseController {
 		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(user);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
@@ -78,8 +78,8 @@ class UserController extends BaseController {
 
 		const entry = await this.userService.updateData(
 			res.locals.validated.id,
-			this.policy.allowDeleted(res.locals.auth),
 			data,
+			this.policy.allowDeleted(res.locals.auth),
 		);
 
 		res.locals.output.message(lang('user.success.update'));
@@ -111,7 +111,6 @@ class UserController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
 		const data = this.validate<UserValidatorFindDto>(
 			this.validator.find(),
 			req.query,
@@ -153,9 +152,9 @@ class UserController extends BaseController {
 
 export function createUserController(deps: {
 	policy: PolicyAbstract;
-	validator: IUserValidator;
+	validator: UserValidator;
 	cache: CacheProvider;
-	userService: IUserService;
+	userService: UserService;
 }) {
 	return new UserController(
 		deps.policy,

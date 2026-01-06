@@ -1,4 +1,4 @@
-import PlaceController from '@/features/place/place.controller';
+import { placeController } from '@/features/place/place.controller';
 import {
 	validateParamsWhenId,
 	validateParamsWhenString,
@@ -8,7 +8,7 @@ import type { RoutesConfigType } from '@/lib/types/routing.type';
 export default {
 	basePath: '/places',
 	documentation: 'places',
-	controller: PlaceController,
+	controller: placeController,
 	routesConfig: {
 		create: {
 			path: '',
@@ -47,5 +47,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof PlaceController>,
+	} as RoutesConfigType<typeof placeController>,
 };

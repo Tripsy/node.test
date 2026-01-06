@@ -6,11 +6,14 @@ import templates from '@/config/nunjucks.config';
 import { cfg } from '@/config/settings.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
-import { TemplateTypeEnum } from '@/features/template/template.entity';
+import {
+	type EmailContent,
+	type EmailTemplate,
+	TemplateTypeEnum,
+} from '@/features/template/template.entity';
 import { getTemplateRepository } from '@/features/template/template.repository';
 import { getErrorMessage } from '@/lib/helpers';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
-import type { EmailContent, EmailTemplate } from '@/lib/types/template.type';
 
 let emailTransporter: Transporter<SMTPTransport.SentMessageInfo> | null = null;
 

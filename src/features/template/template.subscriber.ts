@@ -24,7 +24,11 @@ export class TemplateSubscriber extends SubscriberAbstract<TemplateEntity> {
 		const id: number = event.entity?.id || event.databaseEntity.id;
 
 		this.cacheClean(id);
-		this.cacheClean(event.databaseEntity.label);
+		this.cacheClean([
+			event.databaseEntity.label,
+			event.databaseEntity.language,
+			event.databaseEntity.type,
+		]);
 
 		this.logHistory(id, LogHistoryAction.REMOVED);
 	}

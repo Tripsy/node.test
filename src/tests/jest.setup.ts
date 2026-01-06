@@ -1,26 +1,46 @@
-import { jest } from '@jest/globals';
+import { createFutureDate, createPastDate } from '@/lib/helpers';
 
-jest.mock('i18next', () => ({
-	t: (key: string) => key,
-	language: 'en',
-	options: { ns: [] },
-}));
+export function mockPastDate(t: number = 86400): Date {
+	return createPastDate(t);
+}
 
-jest.mock('i18next-fs-backend', () => ({}));
-jest.mock('i18next-http-middleware', () => ({
-	LanguageDetector: jest.fn(),
-}));
+export function mockFutureDate(t: number = 86400): Date {
+	return createFutureDate(t);
+}
+
+// import { jest } from '@jest/globals';
+
+// export function createAuthContext(
+// 	partialAuth?: Partial<AuthContext>,
+// ): AuthContext {
+// 	return {
+// 		id: 0,
+// 		email: '',
+// 		name: '',
+// 		language: 'en',
+// 		role: 'visitor',
+// 		operator_type: null,
+// 		permissions: [],
+// 		activeToken: '',
+// 		...partialAuth,
+// 	};
+// }
+
+// jest.mock('i18next', () => ({
+// 	t: (key: string) => key,
+// 	language: 'en',
+// 	options: { ns: [] },
+// }));
+//
+// jest.mock('i18next-fs-backend', () => ({}));
+// jest.mock('i18next-http-middleware', () => ({
+// 	LanguageDetector: jest.fn(),
+// }));
 
 // import type UserEntity from '@/features/user/user.entity';
 // import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 // import {createFutureDate, createPastDate} from '@/lib/helpers';
 
-// export function mockPastDate(): Date {
-// 	return createPastDate(86400);
-// }
-// export function mockFutureDate(): Date {
-// 	return createFutureDate(86400);
-// }
 //
 // export function createMockUser(): UserEntity {
 // 	const pastDate = mockPastDate();

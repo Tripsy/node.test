@@ -139,13 +139,14 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. make features as package
-2. category > brand 
-3. images 
-4. Go on FE → category, place, brand, client
-5. Go on FE #2 → carrier, discount, 
-6. Go on FE #3 → image (multer - File upload handling)
-7. wip entities:
+1. tests - log-data.functional.ts is working
+2. make features as package
+3. brand 
+4. images 
+5. Go on FE → category, place, brand, client
+6. Go on FE #2 → carrier, discount, 
+7. Go on FE #3 → image (multer - File upload handling)
+8. wip entities:
     - article
         - article-category
         - article-content
@@ -169,8 +170,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-evidence
     - term
-8. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-9. Review "ideas"
+9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+10. Review "ideas"
 
 # IDEAS
 
@@ -189,7 +190,6 @@ $ pnpm run test account.unit.ts --detect-open-handles
         - output-handler.middleware
         - validate-params.middleware
     - providers
-3. Recap Jest; Tests are failing
 
 # Dependencies
 

@@ -2,11 +2,10 @@ import { cfg } from '@/config/settings.config';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import { createPastDate } from '@/lib/helpers';
 import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
-import type { EmailTemplate } from '@/lib/types/template.type';
 
 // Report cron warnings in the last 7 days
 export const cronWarningCount = async () => {
-	const query = getCronHistoryRepository()
+	const q = getCronHistoryRepository()
 		.createQuery()
 		.select(
 			[
@@ -18,9 +17,10 @@ export const cronWarningCount = async () => {
 		)
 		.filterByRange('start_at', createPastDate(86400 * 7)) // last 7 days
 		.filterBy('status', 'error')
-		.groupBy('label');
+		.groupBy('label')
+		.getQuery();
 
-	const warnings = await query.all(false, true);
+	const warnings = await q.getRawMany();
 
 	if (warnings) {
 		const warningCount: number = warnings.reduce(
@@ -29,7 +29,7 @@ export const cronWarningCount = async () => {
 		);
 
 		if (warningCount > 0) {
-			const emailTemplate: EmailTemplate = await loadEmailTemplate(
+			const emailTemplate = await loadEmailTemplate(
 				'cron-warning-count',
 				cfg('app.language') as string,
 			);
@@ -37,8 +37,8 @@ export const cronWarningCount = async () => {
 			emailTemplate.content.vars = {
 				warningCount: warningCount,
 				warnings: warnings,
-				querySql: query.debugSql(),
-				queryParameters: JSON.stringify(query.debugParameters()),
+				querySql: q.getSql(),
+				queryParameters: JSON.stringify(q.getParameters()),
 			};
 
 			await queueEmail(emailTemplate, {

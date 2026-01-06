@@ -10,60 +10,10 @@ import {
 	hasAtLeastOneValue,
 	makeFindValidator,
 	validateBoolean,
+	validateLanguage,
 	validateMeta,
 	validateString,
 } from '@/lib/helpers';
-
-function CategoryContentSchema() {
-	return z.object({
-		language: z.string().length(2, {
-			message: lang('category.validation.language_invalid'),
-		}),
-		label: validateString(lang('category.validation.label_invalid')),
-		slug: validateString(
-			lang('category.validation.slug_invalid'),
-		).transform((val) => val.trim().toLowerCase()),
-		meta: validateMeta(),
-		description: validateString(
-			lang('category.validation.description_invalid'),
-		).optional(),
-	});
-}
-
-export function CategoryCreateValidator() {
-	return z.object({
-		type: z.enum(CategoryTypeEnum, {
-			message: lang('category.validation.type_invalid'),
-		}),
-		parent_id: z.coerce
-			.number({ message: lang('shared.error.invalid_parent_id') })
-			.optional(),
-		content: CategoryContentSchema().array(),
-	});
-}
-
-export function CategoryUpdateValidator() {
-	return z
-		.object({
-			parent_id: z.coerce
-				.number({ message: lang('shared.error.invalid_parent_id') })
-				.optional(),
-			content: CategoryContentSchema().array().optional(),
-		})
-		.refine((data) => hasAtLeastOneValue(data), {
-			message: lang('shared.validation.params_at_least_one', {
-				params: ['parent_id', 'content'].join(', '),
-			}),
-			path: ['_global'],
-		});
-}
-
-export function CategoryReadValidator() {
-	return z.object({
-		with_ancestors: validateBoolean().default(false),
-		with_children: validateBoolean().default(false),
-	});
-}
 
 enum OrderByEnum {
 	ID = 'id',
@@ -72,41 +22,117 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export function CategoryFindValidator() {
-	return makeFindValidator({
-		orderByEnum: OrderByEnum,
-		defaultOrderBy: OrderByEnum.ID,
+export class CategoryValidator {
+	private readonly defaultFilterLimit = cfg('filter.limit') as number;
 
-		directionEnum: OrderDirectionEnum,
-		defaultDirection: OrderDirectionEnum.ASC,
-
-		defaultLimit: cfg('filter.limit') as number,
-		defaultPage: 1,
-
-		filterShape: {
-			language: validateString(
-				lang('shared.validation.invalid_string'),
+	private categoryContentSchema() {
+		return z.object({
+			language: validateLanguage(),
+			label: validateString(lang('category.validation.label_invalid')),
+			slug: validateString(
+				lang('category.validation.slug_invalid'),
+			).transform((val) => val.trim().toLowerCase()),
+			meta: validateMeta(),
+			description: validateString(
+				lang('category.validation.description_invalid'),
 			).optional(),
-			type: z
-				.enum(CategoryTypeEnum, {
-					message: lang('category.validation.type_invalid'),
-				})
-				.default(CategoryTypeEnum.ARTICLE),
-			status: z
-				.enum(CategoryStatusEnum, {
-					message: lang('category.validation.status_invalid'),
-				})
+		});
+	}
+
+	create() {
+		return z.object({
+			type: z.enum(CategoryTypeEnum, {
+				message: lang('category.validation.type_invalid'),
+			}),
+			parent_id: z.coerce
+				.number({ message: lang('shared.error.invalid_parent_id') })
 				.optional(),
-			term: z
-				.string({ message: lang('shared.validation.invalid_string') })
-				.optional(),
-			is_deleted: validateBoolean().default(false),
-		},
-	});
+			content: this.categoryContentSchema().array(),
+		});
+	}
+
+	update() {
+		return z
+			.object({
+				parent_id: z.coerce
+					.number({ message: lang('shared.error.invalid_parent_id') })
+					.optional(),
+				content: this.categoryContentSchema().array().optional(),
+			})
+			.refine((data) => hasAtLeastOneValue(data), {
+				message: lang('shared.validation.params_at_least_one', {
+					params: ['parent_id', 'content'].join(', '),
+				}),
+				path: ['_global'],
+			});
+	}
+
+	read() {
+		return z.object({
+			with_ancestors: validateBoolean().default(false),
+			with_children: validateBoolean().default(false),
+		});
+	}
+
+	find() {
+		return makeFindValidator({
+			orderByEnum: OrderByEnum,
+			defaultOrderBy: OrderByEnum.ID,
+
+			directionEnum: OrderDirectionEnum,
+			defaultDirection: OrderDirectionEnum.ASC,
+
+			defaultLimit: this.defaultFilterLimit,
+			defaultPage: 1,
+
+			filterShape: {
+				id: z.coerce
+					.number({
+						message: lang('shared.validation.invalid_number'),
+					})
+					.optional(),
+				language: validateLanguage().optional(),
+				type: z
+					.enum(CategoryTypeEnum, {
+						message: lang('category.validation.type_invalid'),
+					})
+					.default(CategoryTypeEnum.ARTICLE),
+				status: z
+					.enum(CategoryStatusEnum, {
+						message: lang('category.validation.status_invalid'),
+					})
+					.optional(),
+				term: z
+					.string({
+						message: lang('shared.validation.invalid_string'),
+					})
+					.optional(),
+				is_deleted: validateBoolean().default(false),
+			},
+		});
+	}
+
+	statusUpdate() {
+		return z.object({
+			force: validateBoolean().default(false), // Used to force the `inactive` status update even if the category has active descendants
+		});
+	}
 }
 
-export function CategoryStatusUpdateValidator() {
-	return z.object({
-		force: validateBoolean().default(false), // Used to force the `inactive` status update even if the category has active descendants
-	});
-}
+export const categoryValidator = new CategoryValidator();
+
+export type CategoryValidatorCreateDto = z.infer<
+	ReturnType<CategoryValidator['create']>
+>;
+export type CategoryValidatorUpdateDto = z.infer<
+	ReturnType<CategoryValidator['update']>
+>;
+export type CategoryValidatorReadDto = z.infer<
+	ReturnType<CategoryValidator['read']>
+>;
+export type CategoryValidatorFindDto = z.infer<
+	ReturnType<CategoryValidator['find']>
+>;
+export type CategoryValidatorStatusUpdateDto = z.infer<
+	ReturnType<CategoryValidator['statusUpdate']>
+>;

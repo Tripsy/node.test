@@ -1,66 +1,67 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import LogDataEntity from '@/features/log-data/log-data.entity';
-import LogDataPolicy from '@/features/log-data/log-data.policy';
-import { getLogDataRepository } from '@/features/log-data/log-data.repository';
+import { logDataPolicy } from '@/features/log-data/log-data.policy';
 import {
-	LogDataDeleteValidator,
-	LogDataFindValidator,
+	type LogDataService,
+	logDataService,
+} from '@/features/log-data/log-data.service';
+import {
+	type LogDataValidator,
+	type LogDataValidatorDeleteDto,
+	type LogDataValidatorFindDto,
+	logDataValidator,
 } from '@/features/log-data/log-data.validator';
-import { BadRequestError } from '@/lib/exceptions';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
-class LogDataController {
+class LogDataController extends BaseController {
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: LogDataValidator,
+		private cache: CacheProvider,
+		private logDataService: LogDataService,
+	) {
+		super();
+	}
+
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new LogDataPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRead(res.locals.auth);
 
-		const cacheProvider = getCacheProvider();
-
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			LogDataEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const logData = await cacheProvider.get(cacheKey, async () => {
-			return getLogDataRepository()
-				.createQuery()
-				.filterById(res.locals.validated.id)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.firstOrFail();
-		});
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.logDataService.findById(res.locals.validated.id),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(logData);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogDataPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
-		const validated = LogDataDeleteValidator().safeParse(req.body);
+		const data = this.validate<LogDataValidatorDeleteDto>(
+			this.validator.delete(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const countDelete: number = await getLogDataRepository()
-			.createQuery()
-			.filterBy('id', validated.data.ids, 'IN')
-			.delete(false, true, true);
+		const countDelete = await this.logDataService.delete(data);
 
 		if (countDelete === 0) {
-			res.status(204).locals.output.message(
+			res.status(409).locals.output.message(
 				lang('shared.error.db_delete_zero'),
 			); // Note: By API design the response message is actually not displayed for 204
 		} else {
@@ -71,46 +72,47 @@ class LogDataController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new LogDataPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = LogDataFindValidator().safeParse(req.query);
+		const data = this.validate<LogDataValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-		const [entries, total] = await getLogDataRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterByRange(
-				'created_at',
-				validated.data.filter.create_date_start,
-				validated.data.filter.create_date_end,
-			)
-			.filterBy('category', validated.data.filter.category)
-			.filterBy('level', validated.data.filter.level)
-			.filterByTerm(validated.data.filter.term)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.logDataService.findByFilter(data);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
 	});
 }
 
-export default new LogDataController();
+export function createLogDataController(deps: {
+	policy: PolicyAbstract;
+	validator: LogDataValidator;
+	cache: CacheProvider;
+	logDataService: LogDataService;
+}) {
+	return new LogDataController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.logDataService,
+	);
+}
+
+export const logDataController = createLogDataController({
+	policy: logDataPolicy,
+	validator: logDataValidator,
+	cache: cacheProvider,
+	logDataService: logDataService,
+});

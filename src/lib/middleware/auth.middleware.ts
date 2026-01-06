@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { cfg } from '@/config/settings.config';
-import { accountTokenService } from '@/features/account/account.service';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import { getAccountTokenRepository } from '@/features/account/account-token.repository';
+import { accountTokenService } from '@/features/account/account-token.service';
 import UserEntity, {
 	UserRoleEnum,
 	UserStatusEnum,

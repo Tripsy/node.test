@@ -1,58 +1,54 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import PermissionEntity from '@/features/permission/permission.entity';
-import PermissionPolicy from '@/features/permission/permission.policy';
-import { getPermissionRepository } from '@/features/permission/permission.repository';
+import { permissionPolicy } from '@/features/permission/permission.policy';
 import {
-	PermissionFindValidator,
-	PermissionManageValidator,
+	type PermissionService,
+	permissionService,
+} from '@/features/permission/permission.service';
+import {
+	type PermissionValidator,
+	type PermissionValidatorFindDto,
+	type PermissionValidatorManageDto,
+	permissionValidator,
 } from '@/features/permission/permission.validator';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
+import { BaseController } from '@/lib/abstracts/controller.abstract';
+import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
 import asyncHandler from '@/lib/helpers/async.handler';
-import { getCacheProvider } from '@/lib/providers/cache.provider';
+import {
+	type CacheProvider,
+	cacheProvider,
+} from '@/lib/providers/cache.provider';
 
-class PermissionController {
+class PermissionController extends BaseController {
+	constructor(
+		private policy: PolicyAbstract,
+		private validator: PermissionValidator,
+		private cache: CacheProvider,
+		private permissionService: PermissionService,
+	) {
+		super();
+	}
+
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = PermissionManageValidator().safeParse(req.body);
+		const data = this.validate<PermissionValidatorManageDto>(
+			this.validator.manage(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
+		const createResult = await this.permissionService.create(
+			this.policy.allowDeleted(res.locals.auth),
+			data,
+		);
 
-			throw new BadRequestError();
-		}
+		res.locals.output.data(createResult.permission);
 
-		const existingPermission = await getPermissionRepository()
-			.createQuery()
-			.select(['id', 'entity', 'operation', 'deleted_at'])
-			.filterBy('entity', validated.data.entity)
-			.filterBy('operation', validated.data.operation)
-			.withDeleted()
-			.first();
-
-		if (existingPermission) {
-			if (existingPermission.deleted_at) {
-				await getPermissionRepository().restore(existingPermission.id);
-
-				res.locals.output.data(existingPermission);
-				res.locals.output.message(lang('permission.success.restore'));
-			} else {
-				throw new CustomError(
-					409,
-					lang('permission.error.already_exists'),
-				);
-			}
+		if (createResult.action === 'restore') {
+			res.locals.output.message(lang('permission.success.restore'));
 		} else {
-			const permission = new PermissionEntity();
-			permission.entity = validated.data.entity;
-			permission.operation = validated.data.operation;
-
-			const entry: PermissionEntity =
-				await getPermissionRepository().save(permission);
-
-			res.locals.output.data(entry);
 			res.locals.output.message(lang('permission.success.create'));
 		}
 
@@ -60,86 +56,51 @@ class PermissionController {
 	});
 
 	public read = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin, operator with permission)
 		this.policy.canRead(res.locals.auth);
 
-		const cacheProvider = getCacheProvider();
-
-		const cacheKey = cacheProvider.buildKey(
+		const cacheKey = this.cache.buildKey(
 			PermissionEntity.NAME,
 			res.locals.validated.id,
 			'read',
 		);
 
-		const permission = await cacheProvider.get(cacheKey, async () => {
-			return getPermissionRepository()
-				.createQuery()
-				.filterById(res.locals.validated.id)
-				.withDeleted(this.policy.allowDeleted(res.locals.auth))
-				.firstOrFail();
-		});
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.permissionService.findById(
+				res.locals.validated.id,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
 		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(permission);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
 
 	public update = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canUpdate(res.locals.auth);
 
-		// Validate against the schema
-		const validated = PermissionManageValidator().safeParse(req.body);
+		const data = this.validate<PermissionValidatorManageDto>(
+			this.validator.manage(),
+			req.body,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const existingPermission = await getPermissionRepository()
-			.createQuery()
-			.filterBy('id', res.locals.validated.id, '!=')
-			.filterBy('entity', validated.data.entity)
-			.filterBy('operation', validated.data.operation)
-			.withDeleted()
-			.first();
-
-		if (existingPermission) {
-			throw new CustomError(409, lang('permission.error.already_exists'));
-		}
-
-		const permission = await getPermissionRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.firstOrFail();
-
-		permission.entity = validated.data.entity;
-		permission.operation = validated.data.operation;
-
-		await getPermissionRepository().save(permission);
+		const entry = await this.permissionService.updateData(
+			res.locals.validated.id,
+			data,
+		);
 
 		res.locals.output.message(lang('permission.success.update'));
-		res.locals.output.data(permission);
+		res.locals.output.data(entry);
 
 		res.json(res.locals.output);
 	});
 
 	public delete = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canDelete(res.locals.auth);
 
-		await getPermissionRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.delete();
+		await this.permissionService.delete(res.locals.validated.id);
 
 		res.locals.output.message(lang('permission.success.delete'));
 
@@ -147,15 +108,9 @@ class PermissionController {
 	});
 
 	public restore = asyncHandler(async (_req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canRestore(res.locals.auth);
 
-		await getPermissionRepository()
-			.createQuery()
-			.filterById(res.locals.validated.id)
-			.restore();
+		await this.permissionService.restore(res.locals.validated.id);
 
 		res.locals.output.message(lang('permission.success.restore'));
 
@@ -163,44 +118,50 @@ class PermissionController {
 	});
 
 	public find = asyncHandler(async (req: Request, res: Response) => {
-		const policy = new PermissionPolicy(res.locals.auth);
-
-		// Check permission (admin or operator with permission)
 		this.policy.canFind(res.locals.auth);
 
-		// Validate against the schema
-		const validated = PermissionFindValidator().safeParse(req.query);
+		const data = this.validate<PermissionValidatorFindDto>(
+			this.validator.find(),
+			req.query,
+			res,
+		);
 
-		if (!validated.success) {
-			res.locals.output.errors(validated.error.issues);
-
-			throw new BadRequestError();
-		}
-
-		const [entries, total] = await getPermissionRepository()
-			.createQuery()
-			.filterById(validated.data.filter.id)
-			.filterByTerm(validated.data.filter.term)
-			.withDeleted(
-				this.policy.allowDeleted(res.locals.auth) &&
-					validated.data.filter.is_deleted,
-			)
-			.orderBy(validated.data.order_by, validated.data.direction)
-			.pagination(validated.data.page, validated.data.limit)
-			.all(true);
+		const [entries, total] = await this.permissionService.findByFilter(
+			data,
+			this.policy.allowDeleted(res.locals.auth),
+		);
 
 		res.locals.output.data({
 			entries: entries,
 			pagination: {
-				page: validated.data.page,
-				limit: validated.data.limit,
+				page: data.page,
+				limit: data.limit,
 				total: total,
 			},
-			query: validated.data,
+			query: data,
 		});
 
 		res.json(res.locals.output);
 	});
 }
 
-export default new PermissionController();
+export function createPermissionController(deps: {
+	policy: PolicyAbstract;
+	validator: PermissionValidator;
+	cache: CacheProvider;
+	permissionService: PermissionService;
+}) {
+	return new PermissionController(
+		deps.policy,
+		deps.validator,
+		deps.cache,
+		deps.permissionService,
+	);
+}
+
+export const permissionController = createPermissionController({
+	policy: permissionPolicy,
+	validator: permissionValidator,
+	cache: cacheProvider,
+	permissionService: permissionService,
+});

@@ -1,11 +1,11 @@
-import LogDataController from '@/features/log-data/log-data.controller';
+import { logDataController } from '@/features/log-data/log-data.controller';
 import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/lib/types/routing.type';
 
 export default {
 	basePath: '/log-data',
 	documentation: 'log-data',
-	controller: LogDataController,
+	controller: logDataController,
 	routesConfig: {
 		read: {
 			path: '/:id',
@@ -23,5 +23,5 @@ export default {
 			method: 'get',
 			action: 'find',
 		},
-	} as RoutesConfigType<typeof LogDataController>,
+	} as RoutesConfigType<typeof logDataController>,
 };
