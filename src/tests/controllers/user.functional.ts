@@ -17,6 +17,7 @@ import {
 	testControllerFind,
 	testControllerRead,
 	testControllerRestoreSingle,
+	testControllerStatusUpdate,
 	testControllerUpdate,
 } from '@/tests/jest-controller.setup';
 
@@ -26,11 +27,12 @@ beforeEach(() => {
 
 const controller = 'UserController';
 const basePath = userRoutes.basePath;
+const mockEntry = entityDataMock<UserEntity>('user');
 
 testControllerCreate<UserEntity, UserValidatorCreateDto>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<UserEntity>('user'),
+	mockEntry: mockEntry,
 	policy: userPolicy,
 	service: userService,
 	createData: {
@@ -48,7 +50,7 @@ testControllerCreate<UserEntity, UserValidatorCreateDto>({
 testControllerUpdate<UserEntity, UserValidatorCreateDto>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<UserEntity>('user'),
+	mockEntry: mockEntry,
 	policy: userPolicy,
 	service: userService,
 	updateData: {
@@ -61,7 +63,7 @@ testControllerUpdate<UserEntity, UserValidatorCreateDto>({
 testControllerRead<UserEntity>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<UserEntity>('user'),
+	mockEntry: mockEntry,
 	policy: userPolicy,
 });
 
@@ -82,7 +84,7 @@ testControllerRestoreSingle({
 testControllerFind<UserEntity, UserValidatorFindDto>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<UserEntity>('user'),
+	mockEntry: mockEntry,
 	policy: userPolicy,
 	service: userService,
 	filterData: {
@@ -95,4 +97,13 @@ testControllerFind<UserEntity, UserValidatorFindDto>({
 			is_deleted: true,
 		},
 	},
+});
+
+testControllerStatusUpdate<UserEntity>({
+	controller: controller,
+	basePath: basePath,
+	mockEntry: mockEntry,
+	policy: userPolicy,
+	service: userService,
+	newStatus: 'active',
 });

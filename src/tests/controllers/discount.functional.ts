@@ -30,11 +30,12 @@ beforeEach(() => {
 
 const controller = 'DiscountController';
 const basePath = discountRoutes.basePath;
+const mockEntry = entityDataMock<DiscountEntity>('discount');
 
 testControllerCreate<DiscountEntity, DiscountValidatorCreateDto>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<DiscountEntity>('discount'),
+	mockEntry: mockEntry,
 	policy: discountPolicy,
 	service: discountService,
 	createData: {
@@ -53,7 +54,7 @@ testControllerCreate<DiscountEntity, DiscountValidatorCreateDto>({
 testControllerUpdate<DiscountEntity, DiscountValidatorCreateDto>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<DiscountEntity>('discount'),
+	mockEntry: mockEntry,
 	policy: discountPolicy,
 	service: discountService,
 	updateData: {
@@ -72,7 +73,7 @@ testControllerUpdate<DiscountEntity, DiscountValidatorCreateDto>({
 testControllerRead<DiscountEntity>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<DiscountEntity>('discount'),
+	mockEntry: mockEntry,
 	policy: discountPolicy,
 });
 
@@ -93,7 +94,7 @@ testControllerRestoreSingle({
 testControllerFind<DiscountEntity, DiscountValidatorFindDto>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<DiscountEntity>('discount'),
+	mockEntry: mockEntry,
 	policy: discountPolicy,
 	service: discountService,
 	filterData: {

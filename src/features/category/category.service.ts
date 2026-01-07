@@ -176,8 +176,8 @@ export class CategoryService {
 		id: number,
 		newStatus: CategoryStatusEnum,
 		withDeleted: boolean,
-		forceUpdate: boolean, // When `true` & newStatus is CategoryStatusEnum.INACTIVE the active descendants will also be marked as inactive
-	) {
+		forceUpdate?: boolean, // When `true` & newStatus is CategoryStatusEnum.INACTIVE the active descendants will also be marked as inactive
+	): Promise<void> {
 		await dataSource.transaction(async (manager) => {
 			const repository = manager.getRepository(CategoryEntity); // We use the manager -> `getCategoryRepository` is not bound to the transaction
 

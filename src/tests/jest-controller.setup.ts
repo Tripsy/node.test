@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import request from 'supertest';
+import request, { Response } from 'supertest';
 import app, { appReady, closeHandler, server } from '@/app';
 import { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
@@ -33,10 +33,15 @@ afterAll(async () => {
 	await new Promise((resolve) => setTimeout(resolve, 500));
 });
 
-// Authorization related
-export function notAuthorizedSpy(policy: PolicyAbstract) {
-	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(false);
+// Debugging
+function addDebugResponse(response: Response, hint: string) {
+    console.log(hint, response.body);
 }
+
+// Authorization related
+// export function notAuthorizedSpy(policy: PolicyAbstract) {
+// 	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(false);
+// }
 
 export function notAllowedSpy(policy: PolicyAbstract) {
 	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(true);
@@ -71,7 +76,7 @@ export function entityDataMock<E>(entity: string): E {
 	}
 }
 
-// Common tests - Create
+// Controller test - Create
 type CreateService<DTO, E> = {
 	create(data: DTO): Promise<E>;
 };
@@ -89,6 +94,7 @@ type ControllerCreateType<E, DTO> = {
 
 export function testControllerCreate<E, DTO extends object>(
 	config: ControllerCreateType<E, DTO>,
+    
 ) {
 	describe(`${config.controller} - create`, () => {
 		const link = `${config.basePath}`;
@@ -118,17 +124,23 @@ export function testControllerCreate<E, DTO extends object>(
 				.post(link)
 				.send(config.createData);
 
-			expect(response.status).toBe(201);
-			expect(response.body).toHaveProperty('success', true);
-			expect(response.body.data).toHaveProperty(
-				'id',
-				config.mockEntry.id,
-			);
+            try {
+                expect(response.status).toBe(201);
+                expect(response.body).toHaveProperty('success', true);
+                expect(response.body.data).toHaveProperty(
+                    'id',
+                    config.mockEntry.id,
+                );
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - create`);
+
+                throw error; // Re-throw to fail the test
+            }
 		});
 	});
 }
 
-// Common tests - Read
+// Controller test - Read
 type ControllerReadType<E> = {
 	controller: string;
 	basePath: string;
@@ -138,12 +150,15 @@ type ControllerReadType<E> = {
 	policy: PolicyAbstract;
 };
 
-export function testControllerRead<E>(config: ControllerReadType<E>) {
+export function testControllerRead<E>(
+    config: ControllerReadType<E>,
+    
+) {
 	describe(`${config.controller} - read`, () => {
 		const link = `${config.basePath}/1`;
 
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).get(link).send();
+			const response = await request(app).get(link).query({});
 
 			expect(response.status).toBe(401);
 		});
@@ -151,7 +166,7 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 		it("should fail if it doesn't have proper permission", async () => {
 			notAllowedSpy(config.policy);
 
-			const response = await request(app).get(link).send();
+			const response = await request(app).get(link).query({});
 
 			expect(response.status).toBe(403);
 		});
@@ -165,19 +180,25 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 				},
 			);
 
-			const response = await request(app).get(link).send();
+			const response = await request(app).get(link).query({});
 
-			expect(response.status).toBe(200);
-			expect(response.body).toHaveProperty('success', true);
-			expect(response.body.data).toHaveProperty(
-				'id',
-				config.mockEntry.id,
-			);
+            try {
+                expect(response.status).toBe(200);
+                expect(response.body).toHaveProperty('success', true);
+                expect(response.body.data).toHaveProperty(
+                    'id',
+                    config.mockEntry.id,
+                );
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - read`);
+
+                throw error; // Re-throw to fail the test
+            }
 		});
 	});
 }
 
-// Common tests - Update
+// Controller test - Update
 type UpdateService<DTO, E> = {
 	updateData(
 		id: number,
@@ -199,6 +220,7 @@ type ControllerUpdateType<E, DTO> = {
 
 export function testControllerUpdate<E, DTO extends object>(
 	config: ControllerUpdateType<E, DTO>,
+    
 ) {
 	describe(`${config.controller} - update`, () => {
 		const link = `${config.basePath}/1`;
@@ -228,17 +250,91 @@ export function testControllerUpdate<E, DTO extends object>(
 				.put(link)
 				.send(config.updateData);
 
-			expect(response.status).toBe(200);
-			expect(response.body).toHaveProperty('success', true);
-			expect(response.body.data).toHaveProperty(
-				'id',
-				config.mockEntry.id,
-			);
+            try {
+                expect(response.status).toBe(200);
+                expect(response.body).toHaveProperty('success', true);
+                expect(response.body.data).toHaveProperty(
+                    'id',
+                    config.mockEntry.id,
+                );
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - update`);
+
+                throw error; // Re-throw to fail the test
+            }
 		});
 	});
 }
 
-// Common tests - Delete
+// Controller test - Update with content
+type UpdateWithContentService<DTO, E> = {
+    updateDataWithContent(
+		id: number,
+		data: DTO,
+		withDeleted: boolean,
+	): Promise<Partial<E>>;
+};
+
+type ControllerUpdateWithContentType<E, DTO> = {
+	controller: string;
+	basePath: string;
+	mockEntry: E & {
+		id: number;
+	};
+	policy: PolicyAbstract;
+	service: UpdateWithContentService<DTO, E>;
+	updateData: Partial<DTO>;
+};
+
+export function testControllerUpdateWithContent<E, DTO extends object>(
+	config: ControllerUpdateWithContentType<E, DTO>,
+    
+) {
+	describe(`${config.controller} - update`, () => {
+		const link = `${config.basePath}/${config.mockEntry.id}`;
+
+		it('should fail if not authenticated', async () => {
+			const response = await request(app).put(link).send();
+
+			expect(response.status).toBe(401);
+		});
+
+		it("should fail if it doesn't have proper permission", async () => {
+			notAllowedSpy(config.policy);
+
+			const response = await request(app).put(link).send();
+
+			expect(response.status).toBe(403);
+		});
+
+		it('should return success', async () => {
+			authorizedSpy(config.policy);
+
+			jest.spyOn(config.service, 'updateDataWithContent').mockResolvedValue(
+				config.mockEntry,
+			);
+
+			const response = await request(app)
+				.put(link)
+				.send(config.updateData);
+
+            try {
+                expect(response.status).toBe(200);
+                expect(response.body).toHaveProperty('success', true);
+                expect(response.body.data).toHaveProperty(
+                    'id',
+                    config.mockEntry.id,
+                );
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - update`);
+
+                throw error; // Re-throw to fail the test
+            }
+		});
+	});
+}
+
+// Controller test - Delete
 type DeleteMultipleService<DTO> = {
 	delete(data: DTO): Promise<number>;
 };
@@ -252,6 +348,7 @@ type ControllerDeleteMultipleType<DTO> = {
 
 export function testControllerDeleteMultiple<DTO>(
 	config: ControllerDeleteMultipleType<DTO>,
+    
 ) {
 	describe(`${config.controller} - delete`, () => {
 		const link = `${config.basePath}`;
@@ -281,7 +378,13 @@ export function testControllerDeleteMultiple<DTO>(
 
 			const response = await request(app).delete(link).send(testData);
 
-			expect(response.status).toBe(200);
+            try {
+                expect(response.status).toBe(200);
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - delete`);
+
+                throw error; // Re-throw to fail the test
+            }
 		});
 	});
 }
@@ -297,12 +400,15 @@ type ControllerDeleteSingleType = {
 	service: DeleteSingleService;
 };
 
-export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
+export function testControllerDeleteSingle(
+    config: ControllerDeleteSingleType,
+    
+) {
 	describe(`${config.controller} - delete`, () => {
 		const link = `${config.basePath}/1`;
 
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).delete(link).send();
+			const response = await request(app).delete(link).query({});
 
 			expect(response.status).toBe(401);
 		});
@@ -310,7 +416,7 @@ export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 		it("should fail if it doesn't have proper permission", async () => {
 			notAllowedSpy(config.policy);
 
-			const response = await request(app).delete(link).send();
+			const response = await request(app).delete(link).query({});
 
 			expect(response.status).toBe(403);
 		});
@@ -320,14 +426,20 @@ export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 
 			jest.spyOn(config.service, 'delete').mockResolvedValue();
 
-			const response = await request(app).delete(link).send();
+			const response = await request(app).delete(link).query({});
 
-			expect(response.status).toBe(200);
+            try {
+                expect(response.status).toBe(200);
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - delete`);
+
+                throw error; // Re-throw to fail the test
+            }
 		});
 	});
 }
 
-// Common tests - Restore
+// Controller test - Restore
 type RestoreSingleService = {
 	restore(id: number): Promise<void>;
 };
@@ -341,12 +453,13 @@ type ControllerRestoreSingleType = {
 
 export function testControllerRestoreSingle(
 	config: ControllerRestoreSingleType,
+    
 ) {
 	describe(`${config.controller} - restore`, () => {
 		const link = `${config.basePath}/1/restore`;
 
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).patch(link).send();
+			const response = await request(app).patch(link).query({});
 
 			expect(response.status).toBe(401);
 		});
@@ -354,7 +467,7 @@ export function testControllerRestoreSingle(
 		it("should fail if it doesn't have proper permission", async () => {
 			notAllowedSpy(config.policy);
 
-			const response = await request(app).patch(link).send();
+			const response = await request(app).patch(link).query({});
 
 			expect(response.status).toBe(403);
 		});
@@ -364,14 +477,20 @@ export function testControllerRestoreSingle(
 
 			jest.spyOn(config.service, 'restore').mockResolvedValue();
 
-			const response = await request(app).patch(link).send();
+			const response = await request(app).patch(link).query({});
 
-			expect(response.status).toBe(200);
+            try {
+                expect(response.status).toBe(200);
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - restore`);
+
+                throw error; // Re-throw to fail the test
+            }
 		});
 	});
 }
 
-// Common tests - Find
+// Controller test - Find
 type BaseFindQuery = {
 	page: number;
 	limit: number;
@@ -408,6 +527,7 @@ type ControllerFindType<DTO, E> = {
 
 export function testControllerFind<E, DTO extends BaseFindQuery>(
 	config: ControllerFindType<DTO, E>,
+    
 ) {
 	describe(`${config.controller} - find`, () => {
 		const link = `${config.basePath}`;
@@ -432,9 +552,76 @@ export function testControllerFind<E, DTO extends BaseFindQuery>(
 
 			const response = await request(app).get(link).query(mockQuery);
 
-			expect(response.status).toBe(200);
-			expect(response.body.data.entries).toHaveLength(1);
-			expect(response.body.data.query.limit).toBe(mockQuery.limit);
+            try {
+                expect(response.status).toBe(200);
+                expect(response.body.data.entries).toHaveLength(1);
+                expect(response.body.data.query.limit).toBe(mockQuery.limit);
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - find`);
+
+                throw error; // Re-throw to fail the test
+            }
+		});
+	});
+}
+
+// Controller test - Update
+type StatusUpdateService<E> = {
+	updateStatus(
+		id: number,
+		status: string,
+		withDeleted: boolean,
+	): Promise<Partial<E> | void>;
+};
+
+type ControllerStatusUpdateType<E> = {
+	controller: string;
+	basePath: string;
+	mockEntry: E & {
+		id: number;
+	};
+	policy: PolicyAbstract;
+	service: StatusUpdateService<E>;
+	newStatus: string;
+};
+
+export function testControllerStatusUpdate<E>(
+	config: ControllerStatusUpdateType<E>
+) {
+	describe(`${config.controller} - statusUpdate`, () => {
+		const link = `${config.basePath}/${config.mockEntry.id}/status/${config.newStatus}`;
+
+		it('should fail if not authenticated', async () => {
+			const response = await request(app).patch(link).query({});
+
+			expect(response.status).toBe(401);
+		});
+
+		it("should fail if it doesn't have proper permission", async () => {
+			notAllowedSpy(config.policy);
+
+			const response = await request(app).patch(link).query({});
+
+			expect(response.status).toBe(403);
+		});
+
+		it('should return success', async () => {
+			authorizedSpy(config.policy);
+
+			jest.spyOn(config.service, 'updateStatus').mockResolvedValue(
+				config.mockEntry,
+			);
+
+			const response = await request(app).patch(link).query({});
+
+            try {
+                expect(response.status).toBe(200);
+                expect(response.body).toHaveProperty('success', true);
+            } catch (error) {
+                addDebugResponse(response, `${config.controller} - statusUpdate`);
+
+                throw error; // Re-throw to fail the test
+            }
 		});
 	});
 }

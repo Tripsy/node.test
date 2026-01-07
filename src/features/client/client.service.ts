@@ -102,18 +102,18 @@ export class ClientService {
 
 	public async updateStatus(
 		id: number,
-		status: ClientStatusEnum,
+		newStatus: ClientStatusEnum,
 		withDeleted: boolean,
-	) {
+	): Promise<ClientEntity> {
 		const client = await this.findById(id, withDeleted);
 
-		if (client.status === status) {
+		if (client.status === newStatus) {
 			throw new BadRequestError(
-				lang('client.error.status_unchanged', { status }),
+				lang('client.error.status_unchanged', { status: newStatus }),
 			);
 		}
 
-		client.status = status;
+		client.status = newStatus;
 
 		return this.repository.save(client);
 	}
