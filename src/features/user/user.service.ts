@@ -119,18 +119,18 @@ export class UserService {
 
 	public async updateStatus(
 		id: number,
-		status: UserStatusEnum,
+		newStatus: UserStatusEnum,
 		withDeleted: boolean,
-	) {
+	): Promise<UserEntity> {
 		const user = await this.findById(id, withDeleted);
 
-		if (user.status === status) {
+		if (user.status === newStatus) {
 			throw new BadRequestError(
-				lang('user.error.status_unchanged', { status }),
+				lang('user.error.status_unchanged', { status: newStatus }),
 			);
 		}
 
-		user.status = status;
+		user.status = newStatus;
 
 		return this.repository.save(user);
 	}

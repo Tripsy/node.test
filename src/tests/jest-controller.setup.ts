@@ -438,3 +438,58 @@ export function testControllerFind<E, DTO extends BaseFindQuery>(
 		});
 	});
 }
+
+// Common tests - Update
+type StatusUpdateService<E> = {
+	updateStatus(
+		id: number,
+		status: string,
+		withDeleted: boolean,
+	): Promise<Partial<E>>;
+};
+
+type ControllerStatusUpdateType<E> = {
+	controller: string;
+	basePath: string;
+	mockEntry: E & {
+		id: number;
+	};
+	policy: PolicyAbstract;
+	service: StatusUpdateService<E>;
+	newStatus: string;
+};
+
+export function testControllerStatusUpdate<E>(
+	config: ControllerStatusUpdateType<E>,
+) {
+	describe(`${config.controller} - statusUpdate`, () => {
+		const link = `${config.basePath}/${config.mockEntry.id}/status/${config.newStatus}`;
+
+		it('should fail if not authenticated', async () => {
+			const response = await request(app).patch(link).send();
+
+			expect(response.status).toBe(401);
+		});
+
+		it("should fail if it doesn't have proper permission", async () => {
+			notAllowedSpy(config.policy);
+
+			const response = await request(app).patch(link).send();
+
+			expect(response.status).toBe(403);
+		});
+
+		it('should return success', async () => {
+			authorizedSpy(config.policy);
+
+			jest.spyOn(config.service, 'updateStatus').mockResolvedValue(
+				config.mockEntry,
+			);
+
+			const response = await request(app).patch(link).send();
+
+			expect(response.status).toBe(200);
+			expect(response.body).toHaveProperty('success', true);
+		});
+	});
+}
