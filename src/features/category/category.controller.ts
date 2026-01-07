@@ -54,7 +54,7 @@ class CategoryController extends BaseController {
 		this.policy.canRead(res.locals.auth);
 
 		const data = this.validate<CategoryValidatorReadDto>(
-			this.validator.find(),
+			this.validator.read(),
 			req.query,
 			res,
 		);
@@ -163,7 +163,7 @@ class CategoryController extends BaseController {
 		this.policy.canUpdate(res.locals.auth);
 
 		const data = this.validate<CategoryValidatorStatusUpdateDto>(
-			this.validator.find(),
+			this.validator.statusUpdate(),
 			req.query,
 			res,
 		);
