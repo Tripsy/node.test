@@ -1,8 +1,46 @@
-# Features
+# Description
 
-- [x] Settings Management
-- [x] Automatic Error Handling
-- [x] Logging (powered by Pino) to file, db or email
+This project started as a learning process and the goal was to build a simple **REST Api (Node.Js - Express / TypeScript)**, 
+hence the name `node.test`
+
+Fast-forward several months later, this project has evolved into a full-featured **Boilerplate**, with a [solid structure](#Structure),
+supporting a complex REST Api with plenty of [features](#Features) and based on many [goodies](#Characteristics) including: 
+- **Complete authentication system**;
+- Multiple background workers (email, cron, etc.);
+- Advanced logging and error handling;
+- Custom middlewares;
+- Multi-language support;
+- Strong validation and policy-based authorization.
+
+The code follows **best practices** and **design principles** like SOLID, KISS, DRY, and strong security standards. 
+The codebase is fully typed in **TypeScript** — no as any shortcuts. **Biome** (on top of ESLint) ensures code quality.
+
+The recommended database is **PostgreSQL**, though it has also been tested with MariaDB, using **TypeORM** as the ORM layer. 
+
+At this date (e.g.: 2026 January), all [dependencies](#Dependencies) are updated to their latest versions, and Node.js 22 is supported.
+
+A ready-to-use Docker environment is provided for quick [setup](#Setup).
+
+This project is still a work in progress and next goals are:
+ - Complete the tests suite
+ - Modularizing [features](#Features) as reusable NPM packages
+ - Adding new [features](#Features) such as articles, images, products, orders, invoices, payments, and subscriptions
+
+Ultimately, this boilerplate can serve as a starter template with ready-made functionality or 
+as a foundation to quickly build MVPs, CMS platforms, or E-commerce solutions. 
+
+Meanwhile, I'm open to suggestions, feedback and If you find this project useful, please consider giving it a star ⭐
+
+> On a [separate project](https://github.com/Tripsy/nextjs.test), powered by **React / Next.js** I also developed a working #FrontEnd interface to demonstrate the usability of the `authentification system` and 
+> I have started building an **Administration Dashboard** with some features already included: Users, Permissions, Template,
+> Logs for data, mail queue, entities operations
+
+> I'm also #OpenForWork
+
+# Characteristics
+
+- [x] Custom Error Handling
+- [x] Logging (powered by Pino) to file, db, or email
 - [x] TypeORM Wrapper: A layer over TypeORM for smoother database interactions.
 - [x] Request validators (using Zod)
 - [x] Standardized JSON Responses: Consistent response structures for better frontend integration (e.g.: res.locals.output)
@@ -22,38 +60,39 @@
     - Determine language (language.middleware → res.locals.lang)
     - Params validation 
 - [x] Language management (powered by i18next)
-- [x] User system (e.g.: register, login, logout, password recover, password change, email confirm)
+- [x] Auth system (e.g.: register, login, logout, password recover, password change, email confirm)
    - user roles (e.g.: admin, user, operator)
    - login based on JWT tokens (managed by `account-token.repository`)
    - password recovery (managed by `account-recovery.repository`)
 - [x] Policies (based on user roles and permissions)
-- [x] Features (eg: REST Api)
-    - account.controller: register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate, me, sessions, edit, delete
-    - article: 
-    - brand: 
-    - carrier: create, read, update, delete, restore, find
-    - category: create, read, update, delete, restore, find, statusUpdate
-    - client: create, read, update, delete, restore, find, statusUpdate
-    - cron-history.controller: read, delete, find
-    - discount: create, read, update, delete, restore, find
-    - image: 
-    - invoice: 
-    - log-data.controller: read, delete, find
-    - log-history.controller: read, delete, find
-    - mail-queue.controller: read, delete, find
-    - order: 
-    - order-shipping: 
-    - payment: 
-    - permission.controller (create, read, update, delete, restore, find
-    - place: create, read, update, delete, restore, find
-    - product: 
-    - subscription:
-    - template.controller (create, read, update, delete, restore, find)
-    - term: 
-    - user.controller (create, read, update, delete, restore, find, statusUpdate)
-    - user-permission.controller (create, delete, restore, find)
-
 - [x] Tests (powered by Jest & Supertest)
+
+# Features
+
+- account: register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate, me, sessions, edit, delete
+- article: 
+- brand: 
+- carrier: create, read, update, delete, restore, find
+- category: create, read, update, delete, restore, find, statusUpdate
+- client: create, read, update, delete, restore, find, statusUpdate
+- cron-history.controller: read, delete, find
+- discount: create, read, update, delete, restore, find
+- image: 
+- invoice: 
+- log-data.controller: read, delete, find
+- log-history.controller: read, delete, find
+- mail-queue.controller: read, delete, find
+- order: 
+- order-shipping: 
+- payment: 
+- permission.controller (create, read, update, delete, restore, find
+- place: create, read, update, delete, restore, find
+- product: 
+- subscription:
+- template.controller (create, read, update, delete, restore, find)
+- term: 
+- user.controller (create, read, update, delete, restore, find, statusUpdate)
+- user-permission.controller (create, delete, restore, find)
 
 # Setup
 
@@ -82,32 +121,31 @@ Run the following command to install project dependencies:
 $ pnpm install
 ```
 
-### 5. Run the application
+### 5. While using PostgreSQL only
+
+ ```sql
+CREATE SCHEMA IF NOT EXISTS system;
+CREATE SCHEMA IF NOT EXISTS logs;
+```  
+
+### 6. Run the application
 Finally, start the application in development mode with:
 
 ```
 $ pnpm run dev
 ```
 
-# Notes & Limitations
+# Notes
 
 - res object contains additional properties - check /src/types/express.d.ts (is in .gitignore)
-- workers are not set run on separate process (updates will be required to workers if they are set to run on separate process)
-- /providers - Reusable utilities, external integrations; Encapsulates infrastructure (e.g., Redis, DB connections)
+- right now workers are not set run on separate process
 
-### TypeORM
-
-For `postgres` manually create required schemas:
-
-```
-CREATE SCHEMA IF NOT EXISTS system
-CREATE SCHEMA IF NOT EXISTS logs
-```
+# TypeORM
 
 > **Warning**
 > Always check the migrations before run it, sometimes columns are dropped
 
-```
+```bash
 // Generate migration file for schemas - DEPRECATED
 $ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/database/migrations/CreateSchemas
 
@@ -128,9 +166,9 @@ $ pnpx tsx /var/www/html/src/database/seed-data/template.seed.ts
 $ pnpx tsx /var/www/html/src/database/seed-data/permission.seed.ts
 ```
 
-# TESTS
+# Tests
 
-```
+```bash
 $ pnpm run test --testTimeout=60000
 $ pnpm run test account.functional.ts --testTimeout=60000 --detectOpenHandles
 $ pnpm run test account.unit.ts --detect-open-handles
@@ -139,8 +177,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. tests - log-data.functional.ts is working
-2. make features as package
+1. tests - do account.functional 
+2. make features as package; move tests/controllers/`feature`.functional.ts inside features/`feature`
 3. brand 
 4. images 
 5. Go on FE → category, place, brand, client
@@ -173,23 +211,64 @@ $ pnpm run test account.unit.ts --detect-open-handles
 9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 10. Review "ideas"
 
-# IDEAS
+# Ideas
 
 1. API documentation > swagger-ui-express
 2. settings saved in DB
 3. cron hanging / delaying / semaphore ?!
 4. CI/CD (once tests are working)
+5. For "Star" use category for "cars"
 
-# BUGS & ISSUES
+# Bugs & issues
 
-1. For "Star" use category for "cars"
-2. Missing tests
+1. Missing tests
     - controllers
     - validators
     - middleware
         - output-handler.middleware
         - validate-params.middleware
     - providers
+
+# Structure
+
+```
+├── docker/
+├── src/
+│   ├── config/            # Configuration files
+│   ├── cron-jobs/         # Cron job definitions
+│   ├── database/
+│   │   ├── migrations/    # TypeORM migrations
+│   │   └── seed-data/     # Seed scripts
+│   ├── features/          # Feature-based modules (DDD-style)
+│   │   ├── user/
+│   │   │   ├── locales/
+│   │   │   │   └── en.json
+│   │   │   ├── user.controller.ts
+│   │   │   ├── user.entity.ts
+│   │   │   ├── user.repository.ts
+│   │   │   ├── user.routes.ts
+│   │   │   ├── user.service.ts
+│   │   │   ├── user.subscriber.ts
+│   │   │   └── user.validator.ts
+│   │   └── ...            # Other features (invoice, category, etc.)
+│   ├── lib/
+│   │   ├── abstracts/     # Base / abstract classes
+│   │   ├── exceptions/    # Custom error classes
+│   │   ├── helpers/       # Utilities (date, string, object, validators, etc.)
+│   │   ├── listeners/     # Event listeners
+│   │   ├── middleware/    # Custom Express middlewares
+│   │   ├── providers/     # Infrastructure (DB, Redis, logger, email, cron)
+│   │   ├── queues/        # BullMQ queues
+│   │   ├── types/         # Global/shared TypeScript types
+│   │   └── workers/       # Background workers
+│   ├── shared/            # Shared resources (e.g. locales)
+│   ├── templates/         # Email / page templates
+│   └── tests/             # Jest & Supertest tests
+├── .env
+├── docker-compose.yml
+├── biome.json
+└── tsconfig.json
+```
 
 # Dependencies
 
@@ -208,8 +287,3 @@ $ pnpm run test account.unit.ts --detect-open-handles
 - [jest](https://jestjs.io/) - JavaScript testing framework
 - [supertest](https://www.npmjs.com/package/supertest) - HTTP assertion library for testing Node.js servers
 - [nunjucks](https://github.com/mozilla/nunjucks) - Templating engine for JavaScript
-
-# DEVELOPMENT STEPS
-
-- last commit before merging main with new entities "Commits on Dec 5, 2025" - "+ unified validators"
-- merged new entities into main branch on 18 dec 2025
