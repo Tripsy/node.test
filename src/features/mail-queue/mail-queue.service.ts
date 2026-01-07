@@ -1,16 +1,14 @@
 import type MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
-import type {
-	MailQueueValidatorDeleteDto,
-	MailQueueValidatorFindDto,
-} from '@/features/mail-queue/mail-queue.validator';
+import type { MailQueueValidator } from '@/features/mail-queue/mail-queue.validator';
+import type { ValidatorDto } from '@/lib/helpers';
 
 export class MailQueueService {
 	constructor(
 		private repository: ReturnType<typeof getMailQueueRepository>,
 	) {}
 
-	public async delete(data: MailQueueValidatorDeleteDto) {
+	public async delete(data: ValidatorDto<MailQueueValidator, 'delete'>) {
 		return await this.repository
 			.createQuery()
 			.filterBy('id', data.ids, 'IN')
@@ -21,7 +19,7 @@ export class MailQueueService {
 		return this.repository.createQuery().filterById(id).firstOrFail();
 	}
 
-	public findByFilter(data: MailQueueValidatorFindDto) {
+	public findByFilter(data: ValidatorDto<MailQueueValidator, 'find'>) {
 		const querySelect = [
 			'id',
 			'template.id',

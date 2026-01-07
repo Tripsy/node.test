@@ -118,13 +118,3 @@ export class CarrierValidator {
 }
 
 export const carrierValidator = new CarrierValidator();
-
-export type CarrierValidatorCreateDto = z.infer<
-	ReturnType<CarrierValidator['create']>
->;
-export type CarrierValidatorUpdateDto = z.infer<
-	ReturnType<CarrierValidator['update']>
->;
-export type CarrierValidatorFindDto = z.infer<
-	ReturnType<CarrierValidator['find']>
->;

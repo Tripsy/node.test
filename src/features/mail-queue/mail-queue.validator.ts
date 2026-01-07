@@ -100,10 +100,3 @@ export class MailQueueValidator {
 }
 
 export const mailQueueValidator = new MailQueueValidator();
-
-export type MailQueueValidatorDeleteDto = z.infer<
-	ReturnType<MailQueueValidator['delete']>
->;
-export type MailQueueValidatorFindDto = z.infer<
-	ReturnType<MailQueueValidator['find']>
->;

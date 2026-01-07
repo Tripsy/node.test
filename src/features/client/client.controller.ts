@@ -9,9 +9,6 @@ import {
 } from '@/features/client/client.service';
 import {
 	type ClientValidator,
-	type ClientValidatorCreateDto,
-	type ClientValidatorFindDto,
-	type ClientValidatorUpdateDto,
 	clientValidator,
 } from '@/features/client/client.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
@@ -35,11 +32,7 @@ class ClientController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<ClientValidatorCreateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.clientService.create(data);
 
@@ -127,7 +120,7 @@ class ClientController extends BaseController {
 			this.policy.allowDeleted(res.locals.auth),
 		);
 
-		const data = await this.validateAsync<ClientValidatorUpdateDto>(
+		const data = await this.validateAsync(
 			this.validator.update(),
 			{
 				client_type: req.body.client_type ?? client.client_type,
@@ -170,11 +163,7 @@ class ClientController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<ClientValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.clientService.findByFilter(
 			data,

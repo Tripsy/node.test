@@ -82,10 +82,3 @@ export class LogDataValidator {
 }
 
 export const logDataValidator = new LogDataValidator();
-
-export type LogDataValidatorDeleteDto = z.infer<
-	ReturnType<LogDataValidator['delete']>
->;
-export type LogDataValidatorFindDto = z.infer<
-	ReturnType<LogDataValidator['find']>
->;

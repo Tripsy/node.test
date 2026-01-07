@@ -76,10 +76,3 @@ export class CronHistoryValidator {
 }
 
 export const cronHistoryValidator = new CronHistoryValidator();
-
-export type CronHistoryValidatorDeleteDto = z.infer<
-	ReturnType<CronHistoryValidator['delete']>
->;
-export type CronHistoryValidatorFindDto = z.infer<
-	ReturnType<CronHistoryValidator['find']>
->;

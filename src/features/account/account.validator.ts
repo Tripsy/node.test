@@ -208,7 +208,15 @@ export class AccountValidator {
 		});
 	}
 
-	public edit() {
+	public removeToken() {
+		return z.object({
+			ident: z.uuid({
+				message: lang('account.validation.ident_invalid'),
+			}),
+		});
+	}
+
+	public meEdit() {
 		return z.object({
 			name: validateStringMin(
 				lang('account.validation.name_invalid'),
@@ -221,52 +229,13 @@ export class AccountValidator {
 		});
 	}
 
-	public delete() {
+	public meDelete() {
 		return z.object({
 			password_current: validateString(
 				lang('account.validation.password_invalid'),
 			),
 		});
 	}
-
-	public removeToken() {
-		return z.object({
-			ident: z.uuid({
-				message: lang('account.validation.ident_invalid'),
-			}),
-		});
-	}
 }
 
 export const accountValidator = new AccountValidator();
-
-export type AccountValidatorRegisterDto = z.infer<
-	ReturnType<AccountValidator['register']>
->;
-export type AccountValidatorLoginDto = z.infer<
-	ReturnType<AccountValidator['login']>
->;
-export type AccountValidatorPasswordRecoverDto = z.infer<
-	ReturnType<AccountValidator['passwordRecover']>
->;
-export type AccountValidatorPasswordRecoverChangeDto = z.infer<
-	ReturnType<AccountValidator['passwordRecoverChange']>
->;
-export type AccountValidatorPasswordUpdateDto = z.infer<
-	ReturnType<AccountValidator['passwordUpdate']>
->;
-export type AccountValidatorEmailConfirmSendDto = z.infer<
-	ReturnType<AccountValidator['emailConfirmSend']>
->;
-export type AccountValidatorEmailUpdateDto = z.infer<
-	ReturnType<AccountValidator['emailUpdate']>
->;
-export type AccountValidatorEditDto = z.infer<
-	ReturnType<AccountValidator['edit']>
->;
-export type AccountValidatorDeleteDto = z.infer<
-	ReturnType<AccountValidator['delete']>
->;
-export type AccountValidatorRemoveTokenDto = z.infer<
-	ReturnType<AccountValidator['removeToken']>
->;

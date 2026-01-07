@@ -9,10 +9,8 @@ import {
 import { discountPolicy } from '@/features/discount/discount.policy';
 import discountRoutes from '@/features/discount/discount.routes';
 import { discountService } from '@/features/discount/discount.service';
-import type {
-	DiscountValidatorCreateDto,
-	DiscountValidatorFindDto,
-} from '@/features/discount/discount.validator';
+import type { DiscountValidator } from '@/features/discount/discount.validator';
+import type { ValidatorDto } from '@/lib/helpers';
 import { mockFutureDate, mockPastDate } from '@/tests/jest.setup';
 import {
 	entityDataMock,
@@ -32,43 +30,47 @@ const controller = 'DiscountController';
 const basePath = discountRoutes.basePath;
 const mockEntry = entityDataMock<DiscountEntity>('discount');
 
-testControllerCreate<DiscountEntity, DiscountValidatorCreateDto>({
-	controller: controller,
-	basePath: basePath,
-	mockEntry: mockEntry,
-	policy: discountPolicy,
-	service: discountService,
-	createData: {
-		label: 'Black Friday Discount',
-		scope: DiscountScopeEnum.ORDER,
-		reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
-		reference: 'BF-2025',
-		type: DiscountTypeEnum.AMOUNT,
-		value: 25,
-		start_at: mockFutureDate(14400),
-		end_at: mockFutureDate(28800),
-		notes: 'Applied to all orders during January',
+testControllerCreate<DiscountEntity, ValidatorDto<DiscountValidator, 'create'>>(
+	{
+		controller: controller,
+		basePath: basePath,
+		mockEntry: mockEntry,
+		policy: discountPolicy,
+		service: discountService,
+		createData: {
+			label: 'Black Friday Discount',
+			scope: DiscountScopeEnum.ORDER,
+			reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
+			reference: 'BF-2025',
+			type: DiscountTypeEnum.AMOUNT,
+			value: 25,
+			start_at: mockFutureDate(14400),
+			end_at: mockFutureDate(28800),
+			notes: 'Applied to all orders during January',
+		},
 	},
-});
+);
 
-testControllerUpdate<DiscountEntity, DiscountValidatorCreateDto>({
-	controller: controller,
-	basePath: basePath,
-	mockEntry: mockEntry,
-	policy: discountPolicy,
-	service: discountService,
-	updateData: {
-		label: 'Black Friday Discount',
-		scope: DiscountScopeEnum.ORDER,
-		reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
-		reference: 'BF-2025',
-		type: DiscountTypeEnum.AMOUNT,
-		value: 25,
-		start_at: mockFutureDate(14400),
-		end_at: mockFutureDate(28800),
-		notes: 'Applied to all orders during January',
+testControllerUpdate<DiscountEntity, ValidatorDto<DiscountValidator, 'update'>>(
+	{
+		controller: controller,
+		basePath: basePath,
+		mockEntry: mockEntry,
+		policy: discountPolicy,
+		service: discountService,
+		updateData: {
+			label: 'Black Friday Discount',
+			scope: DiscountScopeEnum.ORDER,
+			reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
+			reference: 'BF-2025',
+			type: DiscountTypeEnum.AMOUNT,
+			value: 25,
+			start_at: mockFutureDate(14400),
+			end_at: mockFutureDate(28800),
+			notes: 'Applied to all orders during January',
+		},
 	},
-});
+);
 
 testControllerRead<DiscountEntity>({
 	controller: controller,
@@ -91,7 +93,7 @@ testControllerRestoreSingle({
 	service: discountService,
 });
 
-testControllerFind<DiscountEntity, DiscountValidatorFindDto>({
+testControllerFind<DiscountEntity, ValidatorDto<DiscountValidator, 'find'>>({
 	controller: controller,
 	basePath: basePath,
 	mockEntry: mockEntry,

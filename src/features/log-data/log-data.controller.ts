@@ -8,8 +8,6 @@ import {
 } from '@/features/log-data/log-data.service';
 import {
 	type LogDataValidator,
-	type LogDataValidatorDeleteDto,
-	type LogDataValidatorFindDto,
 	logDataValidator,
 } from '@/features/log-data/log-data.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
@@ -52,11 +50,7 @@ class LogDataController extends BaseController {
 	public delete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		const data = this.validate<LogDataValidatorDeleteDto>(
-			this.validator.delete(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.delete(), req.body, res);
 
 		const countDelete = await this.logDataService.delete(data);
 
@@ -74,11 +68,7 @@ class LogDataController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<LogDataValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.logDataService.findByFilter(data);
 

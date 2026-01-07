@@ -5,13 +5,12 @@ import { lang } from '@/config/i18n.setup';
 import PlaceEntity from '@/features/place/place.entity';
 import { getPlaceRepository } from '@/features/place/place.repository';
 import {
-	type PlaceValidatorCreateDto,
-	type PlaceValidatorFindDto,
-	type PlaceValidatorUpdateDto,
+	type PlaceValidator,
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
 import { BadRequestError } from '@/lib/exceptions';
+import type { ValidatorDto } from '@/lib/helpers';
 export class PlaceService {
 	constructor(
 		private repository: ReturnType<typeof getPlaceRepository>,
@@ -23,7 +22,9 @@ export class PlaceService {
 	/**
 	 * @description Used in `create` method from controller;
 	 */
-	public async create(data: PlaceValidatorCreateDto): Promise<PlaceEntity> {
+	public async create(
+		data: ValidatorDto<PlaceValidator, 'create'>,
+	): Promise<PlaceEntity> {
 		return dataSource.transaction(async (manager) => {
 			const repository = this.getScopedPlaceRepository(manager);
 
@@ -50,7 +51,7 @@ export class PlaceService {
 	 */
 	public async updateDataWithContent(
 		id: number,
-		data: PlaceValidatorUpdateDto,
+		data: ValidatorDto<PlaceValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const place = await this.findById(id, withDeleted);
@@ -178,7 +179,10 @@ export class PlaceService {
 			.firstRaw();
 	}
 
-	public findByFilter(data: PlaceValidatorFindDto, withDeleted: boolean) {
+	public findByFilter(
+		data: ValidatorDto<PlaceValidator, 'find'>,
+		withDeleted: boolean,
+	) {
 		return this.repository
 			.createQuery()
 			.join(

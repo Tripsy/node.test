@@ -8,10 +8,8 @@ import {
 import { logDataPolicy } from '@/features/log-data/log-data.policy';
 import logDataRoutes from '@/features/log-data/log-data.routes';
 import { logDataService } from '@/features/log-data/log-data.service';
-import type {
-	LogDataValidatorDeleteDto,
-	LogDataValidatorFindDto,
-} from '@/features/log-data/log-data.validator';
+import type { LogDataValidator } from '@/features/log-data/log-data.validator';
+import type { ValidatorDto } from '@/lib/helpers';
 import { mockPastDate } from '@/tests/jest.setup';
 import {
 	entityDataMock,
@@ -34,14 +32,14 @@ testControllerRead<LogDataEntity>({
 	policy: logDataPolicy,
 });
 
-testControllerDeleteMultiple<LogDataValidatorDeleteDto>({
+testControllerDeleteMultiple<ValidatorDto<LogDataValidator, 'delete'>>({
 	controller: controller,
 	basePath: basePath,
 	policy: logDataPolicy,
 	service: logDataService,
 });
 
-testControllerFind<LogDataEntity, LogDataValidatorFindDto>({
+testControllerFind<LogDataEntity, ValidatorDto<LogDataValidator, 'find'>>({
 	controller: controller,
 	basePath: basePath,
 	mockEntry: entityDataMock<LogDataEntity>('log-data'),

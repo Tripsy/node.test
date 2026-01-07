@@ -7,8 +7,6 @@ import {
 } from '@/features/user-permission/user-permission.service';
 import {
 	type UserPermissionValidator,
-	type UserPermissionValidatorCreateDto,
-	type UserPermissionValidatorFindDto,
 	userPermissionValidator,
 } from '@/features/user-permission/user-permission.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
@@ -27,11 +25,7 @@ class UserPermissionController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<UserPermissionValidatorCreateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const results = await this.userPermissionService.create(
 			data,
@@ -73,11 +67,7 @@ class UserPermissionController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<UserPermissionValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.userPermissionService.findByFilter(
 			data,

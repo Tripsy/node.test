@@ -76,10 +76,3 @@ export class UserPermissionValidator {
 }
 
 export const userPermissionValidator = new UserPermissionValidator();
-
-export type UserPermissionValidatorCreateDto = z.infer<
-	ReturnType<UserPermissionValidator['create']>
->;
-export type UserPermissionValidatorFindDto = z.infer<
-	ReturnType<UserPermissionValidator['find']>
->;

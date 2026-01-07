@@ -120,19 +120,3 @@ export class CategoryValidator {
 }
 
 export const categoryValidator = new CategoryValidator();
-
-export type CategoryValidatorCreateDto = z.infer<
-	ReturnType<CategoryValidator['create']>
->;
-export type CategoryValidatorUpdateDto = z.infer<
-	ReturnType<CategoryValidator['update']>
->;
-export type CategoryValidatorReadDto = z.infer<
-	ReturnType<CategoryValidator['read']>
->;
-export type CategoryValidatorFindDto = z.infer<
-	ReturnType<CategoryValidator['find']>
->;
-export type CategoryValidatorStatusUpdateDto = z.infer<
-	ReturnType<CategoryValidator['statusUpdate']>
->;

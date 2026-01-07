@@ -6,15 +6,11 @@ import CategoryEntity, {
 	CategoryStatusEnum,
 } from '@/features/category/category.entity';
 import { getCategoryRepository } from '@/features/category/category.repository';
-import type {
-	CategoryValidatorCreateDto,
-	CategoryValidatorFindDto,
-	CategoryValidatorReadDto,
-	CategoryValidatorUpdateDto,
-} from '@/features/category/category.validator';
+import type { CategoryValidator } from '@/features/category/category.validator';
 import CategoryContentRepository from '@/features/category/category-content.repository';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
+import type { ValidatorDto } from '@/lib/helpers';
 
 export class CategoryService {
 	constructor(
@@ -28,7 +24,7 @@ export class CategoryService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: CategoryValidatorCreateDto,
+		data: ValidatorDto<CategoryValidator, 'create'>,
 	): Promise<CategoryEntity> {
 		return dataSource.transaction(async (manager) => {
 			const repository = this.getScopedCategoryRepository(manager);
@@ -81,7 +77,7 @@ export class CategoryService {
 	 */
 	public async updateDataWithContent(
 		id: number,
-		data: CategoryValidatorUpdateDto,
+		data: ValidatorDto<CategoryValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const category = await this.findById(id, withDeleted);
@@ -309,7 +305,7 @@ export class CategoryService {
 	public async getDataById(
 		id: number,
 		language: string,
-		data: CategoryValidatorReadDto,
+		data: ValidatorDto<CategoryValidator, 'read'>,
 		withDeleted: boolean,
 	) {
 		const categoryEntry = await this.repository
@@ -392,7 +388,10 @@ export class CategoryService {
 		};
 	}
 
-	public findByFilter(data: CategoryValidatorFindDto, withDeleted: boolean) {
+	public findByFilter(
+		data: ValidatorDto<CategoryValidator, 'find'>,
+		withDeleted: boolean,
+	) {
 		return this.repository
 			.createQuery()
 			.join(

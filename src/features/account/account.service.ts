@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import type { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { cfg } from '@/config/settings.config';
-import type { AccountValidatorRegisterDto } from '@/features/account/account.validator';
+import type { AccountValidator } from '@/features/account/account.validator';
 import {
 	type AccountEmailService,
 	accountEmailService,
@@ -67,7 +68,7 @@ export class AccountService {
 	}
 
 	public async register(
-		data: AccountValidatorRegisterDto,
+		data: z.infer<ReturnType<AccountValidator['register']>>,
 		language: string,
 	): Promise<UserEntity> {
 		const existingUser = await this.userService.findByEmail(

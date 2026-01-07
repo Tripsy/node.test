@@ -278,11 +278,3 @@ export class UserValidator {
 }
 
 export const userValidator = new UserValidator();
-
-export type UserValidatorCreateDto = z.infer<
-	ReturnType<UserValidator['create']>
->;
-export type UserValidatorUpdateDto = z.infer<
-	ReturnType<UserValidator['update']>
->;
-export type UserValidatorFindDto = z.infer<ReturnType<UserValidator['find']>>;

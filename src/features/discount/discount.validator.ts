@@ -244,13 +244,3 @@ export class DiscountValidator {
 }
 
 export const discountValidator = new DiscountValidator();
-
-export type DiscountValidatorCreateDto = z.infer<
-	ReturnType<DiscountValidator['create']>
->;
-export type DiscountValidatorUpdateDto = z.infer<
-	ReturnType<DiscountValidator['update']>
->;
-export type DiscountValidatorFindDto = z.infer<
-	ReturnType<DiscountValidator['find']>
->;

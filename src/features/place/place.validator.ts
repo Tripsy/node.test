@@ -133,11 +133,3 @@ export class PlaceValidator {
 }
 
 export const placeValidator = new PlaceValidator();
-
-export type PlaceValidatorCreateDto = z.infer<
-	ReturnType<PlaceValidator['create']>
->;
-export type PlaceValidatorUpdateDto = z.infer<
-	ReturnType<PlaceValidator['update']>
->;
-export type PlaceValidatorFindDto = z.infer<ReturnType<PlaceValidator['find']>>;

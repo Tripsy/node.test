@@ -7,12 +7,11 @@ import {
 } from '@/features/client/client.entity';
 import { getClientRepository } from '@/features/client/client.repository';
 import {
-	type ClientValidatorCreateDto,
-	type ClientValidatorFindDto,
-	type ClientValidatorUpdateDto,
+	type ClientValidator,
 	paramsUpdateList,
 } from '@/features/client/client.validator';
 import { BadRequestError, CustomError } from '@/lib/exceptions';
+import type { ValidatorDto } from '@/lib/helpers';
 
 export class ClientService {
 	constructor(private repository: ReturnType<typeof getClientRepository>) {}
@@ -20,7 +19,9 @@ export class ClientService {
 	/**
 	 * @description Used in `create` method from controller;
 	 */
-	public async create(data: ClientValidatorCreateDto): Promise<ClientEntity> {
+	public async create(
+		data: ValidatorDto<ClientValidator, 'create'>,
+	): Promise<ClientEntity> {
 		const identityData: ClientIdentityData =
 			data.client_type === ClientTypeEnum.COMPANY
 				? {
@@ -63,7 +64,7 @@ export class ClientService {
 	 */
 	public async updateData(
 		id: number,
-		data: ClientValidatorUpdateDto,
+		data: ValidatorDto<ClientValidator, 'update'>,
 		_withDeleted: boolean = true,
 	) {
 		const identityData: ClientIdentityData =
@@ -104,7 +105,7 @@ export class ClientService {
 		id: number,
 		newStatus: ClientStatusEnum,
 		withDeleted: boolean,
-	): Promise<ClientEntity> {
+	): Promise<void> {
 		const client = await this.findById(id, withDeleted);
 
 		if (client.status === newStatus) {
@@ -115,7 +116,7 @@ export class ClientService {
 
 		client.status = newStatus;
 
-		return this.repository.save(client);
+		await this.repository.save(client);
 	}
 
 	public async delete(id: number) {
@@ -134,7 +135,10 @@ export class ClientService {
 			.firstOrFail();
 	}
 
-	public findByFilter(data: ClientValidatorFindDto, withDeleted: boolean) {
+	public findByFilter(
+		data: ValidatorDto<ClientValidator, 'find'>,
+		withDeleted: boolean,
+	) {
 		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)

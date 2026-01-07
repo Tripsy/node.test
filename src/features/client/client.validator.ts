@@ -236,13 +236,3 @@ export class ClientValidator {
 }
 
 export const clientValidator = new ClientValidator();
-
-export type ClientValidatorCreateDto = z.infer<
-	ReturnType<ClientValidator['create']>
->;
-export type ClientValidatorUpdateDto = z.infer<
-	ReturnType<ClientValidator['update']>
->;
-export type ClientValidatorFindDto = z.infer<
-	ReturnType<ClientValidator['find']>
->;

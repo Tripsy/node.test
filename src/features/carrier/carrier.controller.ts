@@ -8,9 +8,6 @@ import {
 } from '@/features/carrier/carrier.service';
 import {
 	type CarrierValidator,
-	type CarrierValidatorCreateDto,
-	type CarrierValidatorFindDto,
-	type CarrierValidatorUpdateDto,
 	carrierValidator,
 } from '@/features/carrier/carrier.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
@@ -34,11 +31,7 @@ class CarrierController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<CarrierValidatorCreateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.carrierService.create(data);
 
@@ -73,11 +66,7 @@ class CarrierController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<CarrierValidatorUpdateDto>(
-			this.validator.update(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.update(), req.body, res);
 
 		const entry = await this.carrierService.updateData(
 			res.locals.validated.id,
@@ -113,11 +102,7 @@ class CarrierController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<CarrierValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.carrierService.findByFilter(
 			data,

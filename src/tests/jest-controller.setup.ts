@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import request, { Response } from 'supertest';
+import request, { type Response } from 'supertest';
 import app, { appReady, closeHandler, server } from '@/app';
 import { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
@@ -35,13 +35,13 @@ afterAll(async () => {
 
 // Debugging
 function addDebugResponse(response: Response, hint: string) {
-    console.log(hint, response.body);
+	console.log(hint, response.body);
 }
 
 // Authorization related
-// export function notAuthorizedSpy(policy: PolicyAbstract) {
-// 	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(false);
-// }
+export function notAuthorizedSpy(policy: PolicyAbstract) {
+	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(false);
+}
 
 export function notAllowedSpy(policy: PolicyAbstract) {
 	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(true);
@@ -94,7 +94,6 @@ type ControllerCreateType<E, DTO> = {
 
 export function testControllerCreate<E, DTO extends object>(
 	config: ControllerCreateType<E, DTO>,
-    
 ) {
 	describe(`${config.controller} - create`, () => {
 		const link = `${config.basePath}`;
@@ -124,18 +123,18 @@ export function testControllerCreate<E, DTO extends object>(
 				.post(link)
 				.send(config.createData);
 
-            try {
-                expect(response.status).toBe(201);
-                expect(response.body).toHaveProperty('success', true);
-                expect(response.body.data).toHaveProperty(
-                    'id',
-                    config.mockEntry.id,
-                );
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - create`);
+			try {
+				expect(response.status).toBe(201);
+				expect(response.body).toHaveProperty('success', true);
+				expect(response.body.data).toHaveProperty(
+					'id',
+					config.mockEntry.id,
+				);
+			} catch (error) {
+				addDebugResponse(response, `${config.controller} - create`);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }
@@ -150,10 +149,7 @@ type ControllerReadType<E> = {
 	policy: PolicyAbstract;
 };
 
-export function testControllerRead<E>(
-    config: ControllerReadType<E>,
-    
-) {
+export function testControllerRead<E>(config: ControllerReadType<E>) {
 	describe(`${config.controller} - read`, () => {
 		const link = `${config.basePath}/1`;
 
@@ -182,18 +178,18 @@ export function testControllerRead<E>(
 
 			const response = await request(app).get(link).query({});
 
-            try {
-                expect(response.status).toBe(200);
-                expect(response.body).toHaveProperty('success', true);
-                expect(response.body.data).toHaveProperty(
-                    'id',
-                    config.mockEntry.id,
-                );
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - read`);
+			try {
+				expect(response.status).toBe(200);
+				expect(response.body).toHaveProperty('success', true);
+				expect(response.body.data).toHaveProperty(
+					'id',
+					config.mockEntry.id,
+				);
+			} catch (error) {
+				addDebugResponse(response, `${config.controller} - read`);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }
@@ -220,7 +216,6 @@ type ControllerUpdateType<E, DTO> = {
 
 export function testControllerUpdate<E, DTO extends object>(
 	config: ControllerUpdateType<E, DTO>,
-    
 ) {
 	describe(`${config.controller} - update`, () => {
 		const link = `${config.basePath}/1`;
@@ -250,25 +245,25 @@ export function testControllerUpdate<E, DTO extends object>(
 				.put(link)
 				.send(config.updateData);
 
-            try {
-                expect(response.status).toBe(200);
-                expect(response.body).toHaveProperty('success', true);
-                expect(response.body.data).toHaveProperty(
-                    'id',
-                    config.mockEntry.id,
-                );
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - update`);
+			try {
+				expect(response.status).toBe(200);
+				expect(response.body).toHaveProperty('success', true);
+				expect(response.body.data).toHaveProperty(
+					'id',
+					config.mockEntry.id,
+				);
+			} catch (error) {
+				addDebugResponse(response, `${config.controller} - update`);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }
 
 // Controller test - Update with content
 type UpdateWithContentService<DTO, E> = {
-    updateDataWithContent(
+	updateDataWithContent(
 		id: number,
 		data: DTO,
 		withDeleted: boolean,
@@ -288,7 +283,6 @@ type ControllerUpdateWithContentType<E, DTO> = {
 
 export function testControllerUpdateWithContent<E, DTO extends object>(
 	config: ControllerUpdateWithContentType<E, DTO>,
-    
 ) {
 	describe(`${config.controller} - update`, () => {
 		const link = `${config.basePath}/${config.mockEntry.id}`;
@@ -310,26 +304,27 @@ export function testControllerUpdateWithContent<E, DTO extends object>(
 		it('should return success', async () => {
 			authorizedSpy(config.policy);
 
-			jest.spyOn(config.service, 'updateDataWithContent').mockResolvedValue(
-				config.mockEntry,
-			);
+			jest.spyOn(
+				config.service,
+				'updateDataWithContent',
+			).mockResolvedValue(config.mockEntry);
 
 			const response = await request(app)
 				.put(link)
 				.send(config.updateData);
 
-            try {
-                expect(response.status).toBe(200);
-                expect(response.body).toHaveProperty('success', true);
-                expect(response.body.data).toHaveProperty(
-                    'id',
-                    config.mockEntry.id,
-                );
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - update`);
+			try {
+				expect(response.status).toBe(200);
+				expect(response.body).toHaveProperty('success', true);
+				expect(response.body.data).toHaveProperty(
+					'id',
+					config.mockEntry.id,
+				);
+			} catch (error) {
+				addDebugResponse(response, `${config.controller} - update`);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }
@@ -348,7 +343,6 @@ type ControllerDeleteMultipleType<DTO> = {
 
 export function testControllerDeleteMultiple<DTO>(
 	config: ControllerDeleteMultipleType<DTO>,
-    
 ) {
 	describe(`${config.controller} - delete`, () => {
 		const link = `${config.basePath}`;
@@ -378,13 +372,13 @@ export function testControllerDeleteMultiple<DTO>(
 
 			const response = await request(app).delete(link).send(testData);
 
-            try {
-                expect(response.status).toBe(200);
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - delete`);
+			try {
+				expect(response.status).toBe(200);
+			} catch (error) {
+				addDebugResponse(response, `${config.controller} - delete`);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }
@@ -400,10 +394,7 @@ type ControllerDeleteSingleType = {
 	service: DeleteSingleService;
 };
 
-export function testControllerDeleteSingle(
-    config: ControllerDeleteSingleType,
-    
-) {
+export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 	describe(`${config.controller} - delete`, () => {
 		const link = `${config.basePath}/1`;
 
@@ -428,13 +419,13 @@ export function testControllerDeleteSingle(
 
 			const response = await request(app).delete(link).query({});
 
-            try {
-                expect(response.status).toBe(200);
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - delete`);
+			try {
+				expect(response.status).toBe(200);
+			} catch (error) {
+				addDebugResponse(response, `${config.controller} - delete`);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }
@@ -453,7 +444,6 @@ type ControllerRestoreSingleType = {
 
 export function testControllerRestoreSingle(
 	config: ControllerRestoreSingleType,
-    
 ) {
 	describe(`${config.controller} - restore`, () => {
 		const link = `${config.basePath}/1/restore`;
@@ -479,13 +469,13 @@ export function testControllerRestoreSingle(
 
 			const response = await request(app).patch(link).query({});
 
-            try {
-                expect(response.status).toBe(200);
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - restore`);
+			try {
+				expect(response.status).toBe(200);
+			} catch (error) {
+				addDebugResponse(response, `${config.controller} - restore`);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }
@@ -527,7 +517,6 @@ type ControllerFindType<DTO, E> = {
 
 export function testControllerFind<E, DTO extends BaseFindQuery>(
 	config: ControllerFindType<DTO, E>,
-    
 ) {
 	describe(`${config.controller} - find`, () => {
 		const link = `${config.basePath}`;
@@ -552,26 +541,26 @@ export function testControllerFind<E, DTO extends BaseFindQuery>(
 
 			const response = await request(app).get(link).query(mockQuery);
 
-            try {
-                expect(response.status).toBe(200);
-                expect(response.body.data.entries).toHaveLength(1);
-                expect(response.body.data.query.limit).toBe(mockQuery.limit);
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - find`);
+			try {
+				expect(response.status).toBe(200);
+				expect(response.body.data.entries).toHaveLength(1);
+				expect(response.body.data.query.limit).toBe(mockQuery.limit);
+			} catch (error) {
+				addDebugResponse(response, `${config.controller} - find`);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }
 
 // Controller test - Update
-type StatusUpdateService<E> = {
+type StatusUpdateService = {
 	updateStatus(
 		id: number,
 		status: string,
 		withDeleted: boolean,
-	): Promise<Partial<E> | void>;
+	): Promise<void>;
 };
 
 type ControllerStatusUpdateType<E> = {
@@ -581,12 +570,12 @@ type ControllerStatusUpdateType<E> = {
 		id: number;
 	};
 	policy: PolicyAbstract;
-	service: StatusUpdateService<E>;
+	service: StatusUpdateService;
 	newStatus: string;
 };
 
 export function testControllerStatusUpdate<E>(
-	config: ControllerStatusUpdateType<E>
+	config: ControllerStatusUpdateType<E>,
 ) {
 	describe(`${config.controller} - statusUpdate`, () => {
 		const link = `${config.basePath}/${config.mockEntry.id}/status/${config.newStatus}`;
@@ -609,19 +598,22 @@ export function testControllerStatusUpdate<E>(
 			authorizedSpy(config.policy);
 
 			jest.spyOn(config.service, 'updateStatus').mockResolvedValue(
-				config.mockEntry,
+				undefined,
 			);
 
 			const response = await request(app).patch(link).query({});
 
-            try {
-                expect(response.status).toBe(200);
-                expect(response.body).toHaveProperty('success', true);
-            } catch (error) {
-                addDebugResponse(response, `${config.controller} - statusUpdate`);
+			try {
+				expect(response.status).toBe(200);
+				expect(response.body).toHaveProperty('success', true);
+			} catch (error) {
+				addDebugResponse(
+					response,
+					`${config.controller} - statusUpdate`,
+				);
 
-                throw error; // Re-throw to fail the test
-            }
+				throw error; // Re-throw to fail the test
+			}
 		});
 	});
 }

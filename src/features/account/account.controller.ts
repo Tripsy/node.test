@@ -10,16 +10,6 @@ import {
 } from '@/features/account/account.service';
 import {
 	type AccountValidator,
-	type AccountValidatorDeleteDto,
-	type AccountValidatorEditDto,
-	type AccountValidatorEmailConfirmSendDto,
-	type AccountValidatorEmailUpdateDto,
-	type AccountValidatorLoginDto,
-	type AccountValidatorPasswordRecoverChangeDto,
-	type AccountValidatorPasswordRecoverDto,
-	type AccountValidatorPasswordUpdateDto,
-	type AccountValidatorRegisterDto,
-	type AccountValidatorRemoveTokenDto,
 	accountValidator,
 } from '@/features/account/account.validator';
 import {
@@ -68,11 +58,7 @@ class AccountController extends BaseController {
 	public register = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.notAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorRegisterDto>(
-			this.validator.register(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.register(), req.body, res);
 
 		const entry = await this.accountService.register(data, res.locals.lang);
 
@@ -85,11 +71,7 @@ class AccountController extends BaseController {
 	public login = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.notAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorLoginDto>(
-			this.validator.login(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.login(), req.body, res);
 
 		const user = await this.userService.findByEmail(data.email, false, [
 			'id',
@@ -157,11 +139,7 @@ class AccountController extends BaseController {
 	 *      - From his account page the user could see all active tokens and allow removal
 	 */
 	public removeToken = asyncHandler(async (req: Request, res: Response) => {
-		const data = this.validate<AccountValidatorRemoveTokenDto>(
-			this.validator.removeToken(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.removeToken(), req.body, res);
 
 		await this.accountTokenService.removeAccountTokenByIdent(data.ident);
 
@@ -191,7 +169,7 @@ class AccountController extends BaseController {
 		async (req: Request, res: Response) => {
 			this.policy.notAuth(res.locals.auth);
 
-			const data = this.validate<AccountValidatorPasswordRecoverDto>(
+			const data = this.validate(
 				this.validator.passwordRecover(),
 				req.body,
 				res,
@@ -254,12 +232,11 @@ class AccountController extends BaseController {
 		async (req: Request, res: Response) => {
 			this.policy.notAuth(res.locals.auth);
 
-			const data =
-				this.validate<AccountValidatorPasswordRecoverChangeDto>(
-					this.validator.passwordRecoverChange(),
-					req.body,
-					res,
-				);
+			const data = this.validate(
+				this.validator.passwordRecoverChange(),
+				req.body,
+				res,
+			);
 
 			const recovery = await this.accountRecoveryService.findByIdent(
 				res.locals.validate.ident,
@@ -336,7 +313,7 @@ class AccountController extends BaseController {
 		async (req: Request, res: Response) => {
 			this.policy.requiredAuth(res.locals.auth);
 
-			const data = this.validate<AccountValidatorPasswordUpdateDto>(
+			const data = this.validate(
 				this.validator.passwordUpdate(),
 				req.body,
 				res,
@@ -466,7 +443,7 @@ class AccountController extends BaseController {
 		async (req: Request, res: Response) => {
 			this.policy.notAuth(res.locals.auth);
 
-			const data = this.validate<AccountValidatorEmailConfirmSendDto>(
+			const data = this.validate(
 				this.validator.emailConfirmSend(),
 				req.body,
 				res,
@@ -501,11 +478,7 @@ class AccountController extends BaseController {
 	public emailUpdate = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorEmailUpdateDto>(
-			this.validator.emailUpdate(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.emailUpdate(), req.body, res);
 
 		const existingUser = await this.userService.findByEmail(
 			data.email_new,
@@ -547,7 +520,7 @@ class AccountController extends BaseController {
 		res.json(res.locals.output);
 	});
 
-	public me = asyncHandler(async (_req: Request, res: Response) => {
+	public meDetails = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
 		res.locals.output.data(res.locals.auth);
@@ -558,7 +531,7 @@ class AccountController extends BaseController {
 	/**
 	 * Returns a list of all active sessions for the current user
 	 */
-	public sessions = asyncHandler(async (_req: Request, res: Response) => {
+	public meSessions = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
 		const user_id = this.policy.getId(res.locals.auth);
@@ -582,14 +555,10 @@ class AccountController extends BaseController {
 		res.json(res.locals.output);
 	});
 
-	public edit = asyncHandler(async (req: Request, res: Response) => {
+	public meEdit = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorEditDto>(
-			this.validator.edit(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.meEdit(), req.body, res);
 
 		const user_id = this.policy.getId(res.locals.auth);
 
@@ -614,14 +583,10 @@ class AccountController extends BaseController {
 		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
+	public meDelete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorDeleteDto>(
-			this.validator.delete(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.meDelete(), req.body, res);
 
 		const user_id = this.policy.getId(res.locals.auth);
 

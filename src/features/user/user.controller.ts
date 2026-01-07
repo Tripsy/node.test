@@ -5,9 +5,6 @@ import { userPolicy } from '@/features/user/user.policy';
 import { type UserService, userService } from '@/features/user/user.service';
 import {
 	type UserValidator,
-	type UserValidatorCreateDto,
-	type UserValidatorFindDto,
-	type UserValidatorUpdateDto,
 	userValidator,
 } from '@/features/user/user.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
@@ -31,11 +28,7 @@ class UserController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<UserValidatorCreateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.userService.create(data);
 
@@ -70,11 +63,7 @@ class UserController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<UserValidatorUpdateDto>(
-			this.validator.update(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.update(), req.body, res);
 
 		const entry = await this.userService.updateData(
 			res.locals.validated.id,
@@ -111,11 +100,7 @@ class UserController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<UserValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.userService.findByFilter(
 			data,

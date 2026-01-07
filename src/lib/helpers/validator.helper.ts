@@ -5,6 +5,12 @@ import { getPlaceRepository } from '@/features/place/place.repository';
 import { BadRequestError } from '@/lib/exceptions';
 import { isValidDate, stringToDate } from '@/lib/helpers/date.helper';
 
+export type ValidatorDto<V, K extends keyof V> = V[K] extends (
+	...args: string[]
+) => z.ZodTypeAny
+	? z.infer<ReturnType<V[K]>>
+	: never;
+
 /**
  * @description Utility function used to parse JSON filter string to object
  */

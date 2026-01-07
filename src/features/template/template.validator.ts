@@ -201,13 +201,3 @@ export class TemplateValidator {
 }
 
 export const templateValidator = new TemplateValidator();
-
-export type TemplateValidatorCreateDto = z.infer<
-	ReturnType<TemplateValidator['create']>
->;
-export type TemplateValidatorUpdateDto = z.infer<
-	ReturnType<TemplateValidator['update']>
->;
-export type TemplateValidatorFindDto = z.infer<
-	ReturnType<TemplateValidator['find']>
->;

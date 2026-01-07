@@ -89,10 +89,3 @@ export class LogHistoryValidator {
 }
 
 export const logHistoryValidator = new LogHistoryValidator();
-
-export type LogHistoryValidatorDeleteDto = z.infer<
-	ReturnType<LogHistoryValidator['delete']>
->;
-export type LogHistoryValidatorFindDto = z.infer<
-	ReturnType<LogHistoryValidator['find']>
->;

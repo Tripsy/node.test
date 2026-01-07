@@ -5,10 +5,8 @@ import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
 import userRoutes from '@/features/user/user.routes';
 import { userService } from '@/features/user/user.service';
-import type {
-	UserValidatorCreateDto,
-	UserValidatorFindDto,
-} from '@/features/user/user.validator';
+import type { UserValidator } from '@/features/user/user.validator';
+import type { ValidatorDto } from '@/lib/helpers';
 import { mockPastDate } from '@/tests/jest.setup';
 import {
 	entityDataMock,
@@ -29,7 +27,7 @@ const controller = 'UserController';
 const basePath = userRoutes.basePath;
 const mockEntry = entityDataMock<UserEntity>('user');
 
-testControllerCreate<UserEntity, UserValidatorCreateDto>({
+testControllerCreate<UserEntity, ValidatorDto<UserValidator, 'create'>>({
 	controller: controller,
 	basePath: basePath,
 	mockEntry: mockEntry,
@@ -47,7 +45,7 @@ testControllerCreate<UserEntity, UserValidatorCreateDto>({
 	},
 });
 
-testControllerUpdate<UserEntity, UserValidatorCreateDto>({
+testControllerUpdate<UserEntity, ValidatorDto<UserValidator, 'update'>>({
 	controller: controller,
 	basePath: basePath,
 	mockEntry: mockEntry,
@@ -81,7 +79,7 @@ testControllerRestoreSingle({
 	service: userService,
 });
 
-testControllerFind<UserEntity, UserValidatorFindDto>({
+testControllerFind<UserEntity, ValidatorDto<UserValidator, 'find'>>({
 	controller: controller,
 	basePath: basePath,
 	mockEntry: mockEntry,

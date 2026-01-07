@@ -57,10 +57,3 @@ export class PermissionValidator {
 }
 
 export const permissionValidator = new PermissionValidator();
-
-export type PermissionValidatorManageDto = z.infer<
-	ReturnType<PermissionValidator['manage']>
->;
-export type PermissionValidatorFindDto = z.infer<
-	ReturnType<PermissionValidator['find']>
->;
