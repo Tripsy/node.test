@@ -84,8 +84,8 @@ class PolicyAbstract {
 	}
 
 	public notAuth(auth: AuthContext): void {
-		if (!this.isVisitor(auth)) {
-			throw new UnauthorizedError();
+		if (this.isAuthenticated(auth)) {
+			throw new NotAllowedError();
 		}
 	}
 

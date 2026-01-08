@@ -65,7 +65,7 @@ class AccountController extends BaseController {
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('account.success.register'));
 
-		res.json(res.locals.output);
+		res.status(201).json(res.locals.output);
 	});
 
 	public login = asyncHandler(async (req: Request, res: Response) => {
@@ -83,13 +83,16 @@ class AccountController extends BaseController {
 			throw new NotFoundError(lang('account.error.not_found'));
 		}
 
-		if (user.status === UserStatusEnum.PENDING) {
-			throw new CustomError(409, lang('account.error.pending_account'));
-		}
-
-		if (user.status === UserStatusEnum.INACTIVE) {
-			throw new BadRequestError(lang('account.error.not_active'));
-		}
+        if (user.status !== UserStatusEnum.ACTIVE) {
+            switch (user.status) {
+                case UserStatusEnum.PENDING:
+                    throw new CustomError(409, lang('account.error.pending_account'));
+                case UserStatusEnum.INACTIVE:
+                    throw new NotFoundError(lang('account.error.not_active'));
+                default:
+                    throw new NotFoundError(lang('account.error.not_found'));
+            }
+        }
 
 		const isValidPassword: boolean =
 			await this.accountService.checkPassword(
@@ -104,8 +107,10 @@ class AccountController extends BaseController {
 		const authValidTokens: AuthValidToken[] =
 			await this.accountTokenService.getAuthValidTokens(user.id);
 
+        const maxActiveSessions = Math.max(cfg('user.maxActiveSessions') as number, 1); // Forced `1` as value - in case config value was set as 0 due to an error
+
 		if (
-			authValidTokens.length >= (cfg('user.maxActiveSessions') as number)
+			authValidTokens.length >= maxActiveSessions
 		) {
 			res.status(403); // Forbidden - client's identity is known to the server
 			res.locals.output.message(

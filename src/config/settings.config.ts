@@ -93,7 +93,7 @@ function getSettings(): { [key: string]: ObjectValue } {
 				(process.env.EMAIL_JWT_SECRET as string) || 'secret',
 			emailConfirmationExpiresIn:
 				Number(process.env.EMAIL_JWT_EXPIRES_IN) || 30, // days
-			maxActiveSessions: 2, // maximum number of active sessions per user; on valid login and max number will have to chose to remove old session(s)
+			maxActiveSessions: 2, // maximum number of active sessions per user; minimum value is forced as 1 in the code; on valid login and max number will have to choose to remove old session(s)
 			recoveryIdentExpiresIn: 7200, // converted to seconds
 			recoveryAttemptsInLastSixHours: 3,
 			recoveryEnableMetadataCheck: true, // if set to false, will not check fingerprinting data

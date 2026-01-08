@@ -1,9 +1,13 @@
-import { jest } from '@jest/globals';
-import request, { type Response } from 'supertest';
-import app, { appReady, closeHandler, server } from '@/app';
-import { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
+import {jest} from '@jest/globals';
+import request, {type Response} from 'supertest';
+import app, {appReady, closeHandler, server} from '@/app';
+import LogDataEntity, {LogDataLevelEnum} from '@/features/log-data/log-data.entity';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { cacheProvider } from '@/lib/providers/cache.provider';
+import {cacheProvider} from '@/lib/providers/cache.provider';
+import UserEntity, {UserStatusEnum} from "@/features/user/user.entity";
+import AccountTokenEntity from "@/features/account/account-token.entity";
+import {mockPastDate} from "@/tests/jest.setup";
+import {AuthValidToken} from "@/features/account/account-token.service";
 
 beforeAll(async () => {
 	await appReady;
@@ -34,18 +38,23 @@ afterAll(async () => {
 });
 
 // Debugging
-function addDebugResponse(response: Response, hint: string) {
+export function addDebugResponse(response: Response, hint: string) {
 	console.log(hint, response.body);
 }
 
 // Authorization related
-export function notAuthorizedSpy(policy: PolicyAbstract) {
+export function notAuthenticatedSpy(policy: PolicyAbstract) {
 	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(false);
 }
 
-export function notAllowedSpy(policy: PolicyAbstract) {
+export function isAuthenticatedSpy(policy: PolicyAbstract) {
+	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(true);
+}
+
+export function notAuthorizedSpy(policy: PolicyAbstract) {
 	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(true);
 	jest.spyOn(policy, 'isAdmin').mockReturnValue(false);
+    jest.spyOn(policy, 'hasPermission').mockReturnValue(false);
 }
 
 export function authorizedSpy(policy: PolicyAbstract) {
@@ -67,7 +76,25 @@ export function entityDataMock<E>(entity: string): E {
 				message: 'Lorem ipsum',
 				context: undefined,
 				created_at: new Date(),
-			} as E;
+			} as LogDataEntity as E;
+
+		case 'user':
+			return {
+				id: 1,
+				name: 'John Doe',
+                email: 'john.doe@example.com',
+                status: UserStatusEnum.INACTIVE,
+                password: 'hashed_password',
+				created_at: new Date(),
+			} as UserEntity as E;
+
+        case 'auth-valid-token':
+            return {
+                ident: 'some_ident',
+                label: 'Windows',
+                used_at: mockPastDate(7200),
+                used_now: true,
+            } as AuthValidToken as E;
 
 		default:
 			return {
@@ -105,7 +132,7 @@ export function testControllerCreate<E, DTO extends object>(
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
-			notAllowedSpy(config.policy);
+			notAuthorizedSpy(config.policy);
 
 			const response = await request(app).post(link).send();
 
@@ -160,7 +187,7 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
-			notAllowedSpy(config.policy);
+			notAuthorizedSpy(config.policy);
 
 			const response = await request(app).get(link).query({});
 
@@ -227,7 +254,7 @@ export function testControllerUpdate<E, DTO extends object>(
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
-			notAllowedSpy(config.policy);
+			notAuthorizedSpy(config.policy);
 
 			const response = await request(app).put(link).send();
 
@@ -294,7 +321,7 @@ export function testControllerUpdateWithContent<E, DTO extends object>(
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
-			notAllowedSpy(config.policy);
+			notAuthorizedSpy(config.policy);
 
 			const response = await request(app).put(link).send();
 
@@ -358,7 +385,7 @@ export function testControllerDeleteMultiple<DTO>(
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
-			notAllowedSpy(config.policy);
+			notAuthorizedSpy(config.policy);
 
 			const response = await request(app).delete(link).send();
 
@@ -405,7 +432,7 @@ export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
-			notAllowedSpy(config.policy);
+			notAuthorizedSpy(config.policy);
 
 			const response = await request(app).delete(link).query({});
 
@@ -455,7 +482,7 @@ export function testControllerRestoreSingle(
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
-			notAllowedSpy(config.policy);
+			notAuthorizedSpy(config.policy);
 
 			const response = await request(app).patch(link).query({});
 
@@ -587,7 +614,7 @@ export function testControllerStatusUpdate<E>(
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
-			notAllowedSpy(config.policy);
+			notAuthorizedSpy(config.policy);
 
 			const response = await request(app).patch(link).query({});
 
