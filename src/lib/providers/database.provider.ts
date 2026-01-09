@@ -1,9 +1,9 @@
-import dataSource from '@/config/data-source.config';
+import { getDataSource } from '@/config/data-source.config';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 export const initDatabase = async () => {
 	try {
-		await dataSource.initialize();
+		await getDataSource().initialize();
 
 		getSystemLogger().debug('Database connection initialized successfully');
 	} catch (error) {
@@ -17,18 +17,16 @@ export const initDatabase = async () => {
 };
 
 export const destroyDatabase = async () => {
-	if (dataSource) {
-		try {
-			await dataSource.destroy();
+	try {
+		await getDataSource().destroy();
 
-			getSystemLogger().debug('Database connection closed gracefully');
-		} catch (error) {
-			getSystemLogger().error(
-				{ err: error },
-				'Error closing database connection',
-			);
+		getSystemLogger().debug('Database connection closed gracefully');
+	} catch (error) {
+		getSystemLogger().error(
+			{ err: error },
+			'Error closing database connection',
+		);
 
-			throw error;
-		}
+		throw error;
 	}
 };

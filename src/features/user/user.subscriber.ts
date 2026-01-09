@@ -1,5 +1,5 @@
 import { EventSubscriber, type InsertEvent, type UpdateEvent } from 'typeorm';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	type AccountService,
 	accountService,
@@ -34,7 +34,7 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 
 		// Set the default language
 		if (!event.entity.language) {
-			event.entity.language = cfg('app.language') as string;
+			event.entity.language = Configuration.get('app.language') as string;
 		}
 
 		event.entity.password_updated_at = new Date();

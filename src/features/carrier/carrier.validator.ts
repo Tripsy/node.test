@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
@@ -26,7 +26,9 @@ enum OrderByEnum {
 }
 
 export class CarrierValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public create() {
 		return z.object({

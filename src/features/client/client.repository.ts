@@ -1,5 +1,6 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
 import ClientEntity, {
 	type ClientIdentityData,
 	ClientTypeEnum,
@@ -7,9 +8,7 @@ import ClientEntity, {
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class ClientQuery extends RepositoryAbstract<ClientEntity> {
-	constructor(
-		repository: ReturnType<typeof dataSource.getRepository<ClientEntity>>,
-	) {
+	constructor(repository: Repository<ClientEntity>) {
 		super(repository, ClientEntity.NAME);
 	}
 
@@ -18,7 +17,10 @@ export class ClientQuery extends RepositoryAbstract<ClientEntity> {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
 				this.filterBy('id', Number(term));
 			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
+				if (
+					term.length >
+					(Configuration.get('filter.termMinLength') as number)
+				) {
 					this.filterAny([
 						{
 							column: 'company_name',
@@ -55,48 +57,50 @@ export class ClientQuery extends RepositoryAbstract<ClientEntity> {
 }
 
 export const getClientRepository = () =>
-	dataSource.getRepository(ClientEntity).extend({
-		createQuery() {
-			return new ClientQuery(this);
-		},
+	getDataSource()
+		.getRepository(ClientEntity)
+		.extend({
+			createQuery() {
+				return new ClientQuery(this);
+			},
 
-		async isDuplicateIdentity(
-			data: ClientIdentityData,
-			excludeId?: number,
-		): Promise<boolean> {
-			const query = this.createQuery().filterBy(
-				'client_type',
-				data.client_type,
-			);
+			async isDuplicateIdentity(
+				data: ClientIdentityData,
+				excludeId?: number,
+			): Promise<boolean> {
+				const query = this.createQuery().filterBy(
+					'client_type',
+					data.client_type,
+				);
 
-			if (excludeId) {
-				query.filterBy('id', excludeId, '!=');
-			}
+				if (excludeId) {
+					query.filterBy('id', excludeId, '!=');
+				}
 
-			if (data.client_type === ClientTypeEnum.COMPANY) {
-				query.filterAny([
-					{
-						column: 'company_name',
-						value: data.company_name,
-						operator: '=',
-					},
-					{
-						column: 'company_cui',
-						value: data.company_cui,
-						operator: '=',
-					},
-					{
-						column: 'company_reg_com',
-						value: data.company_reg_com,
-						operator: '=',
-					},
-				]);
-			} else {
-				query.filterBy('person_cnp', data.person_cnp);
-			}
+				if (data.client_type === ClientTypeEnum.COMPANY) {
+					query.filterAny([
+						{
+							column: 'company_name',
+							value: data.company_name,
+							operator: '=',
+						},
+						{
+							column: 'company_cui',
+							value: data.company_cui,
+							operator: '=',
+						},
+						{
+							column: 'company_reg_com',
+							value: data.company_reg_com,
+							operator: '=',
+						},
+					]);
+				} else {
+					query.filterBy('person_cnp', data.person_cnp);
+				}
 
-			query.withDeleted();
+				query.withDeleted();
 
-			return (await query.count()) > 0;
-		},
-	});
+				return (await query.count()) > 0;
+			},
+		});

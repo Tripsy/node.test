@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { RequestContextSource } from '@/config/request.context';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	makeFindValidator,
@@ -18,7 +18,9 @@ enum OrderByEnum {
 }
 
 export class LogHistoryValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public delete() {
 		return z.object({

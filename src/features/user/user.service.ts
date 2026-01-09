@@ -144,7 +144,7 @@ export class UserService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-	public findById(id: number, withDeleted: boolean) {
+	public findById(id: number, withDeleted: boolean): Promise<UserEntity> {
 		return this.repository
 			.createQuery()
 			.filterById(id)

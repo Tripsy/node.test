@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	CategoryStatusEnum,
 	CategoryTypeEnum,
@@ -23,7 +23,9 @@ enum OrderByEnum {
 }
 
 export class CategoryValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	private categoryContentSchema() {
 		return z.object({

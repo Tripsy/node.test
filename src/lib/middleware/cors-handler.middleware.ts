@@ -1,9 +1,9 @@
 import cors from 'cors';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { NotAllowedError } from '@/lib/exceptions';
 
 const allowedOrigins = new Set(
-	(cfg('security.allowedOrigins') as string[]) || [],
+	(Configuration.get('security.allowedOrigins') as string[]) || [],
 );
 
 export const corsHandler = cors({

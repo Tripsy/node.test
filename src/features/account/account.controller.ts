@@ -1,12 +1,10 @@
 import type { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { accountPolicy } from '@/features/account/account.policy';
 import {
 	type AccountService,
 	accountService,
-	type ConfirmationTokenPayload,
 } from '@/features/account/account.service';
 import {
 	type AccountValidator,
@@ -83,16 +81,19 @@ class AccountController extends BaseController {
 			throw new NotFoundError(lang('account.error.not_found'));
 		}
 
-        if (user.status !== UserStatusEnum.ACTIVE) {
-            switch (user.status) {
-                case UserStatusEnum.PENDING:
-                    throw new CustomError(409, lang('account.error.pending_account'));
-                case UserStatusEnum.INACTIVE:
-                    throw new NotFoundError(lang('account.error.not_active'));
-                default:
-                    throw new NotFoundError(lang('account.error.not_found'));
-            }
-        }
+		if (user.status !== UserStatusEnum.ACTIVE) {
+			switch (user.status) {
+				case UserStatusEnum.PENDING:
+					throw new CustomError(
+						409,
+						lang('account.error.pending_account'),
+					);
+				case UserStatusEnum.INACTIVE:
+					throw new NotFoundError(lang('account.error.not_active'));
+				default:
+					throw new NotFoundError(lang('account.error.not_found'));
+			}
+		}
 
 		const isValidPassword: boolean =
 			await this.accountService.checkPassword(
@@ -107,11 +108,12 @@ class AccountController extends BaseController {
 		const authValidTokens: AuthValidToken[] =
 			await this.accountTokenService.getAuthValidTokens(user.id);
 
-        const maxActiveSessions = Math.max(cfg('user.maxActiveSessions') as number, 1); // Forced `1` as value - in case config value was set as 0 due to an error
+		const maxActiveSessions = Math.max(
+			Configuration.get('user.maxActiveSessions') as number,
+			1,
+		); // Forced `1` as value - in case config value was set as 0 due to an error
 
-		if (
-			authValidTokens.length >= maxActiveSessions
-		) {
+		if (authValidTokens.length >= maxActiveSessions) {
 			res.status(403); // Forbidden - client's identity is known to the server
 			res.locals.output.message(
 				lang('account.error.max_active_sessions'),
@@ -156,13 +158,24 @@ class AccountController extends BaseController {
 	public logout = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
-		const activeToken =
-			await this.accountTokenService.getActiveAuthToken(req);
+		// Read the token from the request
+		const token = accountTokenService.getAuthTokenFromHeaders(req);
 
-		if (activeToken) {
-			await this.accountTokenService.removeAccountTokenByIdent(
-				activeToken.ident,
-			);
+		if (!token) {
+			throw new BadRequestError(lang('account.error.not_logged_in'));
+		}
+
+		try {
+			const activeToken =
+				await this.accountTokenService.findByToken(token);
+
+			if (activeToken) {
+				await this.accountTokenService.removeAccountTokenByIdent(
+					activeToken.ident,
+				);
+			}
+		} catch {
+			throw new BadRequestError(lang('account.error.not_logged_in'));
 		}
 
 		res.locals.output.message(lang('account.success.logout'));
@@ -204,7 +217,9 @@ class AccountController extends BaseController {
 
 			if (
 				countRecoveryAttempts >=
-				(cfg('user.recoveryAttemptsInLastSixHours') as number)
+				(Configuration.get(
+					'user.recoveryAttemptsInLastSixHours',
+				) as number)
 			) {
 				throw new CustomError(
 					425,
@@ -244,7 +259,7 @@ class AccountController extends BaseController {
 			);
 
 			const recovery = await this.accountRecoveryService.findByIdent(
-				res.locals.validate.ident,
+				res.locals.validated.ident,
 			);
 
 			if (!recovery) {
@@ -265,7 +280,7 @@ class AccountController extends BaseController {
 				);
 			}
 
-			if (cfg('user.recoveryEnableMetadataCheck')) {
+			if (Configuration.get('user.recoveryEnableMetadataCheck')) {
 				// Validate metadata (e.g., user-agent check)
 				if (
 					!recovery.metadata ||
@@ -347,7 +362,7 @@ class AccountController extends BaseController {
 					},
 				]);
 
-				throw new UnauthorizedError();
+				throw new BadRequestError();
 			}
 
 			// Update user password and remove all account tokens
@@ -377,34 +392,27 @@ class AccountController extends BaseController {
 		const token = decodeURIComponent(res.locals.validated.token);
 
 		// Verify JWT and extract payload
-		let payload: ConfirmationTokenPayload;
+		const confirmationTokenPayload =
+			accountTokenService.determineConfirmationTokenPayload(token);
 
-		try {
-			payload = jwt.verify(
-				token,
-				cfg('user.emailConfirmationSecret') as string,
-			) as ConfirmationTokenPayload;
-		} catch {
-			throw new BadRequestError(
-				lang('account.error.confirmation_token_invalid'),
-			);
-		}
-
-		const user = await this.userService.findById(payload.user_id, false);
+		const user = await this.userService.findById(
+			confirmationTokenPayload.user_id,
+			false,
+		);
 
 		if (!user) {
 			throw new NotFoundError(lang('account.error.not_found'));
 		}
 
-		if (user.email !== payload.user_email) {
+		if (user.email !== confirmationTokenPayload.user_email) {
 			throw new BadRequestError(
-				lang('account.error.confirmation_token_invalid'),
+				lang('account.error.confirmation_token_not_authorized'),
 			);
 		}
 
-		if (payload.user_email_new) {
+		if (confirmationTokenPayload.user_email_new) {
 			// Confirm procedure for email update
-			user.email = payload.user_email_new;
+			user.email = confirmationTokenPayload.user_email_new;
 			user.email_verified_at = new Date();
 
 			await this.userService.update({
@@ -463,7 +471,7 @@ class AccountController extends BaseController {
 			]);
 
 			if (!user) {
-				throw new NotFoundError(lang('account.error.not_found'));
+				throw new BadRequestError(lang('account.error.not_found'));
 			}
 
 			if (user.status !== UserStatusEnum.PENDING) {
@@ -620,8 +628,12 @@ class AccountController extends BaseController {
 				},
 			]);
 
-			throw new UnauthorizedError();
+			throw new BadRequestError();
 		}
+
+		// if (!isValidPassword) {
+		//     throw new UnauthorizedError(lang('account.error.not_authorized'));
+		// }
 
 		await this.userService.delete(user_id);
 

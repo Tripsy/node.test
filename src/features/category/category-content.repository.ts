@@ -1,5 +1,6 @@
 import type { EntityManager } from 'typeorm';
-import dataSource from '@/config/data-source.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import type {
 	CategoryContentInput,
@@ -10,16 +11,12 @@ import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 import { CustomError } from '@/lib/exceptions';
 
 export class CategoryContentQuery extends RepositoryAbstract<CategoryContentEntity> {
-	constructor(
-		repository: ReturnType<
-			typeof dataSource.getRepository<CategoryContentEntity>
-		>,
-	) {
+	constructor(repository: Repository<CategoryContentEntity>) {
 		super(repository, CategoryContentEntity.NAME);
 	}
 }
 
-export const CategoryContentRepository = dataSource
+export const CategoryContentRepository = getDataSource()
 	.getRepository(CategoryContentEntity)
 	.extend({
 		createQuery() {

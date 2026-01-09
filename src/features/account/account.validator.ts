@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	validateLanguage,
 	validateString,
@@ -8,8 +8,10 @@ import {
 } from '@/lib/helpers';
 
 export class AccountValidator {
-	private readonly nameMinLength = cfg('user.nameMinLength') as number;
-	private readonly passwordMinLength = cfg(
+	private readonly nameMinLength = Configuration.get(
+		'user.nameMinLength',
+	) as number;
+	private readonly passwordMinLength = Configuration.get(
 		'user.passwordMinLength',
 	) as number;
 
@@ -98,21 +100,21 @@ export class AccountValidator {
 			.object({
 				password: z
 					.string({
-						message: lang('user.validation.password_invalid'),
+						message: lang('account.validation.password_invalid'),
 					})
 					.min(this.passwordMinLength, {
-						message: lang('user.validation.password_min', {
+						message: lang('account.validation.password_min', {
 							min: this.passwordMinLength.toString(),
 						}),
 					})
 					.refine((value) => /[A-Z]/.test(value), {
 						message: lang(
-							'user.validation.password_condition_capital_letter',
+							'account.validation.password_condition_capital_letter',
 						),
 					})
 					.refine((value) => /[0-9]/.test(value), {
 						message: lang(
-							'user.validation.password_condition_number',
+							'account.validation.password_condition_number',
 						),
 					})
 					.refine(
@@ -120,12 +122,14 @@ export class AccountValidator {
 							/[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]/.test(value),
 						{
 							message: lang(
-								'user.validation.password_condition_special_character',
+								'account.validation.password_condition_special_character',
 							),
 						},
 					),
 				password_confirm: z.string({
-					message: lang('user.validation.password_confirm_required'),
+					message: lang(
+						'account.validation.password_confirm_required',
+					),
 				}),
 			})
 			.superRefine(({ password, password_confirm }, ctx) => {
@@ -133,7 +137,7 @@ export class AccountValidator {
 					ctx.addIssue({
 						path: ['password_confirm'],
 						message: lang(
-							'user.validation.password_confirm_mismatch',
+							'account.validation.password_confirm_mismatch',
 						),
 						code: 'custom',
 					});
@@ -152,18 +156,18 @@ export class AccountValidator {
 						message: lang('account.validation.password_invalid'),
 					})
 					.min(this.passwordMinLength, {
-						message: lang('user.validation.password_min', {
+						message: lang('account.validation.password_min', {
 							min: this.passwordMinLength.toString(),
 						}),
 					})
 					.refine((value) => /[A-Z]/.test(value), {
 						message: lang(
-							'user.validation.password_condition_capital_letter',
+							'account.validation.password_condition_capital_letter',
 						),
 					})
 					.refine((value) => /[0-9]/.test(value), {
 						message: lang(
-							'user.validation.password_condition_number',
+							'account.validation.password_condition_number',
 						),
 					})
 					.refine(
@@ -171,12 +175,14 @@ export class AccountValidator {
 							/[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]/.test(value),
 						{
 							message: lang(
-								'user.validation.password_condition_special_character',
+								'account.validation.password_condition_special_character',
 							),
 						},
 					),
 				password_confirm: z.string({
-					message: lang('user.validation.password_confirm_required'),
+					message: lang(
+						'account.validation.password_confirm_required',
+					),
 				}),
 			})
 			.superRefine(({ password_new, password_confirm }, ctx) => {
@@ -184,7 +190,7 @@ export class AccountValidator {
 					ctx.addIssue({
 						path: ['password_confirm'],
 						message: lang(
-							'user.validation.password_confirm_mismatch',
+							'account.validation.password_confirm_mismatch',
 						),
 						code: 'custom',
 					});

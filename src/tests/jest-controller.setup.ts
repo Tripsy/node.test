@@ -1,13 +1,17 @@
-import {jest} from '@jest/globals';
-import request, {type Response} from 'supertest';
-import app, {appReady, closeHandler, server} from '@/app';
-import LogDataEntity, {LogDataLevelEnum} from '@/features/log-data/log-data.entity';
+import { jest } from '@jest/globals';
+import request, { type Response } from 'supertest';
+import app, { appReady, closeHandler, server } from '@/app';
+import type { ConfirmationTokenPayload } from '@/features/account/account.service';
+import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
+import type AccountTokenEntity from '@/features/account/account-token.entity';
+import type { AuthValidToken } from '@/features/account/account-token.service';
+import type LogDataEntity from '@/features/log-data/log-data.entity';
+import { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
+import type UserEntity from '@/features/user/user.entity';
+import { UserStatusEnum } from '@/features/user/user.entity';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import {cacheProvider} from '@/lib/providers/cache.provider';
-import UserEntity, {UserStatusEnum} from "@/features/user/user.entity";
-import AccountTokenEntity from "@/features/account/account-token.entity";
-import {mockPastDate} from "@/tests/jest.setup";
-import {AuthValidToken} from "@/features/account/account-token.service";
+import { cacheProvider } from '@/lib/providers/cache.provider';
+import { mockFutureDate, mockPastDate, mockUuid } from '@/tests/jest.setup';
 
 beforeAll(async () => {
 	await appReady;
@@ -54,7 +58,7 @@ export function isAuthenticatedSpy(policy: PolicyAbstract) {
 export function notAuthorizedSpy(policy: PolicyAbstract) {
 	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(true);
 	jest.spyOn(policy, 'isAdmin').mockReturnValue(false);
-    jest.spyOn(policy, 'hasPermission').mockReturnValue(false);
+	jest.spyOn(policy, 'hasPermission').mockReturnValue(false);
 }
 
 export function authorizedSpy(policy: PolicyAbstract) {
@@ -75,26 +79,52 @@ export function entityDataMock<E>(entity: string): E {
 				level: LogDataLevelEnum.ERROR,
 				message: 'Lorem ipsum',
 				context: undefined,
-				created_at: new Date(),
+				created_at: mockPastDate(28800),
 			} as LogDataEntity as E;
 
 		case 'user':
 			return {
 				id: 1,
 				name: 'John Doe',
-                email: 'john.doe@example.com',
-                status: UserStatusEnum.INACTIVE,
-                password: 'hashed_password',
-				created_at: new Date(),
+				email: 'john.doe@example.com',
+				status: UserStatusEnum.INACTIVE,
+				password: 'hashed_password',
+				created_at: mockPastDate(28800),
 			} as UserEntity as E;
 
-        case 'auth-valid-token':
-            return {
-                ident: 'some_ident',
-                label: 'Windows',
-                used_at: mockPastDate(7200),
-                used_now: true,
-            } as AuthValidToken as E;
+		case 'auth-valid-token':
+			return {
+				ident: 'some_ident',
+				label: 'Windows',
+				used_at: mockPastDate(7200),
+				used_now: true,
+			} as AuthValidToken as E;
+
+		case 'auth-active-token':
+			return {
+				id: 1,
+				user_id: 1,
+				ident: mockUuid(),
+				created_at: mockPastDate(28800),
+				used_at: mockPastDate(14400),
+				expire_at: mockFutureDate(14400),
+			} as AccountTokenEntity as E;
+
+		case 'account-recovery':
+			return {
+				id: 1,
+				user_id: 1,
+				ident: mockUuid(),
+				created_at: mockPastDate(28800),
+				used_at: mockPastDate(14400),
+				expire_at: mockFutureDate(14400),
+			} as AccountRecoveryEntity as E;
+
+		case 'confirmation-token-payload':
+			return {
+				user_id: 1,
+				user_email: 'john.doe@example.com',
+			} as ConfirmationTokenPayload as E;
 
 		default:
 			return {

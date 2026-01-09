@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 
 function getLanguageFromHeaders(acceptLanguage?: string): string {
 	if (!acceptLanguage) {
@@ -21,10 +21,12 @@ async function languageMiddleware(
 	}
 
 	// Attach lang value to the request object
-	if ((cfg('app.languageSupported') as string[]).includes(lang)) {
+	if (
+		(Configuration.get('app.languageSupported') as string[]).includes(lang)
+	) {
 		res.locals.lang = lang;
 	} else {
-		res.locals.lang = cfg('app.language') as string;
+		res.locals.lang = Configuration.get('app.language') as string;
 	}
 
 	next();

@@ -1,12 +1,11 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
 import LogDataEntity from '@/features/log-data/log-data.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
-	constructor(
-		repository: ReturnType<typeof dataSource.getRepository<LogDataEntity>>,
-	) {
+	constructor(repository: Repository<LogDataEntity>) {
 		super(repository, LogDataEntity.NAME);
 	}
 
@@ -37,7 +36,10 @@ export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
 				this.filterBy('id', Number(term));
 			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
+				if (
+					term.length >
+					(Configuration.get('filter.termMinLength') as number)
+				) {
 					this.filterAny([
 						{
 							column: 'request_id',
@@ -69,8 +71,10 @@ export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 }
 
 export const getLogDataRepository = () =>
-	dataSource.getRepository(LogDataEntity).extend({
-		createQuery() {
-			return new LogDataQuery(this);
-		},
-	});
+	getDataSource()
+		.getRepository(LogDataEntity)
+		.extend({
+			createQuery() {
+				return new LogDataQuery(this);
+			},
+		});

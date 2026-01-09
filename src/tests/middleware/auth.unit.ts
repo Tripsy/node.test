@@ -1,6 +1,6 @@
 // import type { NextFunction, Request, Response } from 'express';
 // import jwt from 'jsonwebtoken';
-// import { cfg } from '@/config/settings.config';
+//
 // import { getAuthTokenFromHeaders } from '@/features/account/account.service';
 // import AccountTokenRepository from '@/features/account/account-token.repository';
 // import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
@@ -252,7 +252,7 @@
 // 		);
 //
 // 		(dateDiffInSeconds as jest.Mock).mockReturnValue(
-// 			(cfg('user.authRefreshExpiresIn') as number) - 1,
+// 			(Configuration.get('user.authRefreshExpiresIn') as number) - 1,
 // 		);
 //
 // 		(createFutureDate as jest.Mock).mockReturnValue(

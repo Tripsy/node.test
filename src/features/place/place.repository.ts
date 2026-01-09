@@ -1,12 +1,11 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
 import PlaceEntity, { type PlaceTypeEnum } from '@/features/place/place.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
-	constructor(
-		repository: ReturnType<typeof dataSource.getRepository<PlaceEntity>>,
-	) {
+	constructor(repository: Repository<PlaceEntity>) {
 		super(repository, PlaceEntity.NAME);
 	}
 
@@ -15,7 +14,10 @@ export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
 				this.filterBy('place.id', Number(term));
 			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
+				if (
+					term.length >
+					(Configuration.get('filter.termMinLength') as number)
+				) {
 					this.filterAny([
 						{
 							column: 'content.name',
@@ -32,20 +34,22 @@ export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 }
 
 export const getPlaceRepository = () =>
-	dataSource.getRepository(PlaceEntity).extend({
-		createQuery() {
-			return new PlaceQuery(this);
-		},
+	getDataSource()
+		.getRepository(PlaceEntity)
+		.extend({
+			createQuery() {
+				return new PlaceQuery(this);
+			},
 
-		async checkPlaceType(
-			place_id: number,
-			type: PlaceTypeEnum,
-		): Promise<boolean> {
-			const result = await this.createQuery()
-				.select(['type'])
-				.filterById(place_id)
-				.firstRaw();
+			async checkPlaceType(
+				place_id: number,
+				type: PlaceTypeEnum,
+			): Promise<boolean> {
+				const result = await this.createQuery()
+					.select(['type'])
+					.filterById(place_id)
+					.firstRaw();
 
-			return result?.place_type === type;
-		},
-	});
+				return result?.place_type === type;
+			},
+		});

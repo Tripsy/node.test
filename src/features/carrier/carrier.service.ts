@@ -86,7 +86,7 @@ export class CarrierService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-	public findById(id: number, withDeleted: boolean) {
+	public findById(id: number, withDeleted: boolean): Promise<CarrierEntity> {
 		return this.repository
 			.createQuery()
 			.filterById(id)

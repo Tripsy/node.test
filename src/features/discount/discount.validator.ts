@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	DiscountReasonEnum,
 	type DiscountRules,
@@ -41,7 +41,9 @@ enum OrderByEnum {
 }
 
 export class DiscountValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	discountRulesSchema: z.ZodType<DiscountRules> = z.record(
 		z.string(), // Keys are strings

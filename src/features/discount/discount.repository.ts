@@ -1,12 +1,11 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
 import DiscountEntity from '@/features/discount/discount.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class DiscountQuery extends RepositoryAbstract<DiscountEntity> {
-	constructor(
-		repository: ReturnType<typeof dataSource.getRepository<DiscountEntity>>,
-	) {
+	constructor(repository: Repository<DiscountEntity>) {
 		super(repository, DiscountEntity.NAME);
 	}
 
@@ -15,7 +14,10 @@ export class DiscountQuery extends RepositoryAbstract<DiscountEntity> {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
 				this.filterBy('id', Number(term));
 			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
+				if (
+					term.length >
+					(Configuration.get('filter.termMinLength') as number)
+				) {
 					this.filterAny([
 						{
 							column: 'label',
@@ -37,8 +39,10 @@ export class DiscountQuery extends RepositoryAbstract<DiscountEntity> {
 }
 
 export const getDiscountRepository = () =>
-	dataSource.getRepository(DiscountEntity).extend({
-		createQuery() {
-			return new DiscountQuery(this);
-		},
-	});
+	getDataSource()
+		.getRepository(DiscountEntity)
+		.extend({
+			createQuery() {
+				return new DiscountQuery(this);
+			},
+		});

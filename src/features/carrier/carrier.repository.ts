@@ -1,12 +1,11 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
 import CarrierEntity from '@/features/carrier/carrier.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class CarrierQuery extends RepositoryAbstract<CarrierEntity> {
-	constructor(
-		repository: ReturnType<typeof dataSource.getRepository<CarrierEntity>>,
-	) {
+	constructor(repository: Repository<CarrierEntity>) {
 		super(repository, CarrierEntity.NAME);
 	}
 
@@ -15,7 +14,10 @@ export class CarrierQuery extends RepositoryAbstract<CarrierEntity> {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
 				this.filterBy('id', Number(term));
 			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
+				if (
+					term.length >
+					(Configuration.get('filter.termMinLength') as number)
+				) {
 					this.filterAny([
 						{
 							column: 'name',
@@ -37,8 +39,10 @@ export class CarrierQuery extends RepositoryAbstract<CarrierEntity> {
 }
 
 export const getCarrierRepository = () =>
-	dataSource.getRepository(CarrierEntity).extend({
-		createQuery() {
-			return new CarrierQuery(this);
-		},
-	});
+	getDataSource()
+		.getRepository(CarrierEntity)
+		.extend({
+			createQuery() {
+				return new CarrierQuery(this);
+			},
+		});

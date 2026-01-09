@@ -1,20 +1,17 @@
 import type { EntityManager } from 'typeorm';
-import dataSource from '@/config/data-source.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
 import type { PlaceContentInput } from '@/features/place/place.entity';
 import PlaceContentEntity from '@/features/place/place-content.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class PlaceContentQuery extends RepositoryAbstract<PlaceContentEntity> {
-	constructor(
-		repository: ReturnType<
-			typeof dataSource.getRepository<PlaceContentEntity>
-		>,
-	) {
+	constructor(repository: Repository<PlaceContentEntity>) {
 		super(repository, PlaceContentEntity.NAME);
 	}
 }
 
-export const PlaceContentRepository = dataSource
+export const PlaceContentRepository = getDataSource()
 	.getRepository(PlaceContentEntity)
 	.extend({
 		createQuery() {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { PlaceTypeEnum } from '@/features/place/place.entity';
 import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
@@ -20,7 +20,9 @@ enum OrderByEnum {
 }
 
 export class PlaceValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	placeContentSchema() {
 		return z.object({

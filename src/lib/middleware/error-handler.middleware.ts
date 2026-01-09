@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { CustomError } from '@/lib/exceptions';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 
@@ -13,8 +13,9 @@ export const errorHandler = (
 
 	// Logging is disabled for certain response codes when APP debug is false
 	if (
-		cfg('app.env') !== 'test' &&
-		(cfg('app.debug') || ![400, 401, 403, 404, 409].includes(status))
+		Configuration.get('app.env') !== 'test' &&
+		(Configuration.get('app.debug') ||
+			![400, 401, 403, 404, 409].includes(status))
 	) {
 		if ([401].includes(status)) {
 			getSystemLogger().warn(

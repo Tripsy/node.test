@@ -5,10 +5,10 @@ import nodemailer from 'nodemailer';
 import pino, { type Logger } from 'pino';
 import pinoPretty from 'pino-pretty';
 import { v4 as uuid } from 'uuid';
-import dataSource from '@/config/data-source.config';
+import { getDataSource } from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { requestContext } from '@/config/request.context';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import LogDataEntity, {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
@@ -216,7 +216,7 @@ export class LogStream extends Writable {
 		log.destinations.push('database');
 
 		try {
-			await dataSource.manager.save(LogDataEntity, logData);
+			await getDataSource().manager.save(LogDataEntity, logData);
 		} catch (error) {
 			if (error instanceof Error) {
 				log.notes = `Database write failed: ${error.message}`;
@@ -232,12 +232,12 @@ export class LogStream extends Writable {
 		}
 
 		const emailTransporter = nodemailer.createTransport({
-			host: cfg('mail.host') as string,
-			port: cfg('mail.port') as number,
-			secure: cfg('mail.encryption') === 'ssl',
+			host: Configuration.get('mail.host') as string,
+			port: Configuration.get('mail.port') as number,
+			secure: Configuration.get('mail.encryption') === 'ssl',
 			auth: {
-				user: cfg('mail.username') as string,
-				pass: cfg('mail.password') as string,
+				user: Configuration.get('mail.username') as string,
+				pass: Configuration.get('mail.password') as string,
 			},
 		});
 
@@ -252,10 +252,10 @@ export class LogStream extends Writable {
 
 		emailTransporter
 			.sendMail({
-				from: cfg('mail.fromAddress') as string,
-				to: cfg('logging.logEmail') as string,
+				from: Configuration.get('mail.fromAddress') as string,
+				to: Configuration.get('logging.logEmail') as string,
 				subject: lang('shared.debug.email_log_subject', {
-					app: cfg('app.name') as string,
+					app: Configuration.get('app.name') as string,
 					level: logLevel,
 				}),
 				text: JSON.stringify(clonedLog),
@@ -278,24 +278,29 @@ export class LogStream extends Writable {
 			const log = JSON.parse(chunk);
 			log.destinations = [];
 
-			if (cfg('app.env') === 'test' || cfg('app.debug')) {
+			if (
+				Configuration.get('app.env') === 'test' ||
+				Configuration.get('app.debug')
+			) {
 				this.pretty.write(chunk);
 			}
 
 			const logLevel: LogDataLevelEnum = getLogLevel(log.level);
 
 			if (
-				(cfg('logging.levelFile') as LogDataLevelEnum[]).includes(
-					logLevel,
-				)
+				(
+					Configuration.get('logging.levelFile') as LogDataLevelEnum[]
+				).includes(logLevel)
 			) {
 				this.writeToFile(logLevel, log);
 			}
 
 			if (
-				(cfg('logging.levelDatabase') as LogDataLevelEnum[]).includes(
-					logLevel,
-				)
+				(
+					Configuration.get(
+						'logging.levelDatabase',
+					) as LogDataLevelEnum[]
+				).includes(logLevel)
 			) {
 				this.writeToDatabase(logLevel, log).catch((error) => {
 					console.error('Database logging failed:', error);
@@ -303,9 +308,11 @@ export class LogStream extends Writable {
 			}
 
 			if (
-				(cfg('logging.levelEmail') as LogDataLevelEnum[]).includes(
-					logLevel,
-				)
+				(
+					Configuration.get(
+						'logging.levelEmail',
+					) as LogDataLevelEnum[]
+				).includes(logLevel)
 			) {
 				this.sendToEmail(logLevel, log).catch((error) => {
 					console.error('Email logging failed:', error);
@@ -327,9 +334,9 @@ const logger = pino(
 		// Setting this option reduces the load, as typically, debug and trace logs are only valid for development and not needed in production.
 		// 'fatal', 'error', 'warn', 'info', 'debug', 'trace' or 'silent'
 		level:
-			cfg('app.env') === 'test'
+			Configuration.get('app.env') === 'test'
 				? 'error'
-				: (cfg('logging.logLevel') as LogDataLevelEnum),
+				: (Configuration.get('logging.logLevel') as LogDataLevelEnum),
 		// Defines how and where to send log data, such as to files, external services, or streams.
 		nestedKey: 'context',
 		// Define default properties included in every log line.
@@ -421,7 +428,7 @@ export function getCronLogger(): Logger {
 	return cronLoggerInstance;
 }
 
-if (cfg('app.env') === 'test') {
+if (Configuration.get('app.env') === 'test') {
 	// getSystemLogger().debug = console.log;
 	getSystemLogger().debug = () => {};
 	getSystemLogger().error = console.error;

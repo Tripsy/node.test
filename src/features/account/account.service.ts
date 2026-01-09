@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import type { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import type { AccountValidator } from '@/features/account/account.validator';
 import {
 	type AccountEmailService,
@@ -129,15 +129,18 @@ export class AccountService {
 
 		const token = jwt.sign(
 			payload,
-			cfg('user.emailConfirmationSecret') as string,
+			Configuration.get('user.emailConfirmationSecret') as string,
 			{
 				expiresIn:
-					(cfg('user.emailConfirmationExpiresIn') as number) * 86400,
+					(Configuration.get(
+						'user.emailConfirmationExpiresIn',
+					) as number) * 86400,
 			},
 		);
 
 		const expire_at = createFutureDate(
-			(cfg('user.emailConfirmationExpiresIn') as number) * 86400,
+			(Configuration.get('user.emailConfirmationExpiresIn') as number) *
+				86400,
 		);
 
 		return { token, expire_at };

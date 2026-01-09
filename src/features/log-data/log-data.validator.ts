@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
@@ -17,7 +17,9 @@ enum OrderByEnum {
 }
 
 export class LogDataValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public delete() {
 		return z.object({

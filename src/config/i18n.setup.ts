@@ -4,7 +4,7 @@ import path from 'node:path';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { buildSrcPath } from '@/lib/helpers';
 import { cacheProvider } from '@/lib/providers/cache.provider';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
@@ -30,7 +30,7 @@ async function getFeatureNamespaces(): Promise<string[]> {
 							featuresDir,
 							e.name,
 							'locales',
-							`${cfg('app.language')}.json`,
+							`${Configuration.get('app.language')}.json`,
 						),
 					);
 					return e.name;
@@ -56,7 +56,7 @@ async function resolveNamespaces(): Promise<string[]> {
 	// While running tests will start failing because Redis connection is not closed
 	// So we don't use cache
 	// May be a bug, may be an issue, I didn't find a resolution
-	if (cfg('app.env') === 'test') {
+	if (Configuration.get('app.env') === 'test') {
 		return getNamespaces();
 	}
 
@@ -76,12 +76,14 @@ export async function initializeI18next() {
 		.use(LanguageDetector)
 		.init({
 			fallbackLng: 'en',
-			supportedLngs: cfg('app.languageSupported') as string[], // List of supported languages
+			supportedLngs: Configuration.get(
+				'app.languageSupported',
+			) as string[], // List of supported languages
 			interpolation: {
 				escapeValue: false, // Disable escaping for HTML (if needed)
 			},
 			saveMissing: false, // Disable saving missing translations
-			// ns: cfg('app.languageNamespaces') as string[],
+			// ns: Configuration.get('app.languageNamespaces') as string[],
 			ns: namespaces,
 			backend: {
 				loadPath: (_lng: string, ns: string) => {
@@ -111,7 +113,7 @@ export const lang = (
 	replacements: Record<string, string> = {},
 	fallback?: string,
 ): string => {
-	if (cfg('app.env') === 'test') {
+	if (Configuration.get('app.env') === 'test') {
 		return key;
 	}
 

@@ -1,6 +1,6 @@
 import type Redis from 'ioredis';
 import { getRedisClient } from '@/config/init-redis.config';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
 
 type CacheData = unknown;
@@ -15,7 +15,9 @@ export class CacheProvider {
 	}
 
 	determineTtl(ttl?: number): number {
-		return ttl === undefined ? (cfg('cache.ttl') as number) : ttl;
+		return ttl === undefined
+			? (Configuration.get('cache.ttl') as number)
+			: ttl;
 	}
 
 	formatInputData(data: CacheData): string | number {

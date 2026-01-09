@@ -3,7 +3,7 @@ import type Mail from 'nodemailer/lib/mailer';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { lang } from '@/config/i18n.setup';
 import templates from '@/config/nunjucks.config';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import {
@@ -20,12 +20,12 @@ let emailTransporter: Transporter<SMTPTransport.SentMessageInfo> | null = null;
 export function getEmailTransporter(): Transporter<SMTPTransport.SentMessageInfo> {
 	if (!emailTransporter) {
 		emailTransporter = nodemailer.createTransport({
-			host: cfg('mail.host') as string,
-			port: cfg('mail.port') as number,
-			secure: cfg('mail.encryption') === 'ssl',
+			host: Configuration.get('mail.host') as string,
+			port: Configuration.get('mail.port') as number,
+			secure: Configuration.get('mail.encryption') === 'ssl',
 			auth: {
-				user: cfg('mail.username') as string,
-				pass: cfg('mail.password') as string,
+				user: Configuration.get('mail.username') as string,
+				pass: Configuration.get('mail.password') as string,
 			},
 		} as SMTPTransport.Options);
 	}
@@ -127,8 +127,8 @@ export async function sendEmail(
 		// Fallback to default `from` address
 		if (!from) {
 			from = {
-				name: cfg('mail.fromName') as string,
-				address: cfg('mail.fromAddress') as string,
+				name: Configuration.get('mail.fromName') as string,
+				address: Configuration.get('mail.fromAddress') as string,
 			};
 		}
 

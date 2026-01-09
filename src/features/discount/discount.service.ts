@@ -70,7 +70,7 @@ export class DiscountService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-	public findById(id: number, withDeleted: boolean) {
+	public findById(id: number, withDeleted: boolean): Promise<DiscountEntity> {
 		return this.repository
 			.createQuery()
 			.filterById(id)

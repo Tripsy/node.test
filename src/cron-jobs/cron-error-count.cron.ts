@@ -1,4 +1,4 @@
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import { createPastDate } from '@/lib/helpers';
 import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
@@ -16,7 +16,7 @@ export const cronErrorCount = async () => {
 	if (errorCount > 0) {
 		const emailTemplate = await loadEmailTemplate(
 			'cron-error-count',
-			cfg('app.language') as string,
+			Configuration.get('app.language') as string,
 		);
 
 		emailTemplate.content.vars = {
@@ -26,8 +26,8 @@ export const cronErrorCount = async () => {
 		};
 
 		await queueEmail(emailTemplate, {
-			name: cfg('app.name') as string,
-			address: cfg('app.email') as string,
+			name: Configuration.get('app.name') as string,
+			address: Configuration.get('app.email') as string,
 		});
 	}
 

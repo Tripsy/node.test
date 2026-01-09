@@ -1,5 +1,5 @@
 import { Worker } from 'bullmq';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import { type EmailQueueData, sendEmail } from '@/lib/providers/email.provider';
@@ -44,8 +44,8 @@ const emailWorker = new Worker(
 	},
 	{
 		connection: {
-			host: cfg('redis.host') as string,
-			port: cfg('redis.port') as number,
+			host: Configuration.get('redis.host') as string,
+			port: Configuration.get('redis.port') as number,
 		},
 		concurrency: 5,
 	},

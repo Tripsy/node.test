@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	UserOperatorTypeEnum,
 	UserRoleEnum,
@@ -34,11 +34,15 @@ enum OrderByEnum {
 }
 
 export class UserValidator {
-	private readonly nameMinLength = cfg('user.nameMinLength') as number;
-	private readonly passwordMinLength = cfg(
+	private readonly nameMinLength = Configuration.get(
+		'user.nameMinLength',
+	) as number;
+	private readonly passwordMinLength = Configuration.get(
 		'user.passwordMinLength',
 	) as number;
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public create() {
 		return z

@@ -1,11 +1,11 @@
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { CustomError } from '@/lib/exceptions/custom.error';
 
 export class UnauthorizedError extends CustomError {
 	constructor(message?: string) {
 		super(401);
 
-		if (cfg('app.debug')) {
+		if (Configuration.get('app.debug')) {
 			this.message = message ?? 'Unauthorized';
 		} else {
 			this.message = 'Unauthorized';

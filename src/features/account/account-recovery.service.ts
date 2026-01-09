@@ -1,6 +1,6 @@
 import type { Repository } from 'typeorm/repository/Repository';
 import { v4 as uuid } from 'uuid';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import {
 	type AccountRecoveryQuery,
@@ -34,7 +34,7 @@ export class AccountRecoveryService {
 	): Promise<[string, Date]> {
 		const ident: string = uuid();
 		const expire_at = createFutureDate(
-			cfg('user.recoveryIdentExpiresIn') as number,
+			Configuration.get('user.recoveryIdentExpiresIn') as number,
 		);
 
 		const accountRecoveryEntity = new AccountRecoveryEntity();

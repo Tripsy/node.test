@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import dataSource from '@/config/data-source.config';
+import { getDataSource } from '@/config/data-source.config';
 import { RequestContextSource, requestContext } from '@/config/request.context';
 import TemplateEntity, {
 	TemplateTypeEnum,
@@ -215,7 +215,7 @@ const templateData = [
 ];
 
 async function seedTemplates() {
-	const connection = dataSource;
+	const connection = getDataSource();
 
 	try {
 		console.log('Initializing database connection...');

@@ -1,13 +1,10 @@
-import dataSource from '@/config/data-source.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
 import AccountTokenEntity from '@/features/account/account-token.entity';
 import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
 
 export class AccountTokenQuery extends RepositoryAbstract<AccountTokenEntity> {
-	constructor(
-		repository: ReturnType<
-			typeof dataSource.getRepository<AccountTokenEntity>
-		>,
-	) {
+	constructor(repository: Repository<AccountTokenEntity>) {
 		super(repository, AccountTokenEntity.NAME);
 	}
 
@@ -19,12 +16,14 @@ export class AccountTokenQuery extends RepositoryAbstract<AccountTokenEntity> {
 }
 
 export const getAccountTokenRepository = () =>
-	dataSource.getRepository(AccountTokenEntity).extend({
-		createQuery() {
-			return new AccountTokenQuery(this);
-		},
+	getDataSource()
+		.getRepository(AccountTokenEntity)
+		.extend({
+			createQuery() {
+				return new AccountTokenQuery(this);
+			},
 
-		removeTokenById(id: number): void {
-			void this.createQuery().filterById(id).delete(false);
-		},
-	});
+			removeTokenById(id: number): void {
+				void this.createQuery().filterById(id).delete(false);
+			},
+		});

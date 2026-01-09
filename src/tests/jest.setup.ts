@@ -1,4 +1,28 @@
+import { jest } from '@jest/globals';
+import { accountEmailService } from '@/features/account/account-email.service';
 import { createFutureDate, createPastDate } from '@/lib/helpers';
+
+export function mockAccountEmailService() {
+	jest.spyOn(
+		accountEmailService,
+		'sendEmailConfirmUpdate',
+	).mockImplementation(() => Promise.resolve());
+	jest.spyOn(
+		accountEmailService,
+		'sendEmailConfirmCreate',
+	).mockImplementation(() => Promise.resolve());
+	jest.spyOn(accountEmailService, 'sendWelcomeEmail').mockImplementation(() =>
+		Promise.resolve(),
+	);
+	jest.spyOn(
+		accountEmailService,
+		'sendEmailPasswordRecover',
+	).mockImplementation(() => Promise.resolve());
+	jest.spyOn(
+		accountEmailService,
+		'sendEmailPasswordChange',
+	).mockImplementation(() => Promise.resolve());
+}
 
 export function mockPastDate(t: number = 86400): Date {
 	return createPastDate(t);
@@ -9,7 +33,7 @@ export function mockFutureDate(t: number = 86400): Date {
 }
 
 export function mockUuid(): string {
-    return '123e4567-e89b-12d3-a456-426614174000';
+	return '123e4567-e89b-12d3-a456-426614174000';
 }
 
 // import { jest } from '@jest/globals';

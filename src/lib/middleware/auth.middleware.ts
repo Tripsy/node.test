@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import { getAccountTokenRepository } from '@/features/account/account-token.repository';
 import { accountTokenService } from '@/features/account/account-token.service';
@@ -53,17 +53,24 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 			id: 0,
 			email: '',
 			name: '',
-			language: cfg('app.language') as string,
+			language: Configuration.get('app.language') as string,
 			role: 'visitor',
 			operator_type: null,
 			permissions: [],
 			activeToken: '',
 		};
 
+		// Read the token from the request
+		const token = accountTokenService.getAuthTokenFromHeaders(req);
+
+		if (!token) {
+			return next();
+		}
+
 		let activeToken: AccountTokenEntity;
 
 		try {
-			activeToken = await accountTokenService.getActiveAuthToken(req);
+			activeToken = await accountTokenService.findByToken(token);
 		} catch {
 			return next();
 		}
@@ -77,7 +84,7 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 
 		// Validate metadata (e.g., user-agent check)
 		if (
-			cfg('app.env') !== 'production' &&
+			Configuration.get('app.env') !== 'production' &&
 			(!activeToken.metadata ||
 				!compareMetaDataValue(
 					activeToken.metadata,
@@ -118,11 +125,14 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 			new Date(),
 		);
 
-		if (diffInSeconds < (cfg('user.authRefreshExpiresIn') as number)) {
+		if (
+			diffInSeconds <
+			(Configuration.get('user.authRefreshExpiresIn') as number)
+		) {
 			await getAccountTokenRepository().update(activeToken.id, {
 				used_at: new Date(),
 				expire_at: createFutureDate(
-					cfg('user.authExpiresIn') as number,
+					Configuration.get('user.authExpiresIn') as number,
 				),
 			});
 		} else {

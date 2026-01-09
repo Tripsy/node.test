@@ -4,7 +4,7 @@ import {
 } from '@/config/event.config';
 import { lang } from '@/config/i18n.setup';
 import { RequestContextSource, requestContext } from '@/config/request.context';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	LogHistoryAction,
 	type LogHistoryDestination,
@@ -14,7 +14,9 @@ import { getHistoryLogger } from '@/lib/providers/logger.provider';
 
 export function registerLogHistoryListener() {
 	eventEmitter.on('history', async (payload: LogHistoryEventPayload) => {
-		const logDestination = cfg('logging.history') as LogHistoryDestination;
+		const logDestination = Configuration.get(
+			'logging.history',
+		) as LogHistoryDestination;
 
 		const ctx = requestContext.getStore();
 

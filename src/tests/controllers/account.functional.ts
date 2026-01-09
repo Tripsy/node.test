@@ -2,37 +2,20 @@ import {jest} from '@jest/globals';
 import '../jest-controller.setup';
 import request from 'supertest';
 import app from '@/app';
-import {accountPolicy} from '@/features/account/account.policy';
 import accountRoutes from '@/features/account/account.routes';
-import {accountService} from '@/features/account/account.service';
+import {accountService,} from '@/features/account/account.service';
 import UserEntity, {UserStatusEnum} from '@/features/user/user.entity';
-import {addDebugResponse, entityDataMock, isAuthenticatedSpy, notAuthenticatedSpy,} from '@/tests/jest-controller.setup';
-import {userService} from "@/features/user/user.service";
-import {accountTokenService, type AuthValidToken} from "@/features/account/account-token.service";
-import {mockUuid} from "@/tests/jest.setup";
-
-beforeEach(() => {
-	jest.restoreAllMocks();
-});
+import {userService} from '@/features/user/user.service';
+import {addDebugResponse, entityDataMock, isAuthenticatedSpy,} from '@/tests/jest-controller.setup';
+import {accountPolicy} from "@/features/account/account.policy";
 
 const controller = 'AccountController';
 const basePath = accountRoutes.basePath;
 const mockUser = entityDataMock<UserEntity>('user');
-const mockAuthValidToken = entityDataMock<AuthValidToken>('auth-valid-token');
 
-// Mock configuration
-jest.mock('@/config/settings.config', () => ({
-    cfg: jest.fn((key: string) => {
-        const configs: Record<string, any> = {
-            'user.maxActiveSessions': 2,
-            // 'user.recoveryAttemptsInLastSixHours': 3,
-            // 'user.recoveryEnableMetadataCheck': true,
-            // 'user.emailConfirmationSecret': 'test-secret',
-        };
-        
-        return configs[key];
-    }),
-}));
+afterEach(() => {
+	jest.restoreAllMocks();
+});
 
 // describe(`${controller} - register`, () => {
 // 	const link = `${basePath}/register`;
@@ -61,6 +44,7 @@ jest.mock('@/config/settings.config', () => ({
 // 		try {
 // 			expect(response.status).toBe(201);
 // 			expect(response.body).toHaveProperty('success', true);
+// 			expect(response.body).toHaveProperty('message', 'account.success.register');
 // 			expect(response.body.data).toHaveProperty('id', mockUser.id);
 // 		} catch (error) {
 // 			addDebugResponse(response, `${controller} - register`);
@@ -106,6 +90,8 @@ jest.mock('@/config/settings.config', () => ({
 //
 //     it('should return error due max active sessions', async () => {
 //         notAuthenticatedSpy(accountPolicy);
+
+//         const mockAuthValidToken = entityDataMock<AuthValidToken>('auth-valid-token');
 //
 //         jest.spyOn(userService, 'findByEmail').mockResolvedValue({
 //             ...mockUser,
@@ -163,7 +149,7 @@ jest.mock('@/config/settings.config', () => ({
 //         }
 //     });
 // });
-
+//
 // describe(`${controller} - removeToken`, () => {
 //     const link = `${basePath}/token`;
 //
@@ -187,74 +173,420 @@ jest.mock('@/config/settings.config', () => ({
 //         }
 //     });
 // });
-
-
-// delete
-describe(`${controller} - logout`, () => {
-    const link = `${basePath}/logout`;
-
-	it('should fail if not authenticated', async () => {
-		isAuthenticatedSpy(accountPolicy);
-
-		const response = await request(app).post(link).send();
-
-		expect(response.status).toBe(403);
-	});
-
-	it('should return success', async () => {
-        notAuthenticatedSpy(accountPolicy);
-
-		jest.spyOn(accountService, 'register').mockResolvedValue(mockUser);
-
-		const response = await request(app).post(link).send({
-			name: 'John Doe',
-			email: 'john.doe@example.com',
-			password: 'Secure@123',
-			password_confirm: 'Secure@123',
-			language: 'en',
-		});
-
-		try {
-			expect(response.status).toBe(201);
-			expect(response.body).toHaveProperty('success', true);
-			expect(response.body.data).toHaveProperty('id', mockUser.id);
-		} catch (error) {
-			addDebugResponse(response, `${controller} - register`);
-
-			throw error; // Re-throw to fail the test
-		}
-	});    
-});
 //
-// // post
+// describe(`${controller} - logout`, () => {
+//     const link = `${basePath}/logout`;
+//
+// 	it('should fail if not authenticated', async () => {
+//         notAuthenticatedSpy(accountPolicy);
+//
+// 		const response = await request(app).delete(link).send();
+//
+// 		expect(response.status).toBe(401);
+// 	});
+//
+// 	it('should return success', async () => {
+//         isAuthenticatedSpy(accountPolicy);
+// const mockAuthActiveToken =
+//     entityDataMock<AccountTokenEntity>('auth-active-token');
+//
+// 		jest.spyOn(accountTokenService, 'getAuthActiveToken').mockResolvedValue(mockAuthActiveToken);
+//
+// 		const response = await request(app).delete(link).send();
+//
+// 		try {
+// 			expect(response.status).toBe(200);
+// 			expect(response.body).toHaveProperty('success', true);
+//          expect(response.body).toHaveProperty('message', 'account.success.logout');
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - logout`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+// });
+//
 // describe(`${controller} - passwordRecover`, () => {
 //     const link = `${basePath}/password-recover`;
-// });
 //
-// // post
+// 	it('should fail if authenticated', async () => {
+// 		isAuthenticatedSpy(accountPolicy);
+//
+// 		const response = await request(app).post(link).send();
+//
+// 		expect(response.status).toBe(403);
+// 	});
+//
+// 	it('should return error due to recovery attempts exceeded', async () => {
+//         notAuthenticatedSpy(accountPolicy);
+//
+//         jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+//             ...mockUser,
+//             status: UserStatusEnum.ACTIVE
+//         });
+// 		jest.spyOn(accountRecoveryService, 'countRecoveryAttempts').mockResolvedValue(5);
+//
+// 		const response = await request(app).post(link).send({
+// 			email: 'john.doe@example.com',
+// 		});
+//
+// 		try {
+// 			expect(response.status).toBe(425);
+// 			expect(response.body).toHaveProperty('success', false);
+//             expect(response.body).toHaveProperty('message', 'account.error.recovery_attempts_exceeded');
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - passwordRecover`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+//
+//     it('should return success', async () => {
+//         notAuthenticatedSpy(accountPolicy);
+//
+//         jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+//             ...mockUser,
+//             status: UserStatusEnum.ACTIVE
+//         });
+// 		jest.spyOn(accountRecoveryService, 'countRecoveryAttempts').mockResolvedValue(0);
+// 		jest.spyOn(accountRecoveryService, 'setupRecovery').mockResolvedValue([
+//             mockUuid(),
+//             mockFutureDate(28800)
+//         ]);
+//      mockAccountEmailService();
+//
+// 		const response = await request(app).post(link).send({
+// 			email: 'john.doe@example.com',
+// 		});
+//
+// 		try {
+// 			expect(response.status).toBe(200);
+// 			expect(response.body).toHaveProperty('success', true);
+//             expect(response.body).toHaveProperty('message', 'account.success.password_recover');
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - passwordRecover`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+// });
+
 // describe(`${controller} - passwordRecoverChange`, () => {
-//     const link = `${basePath}/password-recover-change/:ident`;
-// });
+// 	const link = `${basePath}/password-recover-change/${mockUuid()}`;
+//     const mockAccountRecovery =
+//         entityDataMock<AccountRecoveryEntity>('account-recovery');
 //
-// // post
+// 	it('should fail if authenticated', async () => {
+// 		isAuthenticatedSpy(accountPolicy);
+//
+// 		const response = await request(app).post(link).send();
+//
+// 		expect(response.status).toBe(403);
+// 	});
+//
+// 	it('should return error - account recovery token already used', async () => {
+// 		notAuthenticatedSpy(accountPolicy);
+//
+// 		jest.spyOn(accountRecoveryService, 'findByIdent').mockResolvedValue(
+// 			mockAccountRecovery,
+// 		);
+//
+// 		const response = await request(app).post(link).send({
+// 			password: 'Secure@123!',
+// 			password_confirm: 'Secure@123!',
+// 		});
+//
+// 		try {
+// 			expect(response.status).toBe(400);
+// 			expect(response.body).toHaveProperty('success', false);
+// 			expect(response.body).toHaveProperty(
+// 				'message',
+// 				'account.error.recovery_token_used',
+// 			);
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - passwordRecoverChange`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+//
+// 	it('should return error - account recovery token expired', async () => {
+// 		notAuthenticatedSpy(accountPolicy);
+//
+// 		jest.spyOn(accountRecoveryService, 'findByIdent').mockResolvedValue({
+// 			...mockAccountRecovery,
+// 			used_at: null,
+// 			expire_at: mockPastDate(14400),
+// 		});
+//
+// 		const response = await request(app).post(link).send({
+// 			password: 'Secure@123!',
+// 			password_confirm: 'Secure@123!',
+// 		});
+//
+// 		try {
+// 			expect(response.status).toBe(400);
+// 			expect(response.body).toHaveProperty('success', false);
+// 			expect(response.body).toHaveProperty(
+// 				'message',
+// 				'account.error.recovery_token_expired',
+// 			);
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - passwordRecoverChange`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+//
+// 	it('should return success', async () => {
+// 		notAuthenticatedSpy(accountPolicy);
+//
+//         Configuration.set('user.recoveryEnableMetadataCheck', false);
+//
+// 		jest.spyOn(accountRecoveryService, 'findByIdent').mockResolvedValue({
+// 			...mockAccountRecovery,
+// 			used_at: null,
+// 		});
+//
+//         jest.spyOn(userService, 'findById').mockResolvedValue({
+//             ...mockUser,
+//             status: UserStatusEnum.ACTIVE
+//         });
+//         jest.spyOn(accountService, 'updatePassword').mockResolvedValue(undefined);
+//         jest.spyOn(accountRecoveryService, 'update').mockResolvedValue({} as Partial<AccountRecoveryEntity>);
+//
+//         mockAccountEmailService();
+//
+// 		const response = await request(app).post(link).send({
+// 			password: 'Secure@123!',
+// 			password_confirm: 'Secure@123!',
+// 		});
+//
+// 		try {
+// 			expect(response.status).toBe(200);
+// 			expect(response.body).toHaveProperty('success', true);
+// 			expect(response.body).toHaveProperty(
+// 				'message',
+// 				'account.success.password_changed',
+// 			);
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - passwordRecoverChange`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+// });
+
 // describe(`${controller} - passwordUpdate`, () => {
 //     const link = `${basePath}/password-update`;
-// });
 //
-// // post
+//     it('should fail if not authenticated', async () => {
+//         notAuthenticatedSpy(accountPolicy);
+//
+//         const response = await request(app).post(link).send();
+//
+//         expect(response.status).toBe(401);
+//     });
+//
+//     it('should return error - password_invalid', async () => {
+//         isAuthenticatedSpy(accountPolicy);
+//
+//         jest.spyOn(accountPolicy, 'getId').mockReturnValue(mockUser.id);
+//         jest.spyOn(userService, 'findById').mockResolvedValue({
+//             ...mockUser,
+//             status: UserStatusEnum.ACTIVE
+//         });
+//         jest.spyOn(accountService, 'checkPassword').mockResolvedValue(false);
+//
+//         const response = await request(app).post(link).send({
+//             password_current: 'some_password',
+//             password_new: 'Secure@123!',
+//             password_confirm: 'Secure@123!',
+//         });
+//
+//         try {
+//             expect(response.status).toBe(400);
+//             expect(response.body).toHaveProperty('success', false);
+//         } catch (error) {
+//             addDebugResponse(response, `${controller} - passwordUpdate`);
+//
+//             throw error; // Re-throw to fail the test
+//         }
+//     });
+//
+//     it('should return success', async () => {
+//         isAuthenticatedSpy(accountPolicy);
+//
+//         jest.spyOn(accountPolicy, 'getId').mockReturnValue(mockUser.id);
+//         jest.spyOn(userService, 'findById').mockResolvedValue({
+//             ...mockUser,
+//             status: UserStatusEnum.ACTIVE
+//         });
+//         jest.spyOn(accountService, 'checkPassword').mockResolvedValue(true);
+//         jest.spyOn(accountService, 'updatePassword').mockResolvedValue(undefined);
+//         jest.spyOn(accountTokenService, 'setupAuthToken').mockResolvedValue('some_token');
+//
+//         mockAccountEmailService();
+//
+//         const response = await request(app).post(link).send({
+//             password_current: 'some_password',
+//             password_new: 'Secure@123!',
+//             password_confirm: 'Secure@123!',
+//         });
+//
+//         try {
+//             expect(response.status).toBe(200);
+//             expect(response.body).toHaveProperty('success', true);
+//             expect(response.body).toHaveProperty(
+//                 'message',
+//                 'account.success.password_updated',
+//             );
+//         } catch (error) {
+//             addDebugResponse(response, `${controller} - passwordUpdate`);
+//
+//             throw error; // Re-throw to fail the test
+//         }
+//     });
+// });
+
 // describe(`${controller} - emailConfirm`, () => {
-//     const link = `${basePath}/email-confirm/:token`;
-// });
+// 	const link = `${basePath}/email-confirm/some_token_value`;
+// 	const mockConfirmationTokenPayload =
+// 		entityDataMock<ConfirmationTokenPayload>('confirmation-token-payload');
 //
-// // post
+// 	it('should fail - confirmation_token_invalid', async () => {
+// 		const response = await request(app).post(link).send();
+//
+// 		try {
+// 			expect(response.status).toBe(400);
+// 			expect(response.body).toHaveProperty('success', false);
+// 			expect(response.body).toHaveProperty(
+// 				'message',
+// 				'account.error.confirmation_token_invalid',
+// 			);
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - emailConfirm`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+//
+// 	it('should fail - confirmation_token_not_authorized', async () => {
+// 		jest.spyOn(
+// 			accountTokenService,
+// 			'determineConfirmationTokenPayload',
+// 		).mockReturnValue(mockConfirmationTokenPayload);
+// 		jest.spyOn(userService, 'findById').mockResolvedValue({
+// 			...mockUser,
+// 			email: 'not_matching@example.com',
+// 		});
+//
+// 		const response = await request(app).post(link).send();
+//
+// 		try {
+// 			expect(response.status).toBe(400);
+// 			expect(response.body).toHaveProperty('success', false);
+// 			expect(response.body).toHaveProperty(
+// 				'message',
+// 				'account.error.confirmation_token_not_authorized',
+// 			);
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - emailConfirm`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+//
+// 	it('should return success', async () => {
+// 		jest.spyOn(
+// 			accountTokenService,
+// 			'determineConfirmationTokenPayload',
+// 		).mockReturnValue(mockConfirmationTokenPayload);
+// 		jest.spyOn(userService, 'findById').mockResolvedValue(mockUser);
+//         jest.spyOn(userService, 'findById').mockResolvedValue({
+//             ...mockUser,
+//             status: UserStatusEnum.PENDING,
+//         });
+//
+// 		const response = await request(app).post(link).send();
+//
+// 		try {
+// 			expect(response.status).toBe(200);
+// 			expect(response.body).toHaveProperty('success', true);
+// 			expect(response.body).toHaveProperty(
+// 				'message',
+// 				'account.success.email_confirmed',
+// 			);
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - emailConfirm`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+// });
+
 // describe(`${controller} - emailConfirmSend`, () => {
 //     const link = `${basePath}/email-confirm-send`;
-// });
 //
-// // post
-// describe(`${controller} - emailUpdate`, () => {
-//     const link = `${basePath}/email-update`;
+// 	it('should fail if authenticated', async () => {
+// 		isAuthenticatedSpy(accountPolicy);
+//
+// 		const response = await request(app).post(link).send();
+//
+// 		expect(response.status).toBe(403);
+// 	});
+//
+// 	it('should fail - account not found', async () => {
+// 		jest.spyOn(userService, 'findByEmail').mockResolvedValue(null);
+//
+// 		const response = await request(app).post(link).send({
+//             email: mockUser.email
+//         });
+//
+// 		try {
+// 			expect(response.status).toBe(400);
+// 			expect(response.body).toHaveProperty('success', false);
+// 			expect(response.body).toHaveProperty(
+// 				'message',
+// 				'account.error.not_found',
+// 			);
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - emailConfirmSend`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
+//
+// 	it('should return success', async () => {
+//         jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+//             ...mockUser,
+//             status: UserStatusEnum.PENDING
+//         });
+//         jest.spyOn(accountService, 'processEmailConfirmCreate').mockReturnValue(undefined);
+//
+//         const response = await request(app).post(link).send({
+//             email: mockUser.email
+//         });
+//
+// 		try {
+// 			expect(response.status).toBe(200);
+// 			expect(response.body).toHaveProperty('success', true);
+// 			expect(response.body).toHaveProperty(
+// 				'message',
+// 				'account.success.email_confirmation_sent',
+// 			);
+// 		} catch (error) {
+// 			addDebugResponse(response, `${controller} - emailConfirmSend`);
+//
+// 			throw error; // Re-throw to fail the test
+// 		}
+// 	});
 // });
+
+// post
+describe(`${controller} - emailUpdate`, () => {
+    const link = `${basePath}/email-update`;
+});
 //
 // // get
 // describe(`${controller} - meDetails`, () => {

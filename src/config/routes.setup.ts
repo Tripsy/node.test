@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { type RequestHandler, Router } from 'express';
 import { apiRateLimiter } from '@/config/rate-limit.config';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { buildSrcPath } from '@/lib/helpers';
 import metaDocumentation from '@/lib/middleware/meta-documentation.middleware';
 import { getSystemLogger } from '@/lib/providers/logger.provider';
@@ -127,7 +127,7 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 
 			router.use(apiPrefix, buildRoutes(def));
 
-			if (cfg('app.env') !== 'production') {
+			if (Configuration.get('app.env') !== 'production') {
 				pushRouteInfo(feature, def);
 			}
 		} catch {
