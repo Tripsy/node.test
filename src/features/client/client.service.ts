@@ -1,6 +1,5 @@
 import { getDataSource } from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
-import type { CategoryValidator } from '@/features/category/category.validator';
 import type ClientEntity from '@/features/client/client.entity';
 import {
 	type ClientIdentityData,

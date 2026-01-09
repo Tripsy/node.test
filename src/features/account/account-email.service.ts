@@ -115,7 +115,6 @@ export class AccountEmailService {
 			language: string;
 		},
 	): Promise<void> {
-		console.log('sendEmailPasswordChange');
 		const emailTemplate = await loadEmailTemplate(
 			'password-change',
 			user.language,

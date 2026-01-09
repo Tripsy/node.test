@@ -92,6 +92,26 @@ export function entityDataMock<E>(entity: string): E {
 				created_at: mockPastDate(28800),
 			} as UserEntity as E;
 
+        case 'account-token':
+            return {
+                id: 1,
+                user_id: 1,
+                ident: mockUuid(),
+                created_at: mockPastDate(28800),
+                used_at: mockPastDate(14400),
+                expire_at: mockFutureDate(14400),
+            } as AccountTokenEntity as E;
+
+        case 'account-recovery':
+            return {
+                id: 1,
+                user_id: 1,
+                ident: mockUuid(),
+                created_at: mockPastDate(28800),
+                used_at: mockPastDate(14400),
+                expire_at: mockFutureDate(14400),
+            } as AccountRecoveryEntity as E;
+
 		case 'auth-valid-token':
 			return {
 				ident: 'some_ident',
@@ -109,16 +129,6 @@ export function entityDataMock<E>(entity: string): E {
 				used_at: mockPastDate(14400),
 				expire_at: mockFutureDate(14400),
 			} as AccountTokenEntity as E;
-
-		case 'account-recovery':
-			return {
-				id: 1,
-				user_id: 1,
-				ident: mockUuid(),
-				created_at: mockPastDate(28800),
-				used_at: mockPastDate(14400),
-				expire_at: mockFutureDate(14400),
-			} as AccountRecoveryEntity as E;
 
 		case 'confirmation-token-payload':
 			return {

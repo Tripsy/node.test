@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 
 import { lang } from '@/config/i18n.setup';
-import ClientEntity, { ClientTypeEnum } from '@/features/client/client.entity';
+import ClientEntity from '@/features/client/client.entity';
 import { clientPolicy } from '@/features/client/client.policy';
 import {
 	type ClientService,
@@ -13,7 +13,6 @@ import {
 } from '@/features/client/client.validator';
 import { BaseController } from '@/lib/abstracts/controller.abstract';
 import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { NotFoundError } from '@/lib/exceptions';
 import asyncHandler from '@/lib/helpers/async.handler';
 import {
 	type CacheProvider,

@@ -631,10 +631,6 @@ class AccountController extends BaseController {
 			throw new BadRequestError();
 		}
 
-		// if (!isValidPassword) {
-		//     throw new UnauthorizedError(lang('account.error.not_authorized'));
-		// }
-
 		await this.userService.delete(user_id);
 
 		res.locals.output.message(lang('account.success.delete'));
