@@ -1,40 +1,37 @@
 import { jest } from '@jest/globals';
-import '../jest-controller.setup';
 import request from 'supertest';
 import app from '@/app';
 import { Configuration } from '@/config/settings.config';
 import { accountPolicy } from '@/features/account/account.policy';
 import accountRoutes from '@/features/account/account.routes';
-import {
-	accountService,
-	type ConfirmationTokenPayload,
-} from '@/features/account/account.service';
+import { accountService } from '@/features/account/account.service';
 import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import { accountRecoveryService } from '@/features/account/account-recovery.service';
-import type AccountTokenEntity from '@/features/account/account-token.entity';
+import { accountTokenService } from '@/features/account/account-token.service';
 import {
-	type AuthValidToken,
-	accountTokenService,
-} from '@/features/account/account-token.service';
-import type UserEntity from '@/features/user/user.entity';
+	accountRecoveryMock,
+	accountTokenMock,
+	authValidTokenMock,
+	confirmationTokenPayloadMock,
+} from '@/features/account/tests/account.mock';
+import { userMock } from '@/features/user/tests/user.mock';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { userService } from '@/features/user/user.service';
+import { addDebugResponse } from '@/tests/jest-controller.setup';
 import {
-	mockAccountEmailService,
 	mockFutureDate,
 	mockPastDate,
 	mockUuid,
-} from '@/tests/jest.setup';
+} from '@/tests/mocks/helpers.mock';
 import {
-	addDebugResponse,
-	entityDataMock,
 	isAuthenticatedSpy,
 	notAuthenticatedSpy,
-} from '@/tests/jest-controller.setup';
+} from '@/tests/mocks/policies.mock';
+import { mockAccountEmailService } from '@/tests/mocks/services.mock';
 
 const controller = 'AccountController';
 const basePath = accountRoutes.basePath;
-const mockUser = entityDataMock<UserEntity>('user');
+const mockUser = userMock();
 
 afterEach(() => {
 	jest.restoreAllMocks();
@@ -117,8 +114,7 @@ describe(`${controller} - login`, () => {
 	it('should return error due max active sessions', async () => {
 		notAuthenticatedSpy(accountPolicy);
 
-		const mockAuthValidToken =
-			entityDataMock<AuthValidToken>('auth-valid-token');
+		const mockAuthValidToken = authValidTokenMock();
 
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue({
 			...mockUser,
@@ -230,12 +226,19 @@ describe(`${controller} - logout`, () => {
 	it('should return success', async () => {
 		isAuthenticatedSpy(accountPolicy);
 
-        const mockAccountToken =
-            entityDataMock<AccountTokenEntity>('account-token');
+		const mockAccountToken = accountTokenMock();
 
-        jest.spyOn(accountTokenService, 'getAuthTokenFromHeaders').mockReturnValue('random_string');
-        jest.spyOn(accountTokenService, 'findByToken').mockResolvedValue(mockAccountToken);
-        jest.spyOn(accountTokenService, 'removeAccountTokenByIdent').mockResolvedValue(undefined);
+		jest.spyOn(
+			accountTokenService,
+			'getAuthTokenFromHeaders',
+		).mockReturnValue('random_string');
+		jest.spyOn(accountTokenService, 'findByToken').mockResolvedValue(
+			mockAccountToken,
+		);
+		jest.spyOn(
+			accountTokenService,
+			'removeAccountTokenByIdent',
+		).mockResolvedValue(undefined);
 
 		const response = await request(app).delete(link).send();
 
@@ -333,8 +336,7 @@ describe(`${controller} - passwordRecover`, () => {
 
 describe(`${controller} - passwordRecoverChange`, () => {
 	const link = `${basePath}/password-recover-change/${mockUuid()}`;
-	const mockAccountRecovery =
-		entityDataMock<AccountRecoveryEntity>('account-recovery');
+	const mockAccountRecovery = accountRecoveryMock();
 
 	it('should fail if authenticated', async () => {
 		isAuthenticatedSpy(accountPolicy);
@@ -519,8 +521,7 @@ describe(`${controller} - passwordUpdate`, () => {
 
 describe(`${controller} - emailConfirm`, () => {
 	const link = `${basePath}/email-confirm/some_token_value`;
-	const mockConfirmationTokenPayload =
-		entityDataMock<ConfirmationTokenPayload>('confirmation-token-payload');
+	const mockConfirmationTokenPayload = confirmationTokenPayloadMock();
 
 	it('should fail - confirmation_token_invalid', async () => {
 		const response = await request(app).post(link).send();
@@ -738,8 +739,7 @@ describe(`${controller} - meSessions`, () => {
 	it('should return success', async () => {
 		isAuthenticatedSpy(accountPolicy);
 
-		const mockAuthValidToken =
-			entityDataMock<AuthValidToken>('auth-valid-token');
+		const mockAuthValidToken = authValidTokenMock();
 
 		jest.spyOn(accountPolicy, 'getId').mockReturnValue(mockUser.id);
 		jest.spyOn(accountTokenService, 'getAuthValidTokens').mockResolvedValue(

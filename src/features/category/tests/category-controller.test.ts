@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import '../jest-controller.setup';
 import type CategoryEntity from '@/features/category/category.entity';
 import {
 	CategoryStatusEnum,
@@ -9,9 +8,9 @@ import { categoryPolicy } from '@/features/category/category.policy';
 import categoryRoutes from '@/features/category/category.routes';
 import { categoryService } from '@/features/category/category.service';
 import type { CategoryValidator } from '@/features/category/category.validator';
+import { categoryMock } from '@/features/category/tests/category.mock';
 import type { ValidatorDto } from '@/lib/helpers';
 import {
-	entityDataMock,
 	testControllerCreate,
 	testControllerDeleteSingle,
 	testControllerFind,
@@ -27,7 +26,7 @@ beforeEach(() => {
 
 const controller = 'CategoryController';
 const basePath = categoryRoutes.basePath;
-const mockEntry = entityDataMock<CategoryEntity>('category');
+const mockEntry = categoryMock();
 
 testControllerCreate<CategoryEntity, ValidatorDto<CategoryValidator, 'create'>>(
 	{

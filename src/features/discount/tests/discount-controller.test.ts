@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import '../jest-controller.setup';
 import type DiscountEntity from '@/features/discount/discount.entity';
 import {
 	DiscountReasonEnum,
@@ -10,10 +9,9 @@ import { discountPolicy } from '@/features/discount/discount.policy';
 import discountRoutes from '@/features/discount/discount.routes';
 import { discountService } from '@/features/discount/discount.service';
 import type { DiscountValidator } from '@/features/discount/discount.validator';
+import { discountMock } from '@/features/discount/tests/discount.mock';
 import type { ValidatorDto } from '@/lib/helpers';
-import { mockFutureDate, mockPastDate } from '@/tests/jest.setup';
 import {
-	entityDataMock,
 	testControllerCreate,
 	testControllerDeleteSingle,
 	testControllerFind,
@@ -21,6 +19,7 @@ import {
 	testControllerRestoreSingle,
 	testControllerUpdate,
 } from '@/tests/jest-controller.setup';
+import { mockFutureDate, mockPastDate } from '@/tests/mocks/helpers.mock';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -28,7 +27,7 @@ beforeEach(() => {
 
 const controller = 'DiscountController';
 const basePath = discountRoutes.basePath;
-const mockEntry = entityDataMock<DiscountEntity>('discount');
+const mockEntry = discountMock();
 
 testControllerCreate<DiscountEntity, ValidatorDto<DiscountValidator, 'create'>>(
 	{

@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import '../jest-controller.setup';
+import { userMock } from '@/features/user/tests/user.mock';
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
@@ -7,9 +7,7 @@ import userRoutes from '@/features/user/user.routes';
 import { userService } from '@/features/user/user.service';
 import type { UserValidator } from '@/features/user/user.validator';
 import type { ValidatorDto } from '@/lib/helpers';
-import { mockPastDate } from '@/tests/jest.setup';
 import {
-	entityDataMock,
 	testControllerCreate,
 	testControllerDeleteSingle,
 	testControllerFind,
@@ -18,6 +16,7 @@ import {
 	testControllerStatusUpdate,
 	testControllerUpdate,
 } from '@/tests/jest-controller.setup';
+import { mockPastDate } from '@/tests/mocks/helpers.mock';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -25,7 +24,7 @@ beforeEach(() => {
 
 const controller = 'UserController';
 const basePath = userRoutes.basePath;
-const mockEntry = entityDataMock<UserEntity>('user');
+const mockEntry = userMock();
 
 testControllerCreate<UserEntity, ValidatorDto<UserValidator, 'create'>>({
 	controller: controller,

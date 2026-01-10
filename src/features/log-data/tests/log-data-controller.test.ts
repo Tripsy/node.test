@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import '../jest-controller.setup';
 import type LogDataEntity from '@/features/log-data/log-data.entity';
 import {
 	LogDataCategoryEnum,
@@ -9,14 +8,14 @@ import { logDataPolicy } from '@/features/log-data/log-data.policy';
 import logDataRoutes from '@/features/log-data/log-data.routes';
 import { logDataService } from '@/features/log-data/log-data.service';
 import type { LogDataValidator } from '@/features/log-data/log-data.validator';
+import { logDataMock } from '@/features/log-data/tests/log-data.mock';
 import type { ValidatorDto } from '@/lib/helpers';
-import { mockPastDate } from '@/tests/jest.setup';
 import {
-	entityDataMock,
 	testControllerDeleteMultiple,
 	testControllerFind,
 	testControllerRead,
 } from '@/tests/jest-controller.setup';
+import { mockPastDate } from '@/tests/mocks/helpers.mock';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -24,11 +23,12 @@ beforeEach(() => {
 
 const controller = 'LogDataController';
 const basePath = logDataRoutes.basePath;
+const mockEntry = logDataMock();
 
 testControllerRead<LogDataEntity>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<LogDataEntity>('log-data'),
+	mockEntry: mockEntry,
 	policy: logDataPolicy,
 });
 
@@ -42,7 +42,7 @@ testControllerDeleteMultiple<ValidatorDto<LogDataValidator, 'delete'>>({
 testControllerFind<LogDataEntity, ValidatorDto<LogDataValidator, 'find'>>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: entityDataMock<LogDataEntity>('log-data'),
+	mockEntry: mockEntry,
 	policy: logDataPolicy,
 	service: logDataService,
 	filterData: {

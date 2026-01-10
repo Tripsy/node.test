@@ -176,14 +176,15 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. tests - do account.functional 
-2. make features as package; move tests/controllers/`feature`.functional.ts inside features/`feature`
-3. brand 
-4. images 
-5. Go on FE → category, place, brand, client
-6. Go on FE #2 → carrier, discount, 
-7. Go on FE #3 → image (multer - File upload handling)
-8. wip entities:
+1. make features as package; move tests/controllers/`feature`.functional.ts inside features/`feature`
+2. do tests for rest of controllers
+3. tests validators
+4. brand 
+5. images 
+6. Go on FE → category, place, brand, client
+7. Go on FE #2 → carrier, discount, 
+8. Go on FE #3 → image (multer - File upload handling)
+9. wip entities:
     - article
         - article-category
         - article-content
@@ -207,8 +208,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-evidence
     - term
-9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-10. Review "ideas"
+10. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+11. Review "ideas"
 
 # Ideas
 
