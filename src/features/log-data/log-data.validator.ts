@@ -5,8 +5,8 @@ import {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
 } from '@/features/log-data/log-data.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
-import { makeFindValidator, validateDate } from '@/lib/helpers';
+import { makeFindValidator, validateDate } from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',

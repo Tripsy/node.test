@@ -5,9 +5,9 @@ import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
 import { Configuration } from '@/config/settings.config';
-import { buildSrcPath } from '@/lib/helpers';
-import { cacheProvider } from '@/lib/providers/cache.provider';
-import { getSystemLogger } from '@/lib/providers/logger.provider';
+import { buildSrcPath } from '@/helpers';
+import { cacheProvider } from '@/providers/cache.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
 
 async function getNamespaces(): Promise<string[]> {
 	const featureNamespaces = await getFeatureNamespaces();
@@ -56,7 +56,7 @@ async function resolveNamespaces(): Promise<string[]> {
 	// While running tests will start failing because Redis connection is not closed
 	// So we don't use cache
 	// May be a bug, may be an issue, I didn't find a resolution
-	if (Configuration.get('app.env') === 'test') {
+	if (Configuration.isEnvironment('test')) {
 		return getNamespaces();
 	}
 
@@ -113,7 +113,7 @@ export const lang = (
 	replacements: Record<string, string> = {},
 	fallback?: string,
 ): string => {
-	if (Configuration.get('app.env') === 'test') {
+	if (Configuration.isEnvironment('test')) {
 		return key;
 	}
 

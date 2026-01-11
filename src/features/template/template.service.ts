@@ -1,4 +1,5 @@
 import { lang } from '@/config/i18n.setup';
+import { CustomError } from '@/exceptions';
 import type TemplateEntity from '@/features/template/template.entity';
 import type { TemplateTypeEnum } from '@/features/template/template.entity';
 import { getTemplateRepository } from '@/features/template/template.repository';
@@ -6,8 +7,7 @@ import {
 	paramsUpdateList,
 	type TemplateValidator,
 } from '@/features/template/template.validator';
-import { CustomError } from '@/lib/exceptions';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 
 export class TemplateService {
 	constructor(private repository: ReturnType<typeof getTemplateRepository>) {}

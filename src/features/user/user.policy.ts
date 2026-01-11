@@ -1,5 +1,5 @@
 import UserEntity from '@/features/user/user.entity';
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class UserPolicy extends PolicyAbstract {
 	constructor() {

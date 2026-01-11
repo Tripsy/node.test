@@ -2,7 +2,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import LogDataEntity from '@/features/log-data/log-data.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 	constructor(repository: Repository<LogDataEntity>) {

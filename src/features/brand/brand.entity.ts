@@ -1,6 +1,6 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import type ProductEntity from '@/features/product/product.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum BrandStatusEnum {
 	ACTIVE = 'active',

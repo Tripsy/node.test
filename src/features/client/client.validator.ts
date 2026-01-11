@@ -5,7 +5,6 @@ import {
 	ClientStatusEnum,
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -16,7 +15,8 @@ import {
 	validateEnum,
 	validateNumber,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList = [
 	'client_type',

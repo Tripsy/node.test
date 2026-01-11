@@ -5,7 +5,6 @@ import {
 	CategoryStatusEnum,
 	CategoryTypeEnum,
 } from '@/features/category/category.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -13,7 +12,8 @@ import {
 	validateLanguage,
 	validateMeta,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',

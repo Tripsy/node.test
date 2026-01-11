@@ -1,5 +1,5 @@
 import DiscountEntity from '@/features/discount/discount.entity';
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class DiscountPolicy extends PolicyAbstract {
 	constructor() {

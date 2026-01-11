@@ -1,5 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum TemplateTypeEnum {
 	PAGE = 'page',

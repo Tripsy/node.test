@@ -2,6 +2,7 @@ import type { EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
+import { BadRequestError } from '@/exceptions';
 import PlaceEntity from '@/features/place/place.entity';
 import { getPlaceRepository } from '@/features/place/place.repository';
 import {
@@ -9,8 +10,7 @@ import {
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
-import { BadRequestError } from '@/lib/exceptions';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 export class PlaceService {
 	constructor(
 		private repository: ReturnType<typeof getPlaceRepository>,

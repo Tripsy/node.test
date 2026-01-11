@@ -2,15 +2,15 @@ import type { DeepPartial, EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
+import { BadRequestError, CustomError } from '@/exceptions';
 import CategoryEntity, {
 	CategoryStatusEnum,
 } from '@/features/category/category.entity';
 import { getCategoryRepository } from '@/features/category/category.repository';
 import type { CategoryValidator } from '@/features/category/category.validator';
 import CategoryContentRepository from '@/features/category/category-content.repository';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class CategoryService {
 	constructor(

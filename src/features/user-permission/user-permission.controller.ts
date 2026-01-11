@@ -9,9 +9,9 @@ import {
 	type UserPermissionValidator,
 	userPermissionValidator,
 } from '@/features/user-permission/user-permission.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import asyncHandler from '@/lib/helpers/async.handler';
+import asyncHandler from '@/helpers/async.handler';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class UserPermissionController extends BaseController {
 	constructor(

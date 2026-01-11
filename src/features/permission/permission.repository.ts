@@ -2,7 +2,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import PermissionEntity from '@/features/permission/permission.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
 	constructor(repository: Repository<PermissionEntity>) {

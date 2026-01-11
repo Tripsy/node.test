@@ -3,7 +3,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import type { PlaceContentInput } from '@/features/place/place.entity';
 import PlaceContentEntity from '@/features/place/place-content.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class PlaceContentQuery extends RepositoryAbstract<PlaceContentEntity> {
 	constructor(repository: Repository<PlaceContentEntity>) {

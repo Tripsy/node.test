@@ -2,7 +2,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import CategoryEntity from '@/features/category/category.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class CategoryQuery extends RepositoryAbstract<CategoryEntity> {
 	constructor(repository: Repository<CategoryEntity>) {

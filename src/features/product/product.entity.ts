@@ -11,7 +11,7 @@ import type OrderProductEntity from '@/features/order/order-product.entity';
 import type ProductAttributeEntity from '@/features/product/product-attribute.entity';
 import type ProductCategoryEntity from '@/features/product/product-category.entity';
 import type ProductTagEntity from '@/features/product/product-tag.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum ProductWorkflowEnum {
 	DRAFT = 'draft', // Initial creation

@@ -9,7 +9,7 @@ import logDataRoutes from '@/features/log-data/log-data.routes';
 import { logDataService } from '@/features/log-data/log-data.service';
 import type { LogDataValidator } from '@/features/log-data/log-data.validator';
 import { logDataMock } from '@/features/log-data/tests/log-data.mock';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 import {
 	testControllerDeleteMultiple,
 	testControllerFind,

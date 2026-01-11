@@ -1,5 +1,5 @@
 import LogDataEntity from '@/features/log-data/log-data.entity';
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class LogDataPolicy extends PolicyAbstract {
 	constructor() {

@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Configuration } from '@/config/settings.config';
-import { buildSrcPath } from '@/lib/helpers';
+import { buildSrcPath } from '@/helpers';
 
 export function createDataSource(): DataSource {
 	return new DataSource({

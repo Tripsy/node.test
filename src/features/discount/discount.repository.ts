@@ -2,7 +2,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import DiscountEntity from '@/features/discount/discount.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class DiscountQuery extends RepositoryAbstract<DiscountEntity> {
 	constructor(repository: Repository<DiscountEntity>) {

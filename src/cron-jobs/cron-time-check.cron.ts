@@ -1,7 +1,7 @@
 import { getDataSource } from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
-import { createPastDate, formatDate } from '@/lib/helpers';
-import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
+import { createPastDate, formatDate } from '@/helpers';
+import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 
 // Check if there are cron jobs starting at the same time in the last 24 hours
 export const cronTimeCheck = async () => {

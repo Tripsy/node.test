@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import type { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
+import { BadRequestError, CustomError } from '@/exceptions';
 import type { AccountValidator } from '@/features/account/account.validator';
 import {
 	type AccountEmailService,
@@ -15,8 +16,7 @@ import {
 import type UserEntity from '@/features/user/user.entity';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { type UserService, userService } from '@/features/user/user.service';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
-import { createFutureDate } from '@/lib/helpers';
+import { createFutureDate } from '@/helpers';
 
 export type ConfirmationTokenPayload = {
 	user_id: number;

@@ -1,7 +1,7 @@
 import type LogHistoryEntity from '@/features/log-history/log-history.entity';
 import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
 import type { LogHistoryValidator } from '@/features/log-history/log-history.validator';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 
 export class LogHistoryService {
 	constructor(

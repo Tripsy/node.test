@@ -4,8 +4,8 @@ import type { RequestContextSource } from '@/config/request.context';
 import LogHistoryEntity, {
 	type LogHistoryAction,
 } from '@/features/log-history/log-history.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
-import { getSystemLogger } from '@/lib/providers/logger.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
 	constructor(repository: Repository<LogHistoryEntity>) {

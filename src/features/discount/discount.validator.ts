@@ -7,7 +7,6 @@ import {
 	DiscountScopeEnum,
 	DiscountTypeEnum,
 } from '@/features/discount/discount.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -16,7 +15,8 @@ import {
 	validateDate,
 	validateEnum,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList: string[] = [
 	'label',

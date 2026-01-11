@@ -1,11 +1,7 @@
 import 'dotenv/config';
 import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import type { LogHistoryDestination } from '@/features/log-history/log-history.entity';
-import {
-	getObjectValue,
-	type ObjectValue,
-	setObjectValue,
-} from '@/lib/helpers';
+import { getObjectValue, type ObjectValue, setObjectValue } from '@/helpers';
 
 type Settings = { [key: string]: ObjectValue };
 
@@ -26,8 +22,6 @@ function loadSettings(): Settings {
 			debug: process.env.APP_DEBUG === 'true',
 			url: process.env.APP_URL || 'http://node.test',
 			port: parseInt(process.env.APP_PORT || '3000', 10),
-			rootPath: process.env.ROOT_PATH || '/var/www/html',
-			srcPath: process.env.SRC_PATH || '/var/www/html/src',
 			name: process.env.APP_NAME || 'sample-node-api',
 			email: process.env.APP_EMAIL || 'hello@example.com',
 			timezone: process.env.APP_TIMEZONE || 'UTC',
@@ -35,6 +29,10 @@ function loadSettings(): Settings {
 			languageSupported: (process.env.APP_LANGUAGE_SUPPORTED || 'en')
 				.trim()
 				.split(','),
+		},
+		folder: {
+			features: '/features', // TODO
+			sharedListeners: '/shared/listeners',
 		},
 		frontend: {
 			url: process.env.FRONTEND_URL || 'http://nextjs.test',
@@ -137,6 +135,18 @@ export const Configuration = {
 		const languages = Configuration.get<string[]>('app.languageSupported');
 
 		return Array.isArray(languages) && languages.includes(language);
+	},
+
+	environment: () => {
+		return Configuration.get('app.env') as string;
+	},
+
+	isEnvironment: (value: string) => {
+		return Configuration.environment() === value;
+	},
+
+	resolveExtension: () => {
+		return Configuration.environment() === 'production' ? 'js' : 'ts';
 	},
 };
 

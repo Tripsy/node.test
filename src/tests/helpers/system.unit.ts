@@ -1,5 +1,5 @@
 import { createRequest } from 'node-mocks-http';
-import { getClientIp } from '@/lib/helpers/system.helper';
+import { getClientIp } from '@/helpers/system.helper';
 
 describe('helpers/system.helper.ts - Unit Tests', () => {
 	describe('getClientIp', () => {

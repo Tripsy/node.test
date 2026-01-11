@@ -1,6 +1,6 @@
 import { cronHistoryController } from '@/features/cron-history/cron-history.controller';
-import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
-import type { RoutesConfigType } from '@/lib/types/routing.type';
+import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/types/routing.type';
 
 export default {
 	basePath: '/cron-history',

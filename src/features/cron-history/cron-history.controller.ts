@@ -10,13 +10,10 @@ import {
 	type CronHistoryValidator,
 	cronHistoryValidator,
 } from '@/features/cron-history/cron-history.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import asyncHandler from '@/lib/helpers/async.handler';
-import {
-	type CacheProvider,
-	cacheProvider,
-} from '@/lib/providers/cache.provider';
+import asyncHandler from '@/helpers/async.handler';
+import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class CronHistoryController extends BaseController {
 	constructor(

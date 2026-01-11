@@ -5,7 +5,7 @@ import ClientEntity, {
 	type ClientIdentityData,
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class ClientQuery extends RepositoryAbstract<ClientEntity> {
 	constructor(repository: Repository<ClientEntity>) {

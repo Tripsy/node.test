@@ -1,13 +1,10 @@
-import fs from 'node:fs';
 import { type RequestHandler, Router } from 'express';
 import { apiRateLimiter } from '@/config/rate-limit.config';
 import { Configuration } from '@/config/settings.config';
-import { buildSrcPath } from '@/lib/helpers';
-import metaDocumentation from '@/lib/middleware/meta-documentation.middleware';
-import { getSystemLogger } from '@/lib/providers/logger.provider';
-import type { RoutesConfigType } from '@/lib/types/routing.type';
-
-const FEATURES_FOLDER = 'features';
+import { buildSrcPath, listDirectories } from '@/helpers';
+import metaDocumentation from '@/middleware/meta-documentation.middleware';
+import { getSystemLogger } from '@/providers/logger.provider';
+import type { RoutesConfigType } from '@/types/routing.type';
 
 type ControllerType = Record<string, RequestHandler>;
 
@@ -28,17 +25,12 @@ interface RouteInfo {
 	description?: string;
 }
 
-function getFeatureFolders() {
-	const featuresDir = buildSrcPath(FEATURES_FOLDER);
-
-	return fs
-		.readdirSync(featuresDir, { withFileTypes: true })
-		.filter((f) => f.isDirectory())
-		.map((f) => f.name);
-}
-
-function getRoutesFile(feature: string) {
-	return buildSrcPath(FEATURES_FOLDER, feature, `${feature}.routes`);
+function getRoutesFilePath(feature: string) {
+	return buildSrcPath(
+		Configuration.get('folder.features') as string,
+		feature,
+		`${feature}.routes`,
+	);
 }
 
 function buildRoutes<C>({
@@ -107,16 +99,17 @@ function pushRouteInfo(feature: string, def: FeatureRoutesModule['default']) {
 
 export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 	const router = Router();
-	const featureFolders = getFeatureFolders();
 
-	for (const feature of featureFolders) {
+	const featuresPath = buildSrcPath(
+		Configuration.get('folder.features') as string,
+	);
+	const features = listDirectories(featuresPath);
+
+	for (const feature of features) {
 		try {
-			const routesFile = getRoutesFile(feature);
-			const featureModule = (await import(
-				routesFile
-			)) as FeatureRoutesModule;
-
-			const def = featureModule.default;
+			const filePath = getRoutesFilePath(feature);
+			const module = (await import(filePath)) as FeatureRoutesModule; // TODO will this throw an error if file doesn't exist?
+			const def = module.default;
 
 			if (!def) {
 				getSystemLogger().fatal(
@@ -127,7 +120,7 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 
 			router.use(apiPrefix, buildRoutes(def));
 
-			if (Configuration.get('app.env') !== 'production') {
+			if (!Configuration.isEnvironment('production')) {
 				pushRouteInfo(feature, def);
 			}
 		} catch {

@@ -1,6 +1,13 @@
 import type { Request, Response } from 'express';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
+import {
+	BadRequestError,
+	CustomError,
+	NotAllowedError,
+	NotFoundError,
+	UnauthorizedError,
+} from '@/exceptions';
 import { accountPolicy } from '@/features/account/account.policy';
 import {
 	type AccountService,
@@ -25,21 +32,10 @@ import {
 } from '@/features/account/account-token.service';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { type UserService, userService } from '@/features/user/user.service';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import {
-	BadRequestError,
-	CustomError,
-	NotAllowedError,
-	NotFoundError,
-	UnauthorizedError,
-} from '@/lib/exceptions';
-import {
-	compareMetaDataValue,
-	createPastDate,
-	tokenMetaData,
-} from '@/lib/helpers';
-import asyncHandler from '@/lib/helpers/async.handler';
+import { compareMetaDataValue, createPastDate, tokenMetaData } from '@/helpers';
+import asyncHandler from '@/helpers/async.handler';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class AccountController extends BaseController {
 	constructor(

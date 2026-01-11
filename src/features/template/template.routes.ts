@@ -2,8 +2,8 @@ import { templateController } from '@/features/template/template.controller';
 import {
 	validateParamsWhenId,
 	validateParamsWhenString,
-} from '@/lib/middleware/validate-params.middleware';
-import type { RoutesConfigType } from '@/lib/types/routing.type';
+} from '@/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/types/routing.type';
 
 export default {
 	basePath: '/templates',

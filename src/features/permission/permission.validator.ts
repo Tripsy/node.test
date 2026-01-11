@@ -1,12 +1,8 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
-import {
-	makeFindValidator,
-	validateBoolean,
-	validateString,
-} from '@/lib/helpers';
+import { makeFindValidator, validateBoolean, validateString } from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum PermissionOrderByEnum {
 	ID = 'id',

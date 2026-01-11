@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
 import request, { type Response } from 'supertest';
 import app, { appReady, closeHandler, server } from '@/app';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { cacheProvider } from '@/lib/providers/cache.provider';
+import { cacheProvider } from '@/providers/cache.provider';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 import {
 	authorizedSpy,
 	notAuthenticatedSpy,

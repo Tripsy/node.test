@@ -1,4 +1,4 @@
-import { createFutureDate, createPastDate } from '@/lib/helpers';
+import { createFutureDate, createPastDate } from '@/helpers';
 
 export function mockPastDate(t: number = 86400): Date {
 	return createPastDate(t);

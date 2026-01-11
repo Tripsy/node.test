@@ -1,7 +1,7 @@
 import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class AccountRecoveryQuery extends RepositoryAbstract<AccountRecoveryEntity> {
 	constructor(repository: Repository<AccountRecoveryEntity>) {

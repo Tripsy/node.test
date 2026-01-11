@@ -1,4 +1,5 @@
 import { lang } from '@/config/i18n.setup';
+import { BadRequestError, CustomError } from '@/exceptions';
 import {
 	type AccountTokenService,
 	accountTokenService,
@@ -10,8 +11,7 @@ import {
 	paramsUpdateList,
 	type UserValidator,
 } from '@/features/user/user.validator';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 
 export class UserService {
 	constructor(

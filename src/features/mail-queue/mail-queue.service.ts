@@ -1,7 +1,7 @@
 import type MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import { getMailQueueRepository } from '@/features/mail-queue/mail-queue.repository';
 import type { MailQueueValidator } from '@/features/mail-queue/mail-queue.validator';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 
 export class MailQueueService {
 	constructor(

@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -11,7 +10,8 @@ import {
 	validateEnum,
 	validateLanguage,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList: string[] = [
 	'label',

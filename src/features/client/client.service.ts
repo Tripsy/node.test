@@ -1,5 +1,6 @@
 import { getDataSource } from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
+import { BadRequestError, CustomError, NotFoundError } from '@/exceptions';
 import type ClientEntity from '@/features/client/client.entity';
 import {
 	type ClientIdentityData,
@@ -11,8 +12,7 @@ import {
 	type ClientValidator,
 	paramsUpdateList,
 } from '@/features/client/client.validator';
-import { BadRequestError, CustomError, NotFoundError } from '@/lib/exceptions';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 
 export class ClientService {
 	constructor(private repository: ReturnType<typeof getClientRepository>) {}

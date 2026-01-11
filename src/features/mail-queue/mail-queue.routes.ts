@@ -1,6 +1,6 @@
 import { mailQueueController } from '@/features/mail-queue/mail-queue.controller';
-import { validateParamsWhenId } from '@/lib/middleware/validate-params.middleware';
-import type { RoutesConfigType } from '@/lib/types/routing.type';
+import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/types/routing.type';
 
 export default {
 	basePath: '/mail-queue',

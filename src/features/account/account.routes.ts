@@ -3,8 +3,8 @@ import {
 	authLoginRateLimiter,
 } from '@/config/rate-limit.config';
 import { accountController } from '@/features/account/account.controller';
-import { validateParamsWhenString } from '@/lib/middleware/validate-params.middleware';
-import type { RoutesConfigType } from '@/lib/types/routing.type';
+import { validateParamsWhenString } from '@/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/types/routing.type';
 
 export default {
 	basePath: '/account',

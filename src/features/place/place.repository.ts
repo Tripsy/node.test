@@ -2,7 +2,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import PlaceEntity, { type PlaceTypeEnum } from '@/features/place/place.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 	constructor(repository: Repository<PlaceEntity>) {

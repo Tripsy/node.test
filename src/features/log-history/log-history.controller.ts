@@ -9,9 +9,9 @@ import {
 	type LogHistoryValidator,
 	logHistoryValidator,
 } from '@/features/log-history/log-history.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import asyncHandler from '@/lib/helpers/async.handler';
+import asyncHandler from '@/helpers/async.handler';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class LogHistoryController extends BaseController {
 	constructor(

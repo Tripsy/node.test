@@ -1,6 +1,6 @@
 import { EventSubscriber } from 'typeorm';
 import PlaceEntity from '@/features/place/place.entity';
-import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
+import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 
 @EventSubscriber()
 export class PlaceSubscriber extends SubscriberAbstract<PlaceEntity> {

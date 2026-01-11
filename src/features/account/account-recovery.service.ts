@@ -7,7 +7,7 @@ import {
 	getAccountRecoveryRepository,
 } from '@/features/account/account-recovery.repository';
 import type UserEntity from '@/features/user/user.entity';
-import { createFutureDate, type TokenMetadata } from '@/lib/helpers';
+import { createFutureDate, type TokenMetadata } from '@/helpers';
 
 export class AccountRecoveryService {
 	constructor(

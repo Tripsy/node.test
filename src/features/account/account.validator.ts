@@ -1,11 +1,7 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
-import {
-	validateLanguage,
-	validateString,
-	validateStringMin,
-} from '@/lib/helpers';
+import { validateLanguage, validateString, validateStringMin } from '@/helpers';
 
 export class AccountValidator {
 	private readonly nameMinLength = Configuration.get(

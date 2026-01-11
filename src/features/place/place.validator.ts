@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
 import { PlaceTypeEnum } from '@/features/place/place.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -11,7 +10,8 @@ import {
 	validateEnum,
 	validateLanguage,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList: string[] = ['type', 'code', 'parent_id'];
 

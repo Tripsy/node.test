@@ -1,7 +1,7 @@
 import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import AccountTokenEntity from '@/features/account/account-token.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class AccountTokenQuery extends RepositoryAbstract<AccountTokenEntity> {
 	constructor(repository: Repository<AccountTokenEntity>) {

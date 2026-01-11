@@ -4,6 +4,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { v4 as uuid } from 'uuid';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
+import { BadRequestError, CustomError } from '@/exceptions';
 import type { ConfirmationTokenPayload } from '@/features/account/account.service';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import {
@@ -11,13 +12,12 @@ import {
 	getAccountTokenRepository,
 } from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
 import {
 	createFutureDate,
 	getErrorMessage,
 	getMetaDataValue,
 	tokenMetaData,
-} from '@/lib/helpers';
+} from '@/helpers';
 
 export type AuthTokenPayload = {
 	user_id: number;

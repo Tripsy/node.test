@@ -4,9 +4,9 @@ import {
 	getMetaDataValue,
 	type TokenMetadata,
 	tokenMetaData,
-} from '@/lib/helpers';
+} from '@/helpers';
 
-jest.mock('@/lib/helpers/system.helper', () => ({
+jest.mock('@/helpers/system.helper', () => ({
 	getClientIp: jest.fn(() => '192.168.1.1'),
 }));
 

@@ -6,7 +6,6 @@ import {
 	UserRoleEnum,
 	UserStatusEnum,
 } from '@/features/user/user.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -15,7 +14,8 @@ import {
 	validateDate,
 	validateLanguage,
 	validateStringMin,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList: string[] = [
 	'name',

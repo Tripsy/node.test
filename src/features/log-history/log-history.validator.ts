@@ -2,13 +2,13 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { RequestContextSource } from '@/config/request.context';
 import { Configuration } from '@/config/settings.config';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	makeFindValidator,
 	validateDate,
 	validateNumber,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',

@@ -7,7 +7,7 @@ import {
 	OneToMany,
 } from 'typeorm';
 import type PlaceContentEntity from '@/features/place/place-content.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum PlaceTypeEnum {
 	COUNTRY = 'country',

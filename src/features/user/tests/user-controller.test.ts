@@ -6,7 +6,7 @@ import { userPolicy } from '@/features/user/user.policy';
 import userRoutes from '@/features/user/user.routes';
 import { userService } from '@/features/user/user.service';
 import type { UserValidator } from '@/features/user/user.validator';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 import {
 	testControllerCreate,
 	testControllerDeleteSingle,

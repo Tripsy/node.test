@@ -6,7 +6,7 @@ import {
 } from 'typeorm';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import TemplateEntity from '@/features/template/template.entity';
-import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
+import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 
 @EventSubscriber()
 export class TemplateSubscriber extends SubscriberAbstract<TemplateEntity> {

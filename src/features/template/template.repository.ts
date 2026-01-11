@@ -2,7 +2,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import TemplateEntity from '@/features/template/template.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class TemplateQuery extends RepositoryAbstract<TemplateEntity> {
 	constructor(repository: Repository<TemplateEntity>) {

@@ -9,7 +9,10 @@ import {
 	TreeParent,
 } from 'typeorm';
 import type CategoryContentEntity from '@/features/category/category-content.entity';
-import { EntityAbstract, type PageMeta } from '@/lib/abstracts/entity.abstract';
+import {
+	EntityAbstract,
+	type PageMeta,
+} from '@/shared/abstracts/entity.abstract';
 
 export enum CategoryStatusEnum {
 	ACTIVE = 'active',

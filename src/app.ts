@@ -11,23 +11,21 @@ import qs from 'qs';
 import { v4 as uuid } from 'uuid';
 import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
+import { setupListeners } from '@/config/listeners.setup';
 import { getRoutesInfo, initRoutes } from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
-import { registerEventListeners } from '@/lib/listeners';
-import authMiddleware from '@/lib/middleware/auth.middleware';
-import { corsHandler } from '@/lib/middleware/cors-handler.middleware';
-import { errorHandler } from '@/lib/middleware/error-handler.middleware';
-import languageMiddleware from '@/lib/middleware/language.middleware';
-import { notFoundHandler } from '@/lib/middleware/not-found-handler.middleware';
-import { outputHandler } from '@/lib/middleware/output-handler.middleware';
-import { requestContextMiddleware } from '@/lib/middleware/request-context.middleware';
-import startCronJobs from '@/lib/providers/cron.provider';
-import {
-	destroyDatabase,
-	initDatabase,
-} from '@/lib/providers/database.provider';
-import { getSystemLogger, LogStream } from '@/lib/providers/logger.provider';
-import emailQueue from '@/lib/queues/email.queue';
+import { getErrorMessage } from '@/helpers';
+import authMiddleware from '@/middleware/auth.middleware';
+import { corsHandler } from '@/middleware/cors-handler.middleware';
+import { errorHandler } from '@/middleware/error-handler.middleware';
+import languageMiddleware from '@/middleware/language.middleware';
+import { notFoundHandler } from '@/middleware/not-found-handler.middleware';
+import { outputHandler } from '@/middleware/output-handler.middleware';
+import { requestContextMiddleware } from '@/middleware/request-context.middleware';
+import startCronJobs from '@/providers/cron.provider';
+import { destroyDatabase, initDatabase } from '@/providers/database.provider';
+import { getSystemLogger, LogStream } from '@/providers/logger.provider';
+import emailQueue from '@/queues/email.queue';
 
 const app: express.Application = express();
 export let server: Server | null = null;
@@ -40,7 +38,7 @@ const REQUEST_TIMEOUT = Number(process.env.REQUEST_TIMEOUT) || 30000;
 
 const appConfigCall = () => ({
 	port: Number(Configuration.get('app.port')),
-	env: Configuration.get('app.env') as string,
+	env: Configuration.environment(),
 	name: Configuration.get('app.name') as string,
 	url: Configuration.get('app.url') as string,
 });
@@ -315,7 +313,7 @@ async function initializeApp(): Promise<void> {
 		app.use(outputHandler); // Set `res.locals.output`
 
 		// Event listeners
-		registerEventListeners();
+		await setupListeners();
 
 		// Routes
 		const router = await initRoutes();
@@ -337,9 +335,9 @@ async function initializeApp(): Promise<void> {
 		isStartingUp = false;
 
 		// Start background services (non-test env only)
-		if (Configuration.get('app.env') !== 'test') {
+		if (!Configuration.isEnvironment('test')) {
 			// Email worker
-			import('@/lib/workers/email.worker').catch((error) => {
+			import('@/workers/email.worker').catch((error) => {
 				getSystemLogger().error(
 					{ err: error },
 					'Failed to start email worker',
@@ -356,7 +354,13 @@ async function initializeApp(): Promise<void> {
 		// Print startup banner
 		printStartupInfo();
 	} catch (error) {
-		getSystemLogger().fatal(error, 'Failed to initialize application');
+		const errorMsg = getErrorMessage(error);
+
+		getSystemLogger().fatal(
+			error,
+			`Failed to initialize application: ${errorMsg}`,
+		);
+
 		throw error;
 	}
 }

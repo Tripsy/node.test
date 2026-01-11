@@ -1,12 +1,12 @@
 import { lang } from '@/config/i18n.setup';
+import { CustomError } from '@/exceptions';
 import type CarrierEntity from '@/features/carrier/carrier.entity';
 import { getCarrierRepository } from '@/features/carrier/carrier.repository';
 import {
 	type CarrierValidator,
 	paramsUpdateList,
 } from '@/features/carrier/carrier.validator';
-import { CustomError } from '@/lib/exceptions';
-import type { ValidatorDto } from '@/lib/helpers';
+import type { ValidatorDto } from '@/helpers';
 
 export class CarrierService {
 	constructor(private repository: ReturnType<typeof getCarrierRepository>) {}

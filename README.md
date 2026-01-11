@@ -162,8 +162,8 @@ $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/c
 $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 
 // Import seed data
-$ pnpx tsx /var/www/html/src/database/seed-data/template.seed.ts  
-$ pnpx tsx /var/www/html/src/database/seed-data/permission.seed.ts
+$ pnpx tsx /var/www/html/src/features/templates/template.seed.ts  
+$ pnpx tsx /var/www/html/src/features/permission/permission.seed.ts
 ```
 
 # Tests
@@ -177,57 +177,51 @@ $ pnpm run test account.unit.ts --detect-open-handles
 # TODO
 
 1. make features as package; move tests/controllers/`feature`.functional.ts inside features/`feature`
-2. do tests for rest of controllers
-3. tests validators
-4. brand 
-5. images 
-6. Go on FE → category, place, brand, client
-7. Go on FE #2 → carrier, discount, 
-8. Go on FE #3 → image (multer - File upload handling)
-9. wip entities:
-    - article
-        - article-category
-        - article-content
-        - article-tag  
-        - article-track
-    - brand
-        - brand-content 
-    - image  
-      - image-content
-    - invoice
-    - order
-        - order-product
-    - order-shipping
-        - order-shipping-product
-    - payment
-    - product
-        - product-attribute
-        - product-category
-        - product-tag
-        - product-content
-    - subscription
-        - subscription-evidence
-    - term
-10. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-11. Review "ideas"
+    - move specific crons into features
+    - create separate migrations
+2. inside a cli ..have a command which runs seed if exist 
+    - create user.seed.ts - default admin user 
+3. do tests for the rest of controllers
+4. do tests for validators
+5. feature - brand 
+6. feature - images 
+7. Go on FE → category, place, brand, client
+8. Go on FE #2 → carrier, discount, 
+9. Go on FE #3 → image (multer - File upload handling)
+10. wip entities:
+     - article
+         - article-category
+         - article-content
+         - article-tag  
+         - article-track
+     - brand
+         - brand-content 
+     - image  
+       - image-content
+     - invoice
+     - order
+         - order-product
+     - order-shipping
+         - order-shipping-product
+     - payment
+     - product
+         - product-attribute
+         - product-category
+         - product-tag
+         - product-content
+     - subscription
+         - subscription-evidence
+     - term
+11. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+12. Review "ideas"
 
-# Ideas
+# Bugs & issues
 
 1. API documentation > swagger-ui-express
 2. settings saved in DB
 3. cron hanging / delaying / semaphore ?!
 4. CI/CD (once tests are working)
 5. For "Star" use category for "cars"
-
-# Bugs & issues
-
-1. Missing tests
-    - controllers
-    - validators
-    - middleware
-        - output-handler.middleware
-        - validate-params.middleware
-    - providers
 
 # Structure
 
@@ -238,11 +232,14 @@ $ pnpm run test account.unit.ts --detect-open-handles
 │   ├── cron-jobs/         # Cron job definitions
 │   ├── database/
 │   │   ├── migrations/    # TypeORM migrations
-│   │   └── seed-data/     # Seed scripts
+│   ├── exceptions/        # Custom error classes
 │   ├── features/          # Feature-based modules (DDD-style)
 │   │   ├── user/
 │   │   │   ├── locales/
 │   │   │   │   └── en.json
+│   │   │   ├── tests/
+│   │   │   │   └── user.mock.ts
+│   │   │   │   └── user-controller.test.ts
 │   │   │   ├── user.controller.ts
 │   │   │   ├── user.entity.ts
 │   │   │   ├── user.repository.ts
@@ -250,20 +247,20 @@ $ pnpm run test account.unit.ts --detect-open-handles
 │   │   │   ├── user.service.ts
 │   │   │   ├── user.subscriber.ts
 │   │   │   └── user.validator.ts
+│   │   │   └── user.seed.ts 
 │   │   └── ...            # Other features (invoice, category, etc.)
-│   ├── lib/
+│   ├── helpers/           # Utilities (date, string, object, validators, etc.)
+│   ├── middleware/        # Custom Express middlewares
+│   ├── providers/         # Infrastructure (DB, Redis, logger, email, cron)
+│   ├── queues/            # BullMQ queues
+│   ├── shared/
 │   │   ├── abstracts/     # Base / abstract classes
-│   │   ├── exceptions/    # Custom error classes
-│   │   ├── helpers/       # Utilities (date, string, object, validators, etc.)
-│   │   ├── listeners/     # Event listeners
-│   │   ├── middleware/    # Custom Express middlewares
-│   │   ├── providers/     # Infrastructure (DB, Redis, logger, email, cron)
-│   │   ├── queues/        # BullMQ queues
-│   │   ├── types/         # Global/shared TypeScript types
-│   │   └── workers/       # Background workers
-│   ├── shared/            # Shared resources (e.g. locales)
+│   │   ├── listeners/     # Core event listeners
+│   │   ├── locales/       # Shared language
 │   ├── templates/         # Email / page templates
 │   └── tests/             # Jest & Supertest tests
+│   └── types/             # Global/shared TypeScript types
+│   └── workers/           # Background workers
 ├── .env
 ├── docker-compose.yml
 ├── biome.json

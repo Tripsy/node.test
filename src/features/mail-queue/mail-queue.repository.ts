@@ -2,7 +2,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import { getDataSource } from '@/config/data-source.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import TemplateEntity from '@/features/template/template.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
 	constructor(repository: Repository<MailQueueEntity>) {

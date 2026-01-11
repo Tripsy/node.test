@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 export function notAuthenticatedSpy(policy: PolicyAbstract) {
 	jest.spyOn(policy, 'isAuthenticated').mockReturnValue(false);

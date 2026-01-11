@@ -1,12 +1,12 @@
 import type Mail from 'nodemailer/lib/mailer';
 import { EventSubscriber, type InsertEvent } from 'typeorm';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
-import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
 import {
 	type EmailQueueData,
 	prepareEmailContent,
-} from '@/lib/providers/email.provider';
-import emailQueue from '@/lib/queues/email.queue';
+} from '@/providers/email.provider';
+import emailQueue from '@/queues/email.queue';
+import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 
 @EventSubscriber()
 export class MailQueueSubscriber extends SubscriberAbstract<MailQueueEntity> {

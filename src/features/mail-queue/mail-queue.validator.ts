@@ -2,12 +2,8 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
-import {
-	makeFindValidator,
-	validateDate,
-	validateLanguage,
-} from '@/lib/helpers';
+import { makeFindValidator, validateDate, validateLanguage } from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
