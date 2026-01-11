@@ -1,5 +1,5 @@
 import CarrierEntity from '@/features/carrier/carrier.entity';
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class CarrierPolicy extends PolicyAbstract {
 	constructor() {

@@ -1,12 +1,12 @@
 import { EventSubscriber, type InsertEvent, type UpdateEvent } from 'typeorm';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	type AccountService,
 	accountService,
 } from '@/features/account/account.service';
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import UserEntity, { UserStatusEnum } from '@/features/user/user.entity';
-import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
+import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 
 @EventSubscriber()
 export class UserSubscriber extends SubscriberAbstract<UserEntity> {
@@ -34,7 +34,7 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 
 		// Set the default language
 		if (!event.entity.language) {
-			event.entity.language = cfg('app.language') as string;
+			event.entity.language = Configuration.get('app.language') as string;
 		}
 
 		event.entity.password_updated_at = new Date();

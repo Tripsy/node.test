@@ -39,5 +39,5 @@ Thumbs.db
 /logs/
 audit.json
 
-# Development files
-/temp.ts
+# Custom
+/backup

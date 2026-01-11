@@ -1,4 +1,5 @@
 import { lang } from '@/config/i18n.setup';
+import { BadRequestError, CustomError } from '@/exceptions';
 import {
 	type AccountTokenService,
 	accountTokenService,
@@ -8,11 +9,9 @@ import { UserRoleEnum, type UserStatusEnum } from '@/features/user/user.entity';
 import { getUserRepository } from '@/features/user/user.repository';
 import {
 	paramsUpdateList,
-	type UserValidatorCreateDto,
-	type UserValidatorFindDto,
-	type UserValidatorUpdateDto,
+	type UserValidator,
 } from '@/features/user/user.validator';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
+import type { ValidatorDto } from '@/helpers';
 
 export class UserService {
 	constructor(
@@ -23,7 +22,9 @@ export class UserService {
 	/**
 	 * @description Used in `create` method from controller;
 	 */
-	public async create(data: UserValidatorCreateDto): Promise<UserEntity> {
+	public async create(
+		data: ValidatorDto<UserValidator, 'create'>,
+	): Promise<UserEntity> {
 		const existingUser = await this.findByEmail(data.email, true);
 
 		if (existingUser) {
@@ -80,7 +81,7 @@ export class UserService {
 	 */
 	public async updateData(
 		id: number,
-		data: UserValidatorUpdateDto,
+		data: ValidatorDto<UserValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const entry = await this.findById(id, withDeleted);
@@ -121,7 +122,7 @@ export class UserService {
 		id: number,
 		newStatus: UserStatusEnum,
 		withDeleted: boolean,
-	): Promise<UserEntity> {
+	): Promise<void> {
 		const user = await this.findById(id, withDeleted);
 
 		if (user.status === newStatus) {
@@ -132,7 +133,7 @@ export class UserService {
 
 		user.status = newStatus;
 
-		return this.repository.save(user);
+		await this.repository.save(user);
 	}
 
 	public async delete(id: number) {
@@ -143,7 +144,7 @@ export class UserService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-	public findById(id: number, withDeleted: boolean) {
+	public findById(id: number, withDeleted: boolean): Promise<UserEntity> {
 		return this.repository
 			.createQuery()
 			.filterById(id)
@@ -173,7 +174,10 @@ export class UserService {
 		return q.first();
 	}
 
-	public findByFilter(data: UserValidatorFindDto, withDeleted: boolean) {
+	public findByFilter(
+		data: ValidatorDto<UserValidator, 'find'>,
+		withDeleted: boolean,
+	) {
 		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)

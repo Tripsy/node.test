@@ -1,12 +1,11 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	UserOperatorTypeEnum,
 	UserRoleEnum,
 	UserStatusEnum,
 } from '@/features/user/user.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -15,7 +14,8 @@ import {
 	validateDate,
 	validateLanguage,
 	validateStringMin,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList: string[] = [
 	'name',
@@ -34,11 +34,15 @@ enum OrderByEnum {
 }
 
 export class UserValidator {
-	private readonly nameMinLength = cfg('user.nameMinLength') as number;
-	private readonly passwordMinLength = cfg(
+	private readonly nameMinLength = Configuration.get(
+		'user.nameMinLength',
+	) as number;
+	private readonly passwordMinLength = Configuration.get(
 		'user.passwordMinLength',
 	) as number;
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public create() {
 		return z
@@ -278,11 +282,3 @@ export class UserValidator {
 }
 
 export const userValidator = new UserValidator();
-
-export type UserValidatorCreateDto = z.infer<
-	ReturnType<UserValidator['create']>
->;
-export type UserValidatorUpdateDto = z.infer<
-	ReturnType<UserValidator['update']>
->;
-export type UserValidatorFindDto = z.infer<ReturnType<UserValidator['find']>>;

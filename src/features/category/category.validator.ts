@@ -1,11 +1,10 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	CategoryStatusEnum,
 	CategoryTypeEnum,
 } from '@/features/category/category.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -13,7 +12,8 @@ import {
 	validateLanguage,
 	validateMeta,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -23,7 +23,9 @@ enum OrderByEnum {
 }
 
 export class CategoryValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	private categoryContentSchema() {
 		return z.object({
@@ -120,19 +122,3 @@ export class CategoryValidator {
 }
 
 export const categoryValidator = new CategoryValidator();
-
-export type CategoryValidatorCreateDto = z.infer<
-	ReturnType<CategoryValidator['create']>
->;
-export type CategoryValidatorUpdateDto = z.infer<
-	ReturnType<CategoryValidator['update']>
->;
-export type CategoryValidatorReadDto = z.infer<
-	ReturnType<CategoryValidator['read']>
->;
-export type CategoryValidatorFindDto = z.infer<
-	ReturnType<CategoryValidator['find']>
->;
-export type CategoryValidatorStatusUpdateDto = z.infer<
-	ReturnType<CategoryValidator['statusUpdate']>
->;

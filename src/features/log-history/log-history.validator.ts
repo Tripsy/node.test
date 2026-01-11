@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { RequestContextSource } from '@/config/request.context';
-import { cfg } from '@/config/settings.config';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
+import { Configuration } from '@/config/settings.config';
 import {
 	makeFindValidator,
 	validateDate,
 	validateNumber,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -18,7 +18,9 @@ enum OrderByEnum {
 }
 
 export class LogHistoryValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public delete() {
 		return z.object({
@@ -89,10 +91,3 @@ export class LogHistoryValidator {
 }
 
 export const logHistoryValidator = new LogHistoryValidator();
-
-export type LogHistoryValidatorDeleteDto = z.infer<
-	ReturnType<LogHistoryValidator['delete']>
->;
-export type LogHistoryValidatorFindDto = z.infer<
-	ReturnType<LogHistoryValidator['find']>
->;

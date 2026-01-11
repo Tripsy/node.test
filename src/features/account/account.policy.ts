@@ -1,4 +1,4 @@
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class AccountPolicy extends PolicyAbstract {
 	constructor() {

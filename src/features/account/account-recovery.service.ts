@@ -1,13 +1,13 @@
 import type { Repository } from 'typeorm/repository/Repository';
 import { v4 as uuid } from 'uuid';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import {
 	type AccountRecoveryQuery,
 	getAccountRecoveryRepository,
 } from '@/features/account/account-recovery.repository';
 import type UserEntity from '@/features/user/user.entity';
-import { createFutureDate, type TokenMetadata } from '@/lib/helpers';
+import { createFutureDate, type TokenMetadata } from '@/helpers';
 
 export class AccountRecoveryService {
 	constructor(
@@ -34,7 +34,7 @@ export class AccountRecoveryService {
 	): Promise<[string, Date]> {
 		const ident: string = uuid();
 		const expire_at = createFutureDate(
-			cfg('user.recoveryIdentExpiresIn') as number,
+			Configuration.get('user.recoveryIdentExpiresIn') as number,
 		);
 
 		const accountRecoveryEntity = new AccountRecoveryEntity();

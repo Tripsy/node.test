@@ -8,18 +8,12 @@ import {
 } from '@/features/place/place.service';
 import {
 	type PlaceValidator,
-	type PlaceValidatorCreateDto,
-	type PlaceValidatorFindDto,
-	type PlaceValidatorUpdateDto,
 	placeValidator,
 } from '@/features/place/place.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import asyncHandler from '@/lib/helpers/async.handler';
-import {
-	type CacheProvider,
-	cacheProvider,
-} from '@/lib/providers/cache.provider';
+import asyncHandler from '@/helpers/async.handler';
+import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class PlaceController extends BaseController {
 	constructor(
@@ -34,11 +28,7 @@ class PlaceController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<PlaceValidatorCreateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.placeService.create(data);
 
@@ -77,11 +67,7 @@ class PlaceController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<PlaceValidatorUpdateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.placeService.updateDataWithContent(
 			res.locals.validated.id,
@@ -118,11 +104,7 @@ class PlaceController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<PlaceValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		data.filter.language = data.filter.language ?? res.locals.language;
 

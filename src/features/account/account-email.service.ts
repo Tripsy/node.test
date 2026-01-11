@@ -1,6 +1,6 @@
 import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import type UserEntity from '@/features/user/user.entity';
-import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
+import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 
 export class AccountEmailService {
 	public async sendEmailConfirmUpdate(

@@ -1,25 +1,22 @@
 import type { EntityManager } from 'typeorm';
-import dataSource from '@/config/data-source.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
+import { CustomError } from '@/exceptions';
 import type {
 	CategoryContentInput,
 	CategoryTypeEnum,
 } from '@/features/category/category.entity';
 import CategoryContentEntity from '@/features/category/category-content.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
-import { CustomError } from '@/lib/exceptions';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class CategoryContentQuery extends RepositoryAbstract<CategoryContentEntity> {
-	constructor(
-		repository: ReturnType<
-			typeof dataSource.getRepository<CategoryContentEntity>
-		>,
-	) {
+	constructor(repository: Repository<CategoryContentEntity>) {
 		super(repository, CategoryContentEntity.NAME);
 	}
 }
 
-export const CategoryContentRepository = dataSource
+export const CategoryContentRepository = getDataSource()
 	.getRepository(CategoryContentEntity)
 	.extend({
 		createQuery() {

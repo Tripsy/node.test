@@ -8,18 +8,12 @@ import {
 } from '@/features/discount/discount.service';
 import {
 	type DiscountValidator,
-	type DiscountValidatorCreateDto,
-	type DiscountValidatorFindDto,
-	type DiscountValidatorUpdateDto,
 	discountValidator,
 } from '@/features/discount/discount.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import asyncHandler from '@/lib/helpers/async.handler';
-import {
-	type CacheProvider,
-	cacheProvider,
-} from '@/lib/providers/cache.provider';
+import asyncHandler from '@/helpers/async.handler';
+import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class DiscountController extends BaseController {
 	constructor(
@@ -33,11 +27,7 @@ class DiscountController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<DiscountValidatorCreateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.discountService.create(data);
 
@@ -72,11 +62,7 @@ class DiscountController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<DiscountValidatorUpdateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.discountService.updateData(
 			res.locals.validated.id,
@@ -113,11 +99,7 @@ class DiscountController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<DiscountValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.discountService.findByFilter(
 			data,

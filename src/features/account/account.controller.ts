@@ -1,25 +1,20 @@
 import type { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
+import {
+	BadRequestError,
+	CustomError,
+	NotAllowedError,
+	NotFoundError,
+	UnauthorizedError,
+} from '@/exceptions';
 import { accountPolicy } from '@/features/account/account.policy';
 import {
 	type AccountService,
 	accountService,
-	type ConfirmationTokenPayload,
 } from '@/features/account/account.service';
 import {
 	type AccountValidator,
-	type AccountValidatorDeleteDto,
-	type AccountValidatorEditDto,
-	type AccountValidatorEmailConfirmSendDto,
-	type AccountValidatorEmailUpdateDto,
-	type AccountValidatorLoginDto,
-	type AccountValidatorPasswordRecoverChangeDto,
-	type AccountValidatorPasswordRecoverDto,
-	type AccountValidatorPasswordUpdateDto,
-	type AccountValidatorRegisterDto,
-	type AccountValidatorRemoveTokenDto,
 	accountValidator,
 } from '@/features/account/account.validator';
 import {
@@ -37,21 +32,10 @@ import {
 } from '@/features/account/account-token.service';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { type UserService, userService } from '@/features/user/user.service';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import {
-	BadRequestError,
-	CustomError,
-	NotAllowedError,
-	NotFoundError,
-	UnauthorizedError,
-} from '@/lib/exceptions';
-import {
-	compareMetaDataValue,
-	createPastDate,
-	tokenMetaData,
-} from '@/lib/helpers';
-import asyncHandler from '@/lib/helpers/async.handler';
+import { compareMetaDataValue, createPastDate, tokenMetaData } from '@/helpers';
+import asyncHandler from '@/helpers/async.handler';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class AccountController extends BaseController {
 	constructor(
@@ -68,28 +52,20 @@ class AccountController extends BaseController {
 	public register = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.notAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorRegisterDto>(
-			this.validator.register(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.register(), req.body, res);
 
 		const entry = await this.accountService.register(data, res.locals.lang);
 
 		res.locals.output.data(entry);
 		res.locals.output.message(lang('account.success.register'));
 
-		res.json(res.locals.output);
+		res.status(201).json(res.locals.output);
 	});
 
 	public login = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.notAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorLoginDto>(
-			this.validator.login(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.login(), req.body, res);
 
 		const user = await this.userService.findByEmail(data.email, false, [
 			'id',
@@ -101,12 +77,18 @@ class AccountController extends BaseController {
 			throw new NotFoundError(lang('account.error.not_found'));
 		}
 
-		if (user.status === UserStatusEnum.PENDING) {
-			throw new CustomError(409, lang('account.error.pending_account'));
-		}
-
-		if (user.status === UserStatusEnum.INACTIVE) {
-			throw new BadRequestError(lang('account.error.not_active'));
+		if (user.status !== UserStatusEnum.ACTIVE) {
+			switch (user.status) {
+				case UserStatusEnum.PENDING:
+					throw new CustomError(
+						409,
+						lang('account.error.pending_account'),
+					);
+				case UserStatusEnum.INACTIVE:
+					throw new NotFoundError(lang('account.error.not_active'));
+				default:
+					throw new NotFoundError(lang('account.error.not_found'));
+			}
 		}
 
 		const isValidPassword: boolean =
@@ -122,9 +104,12 @@ class AccountController extends BaseController {
 		const authValidTokens: AuthValidToken[] =
 			await this.accountTokenService.getAuthValidTokens(user.id);
 
-		if (
-			authValidTokens.length >= (cfg('user.maxActiveSessions') as number)
-		) {
+		const maxActiveSessions = Math.max(
+			Configuration.get('user.maxActiveSessions') as number,
+			1,
+		); // Forced `1` as value - in case config value was set as 0 due to an error
+
+		if (authValidTokens.length >= maxActiveSessions) {
 			res.status(403); // Forbidden - client's identity is known to the server
 			res.locals.output.message(
 				lang('account.error.max_active_sessions'),
@@ -157,11 +142,7 @@ class AccountController extends BaseController {
 	 *      - From his account page the user could see all active tokens and allow removal
 	 */
 	public removeToken = asyncHandler(async (req: Request, res: Response) => {
-		const data = this.validate<AccountValidatorRemoveTokenDto>(
-			this.validator.removeToken(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.removeToken(), req.body, res);
 
 		await this.accountTokenService.removeAccountTokenByIdent(data.ident);
 
@@ -173,13 +154,24 @@ class AccountController extends BaseController {
 	public logout = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
-		const activeToken =
-			await this.accountTokenService.getActiveAuthToken(req);
+		// Read the token from the request
+		const token = accountTokenService.getAuthTokenFromHeaders(req);
 
-		if (activeToken) {
-			await this.accountTokenService.removeAccountTokenByIdent(
-				activeToken.ident,
-			);
+		if (!token) {
+			throw new BadRequestError(lang('account.error.not_logged_in'));
+		}
+
+		try {
+			const activeToken =
+				await this.accountTokenService.findByToken(token);
+
+			if (activeToken) {
+				await this.accountTokenService.removeAccountTokenByIdent(
+					activeToken.ident,
+				);
+			}
+		} catch {
+			throw new BadRequestError(lang('account.error.not_logged_in'));
 		}
 
 		res.locals.output.message(lang('account.success.logout'));
@@ -191,7 +183,7 @@ class AccountController extends BaseController {
 		async (req: Request, res: Response) => {
 			this.policy.notAuth(res.locals.auth);
 
-			const data = this.validate<AccountValidatorPasswordRecoverDto>(
+			const data = this.validate(
 				this.validator.passwordRecover(),
 				req.body,
 				res,
@@ -221,7 +213,9 @@ class AccountController extends BaseController {
 
 			if (
 				countRecoveryAttempts >=
-				(cfg('user.recoveryAttemptsInLastSixHours') as number)
+				(Configuration.get(
+					'user.recoveryAttemptsInLastSixHours',
+				) as number)
 			) {
 				throw new CustomError(
 					425,
@@ -254,15 +248,14 @@ class AccountController extends BaseController {
 		async (req: Request, res: Response) => {
 			this.policy.notAuth(res.locals.auth);
 
-			const data =
-				this.validate<AccountValidatorPasswordRecoverChangeDto>(
-					this.validator.passwordRecoverChange(),
-					req.body,
-					res,
-				);
+			const data = this.validate(
+				this.validator.passwordRecoverChange(),
+				req.body,
+				res,
+			);
 
 			const recovery = await this.accountRecoveryService.findByIdent(
-				res.locals.validate.ident,
+				res.locals.validated.ident,
 			);
 
 			if (!recovery) {
@@ -283,7 +276,7 @@ class AccountController extends BaseController {
 				);
 			}
 
-			if (cfg('user.recoveryEnableMetadataCheck')) {
+			if (Configuration.get('user.recoveryEnableMetadataCheck')) {
 				// Validate metadata (e.g., user-agent check)
 				if (
 					!recovery.metadata ||
@@ -336,7 +329,7 @@ class AccountController extends BaseController {
 		async (req: Request, res: Response) => {
 			this.policy.requiredAuth(res.locals.auth);
 
-			const data = this.validate<AccountValidatorPasswordUpdateDto>(
+			const data = this.validate(
 				this.validator.passwordUpdate(),
 				req.body,
 				res,
@@ -365,7 +358,7 @@ class AccountController extends BaseController {
 					},
 				]);
 
-				throw new UnauthorizedError();
+				throw new BadRequestError();
 			}
 
 			// Update user password and remove all account tokens
@@ -395,34 +388,27 @@ class AccountController extends BaseController {
 		const token = decodeURIComponent(res.locals.validated.token);
 
 		// Verify JWT and extract payload
-		let payload: ConfirmationTokenPayload;
+		const confirmationTokenPayload =
+			accountTokenService.determineConfirmationTokenPayload(token);
 
-		try {
-			payload = jwt.verify(
-				token,
-				cfg('user.emailConfirmationSecret') as string,
-			) as ConfirmationTokenPayload;
-		} catch {
-			throw new BadRequestError(
-				lang('account.error.confirmation_token_invalid'),
-			);
-		}
-
-		const user = await this.userService.findById(payload.user_id, false);
+		const user = await this.userService.findById(
+			confirmationTokenPayload.user_id,
+			false,
+		);
 
 		if (!user) {
 			throw new NotFoundError(lang('account.error.not_found'));
 		}
 
-		if (user.email !== payload.user_email) {
+		if (user.email !== confirmationTokenPayload.user_email) {
 			throw new BadRequestError(
-				lang('account.error.confirmation_token_invalid'),
+				lang('account.error.confirmation_token_not_authorized'),
 			);
 		}
 
-		if (payload.user_email_new) {
+		if (confirmationTokenPayload.user_email_new) {
 			// Confirm procedure for email update
-			user.email = payload.user_email_new;
+			user.email = confirmationTokenPayload.user_email_new;
 			user.email_verified_at = new Date();
 
 			await this.userService.update({
@@ -466,7 +452,7 @@ class AccountController extends BaseController {
 		async (req: Request, res: Response) => {
 			this.policy.notAuth(res.locals.auth);
 
-			const data = this.validate<AccountValidatorEmailConfirmSendDto>(
+			const data = this.validate(
 				this.validator.emailConfirmSend(),
 				req.body,
 				res,
@@ -481,7 +467,7 @@ class AccountController extends BaseController {
 			]);
 
 			if (!user) {
-				throw new NotFoundError(lang('account.error.not_found'));
+				throw new BadRequestError(lang('account.error.not_found'));
 			}
 
 			if (user.status !== UserStatusEnum.PENDING) {
@@ -501,11 +487,7 @@ class AccountController extends BaseController {
 	public emailUpdate = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorEmailUpdateDto>(
-			this.validator.emailUpdate(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.emailUpdate(), req.body, res);
 
 		const existingUser = await this.userService.findByEmail(
 			data.email_new,
@@ -547,7 +529,7 @@ class AccountController extends BaseController {
 		res.json(res.locals.output);
 	});
 
-	public me = asyncHandler(async (_req: Request, res: Response) => {
+	public meDetails = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
 		res.locals.output.data(res.locals.auth);
@@ -558,7 +540,7 @@ class AccountController extends BaseController {
 	/**
 	 * Returns a list of all active sessions for the current user
 	 */
-	public sessions = asyncHandler(async (_req: Request, res: Response) => {
+	public meSessions = asyncHandler(async (_req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
 		const user_id = this.policy.getId(res.locals.auth);
@@ -582,14 +564,10 @@ class AccountController extends BaseController {
 		res.json(res.locals.output);
 	});
 
-	public edit = asyncHandler(async (req: Request, res: Response) => {
+	public meEdit = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorEditDto>(
-			this.validator.edit(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.meEdit(), req.body, res);
 
 		const user_id = this.policy.getId(res.locals.auth);
 
@@ -614,14 +592,10 @@ class AccountController extends BaseController {
 		res.json(res.locals.output);
 	});
 
-	public delete = asyncHandler(async (req: Request, res: Response) => {
+	public meDelete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.requiredAuth(res.locals.auth);
 
-		const data = this.validate<AccountValidatorDeleteDto>(
-			this.validator.delete(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.meDelete(), req.body, res);
 
 		const user_id = this.policy.getId(res.locals.auth);
 
@@ -650,7 +624,7 @@ class AccountController extends BaseController {
 				},
 			]);
 
-			throw new UnauthorizedError();
+			throw new BadRequestError();
 		}
 
 		await this.userService.delete(user_id);

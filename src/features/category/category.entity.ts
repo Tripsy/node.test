@@ -9,7 +9,10 @@ import {
 	TreeParent,
 } from 'typeorm';
 import type CategoryContentEntity from '@/features/category/category-content.entity';
-import { EntityAbstract, type PageMeta } from '@/lib/abstracts/entity.abstract';
+import {
+	EntityAbstract,
+	type PageMeta,
+} from '@/shared/abstracts/entity.abstract';
 
 export enum CategoryStatusEnum {
 	ACTIVE = 'active',
@@ -80,7 +83,7 @@ export default class CategoryEntity extends EntityAbstract {
 		nullable: true,
 		comment: 'Reserved column for future use',
 	})
-	details!: Record<string, string | number | boolean>;
+	details?: Record<string, string | number | boolean>;
 
 	// RELATIONS
 	@OneToMany(

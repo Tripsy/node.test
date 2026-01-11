@@ -1,5 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract, type PageMeta } from '@/lib/abstracts/entity.abstract';
+import {
+	EntityAbstract,
+	type PageMeta,
+} from '@/shared/abstracts/entity.abstract';
 import type CategoryEntity from './category.entity';
 import { CategoryTypeEnum } from './category.entity';
 

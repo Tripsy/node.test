@@ -1,5 +1,5 @@
 import ClientEntity from '@/features/client/client.entity';
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class ClientPolicy extends PolicyAbstract {
 	constructor() {

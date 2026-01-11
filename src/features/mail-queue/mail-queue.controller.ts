@@ -10,17 +10,12 @@ import {
 } from '@/features/mail-queue/mail-queue.service';
 import {
 	type MailQueueValidator,
-	type MailQueueValidatorDeleteDto,
-	type MailQueueValidatorFindDto,
 	mailQueueValidator,
 } from '@/features/mail-queue/mail-queue.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import asyncHandler from '@/lib/helpers/async.handler';
-import {
-	type CacheProvider,
-	cacheProvider,
-} from '@/lib/providers/cache.provider';
+import asyncHandler from '@/helpers/async.handler';
+import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class MailQueueController extends BaseController {
 	constructor(
@@ -54,11 +49,7 @@ class MailQueueController extends BaseController {
 	public delete = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canDelete(res.locals.auth);
 
-		const data = this.validate<MailQueueValidatorDeleteDto>(
-			this.validator.delete(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.delete(), req.body, res);
 
 		const countDelete = await this.mailQueueService.delete(data);
 
@@ -82,11 +73,7 @@ class MailQueueController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<MailQueueValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.mailQueueService.findByFilter(data);
 

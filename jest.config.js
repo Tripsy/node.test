@@ -141,7 +141,7 @@ const config = {
 	// runner: "jest-runner",
 
 	// The paths to modules that run some code to configure or set up the testing environment before each test
-	// setupFiles: [],
+	// setupFiles: ['<rootDir>/src/tests/jest.preload.ts'],
 
 	// A list of paths to modules that run some code to configure or set up the testing framework before each test
 	setupFilesAfterEnv: ['<rootDir>/src/tests/jest.setup.ts'],
@@ -163,7 +163,10 @@ const config = {
 	// testLocationInResults: false,
 
 	// The glob patterns Jest uses to detect test files
-	testMatch: ['<rootDir>/src/tests/**/*.(unit|integration|functional).ts'],
+	testMatch: [
+		'<rootDir>/src/tests/**/*.test.ts',
+		'<rootDir>/src/features/**/tests/*.test.ts',
+	],
 
 	// An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
 	testPathIgnorePatterns: ['/node_modules/'],

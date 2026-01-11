@@ -1,7 +1,7 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
-import { createPastDate, formatDate } from '@/lib/helpers';
-import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
+import { createPastDate, formatDate } from '@/helpers';
+import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 
 // Check if there are cron jobs starting at the same time in the last 24 hours
 export const cronTimeCheck = async () => {
@@ -44,7 +44,7 @@ export const cronTimeCheck = async () => {
 		};
 	} = {};
 
-	const entries = await dataSource.query(querySql, queryParameters);
+	const entries = await getDataSource().query(querySql, queryParameters);
 
 	if (entries.length > 0) {
 		entries.forEach(
@@ -67,7 +67,7 @@ export const cronTimeCheck = async () => {
 
 		const emailTemplate = await loadEmailTemplate(
 			'cron-time-check',
-			cfg('app.language') as string,
+			Configuration.get('app.language') as string,
 		);
 
 		emailTemplate.content.vars = {
@@ -77,8 +77,8 @@ export const cronTimeCheck = async () => {
 		};
 
 		await queueEmail(emailTemplate, {
-			name: cfg('app.name') as string,
-			address: cfg('app.email') as string,
+			name: Configuration.get('app.name') as string,
+			address: Configuration.get('app.email') as string,
 		});
 	}
 

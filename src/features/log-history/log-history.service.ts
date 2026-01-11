@@ -1,15 +1,14 @@
 import type LogHistoryEntity from '@/features/log-history/log-history.entity';
 import { getLogHistoryRepository } from '@/features/log-history/log-history.repository';
-import type {
-	LogHistoryValidatorDeleteDto,
-	LogHistoryValidatorFindDto,
-} from '@/features/log-history/log-history.validator';
+import type { LogHistoryValidator } from '@/features/log-history/log-history.validator';
+import type { ValidatorDto } from '@/helpers';
+
 export class LogHistoryService {
 	constructor(
 		private repository: ReturnType<typeof getLogHistoryRepository>,
 	) {}
 
-	public async delete(data: LogHistoryValidatorDeleteDto) {
+	public async delete(data: ValidatorDto<LogHistoryValidator, 'delete'>) {
 		return await this.repository
 			.createQuery()
 			.filterBy('id', data.ids, 'IN')
@@ -24,7 +23,7 @@ export class LogHistoryService {
 			.firstOrFail();
 	}
 
-	public findByFilter(data: LogHistoryValidatorFindDto) {
+	public findByFilter(data: ValidatorDto<LogHistoryValidator, 'find'>) {
 		return this.repository
 			.createQuery()
 			.join('log_history.user', 'user', 'LEFT')

@@ -3,8 +3,8 @@ import {
 	authLoginRateLimiter,
 } from '@/config/rate-limit.config';
 import { accountController } from '@/features/account/account.controller';
-import { validateParamsWhenString } from '@/lib/middleware/validate-params.middleware';
-import type { RoutesConfigType } from '@/lib/types/routing.type';
+import { validateParamsWhenString } from '@/middleware/validate-params.middleware';
+import type { RoutesConfigType } from '@/types/routing.type';
 
 export default {
 	basePath: '/account',
@@ -67,25 +67,25 @@ export default {
 			method: 'post',
 			action: 'emailUpdate',
 		},
-		me: {
+		'me-details': {
 			path: '/me',
 			method: 'get',
-			action: 'me',
+			action: 'meDetails',
 		},
-		sessions: {
+		'me-sessions': {
 			path: '/me/sessions',
 			method: 'get',
-			action: 'sessions',
+			action: 'meSessions',
 		},
-		edit: {
+		'me-edit': {
 			path: '/me/edit',
 			method: 'post',
-			action: 'edit',
+			action: 'meEdit',
 		},
-		delete: {
+		'me-delete': {
 			path: '/me/delete',
 			method: 'delete',
-			action: 'delete',
+			action: 'meDelete',
 		},
 	} as RoutesConfigType<typeof accountController>,
 };

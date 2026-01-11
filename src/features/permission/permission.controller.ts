@@ -8,17 +8,12 @@ import {
 } from '@/features/permission/permission.service';
 import {
 	type PermissionValidator,
-	type PermissionValidatorFindDto,
-	type PermissionValidatorManageDto,
 	permissionValidator,
 } from '@/features/permission/permission.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import asyncHandler from '@/lib/helpers/async.handler';
-import {
-	type CacheProvider,
-	cacheProvider,
-} from '@/lib/providers/cache.provider';
+import asyncHandler from '@/helpers/async.handler';
+import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class PermissionController extends BaseController {
 	constructor(
@@ -33,11 +28,7 @@ class PermissionController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<PermissionValidatorManageDto>(
-			this.validator.manage(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.manage(), req.body, res);
 
 		const createResult = await this.permissionService.create(
 			this.policy.allowDeleted(res.locals.auth),
@@ -80,11 +71,7 @@ class PermissionController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<PermissionValidatorManageDto>(
-			this.validator.manage(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.manage(), req.body, res);
 
 		const entry = await this.permissionService.updateData(
 			res.locals.validated.id,
@@ -120,11 +107,7 @@ class PermissionController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<PermissionValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.permissionService.findByFilter(
 			data,

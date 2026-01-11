@@ -1,6 +1,6 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import type OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 const ENTITY_TABLE_NAME = 'carrier';
 

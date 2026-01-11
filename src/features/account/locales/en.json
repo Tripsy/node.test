@@ -11,9 +11,11 @@
 		"recovery_token_used": "Recovery token already used",
 		"recovery_token_not_authorized": "Recovery token not authorized",
 		"confirmation_token_invalid": "Invalid confirmation token",
+		"confirmation_token_not_authorized": "Confirmation token not authorized",
 		"email_same": "This email is already in use",
 		"email_already_used": "Email already used by another account",
-		"too_many_login_attempts": "Too many failed login attempts. Please try again later."
+		"too_many_login_attempts": "Too many failed login attempts. Please try again later.",
+		"not_logged_in": "Not logged in"
 	},
 	"success": {
 		"register": "Account registered successfully",

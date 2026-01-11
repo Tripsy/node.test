@@ -1,15 +1,13 @@
 import type CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
-import type {
-	CronHistoryValidatorDeleteDto,
-	CronHistoryValidatorFindDto,
-} from '@/features/cron-history/cron-history.validator';
+import type { CronHistoryValidator } from '@/features/cron-history/cron-history.validator';
+import type { ValidatorDto } from '@/helpers';
 export class CronHistoryService {
 	constructor(
 		private repository: ReturnType<typeof getCronHistoryRepository>,
 	) {}
 
-	public async delete(data: CronHistoryValidatorDeleteDto) {
+	public async delete(data: ValidatorDto<CronHistoryValidator, 'delete'>) {
 		return await this.repository
 			.createQuery()
 			.filterBy('id', data.ids, 'IN')
@@ -20,7 +18,7 @@ export class CronHistoryService {
 		return this.repository.createQuery().filterById(id).firstOrFail();
 	}
 
-	public findByFilter(data: CronHistoryValidatorFindDto) {
+	public findByFilter(data: ValidatorDto<CronHistoryValidator, 'find'>) {
 		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)

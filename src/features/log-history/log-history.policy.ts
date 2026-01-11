@@ -1,5 +1,5 @@
 import LogHistoryEntity from '@/features/log-history/log-history.entity';
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class LogHistoryPolicy extends PolicyAbstract {
 	constructor() {

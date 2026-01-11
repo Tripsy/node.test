@@ -1,13 +1,9 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
-import {
-	makeFindValidator,
-	validateDate,
-	validateLanguage,
-} from '@/lib/helpers';
+import { makeFindValidator, validateDate, validateLanguage } from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -16,8 +12,12 @@ enum OrderByEnum {
 }
 
 export class MailQueueValidator {
-	private readonly termMinLength = cfg('filter.termMinLength') as number;
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly termMinLength = Configuration.get(
+		'filter.termMinLength',
+	) as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public delete() {
 		return z.object({
@@ -100,10 +100,3 @@ export class MailQueueValidator {
 }
 
 export const mailQueueValidator = new MailQueueValidator();
-
-export type MailQueueValidatorDeleteDto = z.infer<
-	ReturnType<MailQueueValidator['delete']>
->;
-export type MailQueueValidatorFindDto = z.infer<
-	ReturnType<MailQueueValidator['find']>
->;

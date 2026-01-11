@@ -1,8 +1,10 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import type { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
-import type { AccountValidatorRegisterDto } from '@/features/account/account.validator';
+import { Configuration } from '@/config/settings.config';
+import { BadRequestError, CustomError } from '@/exceptions';
+import type { AccountValidator } from '@/features/account/account.validator';
 import {
 	type AccountEmailService,
 	accountEmailService,
@@ -14,8 +16,7 @@ import {
 import type UserEntity from '@/features/user/user.entity';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { type UserService, userService } from '@/features/user/user.service';
-import { BadRequestError, CustomError } from '@/lib/exceptions';
-import { createFutureDate } from '@/lib/helpers';
+import { createFutureDate } from '@/helpers';
 
 export type ConfirmationTokenPayload = {
 	user_id: number;
@@ -67,7 +68,7 @@ export class AccountService {
 	}
 
 	public async register(
-		data: AccountValidatorRegisterDto,
+		data: z.infer<ReturnType<AccountValidator['register']>>,
 		language: string,
 	): Promise<UserEntity> {
 		const existingUser = await this.userService.findByEmail(
@@ -128,15 +129,18 @@ export class AccountService {
 
 		const token = jwt.sign(
 			payload,
-			cfg('user.emailConfirmationSecret') as string,
+			Configuration.get('user.emailConfirmationSecret') as string,
 			{
 				expiresIn:
-					(cfg('user.emailConfirmationExpiresIn') as number) * 86400,
+					(Configuration.get(
+						'user.emailConfirmationExpiresIn',
+					) as number) * 86400,
 			},
 		);
 
 		const expire_at = createFutureDate(
-			(cfg('user.emailConfirmationExpiresIn') as number) * 86400,
+			(Configuration.get('user.emailConfirmationExpiresIn') as number) *
+				86400,
 		);
 
 		return { token, expire_at };

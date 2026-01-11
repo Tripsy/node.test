@@ -1,11 +1,9 @@
 import { lang } from '@/config/i18n.setup';
+import { CustomError } from '@/exceptions';
 import type PermissionEntity from '@/features/permission/permission.entity';
 import { getPermissionRepository } from '@/features/permission/permission.repository';
-import type {
-	PermissionValidatorFindDto,
-	PermissionValidatorManageDto,
-} from '@/features/permission/permission.validator';
-import { CustomError } from '@/lib/exceptions';
+import type { PermissionValidator } from '@/features/permission/permission.validator';
+import type { ValidatorDto } from '@/helpers';
 
 type PermissionCreateResult = {
 	permission: PermissionEntity;
@@ -22,7 +20,7 @@ export class PermissionService {
 	 */
 	public async create(
 		withDeleted: boolean,
-		data: PermissionValidatorManageDto,
+		data: ValidatorDto<PermissionValidator, 'manage'>,
 	): Promise<PermissionCreateResult> {
 		const existingPermission = await this.checkIfExist(
 			data.entity,
@@ -72,7 +70,7 @@ export class PermissionService {
 	 */
 	public async updateData(
 		id: number,
-		data: PermissionValidatorManageDto,
+		data: ValidatorDto<PermissionValidator, 'manage'>,
 		_withDeleted: boolean = true,
 	) {
 		const existingPermission = await this.checkIfExist(
@@ -108,7 +106,10 @@ export class PermissionService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-	public findById(id: number, withDeleted: boolean) {
+	public findById(
+		id: number,
+		withDeleted: boolean,
+	): Promise<PermissionEntity> {
 		return this.repository
 			.createQuery()
 			.filterById(id)
@@ -141,7 +142,7 @@ export class PermissionService {
 	}
 
 	public findByFilter(
-		data: PermissionValidatorFindDto,
+		data: ValidatorDto<PermissionValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

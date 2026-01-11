@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
-import dataSource from '@/config/data-source.config';
+
 import { lang } from '@/config/i18n.setup';
-import ClientEntity, { ClientTypeEnum } from '@/features/client/client.entity';
+import ClientEntity from '@/features/client/client.entity';
 import { clientPolicy } from '@/features/client/client.policy';
 import {
 	type ClientService,
@@ -9,19 +9,12 @@ import {
 } from '@/features/client/client.service';
 import {
 	type ClientValidator,
-	type ClientValidatorCreateDto,
-	type ClientValidatorFindDto,
-	type ClientValidatorUpdateDto,
 	clientValidator,
 } from '@/features/client/client.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import { NotFoundError } from '@/lib/exceptions';
-import asyncHandler from '@/lib/helpers/async.handler';
-import {
-	type CacheProvider,
-	cacheProvider,
-} from '@/lib/providers/cache.provider';
+import asyncHandler from '@/helpers/async.handler';
+import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class ClientController extends BaseController {
 	constructor(
@@ -35,11 +28,7 @@ class ClientController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<ClientValidatorCreateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.clientService.create(data);
 
@@ -58,62 +47,15 @@ class ClientController extends BaseController {
 			'read',
 		);
 
-		const client = await this.cache.get(cacheKey, async () => {
-			const result = await dataSource
-				.createQueryBuilder()
-				.select([
-					'c.*',
-					'pcoCountry.name AS address_country',
-					'preRegion.name AS address_region',
-					'pciCity.name AS address_city',
-				])
-				.from('client', 'c')
-				// Address country
-				.leftJoin('place', 'pco', 'pco.id = c.address_country')
-				.leftJoin(
-					'place_content',
-					'pcoCountry',
-					'pcoCountry.place_id = pco.id AND pcoCountry.language = :language',
-					{ language: res.locals.lang },
-				)
-				// Address region
-				.leftJoin('place', 'pre', 'pre.id = c.address_region')
-				.leftJoin(
-					'place_content',
-					'preRegion',
-					'preRegion.place_id = pre.id AND preRegion.language = :language',
-					{ language: res.locals.lang },
-				)
-				// Address city
-				.leftJoin('place', 'pci', 'pci.id = c.address_city')
-				.leftJoin(
-					'place_content',
-					'pciCity',
-					'pciCity.place_id = pci.id AND pciCity.language = :language',
-					{ language: res.locals.lang },
-				)
-				.where('c.id = :id', { id: res.locals.id })
-				.getRawOne();
+		const entry = await this.cache.get(cacheKey, async () =>
+			this.clientService.getDataById(
+				res.locals.validated.id,
+				res.locals.lang,
+				this.policy.allowDeleted(res.locals.auth),
+			),
+		);
 
-			if (!result) {
-				throw new NotFoundError(lang('client.error.not_found'));
-			}
-
-			if (result.client_type === ClientTypeEnum.COMPANY) {
-				delete result.person_name;
-				delete result.person_cnp;
-
-				return result;
-			} else {
-				delete result.company_name;
-				delete result.company_cui;
-				delete result.company_reg_com;
-
-				return result;
-			}
-		});
-
-		res.locals.output.data(client);
+		res.locals.output.data(entry);
 		res.locals.output.meta(this.cache.isCached, 'isCached');
 
 		res.json(res.locals.output);
@@ -127,7 +69,7 @@ class ClientController extends BaseController {
 			this.policy.allowDeleted(res.locals.auth),
 		);
 
-		const data = await this.validateAsync<ClientValidatorUpdateDto>(
+		const data = await this.validateAsync(
 			this.validator.update(),
 			{
 				client_type: req.body.client_type ?? client.client_type,
@@ -170,11 +112,7 @@ class ClientController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<ClientValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		const [entries, total] = await this.clientService.findByFilter(
 			data,

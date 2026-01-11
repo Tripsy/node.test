@@ -1,6 +1,6 @@
 import { EventSubscriber } from 'typeorm';
 import PermissionEntity from '@/features/permission/permission.entity';
-import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
+import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 
 @EventSubscriber()
 export class PermissionSubscriber extends SubscriberAbstract<PermissionEntity> {

@@ -1,7 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type OrderEntity from '@/features/order/order.entity';
 import type UserEntity from '@/features/user/user.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum SubscriptionStatusEnum {
 	ACTIVE = 'active',

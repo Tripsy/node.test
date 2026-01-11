@@ -1,12 +1,11 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
 import UserEntity from '@/features/user/user.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class UserQuery extends RepositoryAbstract<UserEntity> {
-	constructor(
-		repository: ReturnType<typeof dataSource.getRepository<UserEntity>>,
-	) {
+	constructor(repository: Repository<UserEntity>) {
 		super(repository, UserEntity.NAME);
 	}
 
@@ -24,7 +23,10 @@ export class UserQuery extends RepositoryAbstract<UserEntity> {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
 				this.filterBy('id', Number(term));
 			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
+				if (
+					term.length >
+					(Configuration.get('filter.termMinLength') as number)
+				) {
 					this.filterAny([
 						{
 							column: 'name',
@@ -46,8 +48,10 @@ export class UserQuery extends RepositoryAbstract<UserEntity> {
 }
 
 export const getUserRepository = () =>
-	dataSource.getRepository(UserEntity).extend({
-		createQuery() {
-			return new UserQuery(this);
-		},
-	});
+	getDataSource()
+		.getRepository(UserEntity)
+		.extend({
+			createQuery() {
+				return new UserQuery(this);
+			},
+		});

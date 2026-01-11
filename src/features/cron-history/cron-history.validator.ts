@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
-import { makeFindValidator, validateDate } from '@/lib/helpers';
+import { makeFindValidator, validateDate } from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -12,7 +12,9 @@ enum OrderByEnum {
 }
 
 export class CronHistoryValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public delete() {
 		return z.object({
@@ -76,10 +78,3 @@ export class CronHistoryValidator {
 }
 
 export const cronHistoryValidator = new CronHistoryValidator();
-
-export type CronHistoryValidatorDeleteDto = z.infer<
-	ReturnType<CronHistoryValidator['delete']>
->;
-export type CronHistoryValidatorFindDto = z.infer<
-	ReturnType<CronHistoryValidator['find']>
->;

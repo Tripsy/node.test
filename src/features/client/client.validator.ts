@@ -1,11 +1,10 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	ClientStatusEnum,
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -16,7 +15,8 @@ import {
 	validateEnum,
 	validateNumber,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList = [
 	'client_type',
@@ -45,7 +45,9 @@ enum OrderByEnum {
 }
 
 export class ClientValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public create() {
 		const ClientCreateBaseValidator = z.object({
@@ -236,13 +238,3 @@ export class ClientValidator {
 }
 
 export const clientValidator = new ClientValidator();
-
-export type ClientValidatorCreateDto = z.infer<
-	ReturnType<ClientValidator['create']>
->;
-export type ClientValidatorUpdateDto = z.infer<
-	ReturnType<ClientValidator['update']>
->;
-export type ClientValidatorFindDto = z.infer<
-	ReturnType<ClientValidator['find']>
->;

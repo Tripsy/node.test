@@ -1,14 +1,11 @@
-import dataSource from '@/config/data-source.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import TemplateEntity from '@/features/template/template.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
-	constructor(
-		repository: ReturnType<
-			typeof dataSource.getRepository<MailQueueEntity>
-		>,
-	) {
+	constructor(repository: Repository<MailQueueEntity>) {
 		super(repository, MailQueueEntity.NAME);
 	}
 
@@ -40,8 +37,10 @@ export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
 }
 
 export const getMailQueueRepository = () =>
-	dataSource.getRepository(MailQueueEntity).extend({
-		createQuery() {
-			return new MailQueueQuery(this);
-		},
-	});
+	getDataSource()
+		.getRepository(MailQueueEntity)
+		.extend({
+			createQuery() {
+				return new MailQueueQuery(this);
+			},
+		});

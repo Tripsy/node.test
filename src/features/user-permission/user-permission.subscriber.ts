@@ -8,7 +8,7 @@ import {
 import { LogHistoryAction } from '@/features/log-history/log-history.entity';
 import UserEntity from '@/features/user/user.entity';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
-import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
+import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 
 @EventSubscriber()
 export class UserPermissionSubscriber extends SubscriberAbstract<UserPermissionEntity> {

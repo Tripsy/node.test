@@ -1,14 +1,13 @@
 import { lang } from '@/config/i18n.setup';
+import { CustomError } from '@/exceptions';
 import type TemplateEntity from '@/features/template/template.entity';
 import type { TemplateTypeEnum } from '@/features/template/template.entity';
 import { getTemplateRepository } from '@/features/template/template.repository';
 import {
 	paramsUpdateList,
-	type TemplateValidatorCreateDto,
-	type TemplateValidatorFindDto,
-	type TemplateValidatorUpdateDto,
+	type TemplateValidator,
 } from '@/features/template/template.validator';
-import { CustomError } from '@/lib/exceptions';
+import type { ValidatorDto } from '@/helpers';
 
 export class TemplateService {
 	constructor(private repository: ReturnType<typeof getTemplateRepository>) {}
@@ -17,7 +16,7 @@ export class TemplateService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: TemplateValidatorCreateDto,
+		data: ValidatorDto<TemplateValidator, 'create'>,
 	): Promise<TemplateEntity> {
 		const existingTemplate = await this.checkIfExist(
 			data.label,
@@ -54,7 +53,7 @@ export class TemplateService {
 	 */
 	public async updateData(
 		id: number,
-		data: TemplateValidatorUpdateDto,
+		data: ValidatorDto<TemplateValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const entry = await this.findById(id, withDeleted);
@@ -141,7 +140,10 @@ export class TemplateService {
 		return q.first();
 	}
 
-	public findByFilter(data: TemplateValidatorFindDto, withDeleted: boolean) {
+	public findByFilter(
+		data: ValidatorDto<TemplateValidator, 'find'>,
+		withDeleted: boolean,
+	) {
 		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)

@@ -10,7 +10,7 @@ import type ClientEntity from '@/features/client/client.entity';
 import type InvoiceEntity from '@/features/invoice/invoice.entity';
 import type OrderProductEntity from '@/features/order/order-product.entity';
 import type OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum OrderStatusEnum {
 	DRAFT = 'draft',

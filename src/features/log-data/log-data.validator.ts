@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
 } from '@/features/log-data/log-data.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
-import { makeFindValidator, validateDate } from '@/lib/helpers';
+import { makeFindValidator, validateDate } from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -17,7 +17,9 @@ enum OrderByEnum {
 }
 
 export class LogDataValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public delete() {
 		return z.object({
@@ -82,10 +84,3 @@ export class LogDataValidator {
 }
 
 export const logDataValidator = new LogDataValidator();
-
-export type LogDataValidatorDeleteDto = z.infer<
-	ReturnType<LogDataValidator['delete']>
->;
-export type LogDataValidatorFindDto = z.infer<
-	ReturnType<LogDataValidator['find']>
->;

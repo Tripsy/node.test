@@ -2,7 +2,7 @@ import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 import type ArticleCategoryEntity from '@/features/article/article-category.entity';
 import type ArticleTagEntity from '@/features/article/article-tag.entity';
 import type ArticleTrackEntity from '@/features/article/article-track.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum ArticleStatusEnum {
 	DRAFT = 'draft', // Initial creation

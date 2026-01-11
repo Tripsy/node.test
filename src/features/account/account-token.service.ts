@@ -2,20 +2,22 @@ import type { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import type { Repository } from 'typeorm/repository/Repository';
 import { v4 as uuid } from 'uuid';
-import { cfg } from '@/config/settings.config';
+import { lang } from '@/config/i18n.setup';
+import { Configuration } from '@/config/settings.config';
+import { BadRequestError, CustomError } from '@/exceptions';
+import type { ConfirmationTokenPayload } from '@/features/account/account.service';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import {
 	type AccountTokenQuery,
 	getAccountTokenRepository,
 } from '@/features/account/account-token.repository';
 import type UserEntity from '@/features/user/user.entity';
-import { CustomError, NotFoundError } from '@/lib/exceptions';
 import {
 	createFutureDate,
 	getErrorMessage,
 	getMetaDataValue,
 	tokenMetaData,
-} from '@/lib/helpers';
+} from '@/helpers';
 
 export type AuthTokenPayload = {
 	user_id: number;
@@ -26,7 +28,7 @@ export type AuthValidToken = {
 	ident: string;
 	label: string;
 	used_at: Date | null;
-	used_now: false;
+	used_now: boolean;
 };
 
 export class AccountTokenService {
@@ -45,23 +47,14 @@ export class AccountTokenService {
 	}
 
 	/**
-	 * @description Gets the active auth token from the request headers
+	 * @description Verify auth token and return payload
+	 * @param token
 	 */
-	public async getActiveAuthToken(req: Request): Promise<AccountTokenEntity> {
-		// Read the token from the request
-		const token: string | undefined = this.getAuthTokenFromHeaders(req);
-
-		if (!token) {
-			throw new Error('Token not found');
-		}
-
-		// Verify JWT and extract payload
-		let payload: AuthTokenPayload;
-
+	public determineAuthTokenPayload(token: string): AuthTokenPayload {
 		try {
-			payload = jwt.verify(
+			return jwt.verify(
 				token,
-				cfg('user.authSecret') as string,
+				Configuration.get('user.authSecret') as string,
 			) as AuthTokenPayload;
 		} catch (err) {
 			throw new CustomError(
@@ -69,18 +62,20 @@ export class AccountTokenService {
 				`Unable to verify token ${getErrorMessage(err)}`,
 			);
 		}
+	}
 
-		const activeToken = await this.accountTokenRepository
+	/**
+	 * @description Gets the active auth token from the request headers
+	 */
+	public findByToken(token: string): Promise<AccountTokenEntity> {
+		// Verify JWT and extract payload
+		const authTokenPayload = this.determineAuthTokenPayload(token);
+
+		return this.accountTokenRepository
 			.createQuery()
-			.filterByIdent(payload.ident)
-			.filterBy('user_id', payload.user_id)
-			.first();
-
-		if (!activeToken) {
-			throw new NotFoundError('No active token found');
-		}
-
-		return activeToken;
+			.filterByIdent(authTokenPayload.ident)
+			.filterBy('user_id', authTokenPayload.user_id)
+			.firstOrFail();
 	}
 
 	/**
@@ -97,7 +92,7 @@ export class AccountTokenService {
 
 		const ident: string = uuid();
 		const expire_at: Date = createFutureDate(
-			cfg('user.authExpiresIn') as number,
+			Configuration.get('user.authExpiresIn') as number,
 		);
 
 		const payload: AuthTokenPayload = {
@@ -105,7 +100,10 @@ export class AccountTokenService {
 			ident: ident,
 		};
 
-		const token = jwt.sign(payload, cfg('user.authSecret') as string);
+		const token = jwt.sign(
+			payload,
+			Configuration.get('user.authSecret') as string,
+		);
 
 		return { token, ident, expire_at };
 	}
@@ -190,6 +188,25 @@ export class AccountTokenService {
 			.createQuery()
 			.filterByIdent(ident)
 			.delete(false);
+	}
+
+	/**
+	 * @description Verify auth token and return payload
+	 * @param token
+	 */
+	public determineConfirmationTokenPayload(
+		token: string,
+	): ConfirmationTokenPayload {
+		try {
+			return jwt.verify(
+				token,
+				Configuration.get('user.emailConfirmationSecret') as string,
+			) as ConfirmationTokenPayload;
+		} catch {
+			throw new BadRequestError(
+				lang('account.error.confirmation_token_invalid'),
+			);
+		}
 	}
 }
 

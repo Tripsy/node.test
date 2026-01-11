@@ -13,7 +13,7 @@
 		//        "allowImportingTsExtensions": true,
 		"strict": true,
 		"outDir": "./dist",
-		"typeRoots": ["./node_modules/@types", "./src/lib/types"],
+		"typeRoots": ["./node_modules/@types", "./src/types"],
 		"lib": ["esnext", "dom"]
 	},
 	"include": ["src/**/*.ts"],

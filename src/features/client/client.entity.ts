@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import type OrderEntity from '@/features/order/order.entity';
 import type PlaceEntity from '@/features/place/place.entity';
-import { EntityAbstract } from '@/lib/abstracts/entity.abstract';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum ClientStatusEnum {
 	ACTIVE = 'active',

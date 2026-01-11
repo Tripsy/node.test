@@ -1,4 +1,4 @@
-import emailQueue from '@/lib/queues/email.queue';
+import emailQueue from '@/queues/email.queue';
 
 export const workerMaintenance = async () => {
 	// Remove failed jobs older than 24 hours

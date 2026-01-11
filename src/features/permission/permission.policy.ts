@@ -1,5 +1,5 @@
 import PermissionEntity from '@/features/permission/permission.entity';
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class PermissionPolicy extends PolicyAbstract {
 	constructor() {

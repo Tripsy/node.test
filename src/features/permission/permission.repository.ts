@@ -1,14 +1,11 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
 import PermissionEntity from '@/features/permission/permission.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
-	constructor(
-		repository: ReturnType<
-			typeof dataSource.getRepository<PermissionEntity>
-		>,
-	) {
+	constructor(repository: Repository<PermissionEntity>) {
 		super(repository, PermissionEntity.NAME);
 	}
 
@@ -17,7 +14,10 @@ export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
 				this.filterBy('id', Number(term));
 			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
+				if (
+					term.length >
+					(Configuration.get('filter.termMinLength') as number)
+				) {
 					this.filterAny([
 						{
 							column: 'entity',
@@ -39,8 +39,10 @@ export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
 }
 
 export const getPermissionRepository = () =>
-	dataSource.getRepository(PermissionEntity).extend({
-		createQuery() {
-			return new PermissionQuery(this);
-		},
-	});
+	getDataSource()
+		.getRepository(PermissionEntity)
+		.extend({
+			createQuery() {
+				return new PermissionQuery(this);
+			},
+		});

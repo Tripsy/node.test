@@ -1,6 +1,6 @@
 import { EventSubscriber } from 'typeorm';
 import ClientEntity from '@/features/client/client.entity';
-import SubscriberAbstract from '@/lib/abstracts/subscriber.abstract';
+import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 
 @EventSubscriber()
 export class ClientSubscriber extends SubscriberAbstract<ClientEntity> {

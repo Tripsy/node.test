@@ -1,6 +1,6 @@
 import nunjucks from 'nunjucks';
-import { cfg } from '@/config/settings.config';
-import { buildSrcPath } from '@/lib/helpers';
+import { Configuration } from '@/config/settings.config';
+import { buildSrcPath } from '@/helpers';
 
 // Create a new environment
 const templates = new nunjucks.Environment(
@@ -9,15 +9,15 @@ const templates = new nunjucks.Environment(
 		autoescape: true,
 		throwOnUndefined: true,
 		trimBlocks: true,
-		noCache: cfg('app.debug') === 'true',
+		noCache: Configuration.get('app.debug') === 'true',
 		watch: true,
 	},
 );
 
 // Add global variables
-templates.addGlobal('siteName', cfg('frontend.name'));
-templates.addGlobal('siteUrl', cfg('frontend.url'));
-templates.addGlobal('supportEmail', cfg('app.email'));
+templates.addGlobal('siteName', Configuration.get('frontend.name'));
+templates.addGlobal('siteUrl', Configuration.get('frontend.url'));
+templates.addGlobal('supportEmail', Configuration.get('app.email'));
 templates.addGlobal('currentYear', new Date().getFullYear().toString());
 
 // // Add custom filter

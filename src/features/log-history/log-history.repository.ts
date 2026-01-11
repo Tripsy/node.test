@@ -1,59 +1,58 @@
-import dataSource from '@/config/data-source.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
 import type { RequestContextSource } from '@/config/request.context';
 import LogHistoryEntity, {
 	type LogHistoryAction,
 } from '@/features/log-history/log-history.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
-import { getSystemLogger } from '@/lib/providers/logger.provider';
+import { getSystemLogger } from '@/providers/logger.provider';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
-	constructor(
-		repository: ReturnType<
-			typeof dataSource.getRepository<LogHistoryEntity>
-		>,
-	) {
+	constructor(repository: Repository<LogHistoryEntity>) {
 		super(repository, LogHistoryEntity.NAME);
 	}
 }
 
 export const getLogHistoryRepository = () =>
-	dataSource.getRepository(LogHistoryEntity).extend({
-		createQuery() {
-			return new LogHistoryQuery(this);
-		},
+	getDataSource()
+		.getRepository(LogHistoryEntity)
+		.extend({
+			createQuery() {
+				return new LogHistoryQuery(this);
+			},
 
-		createLogs(
-			entity: string,
-			entity_ids: number[],
-			action: LogHistoryAction,
-			auth_id: number | null,
-			performed_by: string,
-			request_id: string,
-			source: RequestContextSource,
-			details?: Record<string, string | number>,
-		) {
-			const recorded_at = new Date();
+			createLogs(
+				entity: string,
+				entity_ids: number[],
+				action: LogHistoryAction,
+				auth_id: number | null,
+				performed_by: string,
+				request_id: string,
+				source: RequestContextSource,
+				details?: Record<string, string | number>,
+			) {
+				const recorded_at = new Date();
 
-			getSystemLogger().info(
-				`Creating log history for ${entity} ${entity_ids.join(', ')}`,
-			);
+				getSystemLogger().info(
+					`Creating log history for ${entity} ${entity_ids.join(', ')}`,
+				);
 
-			const records = entity_ids.map((entity_id) => {
-				const log = new LogHistoryEntity();
+				const records = entity_ids.map((entity_id) => {
+					const log = new LogHistoryEntity();
 
-				log.entity = entity;
-				log.entity_id = entity_id;
-				log.action = action;
-				log.auth_id = auth_id;
-				log.performed_by = performed_by;
-				log.request_id = request_id;
-				log.source = source;
-				log.recorded_at = recorded_at;
-				log.details = details;
+					log.entity = entity;
+					log.entity_id = entity_id;
+					log.action = action;
+					log.auth_id = auth_id;
+					log.performed_by = performed_by;
+					log.request_id = request_id;
+					log.source = source;
+					log.recorded_at = recorded_at;
+					log.details = details;
 
-				return log;
-			});
+					return log;
+				});
 
-			return this.save(records);
-		},
-	});
+				return this.save(records);
+			},
+		});

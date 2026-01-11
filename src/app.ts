@@ -11,23 +11,21 @@ import qs from 'qs';
 import { v4 as uuid } from 'uuid';
 import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
+import { setupListeners } from '@/config/listeners.setup';
 import { getRoutesInfo, initRoutes } from '@/config/routes.setup';
-import { cfg } from '@/config/settings.config';
-import { registerEventListeners } from '@/lib/listeners';
-import authMiddleware from '@/lib/middleware/auth.middleware';
-import { corsHandler } from '@/lib/middleware/cors-handler.middleware';
-import { errorHandler } from '@/lib/middleware/error-handler.middleware';
-import languageMiddleware from '@/lib/middleware/language.middleware';
-import { notFoundHandler } from '@/lib/middleware/not-found-handler.middleware';
-import { outputHandler } from '@/lib/middleware/output-handler.middleware';
-import { requestContextMiddleware } from '@/lib/middleware/request-context.middleware';
-import startCronJobs from '@/lib/providers/cron.provider';
-import {
-	destroyDatabase,
-	initDatabase,
-} from '@/lib/providers/database.provider';
-import { getSystemLogger, LogStream } from '@/lib/providers/logger.provider';
-import emailQueue from '@/lib/queues/email.queue';
+import { Configuration } from '@/config/settings.config';
+import { getErrorMessage } from '@/helpers';
+import authMiddleware from '@/middleware/auth.middleware';
+import { corsHandler } from '@/middleware/cors-handler.middleware';
+import { errorHandler } from '@/middleware/error-handler.middleware';
+import languageMiddleware from '@/middleware/language.middleware';
+import { notFoundHandler } from '@/middleware/not-found-handler.middleware';
+import { outputHandler } from '@/middleware/output-handler.middleware';
+import { requestContextMiddleware } from '@/middleware/request-context.middleware';
+import startCronJobs from '@/providers/cron.provider';
+import { destroyDatabase, initDatabase } from '@/providers/database.provider';
+import { getSystemLogger, LogStream } from '@/providers/logger.provider';
+import emailQueue from '@/queues/email.queue';
 
 const app: express.Application = express();
 export let server: Server | null = null;
@@ -37,10 +35,13 @@ const FORCE_SHUTDOWN_TIMEOUT = Number(
 	process.env.FORCE_SHUTDOWN_TIMEOUT ?? 10000,
 );
 const REQUEST_TIMEOUT = Number(process.env.REQUEST_TIMEOUT) || 30000;
-const APP_PORT = Number(cfg('app.port'));
-const APP_ENV = cfg('app.env') as string;
-const APP_NAME = cfg('app.name') as string;
-const APP_URL = cfg('app.url') as string;
+
+const appConfigCall = () => ({
+	port: Number(Configuration.get('app.port')),
+	env: Configuration.environment(),
+	name: Configuration.get('app.name') as string,
+	url: Configuration.get('app.url') as string,
+});
 
 // Startup state tracking
 let isStartingUp = true;
@@ -58,34 +59,38 @@ export const appReady = new Promise<void>((resolve) => {
 // Validate critical configuration
 function validateConfig(): void {
 	const required = ['app.port', 'database.host', 'database.name'];
-	const missing = required.filter((key) => !cfg(key));
+	const missing = required.filter((key) => !Configuration.get(key));
 
 	if (missing.length > 0) {
 		throw new Error(`Missing required config: ${missing.join(', ')}`);
 	}
 
+	const appConfig = appConfigCall();
+
 	// Port validation
-	if (Number.isNaN(APP_PORT) || APP_PORT < 1 || APP_PORT > 65535) {
-		throw new Error(`Invalid port: ${APP_PORT}. Must be 1-65535`);
+	if (appConfig.port < 1 || appConfig.port > 65535) {
+		throw new Error(`Invalid port: ${appConfig.port}. Must be 1-65535`);
 	}
 }
 
 // Print startup banner
 function printStartupInfo(): void {
-	if (cfg('app.env') === 'test') {
+	const appConfig = appConfigCall();
+
+	if (appConfig.env === 'test') {
 		return;
 	}
 
 	const width = 60;
 	const lines = [
-		['Environment:', APP_ENV],
-		['Port:', APP_PORT.toString()],
-		['URL:', `${APP_URL}:${APP_PORT}`],
-		['Health:', `${APP_URL}:${APP_PORT}/health`],
+		['Environment:', appConfig.env],
+		['Port:', appConfig.port.toString()],
+		['URL:', `${appConfig.url}:${appConfig.port}`],
+		['Health:', `${appConfig.url}:${appConfig.port}/health`],
 	];
 
 	console.log(`┌${'─'.repeat(width + 2)}┐`);
-	console.log(`│ ${APP_NAME.padEnd(width)} │`);
+	console.log(`│ ${appConfig.name.padEnd(width)} │`);
 	console.log(`├${'─'.repeat(width + 2)}┤`);
 
 	for (const [label, value] of lines) {
@@ -94,7 +99,7 @@ function printStartupInfo(): void {
 	}
 
 	// Display routes
-	if (cfg('app.env') === 'development') {
+	if (appConfig.env === 'development') {
 		const routes = getRoutesInfo();
 
 		if (routes.length > 0) {
@@ -308,7 +313,7 @@ async function initializeApp(): Promise<void> {
 		app.use(outputHandler); // Set `res.locals.output`
 
 		// Event listeners
-		registerEventListeners();
+		await setupListeners();
 
 		// Routes
 		const router = await initRoutes();
@@ -321,7 +326,7 @@ async function initializeApp(): Promise<void> {
 
 		// Start server (await listen)
 		await new Promise<void>((resolve) => {
-			server = app.listen(APP_PORT, () => {
+			server = app.listen(Configuration.get('app.port') as number, () => {
 				resolve();
 			});
 		});
@@ -330,9 +335,9 @@ async function initializeApp(): Promise<void> {
 		isStartingUp = false;
 
 		// Start background services (non-test env only)
-		if (APP_ENV !== 'test') {
+		if (!Configuration.isEnvironment('test')) {
 			// Email worker
-			import('@/lib/workers/email.worker').catch((error) => {
+			import('@/workers/email.worker').catch((error) => {
 				getSystemLogger().error(
 					{ err: error },
 					'Failed to start email worker',
@@ -349,7 +354,13 @@ async function initializeApp(): Promise<void> {
 		// Print startup banner
 		printStartupInfo();
 	} catch (error) {
-		getSystemLogger().fatal(error, 'Failed to initialize application');
+		const errorMsg = getErrorMessage(error);
+
+		getSystemLogger().fatal(
+			error,
+			`Failed to initialize application: ${errorMsg}`,
+		);
+
 		throw error;
 	}
 }

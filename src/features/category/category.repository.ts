@@ -1,12 +1,11 @@
-import dataSource from '@/config/data-source.config';
-import { cfg } from '@/config/settings.config';
+import type { Repository } from 'typeorm/repository/Repository';
+import { getDataSource } from '@/config/data-source.config';
+import { Configuration } from '@/config/settings.config';
 import CategoryEntity from '@/features/category/category.entity';
-import RepositoryAbstract from '@/lib/abstracts/repository.abstract';
+import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class CategoryQuery extends RepositoryAbstract<CategoryEntity> {
-	constructor(
-		repository: ReturnType<typeof dataSource.getRepository<CategoryEntity>>,
-	) {
+	constructor(repository: Repository<CategoryEntity>) {
 		super(repository, CategoryEntity.NAME);
 	}
 
@@ -15,7 +14,10 @@ export class CategoryQuery extends RepositoryAbstract<CategoryEntity> {
 			if (!Number.isNaN(Number(term)) && term.trim() !== '') {
 				this.filterBy('id', Number(term));
 			} else {
-				if (term.length > (cfg('filter.termMinLength') as number)) {
+				if (
+					term.length >
+					(Configuration.get('filter.termMinLength') as number)
+				) {
 					this.filterAny([
 						{
 							column: 'content.label',
@@ -37,8 +39,10 @@ export class CategoryQuery extends RepositoryAbstract<CategoryEntity> {
 }
 
 export const getCategoryRepository = () =>
-	dataSource.getRepository(CategoryEntity).extend({
-		createQuery() {
-			return new CategoryQuery(this);
-		},
-	});
+	getDataSource()
+		.getRepository(CategoryEntity)
+		.extend({
+			createQuery() {
+				return new CategoryQuery(this);
+			},
+		});

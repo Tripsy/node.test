@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -11,7 +10,8 @@ import {
 	validateEnum,
 	validateLanguage,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList: string[] = [
 	'label',
@@ -28,7 +28,9 @@ enum OrderByEnum {
 }
 
 export class TemplateValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public create() {
 		const TemplateCreateBaseValidator = z.object({
@@ -201,13 +203,3 @@ export class TemplateValidator {
 }
 
 export const templateValidator = new TemplateValidator();
-
-export type TemplateValidatorCreateDto = z.infer<
-	ReturnType<TemplateValidator['create']>
->;
-export type TemplateValidatorUpdateDto = z.infer<
-	ReturnType<TemplateValidator['update']>
->;
-export type TemplateValidatorFindDto = z.infer<
-	ReturnType<TemplateValidator['find']>
->;

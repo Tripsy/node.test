@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { PlaceTypeEnum } from '@/features/place/place.entity';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
@@ -11,7 +10,8 @@ import {
 	validateEnum,
 	validateLanguage,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList: string[] = ['type', 'code', 'parent_id'];
 
@@ -20,7 +20,9 @@ enum OrderByEnum {
 }
 
 export class PlaceValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	placeContentSchema() {
 		return z.object({
@@ -133,11 +135,3 @@ export class PlaceValidator {
 }
 
 export const placeValidator = new PlaceValidator();
-
-export type PlaceValidatorCreateDto = z.infer<
-	ReturnType<PlaceValidator['create']>
->;
-export type PlaceValidatorUpdateDto = z.infer<
-	ReturnType<PlaceValidator['update']>
->;
-export type PlaceValidatorFindDto = z.infer<ReturnType<PlaceValidator['find']>>;

@@ -1,17 +1,16 @@
 import type { EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
-import dataSource from '@/config/data-source.config';
+import { getDataSource } from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
+import { BadRequestError } from '@/exceptions';
 import PlaceEntity from '@/features/place/place.entity';
 import { getPlaceRepository } from '@/features/place/place.repository';
 import {
-	type PlaceValidatorCreateDto,
-	type PlaceValidatorFindDto,
-	type PlaceValidatorUpdateDto,
+	type PlaceValidator,
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
-import { BadRequestError } from '@/lib/exceptions';
+import type { ValidatorDto } from '@/helpers';
 export class PlaceService {
 	constructor(
 		private repository: ReturnType<typeof getPlaceRepository>,
@@ -23,8 +22,10 @@ export class PlaceService {
 	/**
 	 * @description Used in `create` method from controller;
 	 */
-	public async create(data: PlaceValidatorCreateDto): Promise<PlaceEntity> {
-		return dataSource.transaction(async (manager) => {
+	public async create(
+		data: ValidatorDto<PlaceValidator, 'create'>,
+	): Promise<PlaceEntity> {
+		return getDataSource().transaction(async (manager) => {
 			const repository = this.getScopedPlaceRepository(manager);
 
 			const entry = {
@@ -50,7 +51,7 @@ export class PlaceService {
 	 */
 	public async updateDataWithContent(
 		id: number,
-		data: PlaceValidatorUpdateDto,
+		data: ValidatorDto<PlaceValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const place = await this.findById(id, withDeleted);
@@ -68,7 +69,7 @@ export class PlaceService {
 			}
 		}
 
-		return dataSource.transaction(async (manager) => {
+		return getDataSource().transaction(async (manager) => {
 			const repository = manager.getRepository(PlaceEntity); // We use the manager -> `getPlaceRepository` is not bound to the transaction
 
 			const updateData = {
@@ -178,7 +179,10 @@ export class PlaceService {
 			.firstRaw();
 	}
 
-	public findByFilter(data: PlaceValidatorFindDto, withDeleted: boolean) {
+	public findByFilter(
+		data: ValidatorDto<PlaceValidator, 'find'>,
+		withDeleted: boolean,
+	) {
 		return this.repository
 			.createQuery()
 			.join(
@@ -230,7 +234,7 @@ export class PlaceService {
 }
 
 export function getScopedPlaceRepository(manager?: EntityManager) {
-	return (manager ?? dataSource.manager).getRepository(PlaceEntity);
+	return (manager ?? getDataSource().manager).getRepository(PlaceEntity);
 }
 
 export const placeService = new PlaceService(

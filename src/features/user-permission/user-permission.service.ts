@@ -1,9 +1,7 @@
 import { lang } from '@/config/i18n.setup';
 import { getUserPermissionRepository } from '@/features/user-permission/user-permission.repository';
-import type {
-	UserPermissionValidatorCreateDto,
-	UserPermissionValidatorFindDto,
-} from '@/features/user-permission/user-permission.validator';
+import type { UserPermissionValidator } from '@/features/user-permission/user-permission.validator';
+import type { ValidatorDto } from '@/helpers';
 
 export class UserPermissionService {
 	constructor(
@@ -14,7 +12,7 @@ export class UserPermissionService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: UserPermissionValidatorCreateDto,
+		data: ValidatorDto<UserPermissionValidator, 'create'>,
 		user_id: number,
 	) {
 		return Promise.all(
@@ -75,7 +73,7 @@ export class UserPermissionService {
 	}
 
 	public findByFilter(
-		data: UserPermissionValidatorFindDto,
+		data: ValidatorDto<UserPermissionValidator, 'find'>,
 		user_id: number,
 		withDeleted: boolean,
 	) {

@@ -1,5 +1,5 @@
 import PlaceEntity from '@/features/place/place.entity';
-import PolicyAbstract from '@/lib/abstracts/policy.abstract';
+import PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class PlacePolicy extends PolicyAbstract {
 	constructor() {

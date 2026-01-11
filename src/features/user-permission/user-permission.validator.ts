@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
+import { Configuration } from '@/config/settings.config';
 import {
 	makeFindValidator,
 	validateBoolean,
 	validateStringMin,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 enum UserPermissionOrderByEnum {
 	ID = 'id',
@@ -16,8 +16,12 @@ enum UserPermissionOrderByEnum {
 }
 
 export class UserPermissionValidator {
-	private readonly termMinLength = cfg('filter.termMinLength') as number;
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly termMinLength = Configuration.get(
+		'filter.termMinLength',
+	) as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public create() {
 		return z.object({
@@ -76,10 +80,3 @@ export class UserPermissionValidator {
 }
 
 export const userPermissionValidator = new UserPermissionValidator();
-
-export type UserPermissionValidatorCreateDto = z.infer<
-	ReturnType<UserPermissionValidator['create']>
->;
-export type UserPermissionValidatorFindDto = z.infer<
-	ReturnType<UserPermissionValidator['find']>
->;

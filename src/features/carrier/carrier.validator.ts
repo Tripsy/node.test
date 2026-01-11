@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { cfg } from '@/config/settings.config';
-import { OrderDirectionEnum } from '@/lib/abstracts/entity.abstract';
+import { Configuration } from '@/config/settings.config';
 import {
 	hasAtLeastOneValue,
 	makeFindValidator,
 	nullableString,
 	validateBoolean,
 	validateString,
-} from '@/lib/helpers';
+} from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export const paramsUpdateList: string[] = [
 	'name',
@@ -26,7 +26,9 @@ enum OrderByEnum {
 }
 
 export class CarrierValidator {
-	private readonly defaultFilterLimit = cfg('filter.limit') as number;
+	private readonly defaultFilterLimit = Configuration.get(
+		'filter.limit',
+	) as number;
 
 	public create() {
 		return z.object({
@@ -118,13 +120,3 @@ export class CarrierValidator {
 }
 
 export const carrierValidator = new CarrierValidator();
-
-export type CarrierValidatorCreateDto = z.infer<
-	ReturnType<CarrierValidator['create']>
->;
-export type CarrierValidatorUpdateDto = z.infer<
-	ReturnType<CarrierValidator['update']>
->;
-export type CarrierValidatorFindDto = z.infer<
-	ReturnType<CarrierValidator['find']>
->;

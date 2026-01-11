@@ -1,13 +1,12 @@
 import { lang } from '@/config/i18n.setup';
+import { CustomError } from '@/exceptions';
 import type CarrierEntity from '@/features/carrier/carrier.entity';
 import { getCarrierRepository } from '@/features/carrier/carrier.repository';
 import {
-	type CarrierValidatorCreateDto,
-	type CarrierValidatorFindDto,
-	type CarrierValidatorUpdateDto,
+	type CarrierValidator,
 	paramsUpdateList,
 } from '@/features/carrier/carrier.validator';
-import { CustomError } from '@/lib/exceptions';
+import type { ValidatorDto } from '@/helpers';
 
 export class CarrierService {
 	constructor(private repository: ReturnType<typeof getCarrierRepository>) {}
@@ -16,7 +15,7 @@ export class CarrierService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: CarrierValidatorCreateDto,
+		data: ValidatorDto<CarrierValidator, 'create'>,
 	): Promise<CarrierEntity> {
 		const existingCarrier = await this.findByName(data.name, true);
 
@@ -49,7 +48,7 @@ export class CarrierService {
 	 */
 	public async updateData(
 		id: number,
-		data: CarrierValidatorUpdateDto,
+		data: ValidatorDto<CarrierValidator, 'update'>,
 		withDeleted: boolean = true,
 	) {
 		if (data.name) {
@@ -87,7 +86,7 @@ export class CarrierService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-	public findById(id: number, withDeleted: boolean) {
+	public findById(id: number, withDeleted: boolean): Promise<CarrierEntity> {
 		return this.repository
 			.createQuery()
 			.filterById(id)
@@ -108,7 +107,10 @@ export class CarrierService {
 		return q.first();
 	}
 
-	public findByFilter(data: CarrierValidatorFindDto, withDeleted: boolean) {
+	public findByFilter(
+		data: ValidatorDto<CarrierValidator, 'find'>,
+		withDeleted: boolean,
+	) {
 		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)

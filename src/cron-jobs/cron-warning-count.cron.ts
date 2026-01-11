@@ -1,7 +1,7 @@
-import { cfg } from '@/config/settings.config';
+import { Configuration } from '@/config/settings.config';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
-import { createPastDate } from '@/lib/helpers';
-import { loadEmailTemplate, queueEmail } from '@/lib/providers/email.provider';
+import { createPastDate } from '@/helpers';
+import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 
 // Report cron warnings in the last 7 days
 export const cronWarningCount = async () => {
@@ -31,7 +31,7 @@ export const cronWarningCount = async () => {
 		if (warningCount > 0) {
 			const emailTemplate = await loadEmailTemplate(
 				'cron-warning-count',
-				cfg('app.language') as string,
+				Configuration.get('app.language') as string,
 			);
 
 			emailTemplate.content.vars = {
@@ -42,8 +42,8 @@ export const cronWarningCount = async () => {
 			};
 
 			await queueEmail(emailTemplate, {
-				name: cfg('app.name') as string,
-				address: cfg('app.email') as string,
+				name: Configuration.get('app.name') as string,
+				address: Configuration.get('app.email') as string,
 			});
 		}
 	}

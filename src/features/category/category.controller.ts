@@ -8,20 +8,12 @@ import {
 } from '@/features/category/category.service';
 import {
 	type CategoryValidator,
-	type CategoryValidatorCreateDto,
-	type CategoryValidatorFindDto,
-	type CategoryValidatorReadDto,
-	type CategoryValidatorStatusUpdateDto,
-	type CategoryValidatorUpdateDto,
 	categoryValidator,
 } from '@/features/category/category.validator';
-import { BaseController } from '@/lib/abstracts/controller.abstract';
-import type PolicyAbstract from '@/lib/abstracts/policy.abstract';
-import asyncHandler from '@/lib/helpers/async.handler';
-import {
-	type CacheProvider,
-	cacheProvider,
-} from '@/lib/providers/cache.provider';
+import asyncHandler from '@/helpers/async.handler';
+import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
+import { BaseController } from '@/shared/abstracts/controller.abstract';
+import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 
 class CategoryController extends BaseController {
 	constructor(
@@ -36,11 +28,7 @@ class CategoryController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate<CategoryValidatorCreateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.create(), req.body, res);
 
 		const entry = await this.categoryService.create(data);
 
@@ -53,11 +41,7 @@ class CategoryController extends BaseController {
 	public read = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canRead(res.locals.auth);
 
-		const data = this.validate<CategoryValidatorReadDto>(
-			this.validator.read(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.read(), req.query, res);
 
 		const cacheKey = this.cache.buildKey(
 			CategoryEntity.NAME,
@@ -92,11 +76,7 @@ class CategoryController extends BaseController {
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<CategoryValidatorUpdateDto>(
-			this.validator.create(),
-			req.body,
-			res,
-		);
+		const data = this.validate(this.validator.update(), req.body, res);
 
 		const entry = await this.categoryService.updateDataWithContent(
 			res.locals.validated.id,
@@ -133,11 +113,7 @@ class CategoryController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate<CategoryValidatorFindDto>(
-			this.validator.find(),
-			req.query,
-			res,
-		);
+		const data = this.validate(this.validator.find(), req.query, res);
 
 		data.filter.language = data.filter.language ?? res.locals.language;
 
@@ -162,7 +138,7 @@ class CategoryController extends BaseController {
 	public statusUpdate = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);
 
-		const data = this.validate<CategoryValidatorStatusUpdateDto>(
+		const data = this.validate(
 			this.validator.statusUpdate(),
 			req.query,
 			res,
