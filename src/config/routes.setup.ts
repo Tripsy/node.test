@@ -108,7 +108,7 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 	for (const feature of features) {
 		try {
 			const filePath = getRoutesFilePath(feature);
-			const module = (await import(filePath)) as FeatureRoutesModule; // TODO will this throw an error if file doesn't exist?
+			const module = (await import(filePath)) as FeatureRoutesModule;
 			const def = module.default;
 
 			if (!def) {

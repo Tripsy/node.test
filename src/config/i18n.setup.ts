@@ -5,47 +5,43 @@ import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
 import { Configuration } from '@/config/settings.config';
-import { buildSrcPath } from '@/helpers';
+import { buildSrcPath, listDirectories } from '@/helpers';
 import { cacheProvider } from '@/providers/cache.provider';
 import { getSystemLogger } from '@/providers/logger.provider';
+
+async function getFeatureNamespaces(): Promise<string[]> {
+	const featuresFolder = Configuration.get<string>(
+		'folder.features',
+	) as string;
+	const featuresPath = buildSrcPath(featuresFolder);
+	const features = listDirectories(featuresPath);
+
+	const foldersWithLocales = await Promise.all(
+		features.map(async (n) => {
+			try {
+				await fs.promises.access(
+					path.join(
+						featuresPath,
+						n,
+						'locales',
+						`${Configuration.get('app.language')}.json`,
+					),
+				);
+
+				return n;
+			} catch {
+				return null;
+			}
+		}),
+	);
+
+	return foldersWithLocales.filter((name): name is string => name !== null);
+}
 
 async function getNamespaces(): Promise<string[]> {
 	const featureNamespaces = await getFeatureNamespaces();
 
 	return ['shared', ...featureNamespaces];
-}
-
-async function getFeatureNamespaces(): Promise<string[]> {
-	const featuresDir = buildSrcPath('features');
-
-	try {
-		const entries = fs.readdirSync(featuresDir, { withFileTypes: true });
-		const directories = entries.filter((e) => e.isDirectory());
-
-		const directoriesWithLocales = await Promise.all(
-			directories.map(async (e) => {
-				try {
-					await fs.promises.access(
-						path.join(
-							featuresDir,
-							e.name,
-							'locales',
-							`${Configuration.get('app.language')}.json`,
-						),
-					);
-					return e.name;
-				} catch {
-					return null;
-				}
-			}),
-		);
-
-		return directoriesWithLocales.filter(
-			(name): name is string => name !== null,
-		);
-	} catch {
-		return [];
-	}
 }
 
 /**
@@ -88,10 +84,16 @@ export async function initializeI18next() {
 			backend: {
 				loadPath: (_lng: string, ns: string) => {
 					if (ns === 'shared') {
-						return buildSrcPath('shared/locales/{{lng}}.json');
+						return buildSrcPath(
+							Configuration.get('folder.shared') as string,
+							'/locales/{{lng}}.json',
+						);
 					}
 
-					return buildSrcPath(`features/${ns}/locales/{{lng}}.json`);
+					return buildSrcPath(
+						Configuration.get('folder.features') as string,
+						`/${ns}/locales/{{lng}}.json`,
+					);
 				},
 			},
 			detection: {

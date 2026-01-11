@@ -11,10 +11,8 @@ import {
 import { getSystemLogger } from '@/providers/logger.provider';
 
 function getCoreListenerPaths() {
-	const sharedListenersFolder = Configuration.get(
-		'folder.sharedListeners',
-	) as string;
-	const sharedListenersPath = buildSrcPath(sharedListenersFolder);
+	const sharedFolder = Configuration.get('folder.shared') as string;
+	const sharedListenersPath = buildSrcPath(sharedFolder, '/listeners');
 
 	const files = listFiles(sharedListenersPath);
 	const filesExtension = Configuration.resolveExtension();
@@ -22,7 +20,7 @@ function getCoreListenerPaths() {
 	// Return listeners files path
 	return files
 		.filter((f) => f.endsWith(`.listener.${filesExtension}`))
-		.map((f) => buildSrcPath(sharedListenersFolder, f));
+		.map((f) => buildSrcPath(sharedFolder, '/listeners', f));
 }
 
 function getFeatureListenerPaths() {

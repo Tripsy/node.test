@@ -176,19 +176,20 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. make features as package; move tests/controllers/`feature`.functional.ts inside features/`feature`
-    - move specific crons into features
-    - create separate migrations
-2. inside a cli ..have a command which runs seed if exist 
+1. do validator.helper.ts an abstract class
+2. make features as package:
+    - move specific cron-jobs into features
+    - create separate migration per entity
+3. CLI ...should have a command which runs seed if exist 
     - create user.seed.ts - default admin user 
-3. do tests for the rest of controllers
-4. do tests for validators
-5. feature - brand 
-6. feature - images 
-7. Go on FE → category, place, brand, client
-8. Go on FE #2 → carrier, discount, 
-9. Go on FE #3 → image (multer - File upload handling)
-10. wip entities:
+4. do tests for the rest of controllers
+5. do tests for validators
+6. feature - brand 
+7. feature - images 
+8. Go on FE → category, place, brand, client
+9. Go on FE #2 → carrier, discount, 
+10. Go on FE #3 → image (multer - File upload handling)
+11. wip entities:
      - article
          - article-category
          - article-content
@@ -212,8 +213,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
      - subscription
          - subscription-evidence
      - term
-11. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-12. Review "ideas"
+12. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+13. Review "ideas"
 
 # Bugs & issues
 
@@ -233,7 +234,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 │   ├── database/
 │   │   ├── migrations/    # TypeORM migrations
 │   ├── exceptions/        # Custom error classes
-│   ├── features/          # Feature-based modules (DDD-style)
+│   ├── features/          # Feature-based modules
 │   │   ├── user/
 │   │   │   ├── locales/
 │   │   │   │   └── en.json
@@ -269,6 +270,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # Dependencies
 
+    
 - [Pino](https://github.com/pinojs/pino) - Fast, low-overhead Node.js logger
 - [Mysql2](https://github.com/sidorares/node-mysql2) - MySQL client for Node.js with TypeScript support
 - [TypeORM](https://github.com/typeorm/typeorm) - ORM for TypeScript and JavaScript with support for multiple databases
@@ -281,6 +283,11 @@ $ pnpm run test account.unit.ts --detect-open-handles
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - JSON Web Token implementation
 - [node-cron](https://github.com/node-cron/node-cron) - Task scheduler for Node.js
 - [BullMQ](https://docs.bullmq.io/) - Redis-based message queue for Node.js
+- [nunjucks](https://github.com/mozilla/nunjucks) - Templating engine for JavaScript
+- [dayjs](https://day.js.org/) - Day.js is a minimalist JavaScript library that parses, validates, manipulates, and displays dates and times 
+
+Dev only:
+
 - [jest](https://jestjs.io/) - JavaScript testing framework
 - [supertest](https://www.npmjs.com/package/supertest) - HTTP assertion library for testing Node.js servers
-- [nunjucks](https://github.com/mozilla/nunjucks) - Templating engine for JavaScript
+- [madge](https://github.com/pahen/madge) - Helps finding circular dependencies

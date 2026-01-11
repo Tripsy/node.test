@@ -31,8 +31,8 @@ function loadSettings(): Settings {
 				.split(','),
 		},
 		folder: {
-			features: '/features', // TODO
-			sharedListeners: '/shared/listeners',
+			features: '/features',
+			shared: '/shared',
 		},
 		frontend: {
 			url: process.env.FRONTEND_URL || 'http://nextjs.test',

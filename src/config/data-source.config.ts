@@ -3,6 +3,9 @@ import { Configuration } from '@/config/settings.config';
 import { buildSrcPath } from '@/helpers';
 
 export function createDataSource(): DataSource {
+	const featuresFolder = Configuration.get('folder.features') as string;
+	const filesExtension = Configuration.resolveExtension();
+
 	return new DataSource({
 		type: Configuration.get('database.connection') as
 			| 'postgres'
@@ -18,9 +21,13 @@ export function createDataSource(): DataSource {
 			Configuration.get('database.connection') === 'postgres'
 				? 'system.migrations'
 				: 'migrations',
-		entities: [buildSrcPath('features/**/*.entity.ts')],
-		migrations: [buildSrcPath('database/migrations/*.ts')],
-		subscribers: [buildSrcPath('features/**/*.subscriber.ts')],
+		entities: [
+			buildSrcPath(featuresFolder, `/**/*.entity.${filesExtension}`),
+		],
+		migrations: [buildSrcPath(`database/migrations/*.${filesExtension}`)],
+		subscribers: [
+			buildSrcPath(featuresFolder, `/**/*.subscriber.${filesExtension}`),
+		],
 		poolSize: 10,
 	});
 }
