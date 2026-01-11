@@ -542,7 +542,7 @@ describe(`${controller} - emailConfirm`, () => {
 
 	it('should fail - confirmation_token_not_authorized', async () => {
 		jest.spyOn(
-			accountTokenService,
+			accountService,
 			'determineConfirmationTokenPayload',
 		).mockReturnValue(mockConfirmationTokenPayload);
 		jest.spyOn(userService, 'findById').mockResolvedValue({
@@ -568,7 +568,7 @@ describe(`${controller} - emailConfirm`, () => {
 
 	it('should return success', async () => {
 		jest.spyOn(
-			accountTokenService,
+			accountService,
 			'determineConfirmationTokenPayload',
 		).mockReturnValue(mockConfirmationTokenPayload);
 		jest.spyOn(userService, 'findById').mockResolvedValue(mockUser);

@@ -6,7 +6,7 @@ import {
 	type CarrierValidator,
 	paramsUpdateList,
 } from '@/features/carrier/carrier.validator';
-import type { ValidatorDto } from '@/helpers';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
 
 export class CarrierService {
 	constructor(private repository: ReturnType<typeof getCarrierRepository>) {}

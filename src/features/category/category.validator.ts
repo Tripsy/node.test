@@ -5,15 +5,9 @@ import {
 	CategoryStatusEnum,
 	CategoryTypeEnum,
 } from '@/features/category/category.entity';
-import {
-	hasAtLeastOneValue,
-	makeFindValidator,
-	validateBoolean,
-	validateLanguage,
-	validateMeta,
-	validateString,
-} from '@/helpers';
+import { hasAtLeastOneValue } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -22,20 +16,22 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export class CategoryValidator {
+export class CategoryValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
 
 	private categoryContentSchema() {
 		return z.object({
-			language: validateLanguage(),
-			label: validateString(lang('category.validation.label_invalid')),
-			slug: validateString(
+			language: this.validateLanguage(),
+			label: this.validateString(
+				lang('category.validation.label_invalid'),
+			),
+			slug: this.validateString(
 				lang('category.validation.slug_invalid'),
 			).transform((val) => val.trim().toLowerCase()),
-			meta: validateMeta(),
-			description: validateString(
+			meta: this.validateMeta(),
+			description: this.validateString(
 				lang('category.validation.description_invalid'),
 			).optional(),
 		});
@@ -71,13 +67,13 @@ export class CategoryValidator {
 
 	read() {
 		return z.object({
-			with_ancestors: validateBoolean().default(false),
-			with_children: validateBoolean().default(false),
+			with_ancestors: this.validateBoolean().default(false),
+			with_children: this.validateBoolean().default(false),
 		});
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -93,7 +89,7 @@ export class CategoryValidator {
 						message: lang('shared.validation.invalid_number'),
 					})
 					.optional(),
-				language: validateLanguage().optional(),
+				language: this.validateLanguage().optional(),
 				type: z
 					.enum(CategoryTypeEnum, {
 						message: lang('category.validation.type_invalid'),
@@ -109,14 +105,14 @@ export class CategoryValidator {
 						message: lang('shared.validation.invalid_string'),
 					})
 					.optional(),
-				is_deleted: validateBoolean().default(false),
+				is_deleted: this.validateBoolean().default(false),
 			},
 		});
 	}
 
 	statusUpdate() {
 		return z.object({
-			force: validateBoolean().default(false), // Used to force the `inactive` status update even if the category has active descendants
+			force: this.validateBoolean().default(false), // Used to force the `inactive` status update even if the category has active descendants
 		});
 	}
 }

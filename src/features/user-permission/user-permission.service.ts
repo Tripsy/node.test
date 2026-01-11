@@ -1,7 +1,7 @@
 import { lang } from '@/config/i18n.setup';
 import { getUserPermissionRepository } from '@/features/user-permission/user-permission.repository';
 import type { UserPermissionValidator } from '@/features/user-permission/user-permission.validator';
-import type { ValidatorDto } from '@/helpers';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
 
 export class UserPermissionService {
 	constructor(

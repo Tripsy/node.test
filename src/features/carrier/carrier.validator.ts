@@ -1,14 +1,9 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
-import {
-	hasAtLeastOneValue,
-	makeFindValidator,
-	nullableString,
-	validateBoolean,
-	validateString,
-} from '@/helpers';
+import { hasAtLeastOneValue } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 export const paramsUpdateList: string[] = [
 	'name',
@@ -25,14 +20,14 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export class CarrierValidator {
+export class CarrierValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
 
 	public create() {
 		return z.object({
-			name: validateString(lang('carrier.validation.name_invalid')),
+			name: this.validateString(lang('carrier.validation.name_invalid')),
 			website: z.preprocess(
 				(val) => (val === '' ? null : val),
 				z
@@ -42,7 +37,9 @@ export class CarrierValidator {
 					.nullable()
 					.optional(),
 			),
-			phone: nullableString(lang('carrier.validation.phone_invalid')),
+			phone: this.nullableString(
+				lang('carrier.validation.phone_invalid'),
+			),
 			email: z.preprocess(
 				(val) => (val === '' ? null : val),
 				z
@@ -52,14 +49,16 @@ export class CarrierValidator {
 					.nullable()
 					.optional(),
 			),
-			notes: nullableString(lang('carrier.validation.notes_invalid')),
+			notes: this.nullableString(
+				lang('carrier.validation.notes_invalid'),
+			),
 		});
 	}
 
 	public update() {
 		return z
 			.object({
-				name: validateString(
+				name: this.validateString(
 					lang('carrier.validation.name_invalid'),
 				).optional(),
 				website: z.preprocess(
@@ -71,7 +70,9 @@ export class CarrierValidator {
 						.nullable()
 						.optional(),
 				),
-				phone: nullableString(lang('carrier.validation.phone_invalid')),
+				phone: this.nullableString(
+					lang('carrier.validation.phone_invalid'),
+				),
 				email: z.preprocess(
 					(val) => (val === '' ? null : val),
 					z
@@ -81,7 +82,9 @@ export class CarrierValidator {
 						.nullable()
 						.optional(),
 				),
-				notes: nullableString(lang('carrier.validation.notes_invalid')),
+				notes: this.nullableString(
+					lang('carrier.validation.notes_invalid'),
+				),
 			})
 			.refine((data) => hasAtLeastOneValue(data), {
 				message: lang('shared.validation.params_at_least_one', {
@@ -92,7 +95,7 @@ export class CarrierValidator {
 	}
 
 	public find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -113,7 +116,7 @@ export class CarrierValidator {
 						message: lang('shared.validation.invalid_string'),
 					})
 					.optional(),
-				is_deleted: validateBoolean().default(false),
+				is_deleted: this.validateBoolean().default(false),
 			},
 		});
 	}

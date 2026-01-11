@@ -11,7 +11,7 @@ import {
 	paramsUpdateList,
 	type UserValidator,
 } from '@/features/user/user.validator';
-import type { ValidatorDto } from '@/helpers';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
 
 export class UserService {
 	constructor(

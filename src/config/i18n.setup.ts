@@ -6,7 +6,6 @@ import Backend from 'i18next-fs-backend';
 import { LanguageDetector } from 'i18next-http-middleware';
 import { Configuration } from '@/config/settings.config';
 import { buildSrcPath, listDirectories } from '@/helpers';
-import { cacheProvider } from '@/providers/cache.provider';
 import { getSystemLogger } from '@/providers/logger.provider';
 
 async function getFeatureNamespaces(): Promise<string[]> {
@@ -44,28 +43,8 @@ async function getNamespaces(): Promise<string[]> {
 	return ['shared', ...featureNamespaces];
 }
 
-/**
- * Return the list of namespaces based on the translation files from `locales/en` directory.
- * The result is cached to improve performance.
- */
-async function resolveNamespaces(): Promise<string[]> {
-	// While running tests will start failing because Redis connection is not closed
-	// So we don't use cache
-	// May be a bug, may be an issue, I didn't find a resolution
-	if (Configuration.isEnvironment('test')) {
-		return getNamespaces();
-	}
-
-	const cacheKey = cacheProvider.buildKey('i18next', 'ns');
-
-	return (await cacheProvider.get(
-		cacheKey,
-		async () => await getNamespaces(),
-	)) as string[];
-}
-
 export async function initializeI18next() {
-	const namespaces = await resolveNamespaces();
+	const namespaces = await getNamespaces();
 
 	await i18next
 		.use(Backend)

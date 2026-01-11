@@ -9,8 +9,8 @@ import CategoryEntity, {
 import { getCategoryRepository } from '@/features/category/category.repository';
 import type { CategoryValidator } from '@/features/category/category.validator';
 import CategoryContentRepository from '@/features/category/category-content.repository';
-import type { ValidatorDto } from '@/helpers';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
 
 export class CategoryService {
 	constructor(

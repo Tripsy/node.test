@@ -4,4 +4,3 @@ export * from './meta-data.helper';
 export * from './objects.helper';
 export * from './string.helper';
 export * from './system.helper';
-export * from './validator.helper';

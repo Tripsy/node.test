@@ -10,7 +10,7 @@ import discountRoutes from '@/features/discount/discount.routes';
 import { discountService } from '@/features/discount/discount.service';
 import type { DiscountValidator } from '@/features/discount/discount.validator';
 import { discountMock } from '@/features/discount/tests/discount.mock';
-import type { ValidatorDto } from '@/helpers';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
 import {
 	testControllerCreate,
 	testControllerDeleteSingle,

@@ -39,60 +39,65 @@ Meanwhile, I'm open to suggestions, feedback and If you find this project useful
 
 # Characteristics
 
+- [x] Ready-to-use boilerplate with a modular, feature-based architecture
 - [x] Custom Error Handling
 - [x] Logging (powered by Pino) to file, db, or email
 - [x] TypeORM Wrapper: A layer over TypeORM for smoother database interactions.
-- [x] Request validators (using Zod)
+- [x] Request validation (powered by Zod)
 - [x] Standardized JSON Responses: Consistent response structures for better frontend integration (e.g.: res.locals.output)
 - [x] Caching (powered by ioredis)
-- [x] Cron Jobs (with history)
-   - clean-account-recovery; 
-   - clean-account-token; 
-   - cron-error-count, cron-time-check, cron-warning-count
-   - worker-maintenance 
-- [x] Email Sending via Queue (powered by BullMQ)
-- [x] Template management (for emails, pages) + seed data (eg: templates.seed.ts)
-    - [x] Nunjucks implemented for templating language
+- [x] Cron jobs provider with automatic discovery and registration
+- [x] Auto-registered event listeners
+- [x] Email sending via queues (powered by BullMQ)
+- [x] Template management for emails and pages
 - [x] Subscribers (powered by TypeORM)
 - [x] Custom Middlewares
     - Auth (auth.middleware → res.locals.auth)
     - REST API Documentation Link (meta-documentation.middleware)
     - Determine language (language.middleware → res.locals.lang)
     - Params validation 
-- [x] Language management (powered by i18next)
-- [x] Auth system (e.g.: register, login, logout, password recover, password change, email confirm)
-   - user roles (e.g.: admin, user, operator)
-   - login based on JWT tokens (managed by `account-token.repository`)
-   - password recovery (managed by `account-recovery.repository`)
-- [x] Policies (based on user roles and permissions)
-- [x] Tests (powered by Jest & Supertest)
+- [x] Internationalization / language management (powered by i18next)
+- [x] Complete `Auth System`: Secure, modular auth layer supporting user registration, login (token-based authentication), etc
+- [x] Authorization policies based on user roles and permissions
+- [x] Testing (powered by Jest & Supertest)
 
 # Features
 
-- account: register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate, me, sessions, edit, delete
-- article: 
-- brand: 
-- carrier: create, read, update, delete, restore, find
-- category: create, read, update, delete, restore, find, statusUpdate
-- client: create, read, update, delete, restore, find, statusUpdate
-- cron-history.controller: read, delete, find
-- discount: create, read, update, delete, restore, find
-- image: 
-- invoice: 
-- log-data.controller: read, delete, find
-- log-history.controller: read, delete, find
-- mail-queue.controller: read, delete, find
-- order: 
-- order-shipping: 
-- payment: 
-- permission.controller (create, read, update, delete, restore, find
-- place: create, read, update, delete, restore, find
-- product: 
-- subscription:
-- template.controller (create, read, update, delete, restore, find)
-- term: 
-- user.controller (create, read, update, delete, restore, find, statusUpdate)
-- user-permission.controller (create, delete, restore, find)
+### Core features
+
+- [x] account: register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate, me, sessions, edit, delete
+- [x] cron-history.controller: read, delete, find
+- [x] log-data.controller: read, delete, find
+- [x] log-history.controller: read, delete, find
+- [x] mail-queue.controller: read, delete, find
+- [x] permission.controller (create, read, update, delete, restore, find
+- [x] template.controller (create, read, update, delete, restore, find)
+- [x] user.controller (create, read, update, delete, restore, find, statusUpdate)
+- [x] user-permission.controller (create, delete, restore, find)
+
+### Modular features
+
+
+- [x] carrier: create, read, update, delete, restore, find
+- [x] category: create, read, update, delete, restore, find, statusUpdate
+- [x] client: create, read, update, delete, restore, find, statusUpdate
+- [x] discount: create, read, update, delete, restore, find
+
+- [x] place: create, read, update, delete, restore, find
+
+
+### Upcoming features
+
+- article
+- brand
+- image
+- invoice
+- order
+- order-shipping
+- payment
+- product
+- subscription
+- term
 
 # Setup
 
@@ -174,55 +179,7 @@ $ pnpm run test account.functional.ts --testTimeout=60000 --detectOpenHandles
 $ pnpm run test account.unit.ts --detect-open-handles
 ```
 
-# TODO
 
-1. do validator.helper.ts an abstract class
-2. make features as package:
-    - move specific cron-jobs into features
-    - create separate migration per entity
-3. CLI ...should have a command which runs seed if exist 
-    - create user.seed.ts - default admin user 
-4. do tests for the rest of controllers
-5. do tests for validators
-6. feature - brand 
-7. feature - images 
-8. Go on FE → category, place, brand, client
-9. Go on FE #2 → carrier, discount, 
-10. Go on FE #3 → image (multer - File upload handling)
-11. wip entities:
-     - article
-         - article-category
-         - article-content
-         - article-tag  
-         - article-track
-     - brand
-         - brand-content 
-     - image  
-       - image-content
-     - invoice
-     - order
-         - order-product
-     - order-shipping
-         - order-shipping-product
-     - payment
-     - product
-         - product-attribute
-         - product-category
-         - product-tag
-         - product-content
-     - subscription
-         - subscription-evidence
-     - term
-12. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-13. Review "ideas"
-
-# Bugs & issues
-
-1. API documentation > swagger-ui-express
-2. settings saved in DB
-3. cron hanging / delaying / semaphore ?!
-4. CI/CD (once tests are working)
-5. For "Star" use category for "cars"
 
 # Structure
 
@@ -268,8 +225,55 @@ $ pnpm run test account.unit.ts --detect-open-handles
 └── tsconfig.json
 ```
 
-# Dependencies
+# TODO
 
+1. make features as package:
+    - move specific cron-jobs into features
+    - create separate migration per entity
+2. CLI ...should have a command which runs seed if exist 
+    - create user.seed.ts - default admin user 
+3. do tests for the rest of controllers
+4. do tests for validators
+5. feature - brand 
+6. feature - images 
+7. Go on FE → category, place, brand, client
+8. Go on FE #2 → carrier, discount, 
+9. Go on FE #3 → image (multer - File upload handling)
+10. wip entities:
+     - article
+         - article-category
+         - article-content
+         - article-tag  
+         - article-track
+     - brand
+         - brand-content 
+     - image  
+       - image-content
+     - invoice
+     - order
+         - order-product
+     - order-shipping
+         - order-shipping-product
+     - payment
+     - product
+         - product-attribute
+         - product-category
+         - product-tag
+         - product-content
+     - subscription
+         - subscription-evidence
+     - term
+11. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+12. Review "ideas"
+
+# Bugs & issues
+
+1. API documentation > swagger-ui-express
+2. cron hanging / delaying / semaphore 
+3. CI/CD 
+4. For "Star" use category for "cars"
+
+# Dependencies
     
 - [Pino](https://github.com/pinojs/pino) - Fast, low-overhead Node.js logger
 - [Mysql2](https://github.com/sidorares/node-mysql2) - MySQL client for Node.js with TypeScript support

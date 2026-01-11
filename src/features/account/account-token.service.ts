@@ -2,10 +2,8 @@ import type { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import type { Repository } from 'typeorm/repository/Repository';
 import { v4 as uuid } from 'uuid';
-import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
-import { BadRequestError, CustomError } from '@/exceptions';
-import type { ConfirmationTokenPayload } from '@/features/account/account.service';
+import { CustomError } from '@/exceptions';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import {
 	type AccountTokenQuery,
@@ -188,25 +186,6 @@ export class AccountTokenService {
 			.createQuery()
 			.filterByIdent(ident)
 			.delete(false);
-	}
-
-	/**
-	 * @description Verify auth token and return payload
-	 * @param token
-	 */
-	public determineConfirmationTokenPayload(
-		token: string,
-	): ConfirmationTokenPayload {
-		try {
-			return jwt.verify(
-				token,
-				Configuration.get('user.emailConfirmationSecret') as string,
-			) as ConfirmationTokenPayload;
-		} catch {
-			throw new BadRequestError(
-				lang('account.error.confirmation_token_invalid'),
-			);
-		}
 	}
 }
 

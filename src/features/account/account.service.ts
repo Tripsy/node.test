@@ -182,6 +182,25 @@ export class AccountService {
 				break;
 		}
 	}
+
+	/**
+	 * @description Verify confirmation token and return payload
+	 * @param token
+	 */
+	public determineConfirmationTokenPayload(
+		token: string,
+	): ConfirmationTokenPayload {
+		try {
+			return jwt.verify(
+				token,
+				Configuration.get('user.emailConfirmationSecret') as string,
+			) as ConfirmationTokenPayload;
+		} catch {
+			throw new BadRequestError(
+				lang('account.error.confirmation_token_invalid'),
+			);
+		}
+	}
 }
 
 export const accountService = new AccountService(

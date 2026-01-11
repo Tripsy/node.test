@@ -12,7 +12,7 @@ import {
 	type ClientValidator,
 	paramsUpdateList,
 } from '@/features/client/client.validator';
-import type { ValidatorDto } from '@/helpers';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
 
 export class ClientService {
 	constructor(private repository: ReturnType<typeof getClientRepository>) {}

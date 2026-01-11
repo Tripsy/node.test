@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
 import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history.entity';
-import { makeFindValidator, validateDate } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -11,7 +11,7 @@ enum OrderByEnum {
 	START_AT = 'start_at',
 }
 
-export class CronHistoryValidator {
+export class CronHistoryValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
@@ -36,7 +36,7 @@ export class CronHistoryValidator {
 	}
 
 	public find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -58,8 +58,8 @@ export class CronHistoryValidator {
 					})
 					.optional(),
 				status: z.enum(CronHistoryStatusEnum).optional(),
-				start_date_start: validateDate(),
-				start_date_end: validateDate(),
+				start_date_start: this.validateDate(),
+				start_date_end: this.validateDate(),
 			},
 		}).superRefine((data, ctx) => {
 			if (

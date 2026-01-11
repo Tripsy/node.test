@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
-import { validateLanguage, validateString, validateStringMin } from '@/helpers';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
-export class AccountValidator {
+export class AccountValidator extends BaseValidator {
 	private readonly nameMinLength = Configuration.get(
 		'user.nameMinLength',
 	) as number;
@@ -14,7 +14,7 @@ export class AccountValidator {
 	public register() {
 		return z
 			.object({
-				name: validateStringMin(
+				name: this.validateStringMin(
 					lang('account.validation.name_invalid'),
 					this.nameMinLength,
 					lang('account.validation.name_min', {
@@ -57,7 +57,7 @@ export class AccountValidator {
 						'account.validation.password_confirm_required',
 					),
 				}),
-				language: validateLanguage().optional(),
+				language: this.validateLanguage().optional(),
 			})
 			.superRefine(({ password, password_confirm }, ctx) => {
 				if (password !== password_confirm) {
@@ -144,7 +144,7 @@ export class AccountValidator {
 	public passwordUpdate() {
 		return z
 			.object({
-				password_current: validateString(
+				password_current: this.validateString(
 					lang('account.validation.password_invalid'),
 				),
 				password_new: z
@@ -220,20 +220,20 @@ export class AccountValidator {
 
 	public meEdit() {
 		return z.object({
-			name: validateStringMin(
+			name: this.validateStringMin(
 				lang('account.validation.name_invalid'),
 				this.nameMinLength,
 				lang('account.validation.name_min', {
 					min: this.nameMinLength.toString(),
 				}),
 			),
-			language: validateLanguage(),
+			language: this.validateLanguage(),
 		});
 	}
 
 	public meDelete() {
 		return z.object({
-			password_current: validateString(
+			password_current: this.validateString(
 				lang('account.validation.password_invalid'),
 			),
 		});

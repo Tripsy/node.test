@@ -10,7 +10,8 @@ import {
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
-import type { ValidatorDto } from '@/helpers';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+
 export class PlaceService {
 	constructor(
 		private repository: ReturnType<typeof getPlaceRepository>,

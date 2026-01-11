@@ -2,16 +2,9 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
 import { TemplateTypeEnum } from '@/features/template/template.entity';
-import {
-	hasAtLeastOneValue,
-	makeFindValidator,
-	safeHtml,
-	validateBoolean,
-	validateEnum,
-	validateLanguage,
-	validateString,
-} from '@/helpers';
+import { hasAtLeastOneValue, safeHtml } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 export const paramsUpdateList: string[] = [
 	'label',
@@ -27,16 +20,18 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export class TemplateValidator {
+export class TemplateValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
 
 	public create() {
 		const TemplateCreateBaseValidator = z.object({
-			label: validateString(lang('template.validation.label_invalid')),
-			language: validateLanguage(),
-			type: validateEnum(
+			label: this.validateString(
+				lang('template.validation.label_invalid'),
+			),
+			language: this.validateLanguage(),
+			type: this.validateEnum(
 				TemplateTypeEnum,
 				lang('template.validation.type_invalid'),
 			),
@@ -46,7 +41,7 @@ export class TemplateValidator {
 			{
 				type: z.literal(TemplateTypeEnum.EMAIL),
 				content: z.object({
-					subject: validateString(
+					subject: this.validateString(
 						lang('template.validation.email_subject_invalid'),
 					),
 					text: z
@@ -56,7 +51,7 @@ export class TemplateValidator {
 							),
 						})
 						.optional(),
-					html: validateString(
+					html: this.validateString(
 						lang('template.validation.email_html_invalid'),
 					).transform((val) => safeHtml(val)),
 					layout: z
@@ -73,10 +68,10 @@ export class TemplateValidator {
 		const TemplateCreatePageValidator = TemplateCreateBaseValidator.extend({
 			type: z.literal(TemplateTypeEnum.PAGE),
 			content: z.object({
-				title: validateString(
+				title: this.validateString(
 					lang('template.validation.page_title_invalid'),
 				),
-				html: validateString(
+				html: this.validateString(
 					lang('template.validation.page_html_invalid'),
 				).transform((val) => safeHtml(val)),
 				layout: z
@@ -97,11 +92,11 @@ export class TemplateValidator {
 
 	update() {
 		const TemplateUpdateBaseValidator = z.object({
-			label: validateString(
+			label: this.validateString(
 				lang('template.validation.label_invalid'),
 			).optional(),
-			language: validateLanguage().optional(),
-			type: validateEnum(
+			language: this.validateLanguage().optional(),
+			type: this.validateEnum(
 				TemplateTypeEnum,
 				lang('template.validation.type_invalid'),
 			).optional(),
@@ -112,7 +107,7 @@ export class TemplateValidator {
 				type: z.literal(TemplateTypeEnum.EMAIL),
 				content: z
 					.object({
-						subject: validateString(
+						subject: this.validateString(
 							lang('template.validation.email_subject_invalid'),
 						),
 						text: z
@@ -122,7 +117,7 @@ export class TemplateValidator {
 								),
 							})
 							.optional(),
-						html: validateString(
+						html: this.validateString(
 							lang('template.validation.page_html_invalid'),
 						).transform((val) => safeHtml(val)),
 						layout: z
@@ -141,10 +136,10 @@ export class TemplateValidator {
 			type: z.literal(TemplateTypeEnum.PAGE),
 			content: z
 				.object({
-					title: validateString(
+					title: this.validateString(
 						lang('template.validation.page_title_invalid'),
 					),
-					html: validateString(
+					html: this.validateString(
 						lang('template.validation.page_html_invalid'),
 					).transform((val) => safeHtml(val)),
 					layout: z
@@ -169,7 +164,7 @@ export class TemplateValidator {
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -190,13 +185,13 @@ export class TemplateValidator {
 						message: lang('shared.validation.invalid_string'),
 					})
 					.optional(),
-				language: validateLanguage().optional(),
+				language: this.validateLanguage().optional(),
 				type: z
 					.enum(TemplateTypeEnum, {
 						message: lang('template.validation.type_invalid'),
 					})
 					.optional(),
-				is_deleted: validateBoolean().default(false),
+				is_deleted: this.validateBoolean().default(false),
 			},
 		});
 	}

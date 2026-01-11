@@ -6,7 +6,6 @@ import pino, { type Logger } from 'pino';
 import pinoPretty from 'pino-pretty';
 import { v4 as uuid } from 'uuid';
 import { getDataSource } from '@/config/data-source.config';
-import { lang } from '@/config/i18n.setup';
 import { requestContext } from '@/config/request.context';
 import { Configuration } from '@/config/settings.config';
 import LogDataEntity, {
@@ -254,10 +253,7 @@ export class LogStream extends Writable {
 			.sendMail({
 				from: Configuration.get('mail.fromAddress') as string,
 				to: Configuration.get('logging.logEmail') as string,
-				subject: lang('shared.debug.email_log_subject', {
-					app: Configuration.get('app.name') as string,
-					level: logLevel,
-				}),
+				subject: `${Configuration.get<string>('app.name')} - Log ${logLevel}`,
 				text: JSON.stringify(clonedLog),
 			})
 			.catch((error) => {

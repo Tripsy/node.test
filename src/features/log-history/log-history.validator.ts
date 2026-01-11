@@ -2,13 +2,8 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { RequestContextSource } from '@/config/request.context';
 import { Configuration } from '@/config/settings.config';
-import {
-	makeFindValidator,
-	validateDate,
-	validateNumber,
-	validateString,
-} from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -17,7 +12,7 @@ enum OrderByEnum {
 	RECORDED_AT = 'recorded_at',
 }
 
-export class LogHistoryValidator {
+export class LogHistoryValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
@@ -42,7 +37,7 @@ export class LogHistoryValidator {
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -53,16 +48,16 @@ export class LogHistoryValidator {
 			defaultPage: 1,
 
 			filterShape: {
-				entity: validateString(
+				entity: this.validateString(
 					lang('shared.validation.invalid_string'),
 				).optional(),
-				entity_id: validateNumber(
+				entity_id: this.validateNumber(
 					lang('shared.validation.invalid_number'),
 				).optional(),
-				action: validateString(
+				action: this.validateString(
 					lang('shared.validation.invalid_string'),
 				).optional(),
-				request_id: validateString(
+				request_id: this.validateString(
 					lang('shared.validation.invalid_string'),
 				).optional(),
 				source: z
@@ -71,8 +66,8 @@ export class LogHistoryValidator {
 						lang('shared.error.invalid_source'),
 					)
 					.optional(),
-				recorded_at_start: validateDate(),
-				recorded_at_end: validateDate(),
+				recorded_at_start: this.validateDate(),
+				recorded_at_end: this.validateDate(),
 			},
 		}).superRefine((data, ctx) => {
 			if (

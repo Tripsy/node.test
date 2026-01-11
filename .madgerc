@@ -1,0 +1,10 @@
+{
+  "tsConfig": "tsconfig.json",
+  "fileExtensions": ["ts"],
+  "warning": true,
+  "excludeRegExp": [
+    "\\.entity\\.ts$",
+    "\\.dto\\.ts$",
+    "\\.types\\.ts$"
+  ]
+}

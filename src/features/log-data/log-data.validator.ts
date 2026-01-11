@@ -5,8 +5,8 @@ import {
 	LogDataCategoryEnum,
 	LogDataLevelEnum,
 } from '@/features/log-data/log-data.entity';
-import { makeFindValidator, validateDate } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -16,7 +16,7 @@ enum OrderByEnum {
 	CREATED_AT = 'created_at',
 }
 
-export class LogDataValidator {
+export class LogDataValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
@@ -41,7 +41,7 @@ export class LogDataValidator {
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -64,8 +64,8 @@ export class LogDataValidator {
 						message: lang('shared.validation.invalid_string'),
 					})
 					.optional(),
-				create_date_start: validateDate(),
-				create_date_end: validateDate(),
+				create_date_start: this.validateDate(),
+				create_date_end: this.validateDate(),
 			},
 		}).superRefine((data, ctx) => {
 			if (

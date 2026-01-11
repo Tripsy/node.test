@@ -1,7 +1,7 @@
 import type CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
 import type { CronHistoryValidator } from '@/features/cron-history/cron-history.validator';
-import type { ValidatorDto } from '@/helpers';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
 export class CronHistoryService {
 	constructor(
 		private repository: ReturnType<typeof getCronHistoryRepository>,

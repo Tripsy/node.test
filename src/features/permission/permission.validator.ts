@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
-import { makeFindValidator, validateBoolean, validateString } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 enum PermissionOrderByEnum {
 	ID = 'id',
@@ -10,24 +10,24 @@ enum PermissionOrderByEnum {
 	OPERATION = 'operation',
 }
 
-export class PermissionValidator {
+export class PermissionValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
 
 	manage() {
 		return z.object({
-			entity: validateString(
+			entity: this.validateString(
 				lang('permission.validation.entity_invalid'),
 			),
-			operation: validateString(
+			operation: this.validateString(
 				lang('permission.validation.operation_invalid'),
 			),
 		});
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: PermissionOrderByEnum,
 			defaultOrderBy: PermissionOrderByEnum.ID,
 
@@ -48,7 +48,7 @@ export class PermissionValidator {
 						message: lang('shared.validation.invalid_string'),
 					})
 					.optional(),
-				is_deleted: validateBoolean().default(false),
+				is_deleted: this.validateBoolean().default(false),
 			},
 		});
 	}

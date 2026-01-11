@@ -2,16 +2,9 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
 import { PlaceTypeEnum } from '@/features/place/place.entity';
-import {
-	hasAtLeastOneValue,
-	makeFindValidator,
-	nullableString,
-	validateBoolean,
-	validateEnum,
-	validateLanguage,
-	validateString,
-} from '@/helpers';
+import { hasAtLeastOneValue } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 export const paramsUpdateList: string[] = ['type', 'code', 'parent_id'];
 
@@ -19,16 +12,16 @@ enum OrderByEnum {
 	ID = 'id',
 }
 
-export class PlaceValidator {
+export class PlaceValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
 
 	placeContentSchema() {
 		return z.object({
-			language: validateLanguage(),
-			name: validateString(lang('place.validation.name_invalid')),
-			type_label: validateString(
+			language: this.validateLanguage(),
+			name: this.validateString(lang('place.validation.name_invalid')),
+			type_label: this.validateString(
 				lang('place.validation.type_label_invalid'),
 			),
 		});
@@ -37,11 +30,11 @@ export class PlaceValidator {
 	create() {
 		return z
 			.object({
-				type: validateEnum(
+				type: this.validateEnum(
 					PlaceTypeEnum,
 					lang('place.validation.type_invalid'),
 				),
-				code: validateString(
+				code: this.validateString(
 					lang('place.validation.code_invalid'),
 				).optional(),
 				parent_id: z.coerce
@@ -71,11 +64,13 @@ export class PlaceValidator {
 	update() {
 		return z
 			.object({
-				type: validateEnum(
+				type: this.validateEnum(
 					PlaceTypeEnum,
 					lang('place.validation.type_invalid'),
 				).optional(),
-				code: nullableString(lang('place.validation.code_invalid')),
+				code: this.nullableString(
+					lang('place.validation.code_invalid'),
+				),
 				parent_id: z.coerce
 					.number({ message: lang('shared.error.invalid_parent_id') })
 					.optional(),
@@ -105,7 +100,7 @@ export class PlaceValidator {
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -127,8 +122,8 @@ export class PlaceValidator {
 					})
 					.optional(),
 				type: z.enum(PlaceTypeEnum).optional(),
-				language: validateLanguage().optional(),
-				is_deleted: validateBoolean().default(false),
+				language: this.validateLanguage().optional(),
+				is_deleted: this.validateBoolean().default(false),
 			},
 		});
 	}

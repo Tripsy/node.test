@@ -9,7 +9,7 @@ import categoryRoutes from '@/features/category/category.routes';
 import { categoryService } from '@/features/category/category.service';
 import type { CategoryValidator } from '@/features/category/category.validator';
 import { categoryMock } from '@/features/category/tests/category.mock';
-import type { ValidatorDto } from '@/helpers';
+import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
 import {
 	testControllerCreate,
 	testControllerDeleteSingle,

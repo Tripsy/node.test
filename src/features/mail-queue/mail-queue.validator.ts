@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
 import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
-import { makeFindValidator, validateDate, validateLanguage } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 enum OrderByEnum {
 	ID = 'id',
@@ -11,7 +11,7 @@ enum OrderByEnum {
 	SENT_AT = 'sent_at',
 }
 
-export class MailQueueValidator {
+export class MailQueueValidator extends BaseValidator {
 	private readonly termMinLength = Configuration.get(
 		'filter.termMinLength',
 	) as number;
@@ -39,7 +39,7 @@ export class MailQueueValidator {
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -56,7 +56,7 @@ export class MailQueueValidator {
 					})
 					.optional(),
 				template: z.union([z.string(), z.number()]).optional(),
-				language: validateLanguage().optional(),
+				language: this.validateLanguage().optional(),
 				status: z.enum(MailQueueStatusEnum).optional(),
 				content: z
 					.string({
@@ -80,8 +80,8 @@ export class MailQueueValidator {
 						}),
 					})
 					.optional(),
-				sent_date_start: validateDate(),
-				sent_date_end: validateDate(),
+				sent_date_start: this.validateDate(),
+				sent_date_end: this.validateDate(),
 			},
 		}).superRefine((data, ctx) => {
 			if (

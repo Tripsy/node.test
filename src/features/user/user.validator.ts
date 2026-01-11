@@ -6,16 +6,9 @@ import {
 	UserRoleEnum,
 	UserStatusEnum,
 } from '@/features/user/user.entity';
-import {
-	hasAtLeastOneValue,
-	makeFindValidator,
-	nullableString,
-	validateBoolean,
-	validateDate,
-	validateLanguage,
-	validateStringMin,
-} from '@/helpers';
+import { hasAtLeastOneValue } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 export const paramsUpdateList: string[] = [
 	'name',
@@ -33,7 +26,7 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export class UserValidator {
+export class UserValidator extends BaseValidator {
 	private readonly nameMinLength = Configuration.get(
 		'user.nameMinLength',
 	) as number;
@@ -47,7 +40,7 @@ export class UserValidator {
 	public create() {
 		return z
 			.object({
-				name: validateStringMin(
+				name: this.validateStringMin(
 					lang('user.validation.name_invalid'),
 					this.nameMinLength,
 					lang('user.validation.name_min', {
@@ -88,7 +81,7 @@ export class UserValidator {
 				password_confirm: z.string({
 					message: lang('user.validation.password_confirm_required'),
 				}),
-				language: validateLanguage().optional(),
+				language: this.validateLanguage().optional(),
 				status: z
 					.enum(UserStatusEnum)
 					.optional()
@@ -137,7 +130,7 @@ export class UserValidator {
 	public update() {
 		return z
 			.object({
-				name: validateStringMin(
+				name: this.validateStringMin(
 					lang('user.validation.name_invalid'),
 					this.nameMinLength,
 					lang('user.validation.name_min', {
@@ -179,10 +172,10 @@ export class UserValidator {
 						)
 						.optional(),
 				),
-				password_confirm: nullableString(
+				password_confirm: this.nullableString(
 					lang('user.validation.password_confirm_required'),
 				),
-				language: validateLanguage().optional(),
+				language: this.validateLanguage().optional(),
 				role: z.enum(UserRoleEnum).optional(),
 				operator_type: z
 					.enum(UserOperatorTypeEnum)
@@ -238,7 +231,7 @@ export class UserValidator {
 	}
 
 	public find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -261,9 +254,9 @@ export class UserValidator {
 					.optional(),
 				status: z.enum(UserStatusEnum).optional(),
 				role: z.enum(UserRoleEnum).optional(),
-				create_date_start: validateDate(),
-				create_date_end: validateDate(),
-				is_deleted: validateBoolean().default(false),
+				create_date_start: this.validateDate(),
+				create_date_end: this.validateDate(),
+				is_deleted: this.validateBoolean().default(false),
 			},
 		}).superRefine((data, ctx) => {
 			if (

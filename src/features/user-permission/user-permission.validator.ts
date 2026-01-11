@@ -1,12 +1,8 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
-import {
-	makeFindValidator,
-	validateBoolean,
-	validateStringMin,
-} from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 enum UserPermissionOrderByEnum {
 	ID = 'id',
@@ -15,7 +11,7 @@ enum UserPermissionOrderByEnum {
 	OPERATION = 'permission.operation',
 }
 
-export class UserPermissionValidator {
+export class UserPermissionValidator extends BaseValidator {
 	private readonly termMinLength = Configuration.get(
 		'filter.termMinLength',
 	) as number;
@@ -43,7 +39,7 @@ export class UserPermissionValidator {
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: UserPermissionOrderByEnum,
 			defaultOrderBy: UserPermissionOrderByEnum.ID,
 
@@ -59,21 +55,21 @@ export class UserPermissionValidator {
 						message: lang('shared.validation.invalid_number'),
 					})
 					.optional(),
-				entity: validateStringMin(
+				entity: this.validateStringMin(
 					lang('shared.validation.invalid_string'),
 					this.termMinLength,
 					lang('shared.validation.string_min', {
 						min: this.termMinLength.toString(),
 					}),
 				).optional(),
-				operation: validateStringMin(
+				operation: this.validateStringMin(
 					lang('shared.validation.invalid_string'),
 					this.termMinLength,
 					lang('shared.validation.string_min', {
 						min: this.termMinLength.toString(),
 					}),
 				).optional(),
-				is_deleted: validateBoolean().default(false),
+				is_deleted: this.validateBoolean().default(false),
 			},
 		});
 	}

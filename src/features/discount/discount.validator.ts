@@ -7,16 +7,9 @@ import {
 	DiscountScopeEnum,
 	DiscountTypeEnum,
 } from '@/features/discount/discount.entity';
-import {
-	hasAtLeastOneValue,
-	makeFindValidator,
-	nullableString,
-	validateBoolean,
-	validateDate,
-	validateEnum,
-	validateString,
-} from '@/helpers';
+import { hasAtLeastOneValue } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 export const paramsUpdateList: string[] = [
 	'label',
@@ -40,7 +33,7 @@ enum OrderByEnum {
 	UPDATED_AT = 'updated_at',
 }
 
-export class DiscountValidator {
+export class DiscountValidator extends BaseValidator {
 	private readonly defaultFilterLimit = Configuration.get(
 		'filter.limit',
 	) as number;
@@ -57,21 +50,21 @@ export class DiscountValidator {
 	create() {
 		return z
 			.object({
-				label: validateString(
+				label: this.validateString(
 					lang('discount.validation.label_invalid'),
 				),
-				scope: validateEnum(
+				scope: this.validateEnum(
 					DiscountScopeEnum,
 					lang('discount.validation.scope_invalid'),
 				),
-				reason: validateEnum(
+				reason: this.validateEnum(
 					DiscountReasonEnum,
 					lang('discount.validation.reason_invalid'),
 				),
-				reference: nullableString(
+				reference: this.nullableString(
 					lang('discount.validation.reference_invalid'),
 				),
-				type: validateEnum(
+				type: this.validateEnum(
 					DiscountTypeEnum,
 					lang('discount.validation.type_invalid'),
 				),
@@ -85,9 +78,11 @@ export class DiscountValidator {
 							'discount.validation.value_must_be_positive',
 						),
 					}),
-				start_at: validateDate(lang('shared.error.start_at_invalid')),
-				end_at: validateDate(lang('shared.error.end_at_invalid')),
-				notes: nullableString(
+				start_at: this.validateDate(
+					lang('shared.error.start_at_invalid'),
+				),
+				end_at: this.validateDate(lang('shared.error.end_at_invalid')),
+				notes: this.nullableString(
 					lang('discount.validation.notes_invalid'),
 				),
 			})
@@ -126,21 +121,21 @@ export class DiscountValidator {
 	update() {
 		return z
 			.object({
-				label: validateString(
+				label: this.validateString(
 					lang('discount.validation.label_invalid'),
 				).optional(),
-				scope: validateEnum(
+				scope: this.validateEnum(
 					DiscountScopeEnum,
 					lang('discount.validation.scope_invalid'),
 				).optional(),
-				reason: validateEnum(
+				reason: this.validateEnum(
 					DiscountReasonEnum,
 					lang('discount.validation.reason_invalid'),
 				).optional(),
-				reference: nullableString(
+				reference: this.nullableString(
 					lang('discount.validation.reference_invalid'),
 				),
-				type: validateEnum(
+				type: this.validateEnum(
 					DiscountTypeEnum,
 					lang('discount.validation.type_invalid'),
 				).optional(),
@@ -155,9 +150,11 @@ export class DiscountValidator {
 						),
 					})
 					.optional(),
-				start_at: validateDate(lang('shared.error.start_at_invalid')),
-				end_at: validateDate(lang('shared.error.end_at_invalid')),
-				notes: nullableString(
+				start_at: this.validateDate(
+					lang('shared.error.start_at_invalid'),
+				),
+				end_at: this.validateDate(lang('shared.error.end_at_invalid')),
+				notes: this.nullableString(
 					lang('discount.validation.notes_invalid'),
 				),
 			})
@@ -200,7 +197,7 @@ export class DiscountValidator {
 	}
 
 	find() {
-		return makeFindValidator({
+		return this.makeFindValidator({
 			orderByEnum: OrderByEnum,
 			defaultOrderBy: OrderByEnum.ID,
 
@@ -225,9 +222,9 @@ export class DiscountValidator {
 				reason: z.enum(DiscountReasonEnum).optional(),
 				type: z.enum(DiscountTypeEnum).optional(),
 				reference: z.string().optional(),
-				start_at_start: validateDate(),
-				start_at_end: validateDate(),
-				is_deleted: validateBoolean().default(false),
+				start_at_start: this.validateDate(),
+				start_at_end: this.validateDate(),
+				is_deleted: this.validateBoolean().default(false),
 			},
 		}).superRefine((data, ctx) => {
 			if (

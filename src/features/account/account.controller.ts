@@ -389,7 +389,7 @@ class AccountController extends BaseController {
 
 		// Verify JWT and extract payload
 		const confirmationTokenPayload =
-			accountTokenService.determineConfirmationTokenPayload(token);
+			accountService.determineConfirmationTokenPayload(token);
 
 		const user = await this.userService.findById(
 			confirmationTokenPayload.user_id,
