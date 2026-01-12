@@ -1,6 +1,9 @@
 import emailQueue from '@/queues/email.queue';
 
-export const workerMaintenance = async () => {
+export const SCHEDULE_EXPRESSION = '04 */6 * * *';
+export const EXPECTED_RUN_TIME = 3; // seconds
+
+const workerMaintenance = async () => {
 	// Remove failed jobs older than 24 hours
 	const removedFailedJobs = await emailQueue.clean(
 		1000 * 60 * 60 * 24,
@@ -12,3 +15,5 @@ export const workerMaintenance = async () => {
 		removedFailedJobs: removedFailedJobs.length,
 	};
 };
+
+export default workerMaintenance;

@@ -82,3 +82,9 @@ export function listFiles(originPath: string): string[] {
 		.filter((dirent) => !dirent.name.startsWith('.')) // Skip hidden files
 		.map((dirent) => dirent.name);
 }
+
+export function getFileNameWithoutExtension(s: string): string {
+	const match = path.basename(s).match(/^([\w-]+)/);
+
+	return match ? match[1] : 'unknown';
+}

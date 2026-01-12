@@ -3,8 +3,11 @@ import { getCronHistoryRepository } from '@/features/cron-history/cron-history.r
 import { createPastDate } from '@/helpers';
 import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 
+export const SCHEDULE_EXPRESSION = '01 02 * * *';
+export const EXPECTED_RUN_TIME = 3; // seconds
+
 // Report cron errors in the last 24 hours
-export const cronErrorCount = async () => {
+const cronErrorCount = async () => {
 	const query = getCronHistoryRepository()
 		.createQuery()
 		.select(['id'])
@@ -35,3 +38,5 @@ export const cronErrorCount = async () => {
 		errorCount: errorCount,
 	};
 };
+
+export default cronErrorCount;
