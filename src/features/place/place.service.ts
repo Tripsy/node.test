@@ -10,7 +10,7 @@ import {
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class PlaceService {
 	constructor(
@@ -24,7 +24,7 @@ export class PlaceService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: ValidatorDto<PlaceValidator, 'create'>,
+		data: ValidatorOutput<PlaceValidator, 'create'>,
 	): Promise<PlaceEntity> {
 		return getDataSource().transaction(async (manager) => {
 			const repository = this.getScopedPlaceRepository(manager);
@@ -52,7 +52,7 @@ export class PlaceService {
 	 */
 	public async updateDataWithContent(
 		id: number,
-		data: ValidatorDto<PlaceValidator, 'update'>,
+		data: ValidatorOutput<PlaceValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const place = await this.findById(id, withDeleted);
@@ -181,7 +181,7 @@ export class PlaceService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<PlaceValidator, 'find'>,
+		data: ValidatorOutput<PlaceValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

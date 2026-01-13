@@ -99,7 +99,16 @@ class DiscountController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate(this.validator.find(), req.query, res);
+		const data = this.validate(
+			this.validator.find(),
+			{
+				...req.query,
+				...(res.locals.filter !== undefined && {
+					filter: res.locals.filter,
+				}),
+			},
+			res,
+		);
 
 		const [entries, total] = await this.discountService.findByFilter(
 			data,

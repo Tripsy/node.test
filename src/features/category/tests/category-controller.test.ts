@@ -1,15 +1,16 @@
 import { jest } from '@jest/globals';
 import type CategoryEntity from '@/features/category/category.entity';
-import {
-	CategoryStatusEnum,
-	CategoryTypeEnum,
-} from '@/features/category/category.entity';
 import { categoryPolicy } from '@/features/category/category.policy';
 import categoryRoutes from '@/features/category/category.routes';
 import { categoryService } from '@/features/category/category.service';
-import type { CategoryValidator } from '@/features/category/category.validator';
-import { categoryMock } from '@/features/category/tests/category.mock';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type {
+	CategoryValidator,
+	OrderByEnum,
+} from '@/features/category/category.validator';
+import {
+	categoryEntityMock,
+	categoryPayloads,
+} from '@/features/category/tests/category.mock';
 import {
 	testControllerCreate,
 	testControllerDeleteSingle,
@@ -19,6 +20,7 @@ import {
 	testControllerStatusUpdate,
 	testControllerUpdateWithContent,
 } from '@/tests/jest-controller.setup';
+import { validatorPayload } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -26,72 +28,29 @@ beforeEach(() => {
 
 const controller = 'CategoryController';
 const basePath = categoryRoutes.basePath;
-const mockEntry = categoryMock();
 
-testControllerCreate<CategoryEntity, ValidatorDto<CategoryValidator, 'create'>>(
-	{
-		controller: controller,
-		basePath: basePath,
-		mockEntry: mockEntry,
-		policy: categoryPolicy,
-		service: categoryService,
-		createData: {
-			type: CategoryTypeEnum.ARTICLE,
-			parent_id: 1,
-			content: [
-				{
-					language: 'en',
-					label: 'Technology',
-					slug: 'Technology ',
-					meta: {
-						title: 'Technology Articles',
-						description: 'All technology related content',
-					},
-					description: 'Tech related articles and news',
-				},
-				{
-					language: 'fr',
-					label: 'Technologies',
-					slug: 'technologies',
-					meta: {
-						title: 'Articles Technologies',
-						description: 'Contenu lié à la technologie',
-					},
-				},
-			],
-		},
-	},
-);
-
-testControllerUpdateWithContent<
-	CategoryEntity,
-	ValidatorDto<CategoryValidator, 'update'>
->({
+testControllerCreate<CategoryEntity, CategoryValidator>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: categoryEntityMock,
 	policy: categoryPolicy,
 	service: categoryService,
-	updateData: {
-		parent_id: 3,
-		content: [
-			{
-				language: 'en',
-				label: 'Science',
-				slug: 'science',
-				meta: {
-					title: 'Science',
-					description: 'Scientific content',
-				},
-			},
-		],
-	},
+	createData: validatorPayload(categoryPayloads, 'create'),
+});
+
+testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
+	controller: controller,
+	basePath: basePath,
+	entityMock: categoryEntityMock,
+	policy: categoryPolicy,
+	service: categoryService,
+	updateData: validatorPayload(categoryPayloads, 'update'),
 });
 
 testControllerRead<CategoryEntity>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: categoryEntityMock,
 	policy: categoryPolicy,
 });
 
@@ -109,27 +68,19 @@ testControllerRestoreSingle({
 	service: categoryService,
 });
 
-testControllerFind<CategoryEntity, ValidatorDto<CategoryValidator, 'find'>>({
+testControllerFind<CategoryEntity, CategoryValidator, OrderByEnum>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: categoryEntityMock,
 	policy: categoryPolicy,
 	service: categoryService,
-	filterData: {
-		filter: {
-			language: 'en',
-			type: CategoryTypeEnum.ARTICLE,
-			status: CategoryStatusEnum.ACTIVE,
-			term: 'tech',
-			is_deleted: false,
-		},
-	},
+	findData: validatorPayload(categoryPayloads, 'find'),
 });
 
 testControllerStatusUpdate<CategoryEntity>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: categoryEntityMock,
 	policy: categoryPolicy,
 	service: categoryService,
 	newStatus: 'active',

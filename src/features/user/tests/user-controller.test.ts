@@ -1,12 +1,13 @@
 import { jest } from '@jest/globals';
-import { userMock } from '@/features/user/tests/user.mock';
+import { userEntityMock, userPayloads } from '@/features/user/tests/user.mock';
 import type UserEntity from '@/features/user/user.entity';
-import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
 import userRoutes from '@/features/user/user.routes';
 import { userService } from '@/features/user/user.service';
-import type { UserValidator } from '@/features/user/user.validator';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type {
+	OrderByEnum,
+	UserValidator,
+} from '@/features/user/user.validator';
 import {
 	testControllerCreate,
 	testControllerDeleteSingle,
@@ -16,7 +17,7 @@ import {
 	testControllerStatusUpdate,
 	testControllerUpdate,
 } from '@/tests/jest-controller.setup';
-import { mockPastDate } from '@/tests/mocks/helpers.mock';
+import { validatorPayload } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -24,43 +25,29 @@ beforeEach(() => {
 
 const controller = 'UserController';
 const basePath = userRoutes.basePath;
-const mockEntry = userMock();
 
-testControllerCreate<UserEntity, ValidatorDto<UserValidator, 'create'>>({
+testControllerCreate<UserEntity, UserValidator>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: userEntityMock,
 	policy: userPolicy,
 	service: userService,
-	createData: {
-		name: 'John Doe',
-		email: 'john.doe@example.com',
-		password: 'Secure@123',
-		password_confirm: 'Secure@123',
-		language: 'en',
-		status: UserStatusEnum.PENDING, // optional, default anyway
-		role: UserRoleEnum.MEMBER, // optional, default anyway
-		operator_type: null, // correct for non-operator
-	},
+	createData: validatorPayload(userPayloads, 'create'),
 });
 
-testControllerUpdate<UserEntity, ValidatorDto<UserValidator, 'update'>>({
+testControllerUpdate<UserEntity, UserValidator>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: userEntityMock,
 	policy: userPolicy,
 	service: userService,
-	updateData: {
-		name: 'Updated User',
-		email: 'updated.user@example.com',
-		language: 'en',
-	},
+	updateData: validatorPayload(userPayloads, 'update'),
 });
 
 testControllerRead<UserEntity>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: userEntityMock,
 	policy: userPolicy,
 });
 
@@ -78,28 +65,19 @@ testControllerRestoreSingle({
 	service: userService,
 });
 
-testControllerFind<UserEntity, ValidatorDto<UserValidator, 'find'>>({
+testControllerFind<UserEntity, UserValidator, OrderByEnum>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: userEntityMock,
 	policy: userPolicy,
 	service: userService,
-	filterData: {
-		filter: {
-			term: 'test',
-			status: UserStatusEnum.ACTIVE,
-			role: UserRoleEnum.MEMBER,
-			create_date_start: mockPastDate(14400),
-			create_date_end: mockPastDate(7200),
-			is_deleted: true,
-		},
-	},
+	findData: validatorPayload(userPayloads, 'find'),
 });
 
 testControllerStatusUpdate<UserEntity>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: userEntityMock,
 	policy: userPolicy,
 	service: userService,
 	newStatus: 'active',

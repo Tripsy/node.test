@@ -3,7 +3,7 @@ import { CustomError } from '@/exceptions';
 import type PermissionEntity from '@/features/permission/permission.entity';
 import { getPermissionRepository } from '@/features/permission/permission.repository';
 import type { PermissionValidator } from '@/features/permission/permission.validator';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 type PermissionCreateResult = {
 	permission: PermissionEntity;
@@ -20,7 +20,7 @@ export class PermissionService {
 	 */
 	public async create(
 		withDeleted: boolean,
-		data: ValidatorDto<PermissionValidator, 'manage'>,
+		data: ValidatorOutput<PermissionValidator, 'manage'>,
 	): Promise<PermissionCreateResult> {
 		const existingPermission = await this.checkIfExist(
 			data.entity,
@@ -70,7 +70,7 @@ export class PermissionService {
 	 */
 	public async updateData(
 		id: number,
-		data: ValidatorDto<PermissionValidator, 'manage'>,
+		data: ValidatorOutput<PermissionValidator, 'manage'>,
 		_withDeleted: boolean = true,
 	) {
 		const existingPermission = await this.checkIfExist(
@@ -142,7 +142,7 @@ export class PermissionService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<PermissionValidator, 'find'>,
+		data: ValidatorOutput<PermissionValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

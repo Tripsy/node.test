@@ -9,7 +9,7 @@ import { hasAtLeastOneValue } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 	LABEL = 'label',
 	CREATED_AT = 'created_at',

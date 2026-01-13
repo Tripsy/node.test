@@ -6,7 +6,7 @@ import {
 	type CarrierValidator,
 	paramsUpdateList,
 } from '@/features/carrier/carrier.validator';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class CarrierService {
 	constructor(private repository: ReturnType<typeof getCarrierRepository>) {}
@@ -15,7 +15,7 @@ export class CarrierService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: ValidatorDto<CarrierValidator, 'create'>,
+		data: ValidatorOutput<CarrierValidator, 'create'>,
 	): Promise<CarrierEntity> {
 		const existingCarrier = await this.findByName(data.name, true);
 
@@ -48,7 +48,7 @@ export class CarrierService {
 	 */
 	public async updateData(
 		id: number,
-		data: ValidatorDto<CarrierValidator, 'update'>,
+		data: ValidatorOutput<CarrierValidator, 'update'>,
 		withDeleted: boolean = true,
 	) {
 		if (data.name) {
@@ -108,7 +108,7 @@ export class CarrierService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<CarrierValidator, 'find'>,
+		data: ValidatorOutput<CarrierValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

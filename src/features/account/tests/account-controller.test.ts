@@ -14,7 +14,7 @@ import {
 	authValidTokenMock,
 	confirmationTokenPayloadMock,
 } from '@/features/account/tests/account.mock';
-import { userMock } from '@/features/user/tests/user.mock';
+import { userEntityMock } from '@/features/user/tests/user.mock';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { userService } from '@/features/user/user.service';
 import { addDebugResponse } from '@/tests/jest-controller.setup';
@@ -31,7 +31,7 @@ import { mockAccountEmailService } from '@/tests/mocks/services.mock';
 
 const controller = 'AccountController';
 const basePath = accountRoutes.basePath;
-const mockUser = userMock();
+const mockUser = userEntityMock;
 
 afterEach(() => {
 	jest.restoreAllMocks();

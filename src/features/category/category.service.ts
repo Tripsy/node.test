@@ -10,7 +10,7 @@ import { getCategoryRepository } from '@/features/category/category.repository';
 import type { CategoryValidator } from '@/features/category/category.validator';
 import CategoryContentRepository from '@/features/category/category-content.repository';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class CategoryService {
 	constructor(
@@ -24,7 +24,7 @@ export class CategoryService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: ValidatorDto<CategoryValidator, 'create'>,
+		data: ValidatorOutput<CategoryValidator, 'create'>,
 	): Promise<CategoryEntity> {
 		return getDataSource().transaction(async (manager) => {
 			const repository = this.getScopedCategoryRepository(manager);
@@ -77,7 +77,7 @@ export class CategoryService {
 	 */
 	public async updateDataWithContent(
 		id: number,
-		data: ValidatorDto<CategoryValidator, 'update'>,
+		data: ValidatorOutput<CategoryValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const category = await this.findById(id, withDeleted);
@@ -305,7 +305,7 @@ export class CategoryService {
 	public async getDataById(
 		id: number,
 		language: string,
-		data: ValidatorDto<CategoryValidator, 'read'>,
+		data: ValidatorOutput<CategoryValidator, 'read'>,
 		withDeleted: boolean,
 	) {
 		const categoryEntry = await this.repository
@@ -389,7 +389,7 @@ export class CategoryService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<CategoryValidator, 'find'>,
+		data: ValidatorOutput<CategoryValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

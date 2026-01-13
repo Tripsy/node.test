@@ -4,7 +4,7 @@ import {
 	type DiscountValidator,
 	paramsUpdateList,
 } from '@/features/discount/discount.validator';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class DiscountService {
 	constructor(private repository: ReturnType<typeof getDiscountRepository>) {}
@@ -13,7 +13,7 @@ export class DiscountService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: ValidatorDto<DiscountValidator, 'create'>,
+		data: ValidatorOutput<DiscountValidator, 'create'>,
 	): Promise<DiscountEntity> {
 		const entry = {
 			label: data.label,
@@ -45,7 +45,7 @@ export class DiscountService {
 	 */
 	public async updateData(
 		id: number,
-		data: ValidatorDto<DiscountValidator, 'update'>,
+		data: ValidatorOutput<DiscountValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		await this.findById(id, withDeleted); // Returns 404 inside if entry is not found
@@ -79,7 +79,7 @@ export class DiscountService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<DiscountValidator, 'find'>,
+		data: ValidatorOutput<DiscountValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

@@ -1,14 +1,19 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { BadRequestError } from '@/exceptions';
 import { PlaceTypeEnum } from '@/features/place/place.entity';
 import { getPlaceRepository } from '@/features/place/place.repository';
 import { isValidDate, stringToDate } from '@/helpers';
 
-export type ValidatorDto<V, K extends keyof V> = V[K] extends (
-	...args: string[]
+export type ValidatorInput<V, K extends keyof V> = V[K] extends (
+	...args: unknown[]
 ) => z.ZodTypeAny
-	? z.infer<ReturnType<V[K]>>
+	? z.input<ReturnType<V[K]>>
+	: never;
+
+export type ValidatorOutput<V, K extends keyof V> = V[K] extends (
+	...args: unknown[]
+) => z.ZodTypeAny
+	? z.output<ReturnType<V[K]>>
 	: never;
 
 type AddressFields = {
@@ -18,40 +23,6 @@ type AddressFields = {
 };
 
 export abstract class BaseValidator {
-	/**
-	 * @description Utility function used to parse JSON filter string to object
-	 */
-	private parseJsonFilter(val: unknown, onError: (val: string) => unknown) {
-		if (typeof val === 'string') {
-			if (val.trim() === '') {
-				return {};
-			}
-
-			try {
-				return JSON.parse(val);
-			} catch {
-				return onError(val);
-			}
-		}
-
-		return val;
-	}
-
-	/**
-	 * @description Used in validators to build JSON filter schema
-	 */
-	protected makeJsonFilterSchema<T extends z.ZodRawShape>(shape: T) {
-		return z.preprocess(
-			(val) =>
-				this.parseJsonFilter(val, () => {
-					throw new BadRequestError(
-						lang('shared.validation.invalid_filter'),
-					);
-				}),
-			z.object(shape).partial(),
-		);
-	}
-
 	/**
 	 * @description Make string nullable and optional
 	 */
@@ -195,7 +166,8 @@ export abstract class BaseValidator {
 				.optional()
 				.default(defaultPage),
 
-			filter: this.makeJsonFilterSchema(filterShape),
+			// filter: this.makeJsonFilterSchema(filterShape),
+			filter: z.object(filterShape).partial(),
 		});
 	}
 

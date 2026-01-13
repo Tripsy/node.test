@@ -1,8 +1,14 @@
 import { jest } from '@jest/globals';
 import request, { type Response } from 'supertest';
+import type { z } from 'zod';
 import app, { appReady, closeHandler, server } from '@/app';
 import { cacheProvider } from '@/providers/cache.provider';
+import type { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
+import type {
+	ValidatorInput,
+	ValidatorOutput,
+} from '@/shared/abstracts/validator.abstract';
 import {
 	authorizedSpy,
 	notAuthenticatedSpy,
@@ -43,23 +49,27 @@ export function addDebugResponse(response: Response, hint: string) {
 }
 
 // Controller test - Create
-type CreateService<DTO, E> = {
-	create(data: DTO): Promise<E>;
+export type CreateValidator = {
+	create: () => z.ZodObject<z.ZodRawShape>;
 };
 
-type ControllerCreateType<E, DTO> = {
+type CreateService<E, V extends CreateValidator> = {
+	create(data: ValidatorOutput<V, 'create'>): Promise<E>;
+};
+
+type ControllerCreateType<E, V extends CreateValidator> = {
 	controller: string;
 	basePath: string;
-	mockEntry: E & {
+	entityMock: E & {
 		id: number;
 	};
 	policy: PolicyAbstract;
-	service: CreateService<DTO, E>;
-	createData: Partial<DTO>;
+	service: CreateService<E, V>;
+	createData: ValidatorInput<V, 'create'>;
 };
 
-export function testControllerCreate<E, DTO extends object>(
-	config: ControllerCreateType<E, DTO>,
+export function testControllerCreate<E, V extends CreateValidator>(
+	config: ControllerCreateType<E, V>,
 ) {
 	describe(`${config.controller} - create`, () => {
 		const link = `${config.basePath}`;
@@ -82,7 +92,7 @@ export function testControllerCreate<E, DTO extends object>(
 			authorizedSpy(config.policy);
 
 			jest.spyOn(config.service, 'create').mockResolvedValue(
-				config.mockEntry,
+				config.entityMock,
 			);
 
 			const response = await request(app)
@@ -94,7 +104,7 @@ export function testControllerCreate<E, DTO extends object>(
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
 					'id',
-					config.mockEntry.id,
+					config.entityMock.id,
 				);
 			} catch (error) {
 				addDebugResponse(response, `${config.controller} - create`);
@@ -109,7 +119,7 @@ export function testControllerCreate<E, DTO extends object>(
 type ControllerReadType<E> = {
 	controller: string;
 	basePath: string;
-	mockEntry: E & {
+	entityMock: E & {
 		id: number;
 	};
 	policy: PolicyAbstract;
@@ -138,7 +148,7 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 
 			jest.spyOn(cacheProvider, 'get').mockImplementation(
 				async (_key, _fallback) => {
-					return config.mockEntry;
+					return config.entityMock;
 				},
 			);
 
@@ -149,7 +159,7 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
 					'id',
-					config.mockEntry.id,
+					config.entityMock.id,
 				);
 			} catch (error) {
 				addDebugResponse(response, `${config.controller} - read`);
@@ -161,27 +171,31 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 }
 
 // Controller test - Update
-type UpdateService<DTO, E> = {
+export type UpdateValidator = {
+	update: () => z.ZodObject<z.ZodRawShape>;
+};
+
+type UpdateService<E, V extends UpdateValidator> = {
 	updateData(
 		id: number,
-		data: DTO,
+		data: ValidatorOutput<V, 'update'>,
 		withDeleted: boolean,
 	): Promise<Partial<E>>;
 };
 
-type ControllerUpdateType<E, DTO> = {
+type ControllerUpdateType<E, V extends UpdateValidator> = {
 	controller: string;
 	basePath: string;
-	mockEntry: E & {
+	entityMock: E & {
 		id: number;
 	};
 	policy: PolicyAbstract;
-	service: UpdateService<DTO, E>;
-	updateData: Partial<DTO>;
+	service: UpdateService<E, V>;
+	updateData: ValidatorInput<V, 'update'>;
 };
 
-export function testControllerUpdate<E, DTO extends object>(
-	config: ControllerUpdateType<E, DTO>,
+export function testControllerUpdate<E, V extends UpdateValidator>(
+	config: ControllerUpdateType<E, V>,
 ) {
 	describe(`${config.controller} - update`, () => {
 		const link = `${config.basePath}/1`;
@@ -204,7 +218,7 @@ export function testControllerUpdate<E, DTO extends object>(
 			authorizedSpy(config.policy);
 
 			jest.spyOn(config.service, 'updateData').mockResolvedValue(
-				config.mockEntry,
+				config.entityMock,
 			);
 
 			const response = await request(app)
@@ -216,7 +230,7 @@ export function testControllerUpdate<E, DTO extends object>(
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
 					'id',
-					config.mockEntry.id,
+					config.entityMock.id,
 				);
 			} catch (error) {
 				addDebugResponse(response, `${config.controller} - update`);
@@ -227,31 +241,30 @@ export function testControllerUpdate<E, DTO extends object>(
 	});
 }
 
-// Controller test - Update with content
-type UpdateWithContentService<DTO, E> = {
+type UpdateWithContentService<E, V extends UpdateValidator> = {
 	updateDataWithContent(
 		id: number,
-		data: DTO,
+		data: ValidatorOutput<V, 'update'>,
 		withDeleted: boolean,
 	): Promise<Partial<E>>;
 };
 
-type ControllerUpdateWithContentType<E, DTO> = {
+type ControllerUpdateWithContentType<E, V extends UpdateValidator> = {
 	controller: string;
 	basePath: string;
-	mockEntry: E & {
+	entityMock: E & {
 		id: number;
 	};
 	policy: PolicyAbstract;
-	service: UpdateWithContentService<DTO, E>;
-	updateData: Partial<DTO>;
+	service: UpdateWithContentService<E, V>;
+	updateData: ValidatorInput<V, 'update'>;
 };
 
-export function testControllerUpdateWithContent<E, DTO extends object>(
-	config: ControllerUpdateWithContentType<E, DTO>,
+export function testControllerUpdateWithContent<E, V extends UpdateValidator>(
+	config: ControllerUpdateWithContentType<E, V>,
 ) {
 	describe(`${config.controller} - update`, () => {
-		const link = `${config.basePath}/${config.mockEntry.id}`;
+		const link = `${config.basePath}/${config.entityMock.id}`;
 
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).put(link).send();
@@ -273,7 +286,7 @@ export function testControllerUpdateWithContent<E, DTO extends object>(
 			jest.spyOn(
 				config.service,
 				'updateDataWithContent',
-			).mockResolvedValue(config.mockEntry);
+			).mockResolvedValue(config.entityMock);
 
 			const response = await request(app)
 				.put(link)
@@ -284,7 +297,7 @@ export function testControllerUpdateWithContent<E, DTO extends object>(
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
 					'id',
-					config.mockEntry.id,
+					config.entityMock.id,
 				);
 			} catch (error) {
 				addDebugResponse(response, `${config.controller} - update`);
@@ -296,19 +309,23 @@ export function testControllerUpdateWithContent<E, DTO extends object>(
 }
 
 // Controller test - Delete
-type DeleteMultipleService<DTO> = {
-	delete(data: DTO): Promise<number>;
+export type DeleteValidator = {
+	delete: () => z.ZodTypeAny;
 };
 
-type ControllerDeleteMultipleType<DTO> = {
+type DeleteMultipleService<V extends DeleteValidator> = {
+	delete(data: ValidatorOutput<V, 'delete'>): Promise<number>;
+};
+
+type ControllerDeleteMultipleType<V extends DeleteValidator> = {
 	controller: string;
 	basePath: string;
 	policy: PolicyAbstract;
-	service: DeleteMultipleService<DTO>;
+	service: DeleteMultipleService<V>;
 };
 
-export function testControllerDeleteMultiple<DTO>(
-	config: ControllerDeleteMultipleType<DTO>,
+export function testControllerDeleteMultiple<V extends DeleteValidator>(
+	config: ControllerDeleteMultipleType<V>,
 ) {
 	describe(`${config.controller} - delete`, () => {
 		const link = `${config.basePath}`;
@@ -448,48 +465,59 @@ export function testControllerRestoreSingle(
 	});
 }
 
-// Controller test - Find
-type BaseFindQuery = {
-	page: number;
-	limit: number;
-	order_by: string;
-	direction: 'ASC' | 'DESC';
+export type FindValidator = {
+	find: () => z.ZodObject<z.ZodRawShape>;
 };
 
-export function findQueryMock<T extends BaseFindQuery>(
-	data: Omit<Partial<T>, keyof BaseFindQuery>,
-): T {
-	return {
+export function findQueryMock<V extends FindValidator, OB>(query: {
+	page?: number;
+	limit?: number;
+	direction?: OrderDirectionEnum;
+	order_by?: OB;
+	filter: ValidatorInput<V, 'find'> extends { filter: infer F } ? F : never;
+}) {
+	const defaults = {
 		page: 1,
-		limit: 2,
-		order_by: 'id',
-		direction: 'DESC',
-		...data,
-	} as T;
+		limit: 10,
+		order_by: 'id' as OB,
+		direction: 'DESC' as OrderDirectionEnum,
+	};
+
+	return {
+		...defaults,
+		...query,
+	};
 }
 
-type FindService<DTO, E> = {
-	findByFilter(data: DTO, withDeleted: boolean): Promise<[E[], number]>;
+type FindService<E, V extends FindValidator> = {
+	findByFilter(
+		data: ValidatorOutput<V, 'find'>,
+		withDeleted: boolean,
+	): Promise<[E[], number]>;
 };
 
-type ControllerFindType<DTO, E> = {
+type ControllerFindType<E, V extends FindValidator> = {
 	controller: string;
 	basePath: string;
-	mockEntry: E & {
+	entityMock: E & {
 		id: number;
 	};
 	policy: PolicyAbstract;
-	service: FindService<DTO, E>;
-	filterData: Partial<DTO>;
+	service: FindService<E, V>;
+	findData: ValidatorInput<V, 'find'> & {
+		filter: ValidatorInput<V, 'find'> extends { filter: infer F }
+			? F
+			: never;
+	};
 };
 
-export function testControllerFind<E, DTO extends BaseFindQuery>(
-	config: ControllerFindType<DTO, E>,
+export function testControllerFind<E, V extends FindValidator, OB>(
+	config: ControllerFindType<E, V>,
 ) {
 	describe(`${config.controller} - find`, () => {
 		const link = `${config.basePath}`;
 
-		const mockQuery = findQueryMock<DTO>(config.filterData);
+		const mockQuery = findQueryMock<V, OB>(config.findData);
 
 		it('failed validation', async () => {
 			authorizedSpy(config.policy);
@@ -503,7 +531,7 @@ export function testControllerFind<E, DTO extends BaseFindQuery>(
 			authorizedSpy(config.policy);
 
 			jest.spyOn(config.service, 'findByFilter').mockResolvedValue([
-				[config.mockEntry],
+				[config.entityMock],
 				1,
 			]);
 
@@ -534,7 +562,7 @@ type StatusUpdateService = {
 type ControllerStatusUpdateType<E> = {
 	controller: string;
 	basePath: string;
-	mockEntry: E & {
+	entityMock: E & {
 		id: number;
 	};
 	policy: PolicyAbstract;
@@ -546,7 +574,7 @@ export function testControllerStatusUpdate<E>(
 	config: ControllerStatusUpdateType<E>,
 ) {
 	describe(`${config.controller} - statusUpdate`, () => {
-		const link = `${config.basePath}/${config.mockEntry.id}/status/${config.newStatus}`;
+		const link = `${config.basePath}/${config.entityMock.id}/status/${config.newStatus}`;
 
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).patch(link).query({});

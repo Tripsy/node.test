@@ -12,7 +12,7 @@ import { v4 as uuid } from 'uuid';
 import { initializeI18next } from '@/config/i18n.setup';
 import { redisClose } from '@/config/init-redis.config';
 import { setupListeners } from '@/config/listeners.setup';
-import { getRoutesInfo, initRoutes } from '@/config/routes.setup';
+import { initRoutes } from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import { getErrorMessage } from '@/helpers';
 import authMiddleware from '@/middleware/auth.middleware';
@@ -75,49 +75,50 @@ function validateConfig(): void {
 
 // Print startup banner
 function printStartupInfo(): void {
-	const appConfig = appConfigCall();
-
-	if (appConfig.env === 'test') {
-		return;
-	}
-
-	const width = 60;
-	const lines = [
-		['Environment:', appConfig.env],
-		['Port:', appConfig.port.toString()],
-		['URL:', `${appConfig.url}:${appConfig.port}`],
-		['Health:', `${appConfig.url}:${appConfig.port}/health`],
-	];
-
-	console.log(`┌${'─'.repeat(width + 2)}┐`);
-	console.log(`│ ${appConfig.name.padEnd(width)} │`);
-	console.log(`├${'─'.repeat(width + 2)}┤`);
-
-	for (const [label, value] of lines) {
-		const text = `${label} ${value}`.padEnd(width);
-		console.log(`│ ${text} │`);
-	}
-
-	// Display routes
-	if (appConfig.env === 'development') {
-		const routes = getRoutesInfo();
-
-		if (routes.length > 0) {
-			console.log(`├${'─'.repeat(width + 2)}┤`);
-			console.log(
-				`│ ${`Routes (${routes.length} total):`.padEnd(width)} │`,
-			);
-			console.log(`│${' '.repeat(width + 2)}│`);
-
-			routes.forEach((route) => {
-				console.log(
-					`│ ${route.method.padEnd(7)} ${route.path.padEnd(width - 8)} │`,
-				);
-			});
-		}
-	}
-
-	console.log(`└${'─'.repeat(width + 2)}┘`);
+	return; // TODO disabled temporary
+	// const appConfig = appConfigCall();
+	//
+	// if (appConfig.env === 'test') {
+	// 	return;
+	// }
+	//
+	// const width = 60;
+	// const lines = [
+	// 	['Environment:', appConfig.env],
+	// 	['Port:', appConfig.port.toString()],
+	// 	['URL:', `${appConfig.url}:${appConfig.port}`],
+	// 	['Health:', `${appConfig.url}:${appConfig.port}/health`],
+	// ];
+	//
+	// console.log(`┌${'─'.repeat(width + 2)}┐`);
+	// console.log(`│ ${appConfig.name.padEnd(width)} │`);
+	// console.log(`├${'─'.repeat(width + 2)}┤`);
+	//
+	// for (const [label, value] of lines) {
+	// 	const text = `${label} ${value}`.padEnd(width);
+	// 	console.log(`│ ${text} │`);
+	// }
+	//
+	// // Display routes
+	// if (appConfig.env === 'development') {
+	// 	const routes = getRoutesInfo();
+	//
+	// 	if (routes.length > 0) {
+	// 		console.log(`├${'─'.repeat(width + 2)}┤`);
+	// 		console.log(
+	// 			`│ ${`Routes (${routes.length} total):`.padEnd(width)} │`,
+	// 		);
+	// 		console.log(`│${' '.repeat(width + 2)}│`);
+	//
+	// 		routes.forEach((route) => {
+	// 			console.log(
+	// 				`│ ${route.method.padEnd(7)} ${route.path.padEnd(width - 8)} │`,
+	// 			);
+	// 		});
+	// 	}
+	// }
+	//
+	// console.log(`└${'─'.repeat(width + 2)}┘`);
 }
 
 // Graceful shutdown helpers

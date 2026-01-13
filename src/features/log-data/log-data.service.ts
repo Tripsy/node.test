@@ -1,12 +1,12 @@
 import type LogDataEntity from '@/features/log-data/log-data.entity';
 import { getLogDataRepository } from '@/features/log-data/log-data.repository';
 import type { LogDataValidator } from '@/features/log-data/log-data.validator';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class LogDataService {
 	constructor(private repository: ReturnType<typeof getLogDataRepository>) {}
 
-	public async delete(data: ValidatorDto<LogDataValidator, 'delete'>) {
+	public async delete(data: ValidatorOutput<LogDataValidator, 'delete'>) {
 		return await this.repository
 			.createQuery()
 			.filterBy('id', data.ids, 'IN')
@@ -17,7 +17,7 @@ export class LogDataService {
 		return this.repository.createQuery().filterById(id).firstOrFail();
 	}
 
-	public findByFilter(data: ValidatorDto<LogDataValidator, 'find'>) {
+	public findByFilter(data: ValidatorOutput<LogDataValidator, 'find'>) {
 		return this.repository
 			.createQuery()
 			.filterById(data.filter.id)

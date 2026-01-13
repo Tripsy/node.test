@@ -1,5 +1,6 @@
 import { userController } from '@/features/user/user.controller';
 import { UserStatusEnum } from '@/features/user/user.entity';
+import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
 import {
 	validateParamsWhenId,
 	validateParamsWhenStatus,
@@ -44,6 +45,7 @@ export default {
 			path: '',
 			method: 'get',
 			action: 'find',
+			handlers: [parseFilterMiddleware],
 		},
 		'update-status': {
 			path: '/:id/status/:status',
