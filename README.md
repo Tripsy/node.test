@@ -238,7 +238,6 @@ $ pnpm run test account.unit.ts --detect-open-handles
 # TODO
 
 1. make features as a package:
-    - do tests for validators
     - create separate migration per entity
 2. CLI ...should have a command which runs seed if exist 
     - create user.seed.ts - default admin user 
