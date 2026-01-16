@@ -1,0 +1,8 @@
+{
+	"name": "account",
+	"version": "1.0.0",
+    "relativePath": "/test",
+	"entities": ["account_recovery", "account_token"],
+	"depends_on": ["user"],
+	"depends_off": []
+}

@@ -177,8 +177,8 @@ $ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/c
 $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 
 // Import seed data
-$ pnpx tsx /var/www/html/src/features/templates/template.seed.ts  
-$ pnpx tsx /var/www/html/src/features/permission/permission.seed.ts
+$ pnpx tsx /var/www/html/src/features/template/database/template.seed.ts  
+$ pnpx tsx /var/www/html/src/features/permission/database/permission.seed.ts
 ```
 
 # Tests
@@ -241,6 +241,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - create separate migration per entity
 2. CLI ...should have a command which runs seed if exist 
     - create user.seed.ts - default admin user 
+      - write to history.txt
+      - check core features exist 
 3. do tests for the rest of controllers
 4. feature - brand 
 5. feature - images 

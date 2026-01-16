@@ -1,0 +1,8 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "relativePath": "/test",
+  "entities": ["test"],
+  "depends_on": ["user"],
+  "depends_off": []
+}
