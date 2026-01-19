@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { Configuration } from '@/config/settings.config';
 import CronHistoryEntity from '@/features/cron-history/cron-history.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -39,7 +39,7 @@ export class CronHistoryQuery extends RepositoryAbstract<CronHistoryEntity> {
 }
 
 export const getCronHistoryRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(CronHistoryEntity)
 		.extend({
 			createQuery() {

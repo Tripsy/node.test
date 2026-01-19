@@ -1,6 +1,6 @@
 import type { DeepPartial, EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { lang } from '@/config/i18n.setup';
 import { BadRequestError, CustomError } from '@/exceptions';
 import CategoryEntity, {
@@ -26,7 +26,7 @@ export class CategoryService {
 	public async create(
 		data: ValidatorOutput<CategoryValidator, 'create'>,
 	): Promise<CategoryEntity> {
-		return getDataSource().transaction(async (manager) => {
+		return dataSource.transaction(async (manager) => {
 			const repository = this.getScopedCategoryRepository(manager);
 
 			const entry: DeepPartial<CategoryEntity> = {
@@ -134,7 +134,7 @@ export class CategoryService {
 			}
 		}
 
-		return getDataSource().transaction(async (manager) => {
+		return dataSource.transaction(async (manager) => {
 			if (category.parent && 'parent_id' in data) {
 				let flagUpdate = false;
 
@@ -174,7 +174,7 @@ export class CategoryService {
 		withDeleted: boolean,
 		forceUpdate?: boolean, // When `true` & newStatus is CategoryStatusEnum.INACTIVE the active descendants will also be marked as inactive
 	): Promise<void> {
-		await getDataSource().transaction(async (manager) => {
+		await dataSource.transaction(async (manager) => {
 			const repository = manager.getRepository(CategoryEntity); // We use the manager -> `getCategoryRepository` is not bound to the transaction
 
 			const qCategory = repository
@@ -439,7 +439,7 @@ export class CategoryService {
 }
 
 export function getScopedCategoryRepository(manager?: EntityManager) {
-	return (manager ?? getDataSource().manager).getRepository(CategoryEntity);
+	return (manager ?? dataSource.manager).getRepository(CategoryEntity);
 }
 
 export const categoryService = new CategoryService(

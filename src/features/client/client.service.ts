@@ -1,4 +1,4 @@
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { lang } from '@/config/i18n.setup';
 import { BadRequestError, CustomError, NotFoundError } from '@/exceptions';
 import type ClientEntity from '@/features/client/client.entity';
@@ -141,7 +141,7 @@ export class ClientService {
 		language: string,
 		withDeleted: boolean,
 	) {
-		const clientEntryQuery = getDataSource()
+		const clientEntryQuery = dataSource
 			.createQueryBuilder()
 			.select([
 				'c.*',

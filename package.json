@@ -19,7 +19,10 @@
 		"dev": "nodemon",
 		"test": "NODE_OPTIONS=--experimental-vm-modules APP_DEBUG=false APP_ENV=test NODE_ENV=test jest",
 		"biome": "NODE_OPTIONS=--no-deprecation biome check --write",
-		"madge": "madge --circular src"
+		"madge": "madge --circular src",
+        "migration:generate": "pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts",
+        "migration:run": "pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts",
+        "migration:revert": "pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts"
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",

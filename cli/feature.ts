@@ -7,9 +7,9 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as readline from 'node:readline';
 import { promisify } from 'node:util';
-import {display} from './helpers/console-display';
-import {logToFile} from "./helpers/console-log";
-import {ConsoleRollback} from "./helpers/console-rollback";
+import { display } from './helpers/console-display';
+import { logToFile } from './helpers/console-log';
+import { ConsoleRollback } from './helpers/console-rollback';
 
 interface Manifest {
 	name: string;
@@ -23,41 +23,42 @@ interface Manifest {
 type Mode = 'install' | 'remove' | 'upgrade';
 
 type FeatureManagerArgs = {
-    basePath: string,
-    historyFilePath: string,
-    feature: string,
-    mode: Mode,
-    debug: boolean,
-    rollback: ConsoleRollback,
-}
+	basePath: string;
+	historyFilePath: string;
+	feature: string;
+	mode: Mode;
+	debug: boolean;
+	rollback: ConsoleRollback;
+};
 
 class FeatureManager {
-    private readonly basePath: string;
+	private readonly basePath: string;
 	private readonly baseFeaturePath: string;
 	private readonly baseSourcePath: string;
-    private readonly historyFilePath: string;
+	private readonly historyFilePath: string;
 
 	private rl: readline.Interface;
 
-    private readonly feature: string;
-    private readonly mode: Mode;
-    private readonly debug: boolean;
+	private readonly feature: string;
+	private readonly mode: Mode;
+	private readonly debug: boolean;
 
-    private rollback: ConsoleRollback;
+	private rollback: ConsoleRollback;
 
 	private execAsync = promisify(exec);
+    private tmpDataSourceConfigFile: string = '';
 
 	constructor(args: FeatureManagerArgs) {
-        this.basePath = args.basePath;
+		this.basePath = args.basePath;
 		this.baseFeaturePath = path.join(this.basePath, 'src/features');
 		this.baseSourcePath = path.join(this.basePath, 'packages');
-        this.historyFilePath = args.historyFilePath;
+		this.historyFilePath = args.historyFilePath;
 
-        this.feature = args.feature;
-        this.mode = args.mode;
-        this.debug = args.debug;
+		this.feature = args.feature;
+		this.mode = args.mode;
+		this.debug = args.debug;
 
-        this.rollback = args.rollback;
+		this.rollback = args.rollback;
 
 		this.rl = readline.createInterface({
 			input: process.stdin,
@@ -65,7 +66,6 @@ class FeatureManager {
 		});
 
 		// TODO > sanity checks
-		// check if base path is correct ?
 		// git status check
 	}
 
@@ -73,41 +73,59 @@ class FeatureManager {
 		try {
 			switch (this.mode) {
 				case 'install':
-                    void logToFile(`${this.feature} / ${this.mode}: Init`, this.historyFilePath);
+					void logToFile(
+						`${this.feature} / ${this.mode}: Init`,
+						this.historyFilePath,
+					);
 
 					await this.installFeature();
-					// TODO
-					// maybe it has seeds
 					break;
 				case 'remove':
-                    void logToFile(`${this.feature} / ${this.mode}: Init`, this.historyFilePath);
+					void logToFile(
+						`${this.feature} / ${this.mode}: Init`,
+						this.historyFilePath,
+					);
 
 					await this.removeFeature();
 					break;
 				case 'upgrade':
-                    void logToFile(`${this.feature} / ${this.mode}: Init`, this.historyFilePath);
+					void logToFile(
+						`${this.feature} / ${this.mode}: Init`,
+						this.historyFilePath,
+					);
 
-				    // await this.upgradeFeature();
-				    break;
+					await this.upgradeFeature();
+					break;
 				default:
 					display.error(`Unknown mode: ${this.mode}`);
 			}
 		} catch (error) {
 			if (error instanceof Error) {
-                if (error.message) {
-                    display.error(error.message);
+				if (error.message) {
+					display.error(error.message);
 
-                    await logToFile(`${this.feature} / ${this.mode}: ${error.message}`, this.historyFilePath);
-                } else {
-                    await logToFile(`${this.feature} / ${this.mode}: Abort`, this.historyFilePath);
-                }
+					await logToFile(
+						`${this.feature} / ${this.mode}: ${error.message}`,
+						this.historyFilePath,
+					);
+				} else {
+					await logToFile(
+						`${this.feature} / ${this.mode}: Abort`,
+						this.historyFilePath,
+					);
+				}
 			} else {
 				console.error(error);
 
-                await logToFile(`${this.feature} / ${this.mode}: Abort`, this.historyFilePath);
+				await logToFile(
+					`${this.feature} / ${this.mode}: Abort`,
+					this.historyFilePath,
+				);
 			}
 
-            await this.rollback.process();
+			display.blank();
+
+			await this.rollback.process();
 
 			display.blank().text('Process aborted', 'lock');
 
@@ -168,7 +186,7 @@ class FeatureManager {
 
 	private async dropDatabaseTables(tables: string[]) {
 		display
-            .blank()
+			.blank()
 			.warning(
 				'The following database tables are related and need to be removed manually from DB',
 			)
@@ -232,9 +250,65 @@ class FeatureManager {
 		}
 	}
 
-	async executeMigrationGenerate() {
+    private compareVersions(a: string, b: string): number {
+        const pa = a.split('.').map(Number);
+        const pb = b.split('.').map(Number);
+
+        for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+            const diff = (pa[i] || 0) - (pb[i] || 0);
+            if (diff !== 0) return diff;
+        }
+
+        return 0;
+    }
+
+    // "migration:generate": "pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts",
+    // "migration:run": "pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts",
+    // "migration:revert": "pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts"
+	// async createTmpDataSourceConfigFile(entities: string[]) {
+    //     this.tmpDataSourceConfigFile = path.resolve(`${this.basePath}/cli/tmp/data-source.config.tmp.ts`);
+    //
+    //     const ENTITY_PATHS: string[] = [];
+    //
+    //     entities.forEach((e) => {
+    //         ENTITY_PATHS.push(`${this.baseFeaturePath}/${this.feature}/${e}.entity.ts`)
+    //     })
+    //
+    //     let content = await fs.readFile(path.resolve(`${this.basePath}/src/config/data-source.config.ts`), 'utf8');
+    //
+    //     // Set entities
+    //     content = content.replace(
+    //         /entities:\s*\[[^\]]*],/m,
+    //         `entities: [\n${ENTITY_PATHS.map((p) => `'${p}'`).join(',\n')}\n],`
+    //     );
+    //
+    //     // Remove migrations
+    //     content = content.replace(
+    //         /migrations\s*:\s*\[[\s\S]*?],\s*/g,
+    //         `migrations: ['${this.basePath}/src/database/migrations/*-feature-${this.feature}.ts'],\n`
+    //     );
+    //
+    //     // Remove subscribers
+    //     content = content.replace(
+    //         /subscribers\s*:\s*\[[\s\S]*?],\s*/g,
+    //         ''
+    //     );
+    //
+    //     await fs.writeFile(this.tmpDataSourceConfigFile, content);
+    //
+    //     this.rollback.addUndoStep({
+    //         description: `Remove data-source.config.tmp.ts`,
+    //         action: async () => {
+    //             await fs.rm(this.tmpDataSourceConfigFile, {
+    //                 force: true,
+    //             });
+    //         },
+    //     });
+    // }
+
+    async executeMigrationGenerate() {
 		try {
-			const command = `pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/database/migrations/feature-${this.feature}`;
+			const command = `pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d ${this.tmpDataSourceConfigFile} /var/www/html/src/database/migrations/feature-${this.feature}`;
 
 			const { stdout, stderr } = await this.execAsync(command, {
 				cwd: this.basePath, // Set a working directory
@@ -247,27 +321,37 @@ class FeatureManager {
 				!stderr.toLowerCase().includes('no changes');
 
 			if (hasRealErrors) {
-				display.warning(`Warnings: ${stderr}`);
+				display.blank().warning(`Warnings: ${stderr}`);
 
 				return false;
 			}
 
-			display.success('Migration generated successfully').text(stdout);
+			display
+				.blank()
+				.success('Migration generated successfully')
+				.text(stdout);
 
 			return true;
 		} catch (error) {
 			if (error instanceof Error) {
-				display.error(`Failed to generate migration: ${error.message || 'Unknown error'}`);
+				display
+					.blank()
+					.error(
+						`Failed to generate migration: ${error.message || 'Unknown error'}`,
+					);
 			} else {
+				console.log('');
 				console.error(error);
 			}
+
+			return false;
 		}
 	}
 
 	async executeMigrationRun() {
 		try {
 			const command =
-				'pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts';
+				'pnpxxxx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts';
 
 			const { stdout, stderr } = await this.execAsync(command, {
 				cwd: this.basePath, // Set a working directory
@@ -280,22 +364,30 @@ class FeatureManager {
 				!stderr.toLowerCase().includes('no changes');
 
 			if (hasRealErrors) {
-				display.warning(`Warnings: ${stderr}`);
+				display.blank().warning(`Warnings: ${stderr}`);
 
 				return false;
 			}
 
-			display.success('Migration run successfully').text(stdout);
+			display
+                .blank()
+                .success('Migration run successfully')
+                .text(stdout);
 
 			return true;
 		} catch (error) {
 			if (error instanceof Error) {
-				display.error(`Failed to run migration: ${error.message || 'Unknown error'}`);
+                display
+                    .blank()
+                    .error(
+					`Failed to run migration: ${error.message || 'Unknown error'}`,
+				    );
 			} else {
+                console.log('');
 				console.error(error);
 			}
 
-			throw error;
+            return false;
 		}
 	}
 
@@ -307,18 +399,16 @@ class FeatureManager {
 			.text(`Remove feature "${this.feature}"`, 'headline')
 			.tip(
 				'Make sure you have a rollback plan. Use git to record your development progress',
-			)
+			);
 
-		display
-            .blank()
-            .text('Starting removal...', 'arrow')
+		display.blank().text('Starting removal...', 'arrow');
 
 		// Check if the feature exists
 		if (!(await this.pathExists(featurePath))) {
 			display
-                .blank()
+				.blank()
 				.error(`Feature '${this.feature}' is not installed.`)
-                .blank()
+				.blank()
 				.tip('Try a fresh install');
 
 			throw new Error();
@@ -333,7 +423,7 @@ class FeatureManager {
 
 		if (existingDependencies.length > 0) {
 			display
-                .blank()
+				.blank()
 				.error(
 					`The selected feature (e.g.: ${this.feature}) cannot be removed`,
 				)
@@ -352,7 +442,7 @@ class FeatureManager {
 		if (manifest.entities && manifest.entities.length > 0) {
 			await this.dropDatabaseTables(manifest.entities);
 
-            display.blank();
+			display.blank();
 		}
 
 		try {
@@ -373,7 +463,10 @@ class FeatureManager {
 			.blank()
 			.success(`Feature "${this.feature}" removed successfully!`);
 
-        void logToFile(`${this.feature} / ${this.mode}: Completed`, this.historyFilePath);
+		void logToFile(
+			`${this.feature} / ${this.mode}: Completed`,
+			this.historyFilePath,
+		);
 	}
 
 	private async installFeature() {
@@ -387,14 +480,11 @@ class FeatureManager {
 			)
 			.blank();
 
-		display
-            .text('Installing...', 'arrow');
+		display.text('Installing...', 'arrow');
 
 		// Check if the source exists
 		if (!(await this.pathExists(sourcePath))) {
-			display
-                .blank()
-                .error(`Source package not found at: ${sourcePath}`);
+			display.blank().error(`Source package not found at: ${sourcePath}`);
 
 			throw new Error();
 		}
@@ -409,9 +499,9 @@ class FeatureManager {
 		// Check if the feature exists
 		if (await this.pathExists(featurePath)) {
 			display
-                .blank()
+				.blank()
 				.error(`Feature '${this.feature}' is already installed.`)
-                .blank()
+				.blank()
 				.tip('Try upgrade instead');
 
 			throw new Error();
@@ -424,7 +514,7 @@ class FeatureManager {
 
 		if (missingDependencies.length > 0) {
 			display
-                .blank()
+				.blank()
 				.warning(
 					`The selected feature (e.g.: ${this.feature}) cannot be installed`,
 				)
@@ -439,7 +529,7 @@ class FeatureManager {
 		// Confirm installation
 		await this.handleConfirmation(`Ready to install "${this.feature}"?`);
 
-        display.blank();
+		display.blank();
 
 		try {
 			await display.withDots(
@@ -455,12 +545,15 @@ class FeatureManager {
 							'.git',
 						]);
 
-                        this.rollback.addUndoStep({
-                            description: `Remove ${featurePath}`,
-                            action: async () => {
-                                await fs.rm(featurePath, { recursive: true, force: true });
-                            }
-                        })
+						this.rollback.addUndoStep({
+							description: `Remove ${featurePath}`,
+							action: async () => {
+								await fs.rm(featurePath, {
+									recursive: true,
+									force: true,
+								});
+							},
+						});
 
 						return `The files have been copied successfully`;
 					} else {
@@ -474,212 +567,296 @@ class FeatureManager {
 
 		if (manifest.entities.length === 0) {
 			display
-                .blank()
-                .success(
-				`Feature '${this.feature}' v${manifest.version} installed successfully!`,
-			);
-
-            void logToFile(`${this.feature} / ${this.mode}: v${manifest.version} installed`, this.historyFilePath);
-
-            // We're done
-			return;
-		}
-
-		// Continue with migrations
-		display
-            .blank()
-			.note(`Database structure updates are required. Feature contains following entities: ${manifest.entities.join(', ')}`);
-		try {
-			await this.handleConfirmation(
-				`Would you like to use the automated procedure for DB updates?`,
-			);
-		} catch {
-			display
-                .blank()
+				.blank()
 				.success(
 					`Feature '${this.feature}' v${manifest.version} installed successfully!`,
-				)
-                .blank()
-				.tip(
-					"Don't forget to manually run migration:generate and migration:run to complete feature installation!",
 				);
 
-            void logToFile(`${this.feature} / ${this.mode}: Done (DB updates skipped)`, this.historyFilePath);
+			void logToFile(
+				`${this.feature} / ${this.mode}: v${manifest.version} installed`,
+				this.historyFilePath,
+			);
 
 			// We're done
 			return;
 		}
 
-		try {
-			await display.withDots(
-				`Generating migration for ${this.feature}`,
-				async () => {
-					if (this.debug === false) {
-						const status = await this.executeMigrationGenerate();
+		// Continue with migrations
+		display
+			.blank()
+			.note(
+				`Database structure updates are required. Feature contains following entities: ${manifest.entities.join(', ')}`,
+			)
+            .tip('Run "migration:generate" to create migration file and "migration:run" to update DB');
 
-						if (status === false) {
-							throw new Error(
-								`Migration generation failed. Please run it manually.`,
-							);
-						}
+        display
+            .blank()
+            .success(
+                `Feature '${this.feature}' v${manifest.version} installed successfully!`,
+            );
 
-						return `Migration generated for ${this.feature}!`;
-					} else {
-						throw new Error(`Debug is ON`);
-					}
-				},
-			);
+        void logToFile(
+            `${this.feature} / ${this.mode}: Done`,
+            this.historyFilePath,
+        );
 
-			await display.withDots(`Running migration`, async () => {
-				if (this.debug === false) {
-					const status = await this.executeMigrationRun();
+		// try {
+		// 	await this.handleConfirmation(
+		// 		`Would you like to use the automated procedure for DB updates?`,
+		// 	);
+		// } catch {
+		// 	display
+		// 		.blank()
+		// 		.success(
+		// 			`Feature '${this.feature}' v${manifest.version} installed successfully!`,
+		// 		)
+		// 		.blank()
+		// 		.tip(
+		// 			"Don't forget to manually run migration:generate and migration:run to complete feature installation!",
+		// 		);
+        //
+		// 	void logToFile(
+		// 		`${this.feature} / ${this.mode}: Done (DB updates skipped)`,
+		// 		this.historyFilePath,
+		// 	);
+        //
+		// 	// We're done
+		// 	return;
+		// }
 
-					if (status === false) {
-						throw new Error(
-							`Migration failed. Please run it manually.`,
-						);
-					}
-
-					return `Migration run with success!`;
-				} else {
-					throw new Error(`Debug is ON`);
-				}
-			});
-
-			display
-                .blank()
-                .success(
-				`Feature '${this.feature}' v${manifest.version} installed successfully!`,
-			);
-
-            void logToFile(`${this.feature} / ${this.mode}: Done`, this.historyFilePath);
-        } catch {
-			throw new Error();
-		}
+		// try {
+		// 	display.blank();
+        //
+		// 	await display.withDots(
+		// 		`Generating migration for ${this.feature}`,
+		// 		async () => {
+		// 			if (this.debug === false) {
+        //                 await this.createTmpDataSourceConfigFile(manifest.entities);
+        //
+		// 				const status = await this.executeMigrationGenerate();
+        //
+		// 				if (status === false) {
+		// 					throw new Error(
+		// 						`Migration generation failed. Please run it manually.`,
+		// 					);
+		// 				}
+        //
+		// 				return `Migration generated for ${this.feature}!`;
+		// 			} else {
+		// 				throw new Error(`Debug is ON`);
+		// 			}
+		// 		},
+		// 	);
+        //
+		// 	display.blank();
+        //
+		// 	await display.withDots(`Running migration`, async () => {
+		// 		if (this.debug === false) {
+		// 			const status = await this.executeMigrationRun();
+        //
+		// 			if (status === false) {
+		// 				throw new Error(
+		// 					`Migration failed. Please run it manually.`,
+		// 				);
+		// 			}
+        //
+		// 			return `Migration run with success!`;
+		// 		} else {
+		// 			throw new Error(`Debug is ON`);
+		// 		}
+		// 	});
+        //
+        //  Also run seeds
+        //
+		// 	display
+		// 		.blank()
+		// 		.success(
+		// 			`Feature '${this.feature}' v${manifest.version} installed successfully!`,
+		// 		);
+        //
+		// 	void logToFile(
+		// 		`${this.feature} / ${this.mode}: Done`,
+		// 		this.historyFilePath,
+		// 	);
+		// } catch {
+		// 	throw new Error();
+		// }
 	}
-	//
-	// private async upgradeFeature() {
-	//     const sourcePath = path.join(this.baseSourcePath, this.feature);
-	//     const featurePath = path.join(this.baseFeaturePath, this.feature);
-	//     const sourceManifestPath = path.join(sourcePath, 'manifest.json');
-	//     const currentManifestPath = path.join(featurePath, 'manifest.json');
-	//
-	//     console.log('🔄 Starting upgrade...\n');
-	//
-	//     // Check if source exists
-	//     if (!(await this.pathExists(sourcePath))) {
-	//         throw new Error(`Source package not found at: ${sourcePath}`);
-	//     }
-	//
-	//     // Check if feature is installed
-	//     if (!(await this.pathExists(featurePath))) {
-	//         throw new Error(`Feature '${this.feature}' is not installed. Use 'install' mode instead.`);
-	//     }
-	//
-	//     // Parse manifests
-	//     let sourceManifest: Manifest;
-	//     let currentManifest: Manifest;
-	//
-	//     try {
-	//         sourceManifest = await this.parseManifest(sourceManifestPath);
-	//         currentManifest = await this.parseManifest(currentManifestPath);
-	//     } catch (error) {
-	//         throw new Error(`Failed to parse manifests: ${error}`);
-	//     }
-	//
-	//     console.log(`📦 Current version: ${currentManifest.version}`);
-	//     console.log(`📦 New version: ${sourceManifest.version}\n`);
-	//
-	//     if (sourceManifest.version === currentManifest.version) {
-	//         console.log('⚠️  Already at the same version');
-	//         const reinstall = await this.askConfirmation('Do you want to reinstall anyway?');
-	//         if (!reinstall) {
-	//             console.log('Upgrade aborted by user');
-	//             return;
-	//         }
-	//     }
-	//
-	//     // Check dependencies
-	//     const missingDeps = await this.checkDependencies(sourceManifest);
-	//     if (missingDeps.length > 0) {
-	//         throw new Error(`Missing dependencies: ${missingDeps.join(', ')}. Install them first.`);
-	//     }
-	//
-	//     // Confirm upgrade
-	//     const confirm = await this.askConfirmation(
-	//         `Upgrade '${this.feature}' from v${currentManifest.version} to v${sourceManifest.version}?`
-	//     );
-	//     if (!confirm) {
-	//         console.log('Upgrade aborted by user');
-	//         return;
-	//     }
-	//
-	//     // Backup current feature
-	//     console.log('\n💾 Creating backup...');
-	//     const backupPath = `${featurePath}.backup.${Date.now()}`;
-	//     await this.copyDirectory(featurePath, backupPath);
-	//
-	//     try {
-	//         // Remove current installation
-	//         await fs.rm(featurePath, { recursive: true, force: true });
-	//
-	//         // Install new version
-	//         await fs.mkdir(featurePath, { recursive: true });
-	//         await this.copyDirectory(sourcePath, featurePath, ['node_modules', '.git']);
-	//
-	//         // Run upgrade migrations if enabled
-	//         if (sourceManifest.migrations) {
-	//             console.log('\n🔄 Running upgrade migrations...');
-	//             // This would typically run migration scripts between versions
-	//             // Implementation depends on your migration system
-	//         }
-	//
-	//         // Log upgrade
-	//         await logToFile(
-	//             `Feature ${this.feature} upgraded from v${currentManifest.version} to v${sourceManifest.version}`
-	//         );
-	//
-	//         console.log(`\n✅ Feature '${this.feature}' upgraded successfully!`);
-	//
-	//         // Offer to clean up backup
-	//         const cleanup = await this.askConfirmation('Remove backup directory?');
-	//         if (cleanup) {
-	//             await fs.rm(backupPath, { recursive: true, force: true });
-	//             console.log('Backup removed');
-	//         } else {
-	//             console.log(`Backup kept at: ${backupPath}`);
-	//         }
-	//
-	//     } catch (error) {
-	//         // Restore from backup on error
-	//         console.error('\n❌ Upgrade failed, restoring from backup...');
-	//         if (await this.pathExists(backupPath)) {
-	//             await fs.rm(featurePath, { recursive: true, force: true }).catch(() => {});
-	//             await this.copyDirectory(backupPath, featurePath);
-	//             await fs.rm(backupPath, { recursive: true, force: true });
-	//             console.log('✅ Restored from backup');
-	//         }
-	//         throw error;
-	//     }
-	// }
+
+    private async upgradeFeature() {
+        const sourcePath = path.join(this.baseSourcePath, this.feature);
+        const sourceManifestPath = path.join(sourcePath, 'manifest.json');
+        const backupPath = path.join(this.basePath, 'backup/features', this.feature);
+
+        display
+            .text(`Upgrade feature "${this.feature}"`, 'headline')
+            .tip(
+                'Make sure you have a rollback plan. Use git to record your development progress',
+            )
+            .blank();
+
+        display.text('Upgrading...', 'arrow');
+
+        // Check if the source exists
+        if (!(await this.pathExists(sourcePath))) {
+            display.blank().error(`Source package not found at: ${sourcePath}`);
+
+            throw new Error();
+        }
+
+        const sourceManifest = await this.parseManifest(sourceManifestPath);
+
+        const featurePath = path.join(
+            this.baseFeaturePath,
+            sourceManifest.relativePath,
+        );
+
+        // Check if the feature exists
+        if (!await this.pathExists(featurePath)) {
+            display
+                .blank()
+                .error(`Feature '${this.feature}' is not installed`)
+                .tip('Try install instead');
+
+            throw new Error();
+        }
+
+        // Check if all dependencies exist
+        const missingDependencies = await this.getMissingFeatures(
+            sourceManifest.depends_on,
+        );
+
+        if (missingDependencies.length > 0) {
+            display
+                .blank()
+                .warning(
+                    `The selected feature (e.g.: ${this.feature}) cannot be upgraded`,
+                )
+                .text(
+                    `The following features are needed by this feature: ${missingDependencies.join(', ')}`,
+                )
+                .tip('Start by installing them.');
+
+            throw new Error();
+        }
+
+        const targetManifest = await this.parseManifest(path.join(featurePath, 'manifest.json'));
+
+        const versionStatus = this.compareVersions(targetManifest.version, sourceManifest.version);
+
+        if (versionStatus !== -1) {
+            display
+                .blank()
+                .warning(
+                    `The selected feature (e.g.: ${this.feature}) version is already ${versionStatus == 0 ? 'up to date' : 'newer'}`,
+                );
+
+            throw new Error();
+        }
+
+        // Confirm installation
+        await this.handleConfirmation(`Ready to upgrade "${this.feature}"?`);
+
+        display.blank();
+
+        try {
+            await display.withDots(
+                `Copying files to ${featurePath}`,
+                async () => {
+                    if (this.debug === false) {
+                        // // Create the feature directory
+                        // await fs.mkdir(featurePath);
+
+                        // Copy files from the feature directory to back up
+                        await this.copyDirectory(featurePath, backupPath, [
+                            'node_modules',
+                            '.git',
+                        ]);
+
+                        // Copy files from source to feature directory
+                        await this.copyDirectory(sourcePath, featurePath, [
+                            'node_modules',
+                            '.git',
+                        ]);
+
+                        this.rollback.addUndoStep({
+                            description: `Remove ${featurePath}`,
+                            action: async () => {
+                                await fs.rm(featurePath, {
+                                    recursive: true,
+                                    force: true,
+                                });
+                            },
+                        });
+
+                        this.rollback.addUndoStep({
+                            description: `Restoring backup ${backupPath}`,
+                            action: async () => {
+                                await this.copyDirectory(backupPath, featurePath, [
+                                    'node_modules',
+                                    '.git',
+                                ]);
+                            },
+                        });
+
+                        return `The files have been copied successfully`;
+                    } else {
+                        throw new Error(`Debug is ON`);
+                    }
+                },
+            );
+        } catch {
+            throw new Error();
+        }
+
+        try {
+            await this.handleConfirmation(`Do you want to keep the back up files?`);
+
+            display.blank().tip(`Back up files are saved to ${backupPath}`);
+        } catch {
+            // Remove back up files
+            await fs.rm(backupPath, {
+                recursive: true,
+                force: true,
+            });
+        }
+
+        // Continue with migrations
+        display
+            .blank()
+            .note(
+                `Feature contains following entities: ${sourceManifest.entities.join(', ')}`,
+            )
+            .tip('Run "migration:generate" to create migration file and "migration:run" to update DB');
+
+        display
+            .blank()
+            .success(
+                `Feature '${this.feature}' upgraded from v${targetManifest.version} to v${sourceManifest.version} successfully!`,
+            );
+
+        void logToFile(
+            `${this.feature} / ${this.mode}: Done`,
+            this.historyFilePath,
+        );
+    }
 }
 
 // Main execution
 async function main() {
-    const basePath = '/var/www/html';
-    const historyFilePath = path.join(basePath, 'history.txt');
+	const basePath = '/var/www/html';
+	const historyFilePath = path.join(basePath, 'history.txt');
 
 	const manager = new FeatureManager({
-        basePath: basePath,
-        historyFilePath: historyFilePath,
-        feature: process.argv[2],
-        mode: process.argv[3] as Mode,
-        debug: process.argv[4] === 'debug' || false,
-        rollback: new ConsoleRollback(historyFilePath)
-    });
+		basePath: basePath,
+		historyFilePath: historyFilePath,
+		feature: process.argv[2],
+		mode: process.argv[3] as Mode,
+		debug: process.argv[4] === 'debug' || false,
+		rollback: new ConsoleRollback(historyFilePath),
+	});
 
-	await manager
-        .run();
+	await manager.run();
 }
 
 main().catch(console.error);

@@ -1,6 +1,6 @@
 import type { EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { lang } from '@/config/i18n.setup';
 import { BadRequestError } from '@/exceptions';
 import PlaceEntity from '@/features/place/place.entity';
@@ -26,7 +26,7 @@ export class PlaceService {
 	public async create(
 		data: ValidatorOutput<PlaceValidator, 'create'>,
 	): Promise<PlaceEntity> {
-		return getDataSource().transaction(async (manager) => {
+		return dataSource.transaction(async (manager) => {
 			const repository = this.getScopedPlaceRepository(manager);
 
 			const entry = {
@@ -70,7 +70,7 @@ export class PlaceService {
 			}
 		}
 
-		return getDataSource().transaction(async (manager) => {
+		return dataSource.transaction(async (manager) => {
 			const repository = manager.getRepository(PlaceEntity); // We use the manager -> `getPlaceRepository` is not bound to the transaction
 
 			const updateData = {
@@ -235,7 +235,7 @@ export class PlaceService {
 }
 
 export function getScopedPlaceRepository(manager?: EntityManager) {
-	return (manager ?? getDataSource().manager).getRepository(PlaceEntity);
+	return (manager ?? dataSource.manager).getRepository(PlaceEntity);
 }
 
 export const placeService = new PlaceService(

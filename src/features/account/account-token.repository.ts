@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import AccountTokenEntity from '@/features/account/account-token.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
@@ -16,7 +16,7 @@ export class AccountTokenQuery extends RepositoryAbstract<AccountTokenEntity> {
 }
 
 export const getAccountTokenRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(AccountTokenEntity)
 		.extend({
 			createQuery() {

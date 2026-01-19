@@ -1,7 +1,7 @@
-import { getDataSource } from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import { createPastDate, formatDate } from '@/helpers';
 import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
+import dataSource from "@/config/data-source.config";
 
 export const SCHEDULE_EXPRESSION = '03 02 * * *';
 export const EXPECTED_RUN_TIME = 3; // seconds
@@ -47,7 +47,7 @@ const cronTimeCheck = async () => {
 		};
 	} = {};
 
-	const entries = await getDataSource().query(querySql, queryParameters);
+	const entries = await dataSource.query(querySql, queryParameters);
 
 	if (entries.length > 0) {
 		entries.forEach(

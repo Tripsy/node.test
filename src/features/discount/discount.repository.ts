@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { Configuration } from '@/config/settings.config';
 import DiscountEntity from '@/features/discount/discount.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -39,7 +39,7 @@ export class DiscountQuery extends RepositoryAbstract<DiscountEntity> {
 }
 
 export const getDiscountRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(DiscountEntity)
 		.extend({
 			createQuery() {

@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import type { RequestContextSource } from '@/config/request.context';
 import LogHistoryEntity, {
 	type LogHistoryAction,
@@ -14,7 +14,7 @@ export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
 }
 
 export const getLogHistoryRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(LogHistoryEntity)
 		.extend({
 			createQuery() {

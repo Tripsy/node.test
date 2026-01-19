@@ -1,9 +1,9 @@
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { getSystemLogger } from '@/providers/logger.provider';
 
 export const initDatabase = async () => {
 	try {
-		await getDataSource().initialize();
+		await dataSource.initialize();
 
 		getSystemLogger().debug('Database connection initialized successfully');
 	} catch (error) {
@@ -18,7 +18,7 @@ export const initDatabase = async () => {
 
 export const destroyDatabase = async () => {
 	try {
-		await getDataSource().destroy();
+		await dataSource.destroy();
 
 		getSystemLogger().debug('Database connection closed gracefully');
 	} catch (error) {

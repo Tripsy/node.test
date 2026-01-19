@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { Configuration } from '@/config/settings.config';
 import ClientEntity, {
 	type ClientIdentityData,
@@ -57,7 +57,7 @@ export class ClientQuery extends RepositoryAbstract<ClientEntity> {
 }
 
 export const getClientRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(ClientEntity)
 		.extend({
 			createQuery() {

@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { Configuration } from '@/config/settings.config';
 import CarrierEntity from '@/features/carrier/carrier.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -39,7 +39,7 @@ export class CarrierQuery extends RepositoryAbstract<CarrierEntity> {
 }
 
 export const getCarrierRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(CarrierEntity)
 		.extend({
 			createQuery() {

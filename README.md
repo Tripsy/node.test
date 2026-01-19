@@ -161,17 +161,14 @@ $ pnpm run dev
 > Always check the migrations before run it, sometimes columns are dropped
 
 ```bash
-// Generate migration file for schemas - DEPRECATED
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/database/migrations/CreateSchemas
-
 // Generate migration file
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/database/migrations/init
+$ pnpm run migration:generate /var/www/html/src/database/migrations/init
 
 // Run new migrations - update DB structure
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts
+$ pnpm run migration:run
 
 // Revert last migration
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts
+$ pnpm run migration:revert
 
 // Reset 
 $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
@@ -237,19 +234,13 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. make features as a package:
-    - create separate migration per entity
-2. CLI ...should have a command which runs seed if exist 
-    - create user.seed.ts - default admin user 
-      - write to history.txt
-      - check core features exist 
-3. do tests for the rest of controllers
-4. feature - brand 
-5. feature - images 
-6. Go on FE → category, place, brand, client
-7. Go on FE #2 → carrier, discount, 
-8. Go on FE #3 → image (multer - File upload handling)
-9. wip entities:
+1. do tests for the rest of controllers
+2. feature - brand 
+3. feature - images 
+4. Go on FE → category, place, brand, client
+5. Go on FE #2 → carrier, discount, 
+6. Go on FE #3 → image (multer - File upload handling)
+7. wip entities:
     - article
         - article-category
         - article-content
@@ -273,8 +264,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-evidence
     - term
-10. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-11. Review "ideas"
+8. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+9. Review "ideas"
 
 # Bugs & issues
 

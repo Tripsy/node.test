@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { Configuration } from '@/config/settings.config';
 import PlaceEntity, { type PlaceTypeEnum } from '@/features/place/place.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -34,7 +34,7 @@ export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 }
 
 export const getPlaceRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(PlaceEntity)
 		.extend({
 			createQuery() {

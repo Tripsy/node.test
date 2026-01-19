@@ -6,7 +6,7 @@ import {
 	type SelectQueryBuilder,
 } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { lang } from '@/config/i18n.setup';
 import { CustomError, NotFoundError } from '@/exceptions';
 import { formatDate, toKebabCase } from '@/helpers';
@@ -526,7 +526,7 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	}
 
 	static getTreeRepository(entity: EntityTarget<ObjectLiteral>) {
-		return getDataSource().getTreeRepository(entity);
+		return dataSource.getTreeRepository(entity);
 	}
 }
 

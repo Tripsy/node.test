@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { Configuration } from '@/config/settings.config';
 import UserEntity from '@/features/user/user.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -48,7 +48,7 @@ export class UserQuery extends RepositoryAbstract<UserEntity> {
 }
 
 export const getUserRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(UserEntity)
 		.extend({
 			createQuery() {

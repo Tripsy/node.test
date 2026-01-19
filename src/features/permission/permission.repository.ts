@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from "@/config/data-source.config";
 import { Configuration } from '@/config/settings.config';
 import PermissionEntity from '@/features/permission/permission.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -39,7 +39,7 @@ export class PermissionQuery extends RepositoryAbstract<PermissionEntity> {
 }
 
 export const getPermissionRepository = () =>
-	getDataSource()
+	dataSource
 		.getRepository(PermissionEntity)
 		.extend({
 			createQuery() {
