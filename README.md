@@ -236,12 +236,13 @@ $ pnpm run test account.unit.ts --detect-open-handles
 # TODO
 
 1. do tests for the rest of controllers
-2. feature - brand 
-3. feature - images 
-4. Go on FE → category, place, brand, client
-5. Go on FE #2 → carrier, discount, 
-6. Go on FE #3 → image (multer - File upload handling)
-7. wip entities:
+2. make tests for services
+3. feature - brand 
+4. feature - images 
+5. Go on FE → category, place, brand, client
+6. Go on FE #2 → carrier, discount, 
+7. Go on FE #3 → image (multer - File upload handling)
+8. wip entities:
     - article
         - article-category
         - article-content
@@ -265,8 +266,8 @@ $ pnpm run test account.unit.ts --detect-open-handles
     - subscription
         - subscription-evidence
     - term
-8. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-9. Review "ideas"
+9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+10. Review "ideas"
 
 # Bugs & issues
 

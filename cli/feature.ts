@@ -854,7 +854,7 @@ class FeatureManager {
 // Main execution
 async function main() {
 	const basePath = '/var/www/html';
-	const historyFilePath = path.join(basePath, 'history.txt');
+	const historyFilePath = path.join(basePath, 'cli', 'history.txt');
 
 	const manager = new FeatureManager({
 		basePath: basePath,
