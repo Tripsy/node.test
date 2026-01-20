@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import dataSource from "@/config/data-source.config";
+import dataSource from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import PlaceEntity, { type PlaceTypeEnum } from '@/features/place/place.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -34,22 +34,20 @@ export class PlaceQuery extends RepositoryAbstract<PlaceEntity> {
 }
 
 export const getPlaceRepository = () =>
-	dataSource
-		.getRepository(PlaceEntity)
-		.extend({
-			createQuery() {
-				return new PlaceQuery(this);
-			},
+	dataSource.getRepository(PlaceEntity).extend({
+		createQuery() {
+			return new PlaceQuery(this);
+		},
 
-			async checkPlaceType(
-				place_id: number,
-				type: PlaceTypeEnum,
-			): Promise<boolean> {
-				const result = await this.createQuery()
-					.select(['type'])
-					.filterById(place_id)
-					.firstRaw();
+		async checkPlaceType(
+			place_id: number,
+			type: PlaceTypeEnum,
+		): Promise<boolean> {
+			const result = await this.createQuery()
+				.select(['type'])
+				.filterById(place_id)
+				.firstRaw();
 
-				return result?.place_type === type;
-			},
-		});
+			return result?.place_type === type;
+		},
+	});

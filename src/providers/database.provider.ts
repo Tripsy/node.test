@@ -1,4 +1,4 @@
-import dataSource from "@/config/data-source.config";
+import dataSource from '@/config/data-source.config';
 import { getSystemLogger } from '@/providers/logger.provider';
 
 export const initDatabase = async () => {

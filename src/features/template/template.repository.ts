@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import dataSource from "@/config/data-source.config";
+import dataSource from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import TemplateEntity from '@/features/template/template.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -39,10 +39,8 @@ export class TemplateQuery extends RepositoryAbstract<TemplateEntity> {
 }
 
 export const getTemplateRepository = () =>
-	dataSource
-		.getRepository(TemplateEntity)
-		.extend({
-			createQuery() {
-				return new TemplateQuery(this);
-			},
-		});
+	dataSource.getRepository(TemplateEntity).extend({
+		createQuery() {
+			return new TemplateQuery(this);
+		},
+	});

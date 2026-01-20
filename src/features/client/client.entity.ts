@@ -1,10 +1,4 @@
-import {
-	Column,
-	Entity,
-	Index,
-	JoinColumn,
-	ManyToOne,
-} from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type PlaceEntity from '@/features/place/place.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 

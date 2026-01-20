@@ -1,6 +1,6 @@
 import type { EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
-import dataSource from "@/config/data-source.config";
+import dataSource from '@/config/data-source.config';
 import type { PlaceContentInput } from '@/features/place/place.entity';
 import PlaceContentEntity from '@/features/place/place-content.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';

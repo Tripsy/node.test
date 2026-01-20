@@ -1,33 +1,34 @@
 import 'dotenv/config';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 function buildSrcPath(...segments: string[]): string {
-    return join(__dirname, '..', ...segments);
+	return join(__dirname, '..', ...segments);
 }
 
 const filesExtension = process.env.APP_ENV === 'production' ? 'js' : 'ts';
 
 const dataSource = new DataSource({
-    type: (process.env.DB_CONNECTION as 'postgres' | 'mariadb') || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '3306', 10),
-    username: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'sample-node-api',
-    synchronize: false,
-    logging: false,
-    migrationsTableName: process.env.DB_CONNECTION === 'postgres'
-        ? 'system.migrations'
-        : 'migrations',
-    entities: [buildSrcPath(`features/**/*.entity.${filesExtension}`)],
-    migrations: [buildSrcPath(`database/migrations/*.${filesExtension}`)],
-    subscribers: [buildSrcPath(`features/**/*.subscriber.${filesExtension}`)],
-    poolSize: 10,
+	type: (process.env.DB_CONNECTION as 'postgres' | 'mariadb') || 'postgres',
+	host: process.env.DB_HOST || 'localhost',
+	port: parseInt(process.env.DB_PORT || '3306', 10),
+	username: process.env.DB_USER || 'root',
+	password: process.env.DB_PASSWORD || '',
+	database: process.env.DB_NAME || 'sample-node-api',
+	synchronize: false,
+	logging: false,
+	migrationsTableName:
+		process.env.DB_CONNECTION === 'postgres'
+			? 'system.migrations'
+			: 'migrations',
+	entities: [buildSrcPath(`features/**/*.entity.${filesExtension}`)],
+	migrations: [buildSrcPath(`database/migrations/*.${filesExtension}`)],
+	subscribers: [buildSrcPath(`features/**/*.subscriber.${filesExtension}`)],
+	poolSize: 10,
 });
 
 export default dataSource;

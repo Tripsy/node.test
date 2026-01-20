@@ -20,9 +20,9 @@
 		"test": "NODE_OPTIONS=--experimental-vm-modules APP_DEBUG=false APP_ENV=test NODE_ENV=test jest",
 		"biome": "NODE_OPTIONS=--no-deprecation biome check --write",
 		"madge": "madge --circular src",
-        "migration:generate": "pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts",
-        "migration:run": "pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts",
-        "migration:revert": "pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts"
+		"migration:generate": "pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts",
+		"migration:run": "pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts",
+		"migration:revert": "pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts"
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",
@@ -51,7 +51,6 @@
 		"qs": "^6.14.1",
 		"reflect-metadata": "^0.2.2",
 		"sanitize-html": "^2.17.0",
-		"ts-jest": "^29.4.6",
 		"typeorm": "^0.3.28",
 		"uuid": "^13.0.0",
 		"zod": "^4.2.1"
@@ -80,6 +79,7 @@
 		"nodemon": "^3.1.11",
 		"pino-pretty": "^13.1.3",
 		"supertest": "^7.1.4",
+		"ts-jest": "^29.4.6",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3"
 	},

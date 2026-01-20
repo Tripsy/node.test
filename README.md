@@ -10,7 +10,9 @@ supporting a complex REST Api with plenty of [features](#Features) and based on 
 - Advanced logging and error handling;
 - Custom middlewares;
 - Multi-language support;
-- Strong validation and policy-based authorization.
+- Strong validation and policy-based authorization;
+- Testsuite based on Jest and Supertest;
+- Docker support;
 
 The code follows **best practices** and **design principles** like SOLID, KISS, DRY, and strong security standards. 
 The codebase is fully typed in **TypeScript** — no as any shortcuts. **Biome** (on top of ESLint) ensures code quality.
@@ -54,7 +56,6 @@ Meanwhile, I'm open to suggestions, feedback, and If you find this project usefu
 - [x] Best Practices: Clean architecture, TypeScript, error handling, async patterns, DRY, SOLID, KISS
 - [x] Security: Helmet, rate limiting, input validation, CORS
 - [x] Logging (powered by Pino) to a file, db, or email
-- [x] TypeORM Wrapper: A layer over TypeORM for smoother database interactions.
 - [x] Request validation (powered by Zod)
 - [x] Standardized JSON Responses: Consistent response structures for better frontend integration (e.g.: res.locals.output)
 - [x] Caching (powered by ioredis)
@@ -136,7 +137,19 @@ Run the following command to install project dependencies:
 $ pnpm install
 ```
 
-### 5. While using PostgreSQL only
+### 5. Update .env
+
+Start by copying the `.env.example` file to `.env` and update the environment variables accordingly.
+
+### 5. Database
+
+Run the following commands to create the required database schemas:
+
+```
+$ pnpm run migration:run
+```
+
+While using PostgreSQL only
 
  ```sql
 CREATE SCHEMA IF NOT EXISTS system;
@@ -144,18 +157,20 @@ CREATE SCHEMA IF NOT EXISTS logs;
 ```  
 
 ### 6. Run the application
-Finally, start the application in development mode with:
 
 ```
 $ pnpm run dev
 ```
 
-# Notes
+### 7. Setup features
 
-- res object contains additional properties - check /src/types/express.d.ts (is in .gitignore)
-- right now workers are not set to run on a separate process
+```
+$ pnpx tsx cli/feature.ts [feature] install
+$ pnpx tsx cli/feature.ts [feature] remove
+$ pnpx tsx cli/feature.ts [feature] upgrade
+```
 
-# TypeORM
+# Commands
 
 > **Warning**
 > Always check the migrations before run it, sometimes columns are dropped
@@ -170,20 +185,22 @@ $ pnpm run migration:run
 // Revert last migration
 $ pnpm run migration:revert
 
-// Reset 
+// Reset database
 $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 
 // Import seed data
 $ pnpx tsx /var/www/html/src/features/template/database/template.seed.ts  
 $ pnpx tsx /var/www/html/src/features/permission/database/permission.seed.ts
-```
 
-# Tests
-
-```bash
+// Run tests
 $ pnpm run test --testTimeout=60000
 $ pnpm run test account.functional.ts --testTimeout=60000 --detectOpenHandles
 $ pnpm run test account.unit.ts --detect-open-handles
+
+// Code sanity
+$ pnpm run biome
+$ pnpm run madge
+
 ```
 
 # Structure
@@ -204,6 +221,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 │   │   │   ├── tests/
 │   │   │   │   └── user.mock.ts
 │   │   │   │   └── user-controller.test.ts
+│   │   │   │   └── user-validator.test.ts
 │   │   │   ├── user.controller.ts
 │   │   │   ├── user.entity.ts
 │   │   │   ├── user.repository.ts
@@ -267,14 +285,12 @@ $ pnpm run test account.unit.ts --detect-open-handles
         - subscription-evidence
     - term
 9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-10. Review "ideas"
 
-# Bugs & issues
+# Bugs & Issues & Ideas
 
 1. API documentation > swagger-ui-express
 2. cron hanging / delaying / semaphore 
-3. CI/CD 
-4. For "Star" use the category for "cars"
+3. CI/CD
 
 # Dependencies
     
@@ -289,12 +305,15 @@ $ pnpm run test account.unit.ts --detect-open-handles
 - [ioredis](https://github.com/luin/ioredis) — Robust Redis client for Node.js
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) — JSON Web Token implementation
 - [node-cron](https://github.com/node-cron/node-cron) — Task scheduler for Node.js
+- [nodemailer](https://nodemailer.com/) — Email sending library
 - [BullMQ](https://docs.bullmq.io/) — Redis-based message queue for Node.js
 - [nunjucks](https://github.com/mozilla/nunjucks) — Templating engine for JavaScript
 - [dayjs](https://day.js.org/) — Parses, validates, manipulates, and displays dates and times 
 
 Dev only:
 
+- [typescript](https://www.typescriptlang.org/) 
 - [jest](https://jestjs.io/) — JavaScript testing framework
 - [supertest](https://www.npmjs.com/package/supertest) — HTTP assertion library for testing Node.js servers
 - [madge](https://github.com/pahen/madge) — Helps finding circular dependencies
+- [mailtrap](https://github.com/mailtrap/mailtrap-nodejs) — Mailtrap client for Node.js

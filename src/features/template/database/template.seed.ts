@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import dataSource from "@/config/data-source.config";
+import dataSource from '@/config/data-source.config';
 import { RequestContextSource, requestContext } from '@/config/request.context';
 import TemplateEntity, {
 	TemplateTypeEnum,

@@ -2,7 +2,13 @@
 	"name": "article",
 	"version": "1.0.0",
 	"relativePath": "/article",
-	"entities": ["article", "article_category", "article_content", "article_tag", "article_track"],
+	"entities": [
+		"article",
+		"article_category",
+		"article_content",
+		"article_tag",
+		"article_track"
+	],
 	"depends_on": ["category", "term"],
 	"depends_off": []
 }
