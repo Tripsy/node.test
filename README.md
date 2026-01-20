@@ -1,10 +1,11 @@
 # Description
 
-This project started as a learning process, and the goal was to build a simple **REST Api (Node.js - Express / TypeScript)**, 
-hence the name `node.test`
+NReady is a production-ready **Node.js - Express / TypeScript** boilerplate designed for complex, secure REST APIs.
 
-Fast-forward several months later, this project has evolved into a full-featured **Boilerplate**, with a [solid structure](#Structure),
-supporting a complex REST Api with plenty of [features](#Features) and based on many [goodies](#Characteristics) including: 
+This boilerplate can serve as a foundation to quickly build MVPs, CMS platforms, or E-commerce solutions.
+
+It comes with a [solid structure](#Structure), it is fully modular and feature-based, and already contains a lot of useful [features](#Features),
+and many [goodies](#Characteristics) including: 
 - **Complete authentication system**;
 - Multiple background workers (email, cron, etc.);
 - Advanced logging and error handling;
@@ -25,19 +26,14 @@ A ready-to-use Docker environment is provided for quick [setup](#Setup).
 
 This project is still a work in progress, and the next goals are:
  - Complete the test suite
- - Modularizing [features](#Features) as reusable NPM packages
- - Adding new [features](#Features) such as articles, images, products, orders, invoices, payments, and subscriptions
+ - Add new [features](#Features) such as articles, images, products, orders, invoices, payments, and subscriptions
 
-Ultimately, this boilerplate can serve as a starter template with ready-made functionality or 
-as a foundation to quickly build MVPs, CMS platforms, or E-commerce solutions. 
+Meanwhile, we're open to suggestions / feedback, and if you find this project useful, please consider giving it a star ⭐
 
-Meanwhile, I'm open to suggestions, feedback, and If you find this project useful, please consider giving it a star ⭐
-
-> On a [separate project](https://github.com/Tripsy/nextjs.test), powered by **React / Next.js** I also developed a working #FrontEnd interface to demonstrate the usability of the `authentification system` and 
-> I have started building an **Administration Dashboard** with some features already included: Users, Permissions, Template,
+> On a [separate project](https://github.com/Tripsy/nextjs.test), powered by **React / Next.js** you can find a 
+> working #FrontEnd interface which demonstrate the usability of the `authentification system` and 
+> an **Administration Dashboard** with some features already included: Users, Permissions, Template,
 > Logs for data, mail queue, entity operations
-
-> I'm also #OpenForWork
 
 # Tech Stack
 
@@ -143,18 +139,18 @@ Start by copying the `.env.example` file to `.env` and update the environment va
 
 ### 5. Database
 
-Run the following commands to create the required database schemas:
-
-```
-$ pnpm run migration:run
-```
-
-While using PostgreSQL only
+For PostgreSQL only
 
  ```sql
 CREATE SCHEMA IF NOT EXISTS system;
 CREATE SCHEMA IF NOT EXISTS logs;
 ```  
+
+Run the following commands to create the required database schemas:
+
+```
+$ pnpm run migration:run
+```
 
 ### 6. Run the application
 
@@ -253,23 +249,22 @@ $ pnpm run madge
 
 # TODO
 
-1. do tests for the rest of controllers
-2. make tests for services
-3. feature - brand 
-4. feature - images 
-5. Go on FE → category, place, brand, client
-6. Go on FE #2 → carrier, discount, 
-7. Go on FE #3 → image (multer - File upload handling)
-8. wip entities:
+1. make tests for services
+    > account, category, discount, log-data, user
+2. make tests for the rest of available features
+    > carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
+3. API documentation > swagger-ui-express
+4. feature - brand (brand-content)
+5. feature - images  (image-content)
+6. Go on FE → category, place, brand, client
+7. Go on FE #2 → carrier, discount, 
+8. Go on FE #3 → image (multer - File upload handling)
+9. wip entities:
     - article
         - article-category
         - article-content
         - article-tag  
         - article-track
-    - brand
-        - brand-content 
-    - image  
-      - image-content
     - invoice
     - order
         - order-product
@@ -284,13 +279,12 @@ $ pnpm run madge
     - subscription
         - subscription-evidence
     - term
-9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+10. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # Bugs & Issues & Ideas
 
-1. API documentation > swagger-ui-express
-2. cron hanging / delaying / semaphore 
-3. CI/CD
+1. cron hanging / delaying / semaphore 
+2. CI/CD
 
 # Dependencies
     
