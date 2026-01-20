@@ -1,0 +1,8 @@
+{
+	"name": "subscription",
+	"version": "1.0.0",
+	"relativePath": "/product",
+	"entities": ["subscription", "subscription-evidence"],
+	"depends_on": ["user", "order"],
+	"depends_off": []
+}

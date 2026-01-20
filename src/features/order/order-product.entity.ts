@@ -53,7 +53,7 @@ export default class OrderProductEntity extends EntityAbstract {
 
 	@Column('jsonb', {
 		nullable: true,
-		comment: 'Array of discount snapshots applied to this product line',
+		comment: 'Array of discount snapshots applied',
 	})
 	discount?: DiscountSnapshot[];
 

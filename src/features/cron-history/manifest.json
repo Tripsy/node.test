@@ -1,0 +1,8 @@
+{
+	"name": "cron-history",
+	"version": "1.0.0",
+	"relativePath": "/cron-history",
+	"entities": ["cron-history"],
+	"depends_on": [],
+	"depends_off": ["core"]
+}

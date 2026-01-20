@@ -7,7 +7,6 @@ import {
 	OneToMany,
 } from 'typeorm';
 import type BrandEntity from '@/features/brand/brand.entity';
-import type OrderProductEntity from '@/features/order/order-product.entity';
 import type ProductAttributeEntity from '@/features/product/product-attribute.entity';
 import type ProductCategoryEntity from '@/features/product/product-category.entity';
 import type ProductTagEntity from '@/features/product/product-tag.entity';
@@ -159,10 +158,4 @@ export default class ProductEntity extends EntityAbstract {
 		(attribute: ProductAttributeEntity) => attribute.product,
 	)
 	attributes?: ProductAttributeEntity[];
-
-	@OneToMany(
-		'OrderProductEntity',
-		(orderProduct: OrderProductEntity) => orderProduct.product,
-	)
-	order_products?: OrderProductEntity[];
 }

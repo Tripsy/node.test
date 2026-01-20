@@ -212,6 +212,7 @@ $ pnpm run test account.unit.ts --detect-open-handles
 │   │   │   ├── user.subscriber.ts
 │   │   │   └── user.validator.ts
 │   │   │   └── user.seed.ts 
+│   │   │   └── manifest.json 
 │   │   └── ...            # Other features (invoice, category, etc.)
 │   ├── helpers/           # Utilities (date, string, object, etc.)
 │   ├── middleware/        # Custom Express middlewares

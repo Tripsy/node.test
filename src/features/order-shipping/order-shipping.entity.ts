@@ -82,7 +82,7 @@ export default class OrderShippingEntity extends EntityAbstract {
 
 	@Column('simple-json', {
 		nullable: true,
-		comment: 'Array of discount snapshots applied to this order',
+		comment: 'Array of discount snapshots applied',
 	})
 	discount?: DiscountSnapshot[];
 

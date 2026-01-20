@@ -416,6 +416,15 @@ class FeatureManager {
 
 		const manifest = await this.parseManifest(manifestPath);
 
+        if (manifest.depends_off.includes(('core'))) {
+            display
+                .blank()
+                .error(`Feature '${this.feature}' cannot be removed`)
+                .text(`It is a core feature`);
+
+            throw new Error();
+        }
+
 		// Check if other features depend on this
 		const existingDependencies = await this.getExistingFeatures(
 			manifest.depends_off,

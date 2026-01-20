@@ -1,0 +1,8 @@
+{
+	"name": "term",
+	"version": "1.0.0",
+	"relativePath": "/term",
+	"entities": ["term"],
+	"depends_on": [],
+	"depends_off": ["article", "product"]
+}

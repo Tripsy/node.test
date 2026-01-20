@@ -1,0 +1,8 @@
+{
+	"name": "user",
+	"version": "1.0.0",
+	"relativePath": "/user",
+	"entities": ["user"],
+	"depends_on": [],
+	"depends_off": ["core", "account", "subscription"]
+}
