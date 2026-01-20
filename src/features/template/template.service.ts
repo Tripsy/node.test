@@ -7,7 +7,7 @@ import {
 	paramsUpdateList,
 	type TemplateValidator,
 } from '@/features/template/template.validator';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class TemplateService {
 	constructor(private repository: ReturnType<typeof getTemplateRepository>) {}
@@ -16,7 +16,7 @@ export class TemplateService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: ValidatorDto<TemplateValidator, 'create'>,
+		data: ValidatorOutput<TemplateValidator, 'create'>,
 	): Promise<TemplateEntity> {
 		const existingTemplate = await this.checkIfExist(
 			data.label,
@@ -53,7 +53,7 @@ export class TemplateService {
 	 */
 	public async updateData(
 		id: number,
-		data: ValidatorDto<TemplateValidator, 'update'>,
+		data: ValidatorOutput<TemplateValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const entry = await this.findById(id, withDeleted);
@@ -141,7 +141,7 @@ export class TemplateService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<TemplateValidator, 'find'>,
+		data: ValidatorOutput<TemplateValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

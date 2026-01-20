@@ -1,4 +1,4 @@
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { BadRequestError, CustomError, NotFoundError } from '@/exceptions';
 import type ClientEntity from '@/features/client/client.entity';
@@ -12,7 +12,7 @@ import {
 	type ClientValidator,
 	paramsUpdateList,
 } from '@/features/client/client.validator';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class ClientService {
 	constructor(private repository: ReturnType<typeof getClientRepository>) {}
@@ -21,7 +21,7 @@ export class ClientService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: ValidatorDto<ClientValidator, 'create'>,
+		data: ValidatorOutput<ClientValidator, 'create'>,
 	): Promise<ClientEntity> {
 		const identityData: ClientIdentityData =
 			data.client_type === ClientTypeEnum.COMPANY
@@ -65,7 +65,7 @@ export class ClientService {
 	 */
 	public async updateData(
 		id: number,
-		data: ValidatorDto<ClientValidator, 'update'>,
+		data: ValidatorOutput<ClientValidator, 'update'>,
 		_withDeleted: boolean = true,
 	) {
 		const identityData: ClientIdentityData =
@@ -141,7 +141,7 @@ export class ClientService {
 		language: string,
 		withDeleted: boolean,
 	) {
-		const clientEntryQuery = getDataSource()
+		const clientEntryQuery = dataSource
 			.createQueryBuilder()
 			.select([
 				'c.*',
@@ -199,7 +199,7 @@ export class ClientService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<ClientValidator, 'find'>,
+		data: ValidatorOutput<ClientValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

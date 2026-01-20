@@ -1,6 +1,6 @@
 import type { EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { CustomError } from '@/exceptions';
 import type {
@@ -16,7 +16,7 @@ export class CategoryContentQuery extends RepositoryAbstract<CategoryContentEnti
 	}
 }
 
-export const CategoryContentRepository = getDataSource()
+export const CategoryContentRepository = dataSource
 	.getRepository(CategoryContentEntity)
 	.extend({
 		createQuery() {

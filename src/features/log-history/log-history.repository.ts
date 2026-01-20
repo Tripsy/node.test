@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import type { RequestContextSource } from '@/config/request.context';
 import LogHistoryEntity, {
 	type LogHistoryAction,
@@ -14,45 +14,43 @@ export class LogHistoryQuery extends RepositoryAbstract<LogHistoryEntity> {
 }
 
 export const getLogHistoryRepository = () =>
-	getDataSource()
-		.getRepository(LogHistoryEntity)
-		.extend({
-			createQuery() {
-				return new LogHistoryQuery(this);
-			},
+	dataSource.getRepository(LogHistoryEntity).extend({
+		createQuery() {
+			return new LogHistoryQuery(this);
+		},
 
-			createLogs(
-				entity: string,
-				entity_ids: number[],
-				action: LogHistoryAction,
-				auth_id: number | null,
-				performed_by: string,
-				request_id: string,
-				source: RequestContextSource,
-				details?: Record<string, string | number>,
-			) {
-				const recorded_at = new Date();
+		createLogs(
+			entity: string,
+			entity_ids: number[],
+			action: LogHistoryAction,
+			auth_id: number | null,
+			performed_by: string,
+			request_id: string,
+			source: RequestContextSource,
+			details?: Record<string, string | number>,
+		) {
+			const recorded_at = new Date();
 
-				getSystemLogger().info(
-					`Creating log history for ${entity} ${entity_ids.join(', ')}`,
-				);
+			getSystemLogger().info(
+				`Creating log history for ${entity} ${entity_ids.join(', ')}`,
+			);
 
-				const records = entity_ids.map((entity_id) => {
-					const log = new LogHistoryEntity();
+			const records = entity_ids.map((entity_id) => {
+				const log = new LogHistoryEntity();
 
-					log.entity = entity;
-					log.entity_id = entity_id;
-					log.action = action;
-					log.auth_id = auth_id;
-					log.performed_by = performed_by;
-					log.request_id = request_id;
-					log.source = source;
-					log.recorded_at = recorded_at;
-					log.details = details;
+				log.entity = entity;
+				log.entity_id = entity_id;
+				log.action = action;
+				log.auth_id = auth_id;
+				log.performed_by = performed_by;
+				log.request_id = request_id;
+				log.source = source;
+				log.recorded_at = recorded_at;
+				log.details = details;
 
-					return log;
-				});
+				return log;
+			});
 
-				return this.save(records);
-			},
-		});
+			return this.save(records);
+		},
+	});

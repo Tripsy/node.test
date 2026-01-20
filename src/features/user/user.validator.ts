@@ -19,7 +19,7 @@ export const paramsUpdateList: string[] = [
 	'operator_type',
 ];
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 	NAME = 'name',
 	CREATED_AT = 'created_at',
@@ -140,41 +140,38 @@ export class UserValidator extends BaseValidator {
 				email: z
 					.email({ message: lang('user.validation.email_invalid') })
 					.optional(),
-				password: z.preprocess(
-					(val) => (val === '' ? undefined : val),
-					z
-						.string({
-							message: lang('user.validation.password_invalid'),
-						})
-						.min(this.passwordMinLength, {
-							message: lang('user.validation.password_min', {
-								min: this.passwordMinLength.toString(),
-							}),
-						})
-						.refine((value) => /[A-Z]/.test(value), {
+				password: z
+					.string({
+						message: lang('user.validation.password_invalid'),
+					})
+					.min(this.passwordMinLength, {
+						message: lang('user.validation.password_min', {
+							min: this.passwordMinLength.toString(),
+						}),
+					})
+					.refine((value) => /[A-Z]/.test(value), {
+						message: lang(
+							'user.validation.password_condition_capital_letter',
+						),
+					})
+					.refine((value) => /[0-9]/.test(value), {
+						message: lang(
+							'user.validation.password_condition_number',
+						),
+					})
+					.refine(
+						(value) =>
+							/[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]/.test(value),
+						{
 							message: lang(
-								'user.validation.password_condition_capital_letter',
+								'user.validation.password_condition_special_character',
 							),
-						})
-						.refine((value) => /[0-9]/.test(value), {
-							message: lang(
-								'user.validation.password_condition_number',
-							),
-						})
-						.refine(
-							(value) =>
-								/[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]/.test(value),
-							{
-								message: lang(
-									'user.validation.password_condition_special_character',
-								),
-							},
-						)
-						.optional(),
-				),
-				password_confirm: this.nullableString(
+						},
+					)
+					.optional(),
+				password_confirm: this.validateString(
 					lang('user.validation.password_confirm_required'),
-				),
+				).optional(),
 				language: this.validateLanguage().optional(),
 				role: z.enum(UserRoleEnum).optional(),
 				operator_type: z

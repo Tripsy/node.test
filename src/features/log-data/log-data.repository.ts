@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import LogDataEntity from '@/features/log-data/log-data.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -71,10 +71,8 @@ export class LogDataQuery extends RepositoryAbstract<LogDataEntity> {
 }
 
 export const getLogDataRepository = () =>
-	getDataSource()
-		.getRepository(LogDataEntity)
-		.extend({
-			createQuery() {
-				return new LogDataQuery(this);
-			},
-		});
+	dataSource.getRepository(LogDataEntity).extend({
+		createQuery() {
+			return new LogDataQuery(this);
+		},
+	});

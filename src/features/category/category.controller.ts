@@ -113,9 +113,20 @@ class CategoryController extends BaseController {
 	public find = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canFind(res.locals.auth);
 
-		const data = this.validate(this.validator.find(), req.query, res);
+		const data = this.validate(
+			this.validator.find(),
+			{
+				...req.query,
+				...(res.locals.filter !== undefined && {
+					filter: res.locals.filter,
+				}),
+			},
+			res,
+		);
 
-		data.filter.language = data.filter.language ?? res.locals.language;
+		if (!data.filter.language) {
+			data.filter.language = res.locals.language;
+		}
 
 		const [entries, total] = await this.categoryService.findByFilter(
 			data,

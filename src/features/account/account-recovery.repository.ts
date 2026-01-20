@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
@@ -16,16 +16,14 @@ export class AccountRecoveryQuery extends RepositoryAbstract<AccountRecoveryEnti
 }
 
 export const getAccountRecoveryRepository = () =>
-	getDataSource()
-		.getRepository(AccountRecoveryEntity)
-		.extend({
-			createQuery() {
-				return new AccountRecoveryQuery(this);
-			},
+	dataSource.getRepository(AccountRecoveryEntity).extend({
+		createQuery() {
+			return new AccountRecoveryQuery(this);
+		},
 
-			// removeRecoveryById(id: number): void {
-			//     void this.createQuery()
-			//         .filterById(id)
-			//         .delete(false);
-			// }
-		});
+		// removeRecoveryById(id: number): void {
+		//     void this.createQuery()
+		//         .filterById(id)
+		//         .delete(false);
+		// }
+	});

@@ -1,6 +1,6 @@
 import type { EntityManager } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { BadRequestError } from '@/exceptions';
 import PlaceEntity from '@/features/place/place.entity';
@@ -10,7 +10,7 @@ import {
 	paramsUpdateList,
 } from '@/features/place/place.validator';
 import PlaceContentRepository from '@/features/place/place-content.repository';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class PlaceService {
 	constructor(
@@ -24,9 +24,9 @@ export class PlaceService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: ValidatorDto<PlaceValidator, 'create'>,
+		data: ValidatorOutput<PlaceValidator, 'create'>,
 	): Promise<PlaceEntity> {
-		return getDataSource().transaction(async (manager) => {
+		return dataSource.transaction(async (manager) => {
 			const repository = this.getScopedPlaceRepository(manager);
 
 			const entry = {
@@ -52,7 +52,7 @@ export class PlaceService {
 	 */
 	public async updateDataWithContent(
 		id: number,
-		data: ValidatorDto<PlaceValidator, 'update'>,
+		data: ValidatorOutput<PlaceValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const place = await this.findById(id, withDeleted);
@@ -70,7 +70,7 @@ export class PlaceService {
 			}
 		}
 
-		return getDataSource().transaction(async (manager) => {
+		return dataSource.transaction(async (manager) => {
 			const repository = manager.getRepository(PlaceEntity); // We use the manager -> `getPlaceRepository` is not bound to the transaction
 
 			const updateData = {
@@ -181,7 +181,7 @@ export class PlaceService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<PlaceValidator, 'find'>,
+		data: ValidatorOutput<PlaceValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository
@@ -235,7 +235,7 @@ export class PlaceService {
 }
 
 export function getScopedPlaceRepository(manager?: EntityManager) {
-	return (manager ?? getDataSource().manager).getRepository(PlaceEntity);
+	return (manager ?? dataSource.manager).getRepository(PlaceEntity);
 }
 
 export const placeService = new PlaceService(

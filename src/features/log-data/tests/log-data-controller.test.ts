@@ -1,21 +1,22 @@
 import { jest } from '@jest/globals';
 import type LogDataEntity from '@/features/log-data/log-data.entity';
-import {
-	LogDataCategoryEnum,
-	LogDataLevelEnum,
-} from '@/features/log-data/log-data.entity';
 import { logDataPolicy } from '@/features/log-data/log-data.policy';
 import logDataRoutes from '@/features/log-data/log-data.routes';
 import { logDataService } from '@/features/log-data/log-data.service';
-import type { LogDataValidator } from '@/features/log-data/log-data.validator';
-import { logDataMock } from '@/features/log-data/tests/log-data.mock';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type {
+	LogDataValidator,
+	OrderByEnum,
+} from '@/features/log-data/log-data.validator';
+import {
+	logDataEntityMock,
+	logDataPayloads,
+} from '@/features/log-data/tests/log-data.mock';
 import {
 	testControllerDeleteMultiple,
 	testControllerFind,
 	testControllerRead,
 } from '@/tests/jest-controller.setup';
-import { mockPastDate } from '@/tests/mocks/helpers.mock';
+import { validatorPayload } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -23,35 +24,26 @@ beforeEach(() => {
 
 const controller = 'LogDataController';
 const basePath = logDataRoutes.basePath;
-const mockEntry = logDataMock();
 
 testControllerRead<LogDataEntity>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: logDataEntityMock,
 	policy: logDataPolicy,
 });
 
-testControllerDeleteMultiple<ValidatorDto<LogDataValidator, 'delete'>>({
+testControllerDeleteMultiple<LogDataValidator>({
 	controller: controller,
 	basePath: basePath,
 	policy: logDataPolicy,
 	service: logDataService,
 });
 
-testControllerFind<LogDataEntity, ValidatorDto<LogDataValidator, 'find'>>({
+testControllerFind<LogDataEntity, LogDataValidator, OrderByEnum>({
 	controller: controller,
 	basePath: basePath,
-	mockEntry: mockEntry,
+	entityMock: logDataEntityMock,
 	policy: logDataPolicy,
 	service: logDataService,
-	filterData: {
-		filter: {
-			category: LogDataCategoryEnum.SYSTEM,
-			level: LogDataLevelEnum.ERROR,
-			create_date_start: mockPastDate(14400),
-			create_date_end: mockPastDate(7200),
-			term: 'timeout',
-		},
-	},
+	findData: validatorPayload(logDataPayloads, 'find'),
 });

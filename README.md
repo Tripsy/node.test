@@ -1,6 +1,6 @@
 # Description
 
-This project started as a learning process and the goal was to build a simple **REST Api (Node.Js - Express / TypeScript)**, 
+This project started as a learning process, and the goal was to build a simple **REST Api (Node.js - Express / TypeScript)**, 
 hence the name `node.test`
 
 Fast-forward several months later, this project has evolved into a full-featured **Boilerplate**, with a [solid structure](#Structure),
@@ -10,7 +10,9 @@ supporting a complex REST Api with plenty of [features](#Features) and based on 
 - Advanced logging and error handling;
 - Custom middlewares;
 - Multi-language support;
-- Strong validation and policy-based authorization.
+- Strong validation and policy-based authorization;
+- Testsuite based on Jest and Supertest;
+- Docker support;
 
 The code follows **best practices** and **design principles** like SOLID, KISS, DRY, and strong security standards. 
 The codebase is fully typed in **TypeScript** — no as any shortcuts. **Biome** (on top of ESLint) ensures code quality.
@@ -21,28 +23,39 @@ At this date (e.g.: 2026 January), all [dependencies](#Dependencies) are updated
 
 A ready-to-use Docker environment is provided for quick [setup](#Setup).
 
-This project is still a work in progress and next goals are:
- - Complete the tests suite
+This project is still a work in progress, and the next goals are:
+ - Complete the test suite
  - Modularizing [features](#Features) as reusable NPM packages
  - Adding new [features](#Features) such as articles, images, products, orders, invoices, payments, and subscriptions
 
 Ultimately, this boilerplate can serve as a starter template with ready-made functionality or 
 as a foundation to quickly build MVPs, CMS platforms, or E-commerce solutions. 
 
-Meanwhile, I'm open to suggestions, feedback and If you find this project useful, please consider giving it a star ⭐
+Meanwhile, I'm open to suggestions, feedback, and If you find this project useful, please consider giving it a star ⭐
 
 > On a [separate project](https://github.com/Tripsy/nextjs.test), powered by **React / Next.js** I also developed a working #FrontEnd interface to demonstrate the usability of the `authentification system` and 
 > I have started building an **Administration Dashboard** with some features already included: Users, Permissions, Template,
-> Logs for data, mail queue, entities operations
+> Logs for data, mail queue, entity operations
 
 > I'm also #OpenForWork
+
+# Tech Stack
+
+- Runtime: Node.js
+- Framework: Express.js
+- Database: PostgresSQL, MariaDB
+- Language: TypeScript
+- Security: Helmet, CORS, rate limiting, input validation (powered by Zod), JWT tokens, bcrypt hashing
+- Logging: Pino (destinations: file, email, database)
+- Containerization: Docker
+- Testing: Jest, Supertest
 
 # Characteristics
 
 - [x] Ready-to-use boilerplate with a modular, feature-based architecture
-- [x] Custom Error Handling
-- [x] Logging (powered by Pino) to file, db, or email
-- [x] TypeORM Wrapper: A layer over TypeORM for smoother database interactions.
+- [x] Best Practices: Clean architecture, TypeScript, error handling, async patterns, DRY, SOLID, KISS
+- [x] Security: Helmet, rate limiting, input validation, CORS
+- [x] Logging (powered by Pino) to a file, db, or email
 - [x] Request validation (powered by Zod)
 - [x] Standardized JSON Responses: Consistent response structures for better frontend integration (e.g.: res.locals.output)
 - [x] Caching (powered by ioredis)
@@ -55,11 +68,12 @@ Meanwhile, I'm open to suggestions, feedback and If you find this project useful
     - Auth (auth.middleware → res.locals.auth)
     - REST API Documentation Link (meta-documentation.middleware)
     - Determine language (language.middleware → res.locals.lang)
-    - Params validation 
+    - Query params validation, etc
 - [x] Internationalization / language management (powered by i18next)
-- [x] Complete `Auth System`: Secure, modular auth layer supporting user registration, login (token-based authentication), etc
+- [x] Complete `Auth System`: Secure, modular auth layer supporting user registration, login (token-based authentication), etc.
 - [x] Authorization policies based on user roles and permissions
 - [x] Testing (powered by Jest & Supertest)
+- [x] Development environment available (Docker)
 
 # Features
 
@@ -77,14 +91,11 @@ Meanwhile, I'm open to suggestions, feedback and If you find this project useful
 
 ### Modular features
 
-
 - [x] carrier: create, read, update, delete, restore, find
 - [x] category: create, read, update, delete, restore, find, statusUpdate
 - [x] client: create, read, update, delete, restore, find, statusUpdate
 - [x] discount: create, read, update, delete, restore, find
-
 - [x] place: create, read, update, delete, restore, find
-
 
 ### Upcoming features
 
@@ -103,7 +114,7 @@ Meanwhile, I'm open to suggestions, feedback and If you find this project useful
 
 ### 1. Add `hosts` record
 For configuration refer to this guide:  
-[How to Edit the Hosts File on macOS](https://phoenixnap.com/kb/mac-hosts-file)
+[How to Edit the Host File on macOS](https://phoenixnap.com/kb/mac-hosts-file)
 
 ### 2. Initialize Docker container
 Start the Docker container using the following command:
@@ -126,7 +137,19 @@ Run the following command to install project dependencies:
 $ pnpm install
 ```
 
-### 5. While using PostgreSQL only
+### 5. Update .env
+
+Start by copying the `.env.example` file to `.env` and update the environment variables accordingly.
+
+### 5. Database
+
+Run the following commands to create the required database schemas:
+
+```
+$ pnpm run migration:run
+```
+
+While using PostgreSQL only
 
  ```sql
 CREATE SCHEMA IF NOT EXISTS system;
@@ -134,52 +157,51 @@ CREATE SCHEMA IF NOT EXISTS logs;
 ```  
 
 ### 6. Run the application
-Finally, start the application in development mode with:
 
 ```
 $ pnpm run dev
 ```
 
-# Notes
+### 7. Setup features
 
-- res object contains additional properties - check /src/types/express.d.ts (is in .gitignore)
-- right now workers are not set run on separate process
+```
+$ pnpx tsx cli/feature.ts [feature] install
+$ pnpx tsx cli/feature.ts [feature] remove
+$ pnpx tsx cli/feature.ts [feature] upgrade
+```
 
-# TypeORM
+# Commands
 
 > **Warning**
 > Always check the migrations before run it, sometimes columns are dropped
 
 ```bash
-// Generate migration file for schemas - DEPRECATED
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:create src/database/migrations/CreateSchemas
-
 // Generate migration file
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts /var/www/html/src/database/migrations/init
+$ pnpm run migration:generate /var/www/html/src/database/migrations/init
 
 // Run new migrations - update DB structure
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts
+$ pnpm run migration:run
 
 // Revert last migration
-$ pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts
+$ pnpm run migration:revert
 
-// Reset 
+// Reset database
 $ pnpx tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 
 // Import seed data
-$ pnpx tsx /var/www/html/src/features/templates/template.seed.ts  
-$ pnpx tsx /var/www/html/src/features/permission/permission.seed.ts
-```
+$ pnpx tsx /var/www/html/src/features/template/database/template.seed.ts  
+$ pnpx tsx /var/www/html/src/features/permission/database/permission.seed.ts
 
-# Tests
-
-```bash
+// Run tests
 $ pnpm run test --testTimeout=60000
 $ pnpm run test account.functional.ts --testTimeout=60000 --detectOpenHandles
 $ pnpm run test account.unit.ts --detect-open-handles
+
+// Code sanity
+$ pnpm run biome
+$ pnpm run madge
+
 ```
-
-
 
 # Structure
 
@@ -187,17 +209,19 @@ $ pnpm run test account.unit.ts --detect-open-handles
 ├── docker/
 ├── src/
 │   ├── config/            # Configuration files
-│   ├── cron-jobs/         # Cron job definitions
 │   ├── database/
 │   │   ├── migrations/    # TypeORM migrations
 │   ├── exceptions/        # Custom error classes
 │   ├── features/          # Feature-based modules
 │   │   ├── user/
+│   │   │   ├── cron-jobs/
+│   │   │   │   └── pending-account-reminder.cron.ts
 │   │   │   ├── locales/
 │   │   │   │   └── en.json
 │   │   │   ├── tests/
 │   │   │   │   └── user.mock.ts
 │   │   │   │   └── user-controller.test.ts
+│   │   │   │   └── user-validator.test.ts
 │   │   │   ├── user.controller.ts
 │   │   │   ├── user.entity.ts
 │   │   │   ├── user.repository.ts
@@ -206,16 +230,18 @@ $ pnpm run test account.unit.ts --detect-open-handles
 │   │   │   ├── user.subscriber.ts
 │   │   │   └── user.validator.ts
 │   │   │   └── user.seed.ts 
+│   │   │   └── manifest.json 
 │   │   └── ...            # Other features (invoice, category, etc.)
-│   ├── helpers/           # Utilities (date, string, object, validators, etc.)
+│   ├── helpers/           # Utilities (date, string, object, etc.)
 │   ├── middleware/        # Custom Express middlewares
 │   ├── providers/         # Infrastructure (DB, Redis, logger, email, cron)
 │   ├── queues/            # BullMQ queues
 │   ├── shared/
 │   │   ├── abstracts/     # Base / abstract classes
+│   │   ├── cron-jobs/     # System cron-jobs
 │   │   ├── listeners/     # Core event listeners
 │   │   ├── locales/       # Shared language
-│   ├── templates/         # Email / page templates
+│   ├── templates/         # Email layout templates
 │   └── tests/             # Jest & Supertest tests
 │   └── types/             # Global/shared TypeScript types
 │   └── workers/           # Background workers
@@ -227,71 +253,67 @@ $ pnpm run test account.unit.ts --detect-open-handles
 
 # TODO
 
-1. make features as package:
-    - move specific cron-jobs into features
-    - create separate migration per entity
-2. CLI ...should have a command which runs seed if exist 
-    - create user.seed.ts - default admin user 
-3. do tests for the rest of controllers
-4. do tests for validators
-5. feature - brand 
-6. feature - images 
-7. Go on FE → category, place, brand, client
-8. Go on FE #2 → carrier, discount, 
-9. Go on FE #3 → image (multer - File upload handling)
-10. wip entities:
-     - article
-         - article-category
-         - article-content
-         - article-tag  
-         - article-track
-     - brand
-         - brand-content 
-     - image  
-       - image-content
-     - invoice
-     - order
-         - order-product
-     - order-shipping
-         - order-shipping-product
-     - payment
-     - product
-         - product-attribute
-         - product-category
-         - product-tag
-         - product-content
-     - subscription
-         - subscription-evidence
-     - term
-11. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
-12. Review "ideas"
+1. do tests for the rest of controllers
+2. make tests for services
+3. feature - brand 
+4. feature - images 
+5. Go on FE → category, place, brand, client
+6. Go on FE #2 → carrier, discount, 
+7. Go on FE #3 → image (multer - File upload handling)
+8. wip entities:
+    - article
+        - article-category
+        - article-content
+        - article-tag  
+        - article-track
+    - brand
+        - brand-content 
+    - image  
+      - image-content
+    - invoice
+    - order
+        - order-product
+    - order-shipping
+        - order-shipping-product
+    - payment
+    - product
+        - product-attribute
+        - product-category
+        - product-tag
+        - product-content
+    - subscription
+        - subscription-evidence
+    - term
+9. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
-# Bugs & issues
+# Bugs & Issues & Ideas
 
 1. API documentation > swagger-ui-express
 2. cron hanging / delaying / semaphore 
-3. CI/CD 
-4. For "Star" use category for "cars"
+3. CI/CD
 
 # Dependencies
     
-- [Pino](https://github.com/pinojs/pino) - Fast, low-overhead Node.js logger
-- [Mysql2](https://github.com/sidorares/node-mysql2) - MySQL client for Node.js with TypeScript support
-- [TypeORM](https://github.com/typeorm/typeorm) - ORM for TypeScript and JavaScript with support for multiple databases
-- [i18next](https://github.com/i18next/i18next) - Internationalization framework for JavaScript/Node.js
-- [nodemailer](https://nodemailer.com/) - Email sending library for Node.js
-- [zod](https://zod.dev) - TypeScript-first schema validation with static type inference
-- [helmet](https://helmetjs.github.io/) - Security middleware for Express.js
-- [express-rate-limit](https://express-rate-limit.mintlify.app/overview) - Rate limiting middleware for Express.js
-- [ioredis](https://github.com/luin/ioredis) - Robust Redis client for Node.js
-- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - JSON Web Token implementation
-- [node-cron](https://github.com/node-cron/node-cron) - Task scheduler for Node.js
-- [BullMQ](https://docs.bullmq.io/) - Redis-based message queue for Node.js
-- [nunjucks](https://github.com/mozilla/nunjucks) - Templating engine for JavaScript
-- [dayjs](https://day.js.org/) - Day.js is a minimalist JavaScript library that parses, validates, manipulates, and displays dates and times 
+- [Pino](https://github.com/pinojs/pino) — Fast, low-overhead Node.js logger
+- [Mysql2](https://github.com/sidorares/node-mysql2) — MySQL client for Node.js with TypeScript support
+- [TypeORM](https://github.com/typeorm/typeorm) — ORM for TypeScript and JavaScript with support for multiple databases
+- [i18next](https://github.com/i18next/i18next) — Internationalization framework for JavaScript/Node.js
+- [nodemailer](https://nodemailer.com/) — Email sending library for Node.js
+- [zod](https://zod.dev) — TypeScript-first schema validation with static type inference
+- [helmet](https://helmetjs.github.io/) — Security middleware for Express.js
+- [express-rate-limit](https://express-rate-limit.mintlify.app/overview) — Rate limiting middleware for Express.js
+- [ioredis](https://github.com/luin/ioredis) — Robust Redis client for Node.js
+- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) — JSON Web Token implementation
+- [node-cron](https://github.com/node-cron/node-cron) — Task scheduler for Node.js
+- [nodemailer](https://nodemailer.com/) — Email sending library
+- [BullMQ](https://docs.bullmq.io/) — Redis-based message queue for Node.js
+- [nunjucks](https://github.com/mozilla/nunjucks) — Templating engine for JavaScript
+- [dayjs](https://day.js.org/) — Parses, validates, manipulates, and displays dates and times 
 
 Dev only:
 
-- [jest](https://jestjs.io/) - JavaScript testing framework
-- [supertest](https://www.npmjs.com/package/supertest) - HTTP assertion library for testing Node.js servers
-- [madge](https://github.com/pahen/madge) - Helps finding circular dependencies
+- [typescript](https://www.typescriptlang.org/) 
+- [jest](https://jestjs.io/) — JavaScript testing framework
+- [supertest](https://www.npmjs.com/package/supertest) — HTTP assertion library for testing Node.js servers
+- [madge](https://github.com/pahen/madge) — Helps finding circular dependencies
+- [mailtrap](https://github.com/mailtrap/mailtrap-nodejs) — Mailtrap client for Node.js

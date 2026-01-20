@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 import pino, { type Logger } from 'pino';
 import pinoPretty from 'pino-pretty';
 import { v4 as uuid } from 'uuid';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import { requestContext } from '@/config/request.context';
 import { Configuration } from '@/config/settings.config';
 import LogDataEntity, {
@@ -215,7 +215,7 @@ export class LogStream extends Writable {
 		log.destinations.push('database');
 
 		try {
-			await getDataSource().manager.save(LogDataEntity, logData);
+			await dataSource.manager.save(LogDataEntity, logData);
 		} catch (error) {
 			if (error instanceof Error) {
 				log.notes = `Database write failed: ${error.message}`;

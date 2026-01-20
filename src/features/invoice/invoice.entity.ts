@@ -10,7 +10,7 @@ export enum InvoiceStatusEnum {
 	PAID = 'paid', // Payment received in full
 	OVERDUE = 'overdue', // Past due date, payment not received
 	CANCELLED = 'cancelled', // Invoice invalidated
-	REFUNDED = 'refunded', // Payment returned to customer
+	REFUNDED = 'refunded', // Payment returned to the customer
 }
 
 export enum InvoiceTypeEnum {
@@ -129,7 +129,7 @@ export default class InvoiceEntity extends EntityAbstract {
 
 	@Column('jsonb', {
 		nullable: true,
-		comment: 'Array of discount snapshots applied to this order',
+		comment: 'Array of discount snapshots applied',
 	})
 	discount?: DiscountSnapshot[];
 

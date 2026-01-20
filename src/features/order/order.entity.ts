@@ -7,9 +7,7 @@ import {
 	OneToMany,
 } from 'typeorm';
 import type ClientEntity from '@/features/client/client.entity';
-import type InvoiceEntity from '@/features/invoice/invoice.entity';
 import type OrderProductEntity from '@/features/order/order-product.entity';
-import type OrderShippingEntity from '@/features/order-shipping/order-shipping.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum OrderStatusEnum {
@@ -80,16 +78,4 @@ export default class OrderEntity extends EntityAbstract {
 		(orderProduct: OrderProductEntity) => orderProduct.order,
 	)
 	order_products?: OrderProductEntity[];
-
-	@OneToMany(
-		'OrderShippingEntity',
-		(orderShipping: OrderShippingEntity) => orderShipping.order,
-	)
-	order_shipments?: OrderShippingEntity[];
-
-	@OneToMany(
-		'InvoiceEntity',
-		(orderInvoice: InvoiceEntity) => orderInvoice.order,
-	)
-	order_invoices?: InvoiceEntity[];
 }

@@ -147,7 +147,7 @@ export function formatDate(
 	options?: {
 		strict?: boolean;
 	},
-): string | null {
+): string | undefined {
 	// Handle empty values
 	if (
 		value === null ||
@@ -158,7 +158,7 @@ export function formatDate(
 			throw new Error('Invalid date: null/undefined');
 		}
 
-		return null;
+		return undefined;
 	}
 
 	const date = dayjs(value);
@@ -169,7 +169,7 @@ export function formatDate(
 			throw new Error(`Invalid date: ${value}`);
 		}
 
-		return null;
+		return undefined;
 	}
 
 	// Apply formatting

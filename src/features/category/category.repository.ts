@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import CategoryEntity from '@/features/category/category.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -39,10 +39,8 @@ export class CategoryQuery extends RepositoryAbstract<CategoryEntity> {
 }
 
 export const getCategoryRepository = () =>
-	getDataSource()
-		.getRepository(CategoryEntity)
-		.extend({
-			createQuery() {
-				return new CategoryQuery(this);
-			},
-		});
+	dataSource.getRepository(CategoryEntity).extend({
+		createQuery() {
+			return new CategoryQuery(this);
+		},
+	});

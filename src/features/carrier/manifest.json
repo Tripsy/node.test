@@ -1,0 +1,8 @@
+{
+	"name": "carrier",
+	"version": "1.0.0",
+	"relativePath": "/carrier",
+	"entities": ["carrier"],
+	"depends_on": [],
+	"depends_off": ["order-shipping"]
+}

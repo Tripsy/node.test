@@ -1,21 +1,62 @@
 import type UserEntity from '@/features/user/user.entity';
 import { UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
+import {
+	OrderByEnum,
+	type UserValidator,
+} from '@/features/user/user.validator';
+import { formatDate } from '@/helpers';
+import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
+import { findQueryMock } from '@/tests/jest-controller.setup';
+import { defineValidatorPayloads } from '@/tests/jest-validator.setup';
 import { mockPastDate } from '@/tests/mocks/helpers.mock';
 
-export function userMock(): UserEntity {
-	return {
-		id: 1,
+export const userEntityMock: UserEntity = {
+	id: 1,
+	name: 'John Doe',
+	email: 'john.doe@example.com',
+	email_verified_at: null,
+	password: 'hashed_password',
+	password_updated_at: mockPastDate(86400),
+	language: 'en',
+	status: UserStatusEnum.INACTIVE,
+	role: UserRoleEnum.MEMBER,
+	operator_type: null,
+	created_at: mockPastDate(28800),
+	updated_at: null,
+	deleted_at: null,
+};
+
+export const userPayloads = defineValidatorPayloads<
+	UserValidator,
+	'create' | 'update' | 'find'
+>({
+	create: {
 		name: 'John Doe',
 		email: 'john.doe@example.com',
-		email_verified_at: null,
-		password: 'hashed_password',
-		password_updated_at: mockPastDate(86400),
+		password: 'Secure@123',
+		password_confirm: 'Secure@123',
 		language: 'en',
-		status: UserStatusEnum.INACTIVE,
-		role: UserRoleEnum.MEMBER,
-		operator_type: null,
-		created_at: mockPastDate(28800),
-		updated_at: null,
-		deleted_at: null,
-	};
-}
+		status: UserStatusEnum.PENDING, // optional, default anyway
+		role: UserRoleEnum.MEMBER, // optional, default anyway
+		operator_type: null, // correct for non-operator
+	},
+	update: {
+		name: 'Updated User',
+		email: 'updated.user@example.com',
+		language: 'en',
+	},
+	find: findQueryMock<UserValidator, OrderByEnum>({
+		page: 1,
+		limit: 10,
+		order_by: OrderByEnum.ID,
+		direction: OrderDirectionEnum.DESC,
+		filter: {
+			term: 'test',
+			status: UserStatusEnum.ACTIVE,
+			role: UserRoleEnum.MEMBER,
+			create_date_start: formatDate(mockPastDate(14400)),
+			create_date_end: formatDate(mockPastDate(7200)),
+			is_deleted: true,
+		},
+	}),
+});

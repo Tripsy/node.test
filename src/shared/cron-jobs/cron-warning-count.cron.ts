@@ -3,8 +3,11 @@ import { getCronHistoryRepository } from '@/features/cron-history/cron-history.r
 import { createPastDate } from '@/helpers';
 import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
 
+export const SCHEDULE_EXPRESSION = '02 02 * * *';
+export const EXPECTED_RUN_TIME = 3; // seconds
+
 // Report cron warnings in the last 7 days
-export const cronWarningCount = async () => {
+const cronWarningCount = async () => {
 	const q = getCronHistoryRepository()
 		.createQuery()
 		.select(
@@ -52,3 +55,5 @@ export const cronWarningCount = async () => {
 		warnings: warnings,
 	};
 };
+
+export default cronWarningCount;

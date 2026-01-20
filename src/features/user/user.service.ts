@@ -11,7 +11,7 @@ import {
 	paramsUpdateList,
 	type UserValidator,
 } from '@/features/user/user.validator';
-import type { ValidatorDto } from '@/shared/abstracts/validator.abstract';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export class UserService {
 	constructor(
@@ -23,7 +23,7 @@ export class UserService {
 	 * @description Used in `create` method from controller;
 	 */
 	public async create(
-		data: ValidatorDto<UserValidator, 'create'>,
+		data: ValidatorOutput<UserValidator, 'create'>,
 	): Promise<UserEntity> {
 		const existingUser = await this.findByEmail(data.email, true);
 
@@ -81,7 +81,7 @@ export class UserService {
 	 */
 	public async updateData(
 		id: number,
-		data: ValidatorDto<UserValidator, 'update'>,
+		data: ValidatorOutput<UserValidator, 'update'>,
 		withDeleted: boolean,
 	) {
 		const entry = await this.findById(id, withDeleted);
@@ -175,7 +175,7 @@ export class UserService {
 	}
 
 	public findByFilter(
-		data: ValidatorDto<UserValidator, 'find'>,
+		data: ValidatorOutput<UserValidator, 'find'>,
 		withDeleted: boolean,
 	) {
 		return this.repository

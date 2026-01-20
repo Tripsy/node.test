@@ -41,14 +41,14 @@ function loadSettings(): Settings {
 		security: {
 			allowedOrigins: ['http://nextjs.test'],
 		},
-		database: {
-			connection: process.env.DB_CONNECTION || 'postgres',
-			host: process.env.DB_HOST || 'localhost',
-			port: parseInt(process.env.DB_PORT || '3306', 10),
-			username: process.env.DB_USER || 'root',
-			password: process.env.DB_PASSWORD || '',
-			name: process.env.DB_DATABASE || 'sample-node-api',
-		},
+		// database: {
+		// 	connection: process.env.DB_CONNECTION || 'postgres',
+		// 	host: process.env.DB_HOST || 'localhost',
+		// 	port: parseInt(process.env.DB_PORT || '3306', 10),
+		// 	username: process.env.DB_USER || 'root',
+		// 	password: process.env.DB_PASSWORD || '',
+		// 	name: process.env.DB_NAME || 'sample-node-api',
+		// },
 		redis: {
 			host: process.env.REDIS_HOST || 'localhost',
 			port: parseInt(process.env.REDIS_PORT || '6379', 10),

@@ -1,43 +1,34 @@
+import 'dotenv/config';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';
-import { Configuration } from '@/config/settings.config';
-import { buildSrcPath } from '@/helpers';
 
-export function createDataSource(): DataSource {
-	const featuresFolder = Configuration.get('folder.features') as string;
-	const filesExtension = Configuration.resolveExtension();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-	return new DataSource({
-		type: Configuration.get('database.connection') as
-			| 'postgres'
-			| 'mariadb',
-		host: Configuration.get<string>('database.host'),
-		port: Configuration.get<number>('database.port'),
-		username: Configuration.get<string>('database.username'),
-		password: Configuration.get<string>('database.password'),
-		database: Configuration.get<string>('database.name'),
-		synchronize: false,
-		logging: false,
-		migrationsTableName:
-			Configuration.get('database.connection') === 'postgres'
-				? 'system.migrations'
-				: 'migrations',
-		entities: [
-			buildSrcPath(featuresFolder, `/**/*.entity.${filesExtension}`),
-		],
-		migrations: [buildSrcPath(`database/migrations/*.${filesExtension}`)],
-		subscribers: [
-			buildSrcPath(featuresFolder, `/**/*.subscriber.${filesExtension}`),
-		],
-		poolSize: 10,
-	});
+function buildSrcPath(...segments: string[]): string {
+	return join(__dirname, '..', ...segments);
 }
 
-let dataSource: DataSource | null = null;
+const filesExtension = process.env.APP_ENV === 'production' ? 'js' : 'ts';
 
-export function getDataSource(): DataSource {
-	if (!dataSource) {
-		dataSource = createDataSource();
-	}
+const dataSource = new DataSource({
+	type: (process.env.DB_CONNECTION as 'postgres' | 'mariadb') || 'postgres',
+	host: process.env.DB_HOST || 'localhost',
+	port: parseInt(process.env.DB_PORT || '3306', 10),
+	username: process.env.DB_USER || 'root',
+	password: process.env.DB_PASSWORD || '',
+	database: process.env.DB_NAME || 'sample-node-api',
+	synchronize: false,
+	logging: false,
+	migrationsTableName:
+		process.env.DB_CONNECTION === 'postgres'
+			? 'system.migrations'
+			: 'migrations',
+	entities: [buildSrcPath(`features/**/*.entity.${filesExtension}`)],
+	migrations: [buildSrcPath(`database/migrations/*.${filesExtension}`)],
+	subscribers: [buildSrcPath(`features/**/*.subscriber.${filesExtension}`)],
+	poolSize: 10,
+});
 
-	return dataSource;
-}
+export default dataSource;

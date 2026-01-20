@@ -1,0 +1,8 @@
+{
+	"name": "invoice",
+	"version": "1.0.0",
+	"relativePath": "/invoice",
+	"entities": ["invoice"],
+	"depends_on": ["client", "order", "discount"],
+	"depends_off": ["payment"]
+}

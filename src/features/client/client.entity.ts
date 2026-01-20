@@ -1,12 +1,4 @@
-import {
-	Column,
-	Entity,
-	Index,
-	JoinColumn,
-	ManyToOne,
-	OneToMany,
-} from 'typeorm';
-import type OrderEntity from '@/features/order/order.entity';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type PlaceEntity from '@/features/place/place.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
@@ -130,9 +122,6 @@ export default class ClientEntity extends EntityAbstract {
 	notes!: string | null;
 
 	// RELATIONS
-	@OneToMany('OrderEntity', (order: OrderEntity) => order.client)
-	orders?: OrderEntity[];
-
 	@ManyToOne('PlaceEntity', {
 		onDelete: 'SET NULL',
 	})

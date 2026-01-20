@@ -8,7 +8,7 @@ import {
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 	REQUEST_ID = 'request_id',
 	CATEGORY = 'category',

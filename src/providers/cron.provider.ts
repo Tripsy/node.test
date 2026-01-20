@@ -1,18 +1,23 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import cron from 'node-cron';
 import { v4 as uuid } from 'uuid';
 import { RequestContextSource, requestContext } from '@/config/request.context';
-import { cleanAccountRecovery } from '@/cron-jobs/clean-account-recovery.cron';
-import { cleanAccountToken } from '@/cron-jobs/clean-account-token.cron';
-import { cronErrorCount } from '@/cron-jobs/cron-error-count.cron';
-import { cronTimeCheck } from '@/cron-jobs/cron-time-check.cron';
-import { cronWarningCount } from '@/cron-jobs/cron-warning-count.cron';
-import { workerMaintenance } from '@/cron-jobs/worker-maintenance.cron';
+import { Configuration } from '@/config/settings.config';
 import { NotFoundError } from '@/exceptions';
+import { ModuleError } from '@/exceptions/module.error';
 import CronHistoryEntity, {
 	CronHistoryStatusEnum,
 } from '@/features/cron-history/cron-history.entity';
 import { getCronHistoryRepository } from '@/features/cron-history/cron-history.repository';
-import { dateDiffInSeconds } from '@/helpers';
+import {
+	buildSrcPath,
+	dateDiffInSeconds,
+	getErrorMessage,
+	getFileNameWithoutExtension,
+	listDirectories,
+	listFiles,
+} from '@/helpers';
 import { getCronLogger, getSystemLogger } from '@/providers/logger.provider';
 
 /**
@@ -21,7 +26,6 @@ import { getCronLogger, getSystemLogger } from '@/providers/logger.provider';
  * @param action - Should return cron_history `content`
  * @param expectedRunTime - Expected run time in seconds
  */
-
 async function executeCron<R extends Record<string, unknown>>(
 	action: () => Promise<R>,
 	expectedRunTime: number,
@@ -83,38 +87,148 @@ async function executeCron<R extends Record<string, unknown>>(
 	);
 }
 
-const startCronJobs = () => {
-	// Remove expired account tokens - every 3 hours at minute 2
-	cron.schedule('02 */3 * * *', async () => {
-		await executeCron(cleanAccountToken, 1);
-	});
+function getCoreCronJobsPaths() {
+	const sharedFolder = Configuration.get('folder.shared') as string;
+	const sharedCronJobsPath = buildSrcPath(sharedFolder, '/cron-jobs');
 
-	// Handle workers maintenance - every 6 hours at minute 4
-	cron.schedule('04 */6 * * *', async () => {
-		await executeCron(workerMaintenance, 1);
-	});
+	const files = listFiles(sharedCronJobsPath);
+	const filesExtension = Configuration.resolveExtension();
 
-	// Report cron errors in the last 24 hours - every day at 02:01
-	cron.schedule('01 02 * * *', async () => {
-		await executeCron(cronErrorCount, 1);
-	});
+	// Return cron jobs files path
+	return files
+		.filter((f) => f.endsWith(`.cron.${filesExtension}`))
+		.map((f) => buildSrcPath(sharedFolder, '/cron-jobs', f));
+}
 
-	// Report cron warnings in the last 7 days - every 7 days at 02:02
-	cron.schedule('02 02 * * *', async () => {
-		await executeCron(cronWarningCount, 1);
-	});
+function getFeatureCronJobsPaths() {
+	const featuresFolder = Configuration.get<string>(
+		'folder.features',
+	) as string;
+	const featuresPath = buildSrcPath(featuresFolder);
+	const features = listDirectories(featuresPath);
 
-	// Check if there are cron jobs starting at the same time - every day at 02:03
-	cron.schedule('03 02 * * *', async () => {
-		await executeCron(cronTimeCheck, 1);
-	});
+	const filesExtension = Configuration.resolveExtension();
 
-	// Remove expired recovery tokens - every 7 days at 02:04
-	cron.schedule('02 04 */7 * *', async () => {
-		await executeCron(cleanAccountRecovery, 1);
-	});
+	// Find existing `cron-jobs` folders per feature
+	const cronJobsFolders = features
+		.map((n) => buildSrcPath(featuresFolder, n, '/cron-jobs'))
+		.filter((p) => fs.existsSync(p));
 
-	getSystemLogger().debug('Cron jobs started');
+	return cronJobsFolders.flatMap((f) => {
+		const files = listFiles(f);
+
+		return files
+			.filter((file) => file.endsWith(`.cron.${filesExtension}`))
+			.map((file) => path.join(f, file));
+	});
+}
+
+type CronJobData = {
+	name: string;
+	filePath: string;
+	schedule_expression: string;
+	expected_run_time: number;
+	jobFunction: () => Promise<Record<string, unknown>>;
 };
+
+async function loadCronJob(filePath: string): Promise<CronJobData> {
+	if (!fs.existsSync(filePath)) {
+		throw new ModuleError();
+	}
+
+	const module = await import(filePath);
+
+	if (!module.default || typeof module.default !== 'function') {
+		throw new Error(`No default export function found in ${filePath}`);
+	}
+
+	if (
+		!module.SCHEDULE_EXPRESSION ||
+		typeof module.SCHEDULE_EXPRESSION !== 'string'
+	) {
+		throw new Error(
+			`Invalid or missing SCHEDULE_EXPRESSION in ${filePath}`,
+		);
+	}
+
+	if (
+		!module.EXPECTED_RUN_TIME ||
+		typeof module.EXPECTED_RUN_TIME !== 'number'
+	) {
+		throw new Error(`Invalid or missing EXPECTED_RUN_TIME in ${filePath}`);
+	}
+
+	// Validate cron expression
+	if (!cron.validate(module.SCHEDULE_EXPRESSION)) {
+		throw new Error(
+			`Invalid cron expression "${module.SCHEDULE_EXPRESSION}" in ${filePath}`,
+		);
+	}
+
+	return {
+		name: getFileNameWithoutExtension(filePath),
+		filePath: filePath,
+		schedule_expression: module.SCHEDULE_EXPRESSION,
+		expected_run_time: module.EXPECTED_RUN_TIME,
+		jobFunction: module.default,
+	};
+}
+
+function scheduleCronJob(data: CronJobData) {
+	cron.schedule(
+		data.schedule_expression,
+		async () => {
+			await executeCron(data.jobFunction, 1);
+		},
+		{
+			timezone: Configuration.get<string>('app.timezone') || 'UTC',
+		},
+	);
+}
+
+export async function startCronJobs() {
+	const featureCronJobPaths = getFeatureCronJobsPaths();
+	const coreCronJobPaths = getCoreCronJobsPaths();
+
+	const cronJobsPaths = [...featureCronJobPaths, ...coreCronJobPaths];
+
+	const promises = cronJobsPaths.map(async (filePath) => {
+		try {
+			const cronJobData = await loadCronJob(filePath);
+
+			scheduleCronJob(cronJobData);
+
+			return { name: cronJobData.name, status: 'fulfilled' } as const;
+		} catch (error) {
+			const skip = error instanceof ModuleError;
+			const errorMsg = `${getErrorMessage(error) || `CronJobs setup errors`}`;
+
+			return {
+				name: filePath,
+				status: 'rejected',
+				reason: errorMsg,
+				skip: skip,
+			} as const;
+		}
+	});
+
+	const results = await Promise.all(promises);
+
+	const successful = results
+		.filter((r) => r.status === 'fulfilled')
+		.map((r) => r.name);
+
+	const failed = results
+		.filter((r) => r.status === 'rejected' && !r.skip)
+		.map((r) => r.reason ?? 'unknown');
+
+	if (successful.length) {
+		getSystemLogger().debug(`Cron jobs started: ${successful.join(', ')}`);
+	}
+
+	if (failed.length) {
+		getSystemLogger().error(failed, `Cron jobs errors`);
+	}
+}
 
 export default startCronJobs;

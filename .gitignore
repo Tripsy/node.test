@@ -40,4 +40,8 @@ Thumbs.db
 audit.json
 
 # Custom
-/backup
+/backup/*
+!/backup/.gitkeep
+/cli/tmp
+/cli/history.txt
+

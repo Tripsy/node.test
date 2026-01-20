@@ -1,0 +1,8 @@
+{
+	"name": "order",
+	"version": "1.0.0",
+	"relativePath": "/order",
+	"entities": ["order", "order-product"],
+	"depends_on": ["client", "product"],
+	"depends_off": ["order-shipping", "invoice", "subscription", "payment"]
+}

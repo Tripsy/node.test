@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm/repository/Repository';
-import { getDataSource } from '@/config/data-source.config';
+import dataSource from '@/config/data-source.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import TemplateEntity from '@/features/template/template.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
@@ -37,10 +37,8 @@ export class MailQueueQuery extends RepositoryAbstract<MailQueueEntity> {
 }
 
 export const getMailQueueRepository = () =>
-	getDataSource()
-		.getRepository(MailQueueEntity)
-		.extend({
-			createQuery() {
-				return new MailQueueQuery(this);
-			},
-		});
+	dataSource.getRepository(MailQueueEntity).extend({
+		createQuery() {
+			return new MailQueueQuery(this);
+		},
+	});

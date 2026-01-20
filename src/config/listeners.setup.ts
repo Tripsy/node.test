@@ -1,10 +1,10 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { Configuration } from '@/config/settings.config';
 import { ModuleError } from '@/exceptions/module.error';
 import {
 	buildSrcPath,
 	getErrorMessage,
+	getFileNameWithoutExtension,
 	listDirectories,
 	listFiles,
 } from '@/helpers';
@@ -67,10 +67,10 @@ export async function setupListeners() {
 		try {
 			await registerListener(filePath);
 
-			const match = path.basename(filePath).match(/^([\w-]+)/);
-			const name = match ? match[1] : 'unknown';
-
-			return { name: name, status: 'fulfilled' } as const;
+			return {
+				name: getFileNameWithoutExtension(filePath),
+				status: 'fulfilled',
+			} as const;
 		} catch (error) {
 			const skip = error instanceof ModuleError;
 			const errorMsg = `${getErrorMessage(error) || `Listeners setup errors`}`;
