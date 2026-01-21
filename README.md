@@ -123,7 +123,7 @@ docker compose up
 Once the container is running, connect to it with:
 
 ```
-docker exec -it node.test /bin/bash
+docker exec -it nready.dev /bin/bash
 ```
 
 ### 4. Install dependencies inside the container

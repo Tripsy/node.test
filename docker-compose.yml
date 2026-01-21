@@ -1,6 +1,6 @@
 services:
     node:
-        container_name: node.test
+        container_name: nready.dev
         ports:
             - "3000:3000"
         build:
