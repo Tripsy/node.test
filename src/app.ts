@@ -58,7 +58,7 @@ export const appReady = new Promise<void>((resolve) => {
 
 // Validate critical configuration
 function validateConfig(): void {
-	const required = ['app.port', 'database.host', 'database.name'];
+	const required = ['app.port'];
 	const missing = required.filter((key) => !Configuration.get(key));
 
 	if (missing.length > 0) {

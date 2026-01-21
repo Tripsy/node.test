@@ -20,7 +20,7 @@ function loadSettings(): Settings {
 		app: {
 			env: process.env.APP_ENV || 'development',
 			debug: process.env.APP_DEBUG === 'true',
-			url: process.env.APP_URL || 'http://node.test',
+			url: process.env.APP_URL || 'http://nready.dev',
 			port: parseInt(process.env.APP_PORT || '3000', 10),
 			name: process.env.APP_NAME || 'sample-node-api',
 			email: process.env.APP_EMAIL || 'hello@example.com',
@@ -164,7 +164,7 @@ export const Configuration = {
 // 			app: {
 // 				env: process.env.APP_ENV || 'development',
 // 				debug: process.env.APP_DEBUG === 'true',
-// 				url: process.env.APP_URL || 'http://node.test',
+// 				url: process.env.APP_URL || 'http://nready.dev',
 // 				port: parseInt(process.env.APP_PORT || '3000', 10),
 // 				rootPath: process.env.ROOT_PATH || '/var/www/html',
 // 				srcPath: process.env.SRC_PATH || '/var/www/html/src',

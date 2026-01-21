@@ -1,8 +1,8 @@
 {
-	"name": "log-history",
+	"name": "log-data",
 	"version": "1.0.0",
-	"relativePath": "/log-history",
-	"entities": ["log-history"],
+	"relativePath": "/log-data",
+	"entities": ["log-data"],
 	"depends_on": [],
 	"depends_off": ["core"]
 }
