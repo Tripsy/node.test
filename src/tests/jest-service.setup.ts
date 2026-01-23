@@ -2,10 +2,7 @@ import { expect, jest } from '@jest/globals';
 import type { ObjectLiteral } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
 import type RepositoryAbstract from '@/shared/abstracts/repository.abstract';
-import {
-	type ValidatorPayloads,
-	validatorPayload,
-} from '@/tests/jest-validator.setup';
+import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export function createMockQuery() {
 	return {
@@ -63,12 +60,12 @@ interface IUpdateService<E> {
 export function testServiceUpdate<E extends ObjectLiteral>(
 	service: IUpdateService<E>,
 	repository: jest.Mocked<Repository<E>>,
-	updateData: Partial<E> & { id: number },
+	saveData: E & { id: number },
 ) {
 	it('should update', async () => {
-		repository.save.mockResolvedValue(updateData as unknown as E);
+		repository.save.mockResolvedValue(saveData);
 
-		await service.update(updateData);
+		await service.update(saveData);
 
 		expect(repository.save).toHaveBeenCalled();
 	});
@@ -99,16 +96,14 @@ interface IDeleteMultipleService {
 export function testServiceDeleteMultiple<
 	E extends ObjectLiteral,
 	Q extends RepositoryAbstract<E>,
-	V,
 >(
 	query: jest.Mocked<Q>,
 	service: IDeleteMultipleService,
-	payloads: ValidatorPayloads<V>,
+	deleteData: { ids: number[] },
 ) {
 	it('should delete by ids', async () => {
 		query.delete.mockResolvedValue(3);
 
-		const deleteData = validatorPayload(payloads, 'delete' as keyof V);
 		const result = await service.delete(deleteData);
 
 		expect(query.delete).toHaveBeenCalledWith(false, true, true);
@@ -155,9 +150,12 @@ export function testServiceFindById<
 	});
 }
 
-interface IFindByFilterService<E extends ObjectLiteral> {
+interface IFindByFilterService<
+	E extends ObjectLiteral,
+	V extends Record<'find', unknown>,
+> {
 	findByFilter(
-		filter: unknown,
+		filter: ValidatorOutput<V, 'find'>,
 		withDeleted?: boolean,
 	): Promise<[E[], number] | E[]>;
 }
@@ -165,16 +163,14 @@ interface IFindByFilterService<E extends ObjectLiteral> {
 export function testServiceFindByFilter<
 	E extends ObjectLiteral,
 	Q extends RepositoryAbstract<E>,
-	V,
+	V extends Record<'find', unknown>,
 >(
 	query: jest.Mocked<Q>,
-	service: IFindByFilterService<E>,
-	payloads: ValidatorPayloads<V>,
+	service: IFindByFilterService<E, V>,
+	findData: ValidatorOutput<V, 'find'>,
 ) {
 	it('should apply filters and return paginated results', async () => {
 		query.all.mockResolvedValue([[], 0]);
-
-		const findData = validatorPayload(payloads, 'find' as keyof V);
 
 		const result = await service.findByFilter(findData);
 

@@ -1,3 +1,4 @@
+import type { DeepPartial } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { BadRequestError, CustomError, NotFoundError } from '@/exceptions';
@@ -55,8 +56,8 @@ export class ClientService {
 	 * @description Update any data
 	 */
 	public update(
-		data: Partial<ClientEntity> & { id: number },
-	): Promise<Partial<ClientEntity>> {
+		data: DeepPartial<ClientEntity> & { id: number },
+	): Promise<ClientEntity> {
 		return this.repository.save(data);
 	}
 

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { categoryValidator } from '@/features/category/category.validator';
-import { categoryPayloads } from '@/features/category/tests/category.mock';
+import { categoryInputPayloads } from '@/features/category/tests/category.mock';
 import {
 	addDebugValidated,
 	validatorPayload,
@@ -28,7 +28,7 @@ describe(validator, () => {
 	listSchemas.forEach((n) => {
 		it(`${n}() accepts valid payload`, () => {
 			const schema = categoryValidator[n]();
-			const payload = validatorPayload(categoryPayloads, n);
+			const payload = validatorPayload(categoryInputPayloads, n);
 			const validated = schema.safeParse(payload);
 
 			try {

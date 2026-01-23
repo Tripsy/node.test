@@ -1,3 +1,4 @@
+import type { DeepPartial } from 'typeorm';
 import type DiscountEntity from '@/features/discount/discount.entity';
 import { getDiscountRepository } from '@/features/discount/discount.repository';
 import {
@@ -35,8 +36,8 @@ export class DiscountService {
 	 * @description Update any data
 	 */
 	public update(
-		data: Partial<DiscountEntity> & { id: number },
-	): Promise<Partial<DiscountEntity>> {
+		data: DeepPartial<DiscountEntity> & { id: number },
+	): Promise<DiscountEntity> {
 		return this.repository.save(data);
 	}
 

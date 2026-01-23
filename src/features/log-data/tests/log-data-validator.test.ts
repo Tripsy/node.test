@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { logDataValidator } from '@/features/log-data/log-data.validator';
-import { logDataPayloads } from '@/features/log-data/tests/log-data.mock';
+import { logDataInputPayloads } from '@/features/log-data/tests/log-data.mock';
 import {
 	addDebugValidated,
 	validatorPayload,
@@ -19,7 +19,7 @@ describe(validator, () => {
 	listSchemas.forEach((n) => {
 		it(`${n}() accepts valid payload`, () => {
 			const schema = logDataValidator[n]();
-			const payload = validatorPayload(logDataPayloads, n);
+			const payload = validatorPayload(logDataInputPayloads, n);
 			const validated = schema.safeParse(payload);
 
 			try {

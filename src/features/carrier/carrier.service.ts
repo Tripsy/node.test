@@ -1,3 +1,4 @@
+import type { DeepPartial } from 'typeorm';
 import { lang } from '@/config/i18n.setup';
 import { CustomError } from '@/exceptions';
 import type CarrierEntity from '@/features/carrier/carrier.entity';
@@ -38,8 +39,8 @@ export class CarrierService {
 	 * @description Update any data
 	 */
 	public update(
-		data: Partial<CarrierEntity> & { id: number },
-	): Promise<Partial<CarrierEntity>> {
+		data: DeepPartial<CarrierEntity> & { id: number },
+	): Promise<CarrierEntity> {
 		return this.repository.save(data);
 	}
 

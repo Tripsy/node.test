@@ -1,3 +1,4 @@
+import type { DeepPartial } from 'typeorm';
 import type { Repository } from 'typeorm/repository/Repository';
 import { v4 as uuid } from 'uuid';
 import { Configuration } from '@/config/settings.config';
@@ -20,8 +21,8 @@ export class AccountRecoveryService {
 	 * @description Update any data
 	 */
 	public update(
-		data: Partial<AccountRecoveryEntity> & { id: number },
-	): Promise<Partial<AccountRecoveryEntity>> {
+		data: DeepPartial<AccountRecoveryEntity> & { id: number },
+	): Promise<AccountRecoveryEntity> {
 		return this.accountRecoveryRepository.save(data);
 	}
 

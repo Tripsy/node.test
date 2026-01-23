@@ -419,7 +419,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 			undefined,
 		);
 		jest.spyOn(accountRecoveryService, 'update').mockResolvedValue(
-			{} as Partial<AccountRecoveryEntity>,
+			{} as AccountRecoveryEntity,
 		);
 
 		mockAccountEmailService();

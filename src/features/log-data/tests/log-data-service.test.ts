@@ -3,13 +3,14 @@ import type LogDataEntity from '@/features/log-data/log-data.entity';
 import type { LogDataQuery } from '@/features/log-data/log-data.repository';
 import { LogDataService } from '@/features/log-data/log-data.service';
 import type { LogDataValidator } from '@/features/log-data/log-data.validator';
-import { logDataPayloads } from '@/features/log-data/tests/log-data.mock';
+import { logDataOutputPayloads } from '@/features/log-data/tests/log-data.mock';
 import {
 	createMockRepository,
 	testServiceDeleteMultiple,
 	testServiceFindByFilter,
 	testServiceFindById,
 } from '@/tests/jest-service.setup';
+import { validatorPayload } from '@/tests/jest-validator.setup';
 
 describe('LogDataService', () => {
 	beforeEach(() => {
@@ -22,15 +23,20 @@ describe('LogDataService', () => {
 	>();
 	const serviceLogData = new LogDataService(repository);
 
-	testServiceDeleteMultiple<LogDataEntity, LogDataQuery, LogDataValidator>(
+	testServiceDeleteMultiple<LogDataEntity, LogDataQuery>(
 		query,
 		serviceLogData,
-		logDataPayloads,
+		{
+			ids: [1, 2, 3],
+		},
 	);
 	testServiceFindById<LogDataEntity, LogDataQuery>(query, serviceLogData);
 	testServiceFindByFilter<LogDataEntity, LogDataQuery, LogDataValidator>(
 		query,
 		serviceLogData,
-		logDataPayloads,
+		validatorPayload<LogDataValidator, 'find', 'output'>(
+			logDataOutputPayloads,
+			'find',
+		),
 	);
 });

@@ -9,6 +9,10 @@ import type {
 	ValidatorInput,
 	ValidatorOutput,
 } from '@/shared/abstracts/validator.abstract';
+import type {
+	ValidatorByShape,
+	ValidatorShape,
+} from '@/tests/jest-validator.setup';
 import {
 	authorizedSpy,
 	notAuthenticatedSpy,
@@ -469,13 +473,19 @@ export type FindValidator = {
 	find: () => z.ZodObject<z.ZodRawShape>;
 };
 
-export function findQueryMock<V extends FindValidator, OB>(query: {
+export function findQueryMock<
+	V extends FindValidator,
+	OB,
+	S extends ValidatorShape = 'input',
+>(query: {
 	page?: number;
 	limit?: number;
 	direction?: OrderDirectionEnum;
 	order_by?: OB;
-	filter: ValidatorInput<V, 'find'> extends { filter: infer F } ? F : never;
-}) {
+	filter: ValidatorByShape<V, 'find', S> extends { filter: infer F }
+		? F
+		: never;
+}): ValidatorByShape<V, 'find', S> {
 	const defaults = {
 		page: 1,
 		limit: 10,
@@ -486,7 +496,7 @@ export function findQueryMock<V extends FindValidator, OB>(query: {
 	return {
 		...defaults,
 		...query,
-	};
+	} as ValidatorByShape<V, 'find', S>;
 }
 
 type FindService<E, V extends FindValidator> = {

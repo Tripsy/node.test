@@ -24,7 +24,7 @@ export const logDataEntityMock: LogDataEntity = {
 	created_at: mockPastDate(28800),
 };
 
-export const logDataPayloads = defineValidatorPayloads<
+export const logDataInputPayloads = defineValidatorPayloads<
 	LogDataValidator,
 	'find' | 'delete'
 >({
@@ -40,4 +40,22 @@ export const logDataPayloads = defineValidatorPayloads<
 		},
 	}),
 	delete: { ids: [1, 2, 3] },
+});
+
+export const logDataOutputPayloads = defineValidatorPayloads<
+	LogDataValidator,
+	'find',
+	'output'
+>({
+	find: findQueryMock<LogDataValidator, OrderByEnum, 'output'>({
+		direction: OrderDirectionEnum.DESC,
+		page: 4,
+		filter: {
+			category: LogDataCategoryEnum.SYSTEM,
+			level: LogDataLevelEnum.ERROR,
+			create_date_start: mockPastDate(14400),
+			create_date_end: mockPastDate(7200),
+			term: 'timeout',
+		},
+	}),
 });

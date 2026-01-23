@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { discountValidator } from '@/features/discount/discount.validator';
-import { discountPayloads } from '@/features/discount/tests/discount.mock';
+import { discountInputPayloads } from '@/features/discount/tests/discount.mock';
 import {
 	addDebugValidated,
 	validatorPayload,
@@ -22,7 +22,7 @@ describe(validator, () => {
 	listSchemas.forEach((n) => {
 		it(`${n}() accepts valid payload`, () => {
 			const schema = discountValidator[n]();
-			const payload = validatorPayload(discountPayloads, n);
+			const payload = validatorPayload(discountInputPayloads, n);
 			const validated = schema.safeParse(payload);
 
 			try {

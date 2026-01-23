@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { accountValidator } from '@/features/account/account.validator';
-import { accountPayloads } from '@/features/account/tests/account.mock';
+import { accountInputPayloads } from '@/features/account/tests/account.mock';
 import {
 	addDebugValidated,
 	validatorPayload,
@@ -42,7 +42,7 @@ describe(validator, () => {
 	listSchemas.forEach((n) => {
 		it(`${n}() accepts valid payload`, () => {
 			const schema = accountValidator[n]();
-			const payload = validatorPayload(accountPayloads, n);
+			const payload = validatorPayload(accountInputPayloads, n);
 			const validated = schema.safeParse(payload);
 
 			try {

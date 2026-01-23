@@ -3,7 +3,11 @@ import { BadRequestError } from '@/exceptions';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import type { AccountTokenQuery } from '@/features/account/account-token.repository';
 import { AccountTokenService } from '@/features/account/account-token.service';
-import { userEntityMock, userPayloads } from '@/features/user/tests/user.mock';
+import {
+	userEntityMock,
+	userInputPayloads,
+	userOutputPayloads,
+} from '@/features/user/tests/user.mock';
 import type UserEntity from '@/features/user/user.entity';
 import { type UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
 import type { UserQuery } from '@/features/user/user.repository';
@@ -39,16 +43,10 @@ describe('UserService', () => {
 		serviceAccountToken,
 	);
 
-	const updateData = {
-		...validatorPayload(userPayloads, 'update'),
-		id: userEntityMock.id,
-	};
-
 	it('should create entry', async () => {
 		const entity = { ...userEntityMock };
 		const createData = {
-			...validatorPayload(userPayloads, 'create'),
-			// Type assertion to tell TypeScript these are defined
+			...validatorPayload(userInputPayloads, 'create'),
 		} as ValidatorOutput<UserValidator, 'create'> & {
 			status: UserStatusEnum;
 			role: UserRoleEnum;
@@ -63,7 +61,11 @@ describe('UserService', () => {
 		expect(result).toBe(entity);
 	});
 
-	testServiceUpdate<UserEntity>(serviceUser, mockUser.repository, updateData);
+	testServiceUpdate<UserEntity>(
+		serviceUser,
+		mockUser.repository,
+		userEntityMock,
+	);
 
 	it('should fail when status is unchanged', async () => {
 		const entity = { ...userEntityMock };
@@ -106,6 +108,9 @@ describe('UserService', () => {
 	testServiceFindByFilter<UserEntity, UserQuery, UserValidator>(
 		mockUser.query,
 		serviceUser,
-		userPayloads,
+		validatorPayload<UserValidator, 'find', 'output'>(
+			userOutputPayloads,
+			'find',
+		),
 	);
 });

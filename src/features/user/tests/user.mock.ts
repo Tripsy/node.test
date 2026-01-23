@@ -26,7 +26,7 @@ export const userEntityMock: UserEntity = {
 	deleted_at: null,
 };
 
-export const userPayloads = defineValidatorPayloads<
+export const userInputPayloads = defineValidatorPayloads<
 	UserValidator,
 	'create' | 'update' | 'find'
 >({
@@ -56,6 +56,27 @@ export const userPayloads = defineValidatorPayloads<
 			role: UserRoleEnum.MEMBER,
 			create_date_start: formatDate(mockPastDate(14400)),
 			create_date_end: formatDate(mockPastDate(7200)),
+			is_deleted: true,
+		},
+	}),
+});
+
+export const userOutputPayloads = defineValidatorPayloads<
+	UserValidator,
+	'find',
+	'output'
+>({
+	find: findQueryMock<UserValidator, OrderByEnum, 'output'>({
+		page: 1,
+		limit: 10,
+		order_by: OrderByEnum.ID,
+		direction: OrderDirectionEnum.DESC,
+		filter: {
+			term: 'test',
+			status: UserStatusEnum.ACTIVE,
+			role: UserRoleEnum.MEMBER,
+			create_date_start: mockPastDate(14400),
+			create_date_end: mockPastDate(7200),
 			is_deleted: true,
 		},
 	}),

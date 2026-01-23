@@ -1,3 +1,4 @@
+import type { DeepPartial } from 'typeorm';
 import { lang } from '@/config/i18n.setup';
 import { CustomError } from '@/exceptions';
 import type TemplateEntity from '@/features/template/template.entity';
@@ -43,8 +44,8 @@ export class TemplateService {
 	 * @description Update any data
 	 */
 	public update(
-		data: Partial<TemplateEntity> & { id: number },
-	): Promise<Partial<TemplateEntity>> {
+		data: DeepPartial<TemplateEntity> & { id: number },
+	): Promise<TemplateEntity> {
 		return this.repository.save(data);
 	}
 

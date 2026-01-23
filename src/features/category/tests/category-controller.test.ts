@@ -9,7 +9,7 @@ import type {
 } from '@/features/category/category.validator';
 import {
 	categoryEntityMock,
-	categoryPayloads,
+	categoryInputPayloads,
 } from '@/features/category/tests/category.mock';
 import {
 	testControllerCreate,
@@ -35,7 +35,7 @@ testControllerCreate<CategoryEntity, CategoryValidator>({
 	entityMock: categoryEntityMock,
 	policy: categoryPolicy,
 	service: categoryService,
-	createData: validatorPayload(categoryPayloads, 'create'),
+	createData: validatorPayload(categoryInputPayloads, 'create'),
 });
 
 testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
@@ -44,7 +44,7 @@ testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
 	entityMock: categoryEntityMock,
 	policy: categoryPolicy,
 	service: categoryService,
-	updateData: validatorPayload(categoryPayloads, 'update'),
+	updateData: validatorPayload(categoryInputPayloads, 'update'),
 });
 
 testControllerRead<CategoryEntity>({
@@ -74,7 +74,7 @@ testControllerFind<CategoryEntity, CategoryValidator, OrderByEnum>({
 	entityMock: categoryEntityMock,
 	policy: categoryPolicy,
 	service: categoryService,
-	findData: validatorPayload(categoryPayloads, 'find'),
+	findData: validatorPayload(categoryInputPayloads, 'find'),
 });
 
 testControllerStatusUpdate<CategoryEntity>({

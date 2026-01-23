@@ -9,7 +9,7 @@ import type {
 } from '@/features/log-data/log-data.validator';
 import {
 	logDataEntityMock,
-	logDataPayloads,
+	logDataInputPayloads,
 } from '@/features/log-data/tests/log-data.mock';
 import {
 	testControllerDeleteMultiple,
@@ -45,5 +45,5 @@ testControllerFind<LogDataEntity, LogDataValidator, OrderByEnum>({
 	entityMock: logDataEntityMock,
 	policy: logDataPolicy,
 	service: logDataService,
-	findData: validatorPayload(logDataPayloads, 'find'),
+	findData: validatorPayload(logDataInputPayloads, 'find'),
 });

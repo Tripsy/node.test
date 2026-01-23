@@ -49,7 +49,7 @@ export const confirmationTokenPayloadMock: ConfirmationTokenPayload = {
 	user_email: 'john.doe@example.com',
 };
 
-export const accountPayloads = defineValidatorPayloads<
+export const accountInputPayloads = defineValidatorPayloads<
 	AccountValidator,
 	| 'register'
 	| 'login'

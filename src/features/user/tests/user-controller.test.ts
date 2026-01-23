@@ -1,5 +1,8 @@
 import { jest } from '@jest/globals';
-import { userEntityMock, userPayloads } from '@/features/user/tests/user.mock';
+import {
+	userEntityMock,
+	userInputPayloads,
+} from '@/features/user/tests/user.mock';
 import type UserEntity from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
 import userRoutes from '@/features/user/user.routes';
@@ -32,7 +35,7 @@ testControllerCreate<UserEntity, UserValidator>({
 	entityMock: userEntityMock,
 	policy: userPolicy,
 	service: userService,
-	createData: validatorPayload(userPayloads, 'create'),
+	createData: validatorPayload(userInputPayloads, 'create'),
 });
 
 testControllerUpdate<UserEntity, UserValidator>({
@@ -41,7 +44,7 @@ testControllerUpdate<UserEntity, UserValidator>({
 	entityMock: userEntityMock,
 	policy: userPolicy,
 	service: userService,
-	updateData: validatorPayload(userPayloads, 'update'),
+	updateData: validatorPayload(userInputPayloads, 'update'),
 });
 
 testControllerRead<UserEntity>({
@@ -71,7 +74,7 @@ testControllerFind<UserEntity, UserValidator, OrderByEnum>({
 	entityMock: userEntityMock,
 	policy: userPolicy,
 	service: userService,
-	findData: validatorPayload(userPayloads, 'find'),
+	findData: validatorPayload(userInputPayloads, 'find'),
 });
 
 testControllerStatusUpdate<UserEntity>({

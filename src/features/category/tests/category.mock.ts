@@ -25,7 +25,7 @@ export const categoryEntityMock: CategoryEntity = {
 	id: 1,
 };
 
-export const categoryPayloads = defineValidatorPayloads<
+export const categoryInputPayloads = defineValidatorPayloads<
 	CategoryValidator,
 	'create' | 'update' | 'read' | 'find' | 'statusUpdate'
 >({

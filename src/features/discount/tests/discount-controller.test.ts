@@ -9,7 +9,7 @@ import type {
 } from '@/features/discount/discount.validator';
 import {
 	discountEntityMock,
-	discountPayloads,
+	discountInputPayloads,
 } from '@/features/discount/tests/discount.mock';
 import {
 	testControllerCreate,
@@ -34,7 +34,7 @@ testControllerCreate<DiscountEntity, DiscountValidator>({
 	entityMock: discountEntityMock,
 	policy: discountPolicy,
 	service: discountService,
-	createData: validatorPayload(discountPayloads, 'create'),
+	createData: validatorPayload(discountInputPayloads, 'create'),
 });
 
 testControllerUpdate<DiscountEntity, DiscountValidator>({
@@ -43,7 +43,7 @@ testControllerUpdate<DiscountEntity, DiscountValidator>({
 	entityMock: discountEntityMock,
 	policy: discountPolicy,
 	service: discountService,
-	updateData: validatorPayload(discountPayloads, 'update'),
+	updateData: validatorPayload(discountInputPayloads, 'update'),
 });
 
 testControllerRead<DiscountEntity>({
@@ -73,5 +73,5 @@ testControllerFind<DiscountEntity, DiscountValidator, OrderByEnum>({
 	entityMock: discountEntityMock,
 	policy: discountPolicy,
 	service: discountService,
-	findData: validatorPayload(discountPayloads, 'find'),
+	findData: validatorPayload(discountInputPayloads, 'find'),
 });

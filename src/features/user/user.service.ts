@@ -1,3 +1,4 @@
+import type { DeepPartial } from 'typeorm';
 import { lang } from '@/config/i18n.setup';
 import { BadRequestError, CustomError } from '@/exceptions';
 import {
@@ -64,8 +65,8 @@ export class UserService {
 	 * @description Update any data
 	 */
 	public update(
-		data: Partial<UserEntity> & { id: number },
-	): Promise<Partial<UserEntity>> {
+		data: DeepPartial<UserEntity> & { id: number },
+	): Promise<UserEntity> {
 		return this.repository.save(data);
 	}
 

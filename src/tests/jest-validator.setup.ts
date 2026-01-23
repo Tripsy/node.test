@@ -1,20 +1,38 @@
 import type { z } from 'zod';
-import type { ValidatorInput } from '@/shared/abstracts/validator.abstract';
+import type {
+	ValidatorInput,
+	ValidatorOutput,
+} from '@/shared/abstracts/validator.abstract';
 
-export type ValidatorPayloads<V, K extends keyof V = keyof V> = {
-	[P in K]: ValidatorInput<V, P>;
+export type ValidatorShape = 'input' | 'output';
+
+export type ValidatorByShape<
+	V,
+	K extends keyof V,
+	S extends ValidatorShape,
+> = S extends 'input' ? ValidatorInput<V, K> : ValidatorOutput<V, K>;
+
+export type ValidatorPayloads<
+	V,
+	K extends keyof V,
+	S extends ValidatorShape = 'input',
+> = {
+	[P in K]: ValidatorByShape<V, P, S>;
 };
 
-export function defineValidatorPayloads<V, K extends keyof V>(
-	payloads: ValidatorPayloads<V, K>,
-): ValidatorPayloads<V, K> {
+export function defineValidatorPayloads<
+	V,
+	K extends keyof V,
+	S extends ValidatorShape = 'input',
+>(payloads: ValidatorPayloads<V, K, S>): ValidatorPayloads<V, K, S> {
 	return payloads;
 }
 
 export function validatorPayload<
-	P extends Record<string, unknown>,
-	K extends keyof P,
->(payloads: P, schema: K): P[K] {
+	V,
+	K extends keyof V,
+	S extends ValidatorShape = 'input',
+>(payloads: ValidatorPayloads<V, K, S>, schema: K): ValidatorByShape<V, K, S> {
 	const payload = payloads[schema];
 
 	if (!payload) {

@@ -4,8 +4,8 @@ import {
 	DiscountScopeEnum,
 	DiscountTypeEnum,
 } from '@/features/discount/discount.entity';
-import type {
-	DiscountValidator,
+import {
+	type DiscountValidator,
 	OrderByEnum,
 } from '@/features/discount/discount.validator';
 import { formatDate } from '@/helpers';
@@ -30,7 +30,7 @@ export const discountEntityMock: DiscountEntity = {
 	value: 10,
 };
 
-export const discountPayloads = defineValidatorPayloads<
+export const discountInputPayloads = defineValidatorPayloads<
 	DiscountValidator,
 	'create' | 'update' | 'find'
 >({
@@ -57,6 +57,7 @@ export const discountPayloads = defineValidatorPayloads<
 		notes: 'Applied to all orders during January',
 	},
 	find: findQueryMock<DiscountValidator, OrderByEnum>({
+		order_by: OrderByEnum.ID,
 		direction: OrderDirectionEnum.DESC,
 		page: 4,
 		filter: {
@@ -67,6 +68,29 @@ export const discountPayloads = defineValidatorPayloads<
 			reference: 'test',
 			start_at_start: formatDate(mockPastDate(14400)),
 			start_at_end: formatDate(mockPastDate(7200)),
+			is_deleted: true,
+		},
+	}),
+});
+
+export const discountOutputPayloads = defineValidatorPayloads<
+	DiscountValidator,
+	'find',
+	'output'
+>({
+	find: findQueryMock<DiscountValidator, OrderByEnum, 'output'>({
+		order_by: OrderByEnum.ID,
+		direction: OrderDirectionEnum.DESC,
+		page: 4,
+		filter: {
+			id: 1,
+			term: 'test',
+			scope: DiscountScopeEnum.CATEGORY,
+			reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
+			type: DiscountTypeEnum.PERCENT,
+			reference: 'test',
+			start_at_start: mockPastDate(14400),
+			start_at_end: mockPastDate(7200),
 			is_deleted: true,
 		},
 	}),
