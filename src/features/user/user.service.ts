@@ -55,15 +55,8 @@ export class UserService {
 	 * @description Used in `register` method from controller;
 	 */
 	public async createRegister(
-		user: Partial<UserEntity>,
+		entry: Partial<UserEntity>,
 	): Promise<UserEntity> {
-		const entry = {
-			name: user.name,
-			email: user.email,
-			password: user.password,
-			language: user.language,
-		};
-
 		return this.repository.save(entry);
 	}
 
@@ -144,7 +137,10 @@ export class UserService {
 		await this.repository.createQuery().filterById(id).restore();
 	}
 
-	public findById(id: number, withDeleted: boolean): Promise<UserEntity> {
+	public findById(
+		id: number,
+		withDeleted: boolean = false,
+	): Promise<UserEntity> {
 		return this.repository
 			.createQuery()
 			.filterById(id)

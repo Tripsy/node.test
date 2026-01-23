@@ -250,7 +250,7 @@ $ pnpm run madge
 # TODO
 
 1. make tests for services
-    > account, category, discount, log-data, user
+    > account, category, discount
 2. make tests for the rest of available features
     > carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
 3. API documentation > swagger-ui-express

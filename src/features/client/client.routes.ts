@@ -1,5 +1,6 @@
 import { clientController } from '@/features/client/client.controller';
 import { ClientStatusEnum } from '@/features/client/client.entity';
+import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
 import {
 	validateParamsWhenId,
 	validateParamsWhenStatus,
@@ -44,6 +45,7 @@ export default {
 			path: '',
 			method: 'get',
 			action: 'find',
+			handlers: [parseFilterMiddleware],
 		},
 		'update-status': {
 			path: '/:id/status/:status',

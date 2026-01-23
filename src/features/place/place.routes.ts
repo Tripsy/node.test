@@ -1,4 +1,5 @@
 import { placeController } from '@/features/place/place.controller';
+import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
 import {
 	validateParamsWhenId,
 	validateParamsWhenString,
@@ -46,6 +47,7 @@ export default {
 			path: '',
 			method: 'get',
 			action: 'find',
+			handlers: [parseFilterMiddleware],
 		},
 	} as RoutesConfigType<typeof placeController>,
 };

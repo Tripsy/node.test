@@ -1,4 +1,5 @@
 import { permissionController } from '@/features/permission/permission.controller';
+import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
 import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
 import type { RoutesConfigType } from '@/types/routing.type';
 
@@ -40,6 +41,7 @@ export default {
 			path: '',
 			method: 'get',
 			action: 'find',
+			handlers: [parseFilterMiddleware],
 		},
 	} as RoutesConfigType<typeof permissionController>,
 };

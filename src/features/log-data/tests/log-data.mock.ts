@@ -26,7 +26,7 @@ export const logDataEntityMock: LogDataEntity = {
 
 export const logDataPayloads = defineValidatorPayloads<
 	LogDataValidator,
-	'find'
+	'find' | 'delete'
 >({
 	find: findQueryMock<LogDataValidator, OrderByEnum>({
 		direction: OrderDirectionEnum.DESC,
@@ -39,4 +39,5 @@ export const logDataPayloads = defineValidatorPayloads<
 			term: 'timeout',
 		},
 	}),
+	delete: { ids: [1, 2, 3] },
 });
