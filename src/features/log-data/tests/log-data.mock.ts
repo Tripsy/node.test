@@ -13,16 +13,18 @@ import { findQueryMock } from '@/tests/jest-controller.setup';
 import { defineValidatorPayloads } from '@/tests/jest-validator.setup';
 import { mockPastDate } from '@/tests/mocks/helpers.mock';
 
-export const logDataEntityMock: LogDataEntity = {
-	id: 1,
-	pid: 'yyy',
-	request_id: 'xxx',
-	category: 'system',
-	level: LogDataLevelEnum.ERROR,
-	message: 'Lorem ipsum',
-	context: undefined,
-	created_at: mockPastDate(28800),
-};
+export function getLogDataEntityMock(): LogDataEntity {
+    return {
+        id: 1,
+        pid: 'yyy',
+        request_id: 'xxx',
+        category: 'system',
+        level: LogDataLevelEnum.ERROR,
+        message: 'Lorem ipsum',
+        context: undefined,
+        created_at: mockPastDate(28800),
+    };
+}
 
 export const logDataInputPayloads = defineValidatorPayloads<
 	LogDataValidator,

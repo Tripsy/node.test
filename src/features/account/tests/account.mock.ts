@@ -10,44 +10,54 @@ import {
 	mockUuid,
 } from '@/tests/mocks/helpers.mock';
 
-export const accountTokenMock: AccountTokenEntity = {
-	id: 1,
-	user_id: 1,
-	ident: mockUuid(),
-	created_at: mockPastDate(28800),
-	used_at: mockPastDate(14400),
-	expire_at: mockFutureDate(14400),
-};
+export function getAccountTokenMock(): AccountTokenEntity {
+    return {
+        id: 1,
+        user_id: 1,
+        ident: mockUuid(),
+        created_at: mockPastDate(28800),
+        used_at: mockPastDate(14400),
+        expire_at: mockFutureDate(14400),
+    }
+}
 
-export const accountRecoveryMock: AccountRecoveryEntity = {
-	id: 1,
-	user_id: 1,
-	ident: mockUuid(),
-	created_at: mockPastDate(28800),
-	used_at: mockPastDate(14400),
-	expire_at: mockFutureDate(14400),
-};
+export function getAccountRecoveryMock(): AccountRecoveryEntity {
+    return {
+        id: 1,
+        user_id: 1,
+        ident: mockUuid(),
+        created_at: mockPastDate(28800),
+        used_at: mockPastDate(14400),
+        expire_at: mockFutureDate(14400),
+    }
+}
 
-export const authValidTokenMock: AuthValidToken = {
-	ident: 'some_ident',
-	label: 'Windows',
-	used_at: mockPastDate(7200),
-	used_now: true,
-};
+export function getAuthValidTokenMock(): AuthValidToken {
+    return {
+        ident: 'some_ident',
+        label: 'Windows',
+        used_at: mockPastDate(7200),
+        used_now: true,
+    }
+}
 
-export const authActiveTokenMock: AccountTokenEntity = {
-	id: 1,
-	user_id: 1,
-	ident: mockUuid(),
-	created_at: mockPastDate(28800),
-	used_at: mockPastDate(14400),
-	expire_at: mockFutureDate(14400),
-};
+export function getAuthActiveTokenMock(): AccountTokenEntity {
+    return {
+        id: 1,
+        user_id: 1,
+        ident: mockUuid(),
+        created_at: mockPastDate(28800),
+        used_at: mockPastDate(14400),
+        expire_at: mockFutureDate(14400),
+    }
+}
 
-export const confirmationTokenPayloadMock: ConfirmationTokenPayload = {
-	user_id: 1,
-	user_email: 'john.doe@example.com',
-};
+export function getConfirmationTokenPayloadMock(): ConfirmationTokenPayload {
+    return {
+        user_id: 1,
+        user_email: 'john.doe@example.com',
+    }
+}
 
 export const accountInputPayloads = defineValidatorPayloads<
 	AccountValidator,

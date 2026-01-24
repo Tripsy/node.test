@@ -8,8 +8,7 @@ import type {
 	OrderByEnum,
 } from '@/features/category/category.validator';
 import {
-	categoryEntityMock,
-	categoryInputPayloads,
+    categoryInputPayloads, getCategoryEntityMock,
 } from '@/features/category/tests/category.mock';
 import {
 	testControllerCreate,
@@ -32,7 +31,7 @@ const basePath = categoryRoutes.basePath;
 testControllerCreate<CategoryEntity, CategoryValidator>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: categoryEntityMock,
+	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
 	createData: validatorPayload(categoryInputPayloads, 'create'),
@@ -41,7 +40,7 @@ testControllerCreate<CategoryEntity, CategoryValidator>({
 testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: categoryEntityMock,
+	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
 	updateData: validatorPayload(categoryInputPayloads, 'update'),
@@ -50,7 +49,7 @@ testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
 testControllerRead<CategoryEntity>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: categoryEntityMock,
+	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 });
 
@@ -71,7 +70,7 @@ testControllerRestoreSingle({
 testControllerFind<CategoryEntity, CategoryValidator, OrderByEnum>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: categoryEntityMock,
+	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
 	findData: validatorPayload(categoryInputPayloads, 'find'),
@@ -80,7 +79,7 @@ testControllerFind<CategoryEntity, CategoryValidator, OrderByEnum>({
 testControllerStatusUpdate<CategoryEntity>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: categoryEntityMock,
+	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
 	newStatus: 'active',

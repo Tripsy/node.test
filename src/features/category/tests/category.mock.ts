@@ -12,18 +12,20 @@ import { findQueryMock } from '@/tests/jest-controller.setup';
 import { defineValidatorPayloads } from '@/tests/jest-validator.setup';
 import { mockPastDate } from '@/tests/mocks/helpers.mock';
 
-export const categoryEntityMock: CategoryEntity = {
-	children: [],
-	created_at: mockPastDate(86400),
-	deleted_at: null,
-	details: undefined,
-	parent: null,
-	sort_order: 0,
-	status: CategoryStatusEnum.ACTIVE,
-	type: CategoryTypeEnum.ARTICLE,
-	updated_at: null,
-	id: 1,
-};
+export function getCategoryEntityMock(): CategoryEntity {
+    return {
+        children: [],
+        created_at: mockPastDate(86400),
+        deleted_at: null,
+        details: undefined,
+        parent: null,
+        sort_order: 0,
+        status: CategoryStatusEnum.ACTIVE,
+        type: CategoryTypeEnum.ARTICLE,
+        updated_at: null,
+        id: 1,
+    };
+}
 
 export const categoryInputPayloads = defineValidatorPayloads<
 	CategoryValidator,

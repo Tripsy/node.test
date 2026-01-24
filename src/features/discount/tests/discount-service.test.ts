@@ -4,9 +4,8 @@ import type { DiscountQuery } from '@/features/discount/discount.repository';
 import { DiscountService } from '@/features/discount/discount.service';
 import type { DiscountValidator } from '@/features/discount/discount.validator';
 import {
-	discountEntityMock,
-	discountInputPayloads,
-	discountOutputPayloads,
+    discountInputPayloads,
+    discountOutputPayloads, getDiscountEntityMock,
 } from '@/features/discount/tests/discount.mock';
 import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 import {
@@ -29,7 +28,7 @@ describe('DiscountService', () => {
 	const serviceDiscount = new DiscountService(mockDiscount.repository);
 
 	it('should create entry', async () => {
-		const entity = { ...discountEntityMock };
+		const entity = getDiscountEntityMock();
 		const createData = {
 			...validatorPayload(discountInputPayloads, 'create'),
 		} as ValidatorOutput<DiscountValidator, 'create'>;
@@ -45,7 +44,7 @@ describe('DiscountService', () => {
 	testServiceUpdate<DiscountEntity>(
 		serviceDiscount,
 		mockDiscount.repository,
-		discountEntityMock,
+        getDiscountEntityMock(),
 	);
 
 	testServiceDelete<DiscountEntity, DiscountQuery>(

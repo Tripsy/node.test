@@ -8,13 +8,6 @@ import { accountService } from '@/features/account/account.service';
 import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import { accountRecoveryService } from '@/features/account/account-recovery.service';
 import { accountTokenService } from '@/features/account/account-token.service';
-import {
-	accountRecoveryMock,
-	accountTokenMock,
-	authValidTokenMock,
-	confirmationTokenPayloadMock,
-} from '@/features/account/tests/account.mock';
-import { userEntityMock } from '@/features/user/tests/user.mock';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { userService } from '@/features/user/user.service';
 import { addDebugResponse } from '@/tests/jest-controller.setup';
@@ -28,6 +21,12 @@ import {
 	notAuthenticatedSpy,
 } from '@/tests/mocks/policies.mock';
 import { mockAccountEmailService } from '@/tests/mocks/services.mock';
+import {
+    getAccountTokenMock,
+    getAuthValidTokenMock,
+    getConfirmationTokenPayloadMock
+} from "@/features/account/tests/account.mock";
+import {getUserEntityMock} from "@/features/user/tests/user.mock";
 
 const controller = 'AccountController';
 const basePath = accountRoutes.basePath;
@@ -51,7 +50,7 @@ describe(`${controller} - register`, () => {
 		notAuthenticatedSpy(accountPolicy);
 
 		jest.spyOn(accountService, 'register').mockResolvedValue(
-			userEntityMock,
+            getUserEntityMock(),
 		);
 
 		const response = await request(app).post(link).send({
@@ -69,7 +68,7 @@ describe(`${controller} - register`, () => {
 				'message',
 				'account.success.register',
 			);
-			expect(response.body.data).toHaveProperty('id', userEntityMock.id);
+			expect(response.body.data).toHaveProperty('id', getUserEntityMock().id);
 		} catch (error) {
 			addDebugResponse(response, `${controller} - register`);
 
@@ -93,12 +92,12 @@ describe(`${controller} - login`, () => {
 		notAuthenticatedSpy(accountPolicy);
 
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.ACTIVE,
 		});
 
 		const response = await request(app).post(link).send({
-			email: userEntityMock.email,
+			email: getUserEntityMock().email,
 			password: 'Secure@123',
 		});
 
@@ -115,10 +114,10 @@ describe(`${controller} - login`, () => {
 	it('should return error due max active sessions', async () => {
 		notAuthenticatedSpy(accountPolicy);
 
-		const mockAuthValidToken = authValidTokenMock;
+		const mockAuthValidToken = getAuthValidTokenMock();
 
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.ACTIVE,
 		});
 
@@ -128,7 +127,7 @@ describe(`${controller} - login`, () => {
 		);
 
 		const response = await request(app).post(link).send({
-			email: userEntityMock.email,
+			email: getUserEntityMock().email,
 			password: 'Secure@123',
 		});
 
@@ -150,7 +149,7 @@ describe(`${controller} - login`, () => {
 		notAuthenticatedSpy(accountPolicy);
 
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.ACTIVE,
 		});
 
@@ -163,7 +162,7 @@ describe(`${controller} - login`, () => {
 		);
 
 		const response = await request(app).post(link).send({
-			email: userEntityMock.email,
+			email: getUserEntityMock().email,
 			password: 'Secure@123',
 		});
 
@@ -227,7 +226,7 @@ describe(`${controller} - logout`, () => {
 	it('should return success', async () => {
 		isAuthenticatedSpy(accountPolicy);
 
-		const mockAccountToken = accountTokenMock;
+		const mockAccountToken = getAccountTokenMock();
 
 		jest.spyOn(
 			accountTokenService,
@@ -273,7 +272,7 @@ describe(`${controller} - passwordRecover`, () => {
 		notAuthenticatedSpy(accountPolicy);
 
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.ACTIVE,
 		});
 		jest.spyOn(
@@ -303,7 +302,7 @@ describe(`${controller} - passwordRecover`, () => {
 		notAuthenticatedSpy(accountPolicy);
 
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.ACTIVE,
 		});
 		jest.spyOn(
@@ -337,7 +336,7 @@ describe(`${controller} - passwordRecover`, () => {
 
 describe(`${controller} - passwordRecoverChange`, () => {
 	const link = `${basePath}/password-recover-change/${mockUuid()}`;
-	const mockAccountRecovery = accountRecoveryMock;
+	const mockAccountRecovery = getAccountTokenMock();
 
 	it('should fail if authenticated', async () => {
 		isAuthenticatedSpy(accountPolicy);
@@ -412,7 +411,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 		});
 
 		jest.spyOn(userService, 'findById').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.ACTIVE,
 		});
 		jest.spyOn(accountService, 'updatePassword').mockResolvedValue(
@@ -458,9 +457,9 @@ describe(`${controller} - passwordUpdate`, () => {
 	it('should return error - password_invalid', async () => {
 		isAuthenticatedSpy(accountPolicy);
 
-		jest.spyOn(accountPolicy, 'getId').mockReturnValue(userEntityMock.id);
+		jest.spyOn(accountPolicy, 'getId').mockReturnValue(getUserEntityMock().id);
 		jest.spyOn(userService, 'findById').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.ACTIVE,
 		});
 		jest.spyOn(accountService, 'checkPassword').mockResolvedValue(false);
@@ -484,9 +483,9 @@ describe(`${controller} - passwordUpdate`, () => {
 	it('should return success', async () => {
 		isAuthenticatedSpy(accountPolicy);
 
-		jest.spyOn(accountPolicy, 'getId').mockReturnValue(userEntityMock.id);
+		jest.spyOn(accountPolicy, 'getId').mockReturnValue(getUserEntityMock().id);
 		jest.spyOn(userService, 'findById').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.ACTIVE,
 		});
 		jest.spyOn(accountService, 'checkPassword').mockResolvedValue(true);
@@ -522,7 +521,7 @@ describe(`${controller} - passwordUpdate`, () => {
 
 describe(`${controller} - emailConfirm`, () => {
 	const link = `${basePath}/email-confirm/some_token_value`;
-	const mockConfirmationTokenPayload = confirmationTokenPayloadMock;
+	const mockConfirmationTokenPayload = getConfirmationTokenPayloadMock();
 
 	it('should fail - confirmation_token_invalid', async () => {
 		const response = await request(app).post(link).send();
@@ -547,7 +546,7 @@ describe(`${controller} - emailConfirm`, () => {
 			'determineConfirmationTokenPayload',
 		).mockReturnValue(mockConfirmationTokenPayload);
 		jest.spyOn(userService, 'findById').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			email: 'not_matching@example.com',
 		});
 
@@ -572,9 +571,9 @@ describe(`${controller} - emailConfirm`, () => {
 			accountService,
 			'determineConfirmationTokenPayload',
 		).mockReturnValue(mockConfirmationTokenPayload);
-		jest.spyOn(userService, 'findById').mockResolvedValue(userEntityMock);
+		jest.spyOn(userService, 'findById').mockResolvedValue(getUserEntityMock());
 		jest.spyOn(userService, 'findById').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.PENDING,
 		});
 
@@ -610,7 +609,7 @@ describe(`${controller} - emailConfirmSend`, () => {
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue(null);
 
 		const response = await request(app).post(link).send({
-			email: userEntityMock.email,
+			email: getUserEntityMock().email,
 		});
 
 		try {
@@ -629,7 +628,7 @@ describe(`${controller} - emailConfirmSend`, () => {
 
 	it('should return success', async () => {
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue({
-			...userEntityMock,
+			...getUserEntityMock(),
 			status: UserStatusEnum.PENDING,
 		});
 		jest.spyOn(accountService, 'processEmailConfirmCreate').mockReturnValue(
@@ -637,7 +636,7 @@ describe(`${controller} - emailConfirmSend`, () => {
 		);
 
 		const response = await request(app).post(link).send({
-			email: userEntityMock.email,
+			email: getUserEntityMock().email,
 		});
 
 		try {
@@ -668,7 +667,7 @@ describe(`${controller} - emailUpdate`, () => {
 		isAuthenticatedSpy(accountPolicy);
 
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue(
-			userEntityMock,
+            getUserEntityMock(),
 		);
 
 		const response = await request(app).post(link).send({
@@ -693,8 +692,8 @@ describe(`${controller} - emailUpdate`, () => {
 		isAuthenticatedSpy(accountPolicy);
 
 		jest.spyOn(userService, 'findByEmail').mockResolvedValue(null);
-		jest.spyOn(accountPolicy, 'getId').mockReturnValue(userEntityMock.id);
-		jest.spyOn(userService, 'findById').mockResolvedValue(userEntityMock);
+		jest.spyOn(accountPolicy, 'getId').mockReturnValue(getUserEntityMock().id);
+		jest.spyOn(userService, 'findById').mockResolvedValue(getUserEntityMock());
 		jest.spyOn(accountService, 'createConfirmationToken').mockReturnValue({
 			token: mockUuid(),
 			expire_at: mockFutureDate(864000),
@@ -742,9 +741,9 @@ describe(`${controller} - meSessions`, () => {
 	it('should return success', async () => {
 		isAuthenticatedSpy(accountPolicy);
 
-		const mockAuthValidToken = authValidTokenMock;
+		const mockAuthValidToken = getAuthValidTokenMock();
 
-		jest.spyOn(accountPolicy, 'getId').mockReturnValue(userEntityMock.id);
+		jest.spyOn(accountPolicy, 'getId').mockReturnValue(getUserEntityMock().id);
 		jest.spyOn(accountTokenService, 'getAuthValidTokens').mockResolvedValue(
 			[mockAuthValidToken],
 		);
@@ -775,9 +774,9 @@ describe(`${controller} - meEdit`, () => {
 	it('should return success', async () => {
 		isAuthenticatedSpy(accountPolicy);
 
-		jest.spyOn(accountPolicy, 'getId').mockReturnValue(userEntityMock.id);
-		jest.spyOn(userService, 'findById').mockResolvedValue(userEntityMock);
-		jest.spyOn(userService, 'update').mockResolvedValue(userEntityMock);
+		jest.spyOn(accountPolicy, 'getId').mockReturnValue(getUserEntityMock().id);
+		jest.spyOn(userService, 'findById').mockResolvedValue(getUserEntityMock());
+		jest.spyOn(userService, 'update').mockResolvedValue(getUserEntityMock());
 
 		const response = await request(app).post(link).send({
 			name: 'New name',
@@ -811,8 +810,8 @@ describe(`${controller} - meDelete`, () => {
 	it('should return success', async () => {
 		isAuthenticatedSpy(accountPolicy);
 
-		jest.spyOn(accountPolicy, 'getId').mockReturnValue(userEntityMock.id);
-		jest.spyOn(userService, 'findById').mockResolvedValue(userEntityMock);
+		jest.spyOn(accountPolicy, 'getId').mockReturnValue(getUserEntityMock().id);
+		jest.spyOn(userService, 'findById').mockResolvedValue(getUserEntityMock());
 		jest.spyOn(accountService, 'checkPassword').mockResolvedValue(true);
 		jest.spyOn(userService, 'delete').mockResolvedValue(undefined);
 

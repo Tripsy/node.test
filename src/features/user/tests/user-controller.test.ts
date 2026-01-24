@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import {
-	userEntityMock,
-	userInputPayloads,
+    getUserEntityMock,
+    userInputPayloads,
 } from '@/features/user/tests/user.mock';
 import type UserEntity from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
@@ -32,7 +32,7 @@ const basePath = userRoutes.basePath;
 testControllerCreate<UserEntity, UserValidator>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: userEntityMock,
+	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
 	createData: validatorPayload(userInputPayloads, 'create'),
@@ -41,7 +41,7 @@ testControllerCreate<UserEntity, UserValidator>({
 testControllerUpdate<UserEntity, UserValidator>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: userEntityMock,
+	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
 	updateData: validatorPayload(userInputPayloads, 'update'),
@@ -50,7 +50,7 @@ testControllerUpdate<UserEntity, UserValidator>({
 testControllerRead<UserEntity>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: userEntityMock,
+	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 });
 
@@ -71,7 +71,7 @@ testControllerRestoreSingle({
 testControllerFind<UserEntity, UserValidator, OrderByEnum>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: userEntityMock,
+	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
 	findData: validatorPayload(userInputPayloads, 'find'),
@@ -80,7 +80,7 @@ testControllerFind<UserEntity, UserValidator, OrderByEnum>({
 testControllerStatusUpdate<UserEntity>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: userEntityMock,
+	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
 	newStatus: 'active',

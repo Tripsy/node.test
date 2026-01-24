@@ -4,9 +4,9 @@ import type AccountTokenEntity from '@/features/account/account-token.entity';
 import type { AccountTokenQuery } from '@/features/account/account-token.repository';
 import { AccountTokenService } from '@/features/account/account-token.service';
 import {
-	userEntityMock,
-	userInputPayloads,
-	userOutputPayloads,
+    getUserEntityMock,
+    userInputPayloads,
+    userOutputPayloads,
 } from '@/features/user/tests/user.mock';
 import type UserEntity from '@/features/user/user.entity';
 import { type UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
@@ -44,7 +44,7 @@ describe('UserService', () => {
 	);
 
 	it('should create entry', async () => {
-		const entity = { ...userEntityMock };
+		const entity = getUserEntityMock();
 		const createData = {
 			...validatorPayload(userInputPayloads, 'create'),
 		} as ValidatorOutput<UserValidator, 'create'> & {
@@ -64,11 +64,11 @@ describe('UserService', () => {
 	testServiceUpdate<UserEntity>(
 		serviceUser,
 		mockUser.repository,
-		userEntityMock,
+        getUserEntityMock(),
 	);
 
 	it('should fail when status is unchanged', async () => {
-		const entity = { ...userEntityMock };
+		const entity = getUserEntityMock();
 		entity.status = UserStatusEnum.ACTIVE;
 
 		jest.spyOn(serviceUser, 'findById').mockResolvedValue(entity);
@@ -79,7 +79,7 @@ describe('UserService', () => {
 	});
 
 	it('should update status', async () => {
-		const entity = { ...userEntityMock };
+		const entity = getUserEntityMock();
 		entity.status = UserStatusEnum.INACTIVE;
 
 		jest.spyOn(serviceUser, 'findById').mockResolvedValue(entity);
@@ -94,7 +94,7 @@ describe('UserService', () => {
 	testServiceFindById<UserEntity, UserQuery>(mockUser.query, serviceUser);
 
 	it('should find entity by email', async () => {
-		const entity = { ...userEntityMock };
+		const entity = getUserEntityMock();
 
 		mockUser.query.first.mockResolvedValue(entity);
 

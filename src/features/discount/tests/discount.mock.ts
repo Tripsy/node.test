@@ -14,21 +14,23 @@ import { findQueryMock } from '@/tests/jest-controller.setup';
 import { defineValidatorPayloads } from '@/tests/jest-validator.setup';
 import { mockFutureDate, mockPastDate } from '@/tests/mocks/helpers.mock';
 
-export const discountEntityMock: DiscountEntity = {
-	created_at: mockPastDate(86400),
-	deleted_at: null,
-	end_at: mockFutureDate(86400),
-	id: 1,
-	label: '',
-	notes: null,
-	reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
-	reference: '#abc',
-	scope: DiscountScopeEnum.CATEGORY,
-	start_at: mockPastDate(86400),
-	type: DiscountTypeEnum.PERCENT,
-	updated_at: null,
-	value: 10,
-};
+export function getDiscountEntityMock(): DiscountEntity {
+    return {
+        created_at: mockPastDate(86400),
+        deleted_at: null,
+        end_at: mockFutureDate(86400),
+        id: 1,
+        label: '',
+        notes: null,
+        reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
+        reference: '#abc',
+        scope: DiscountScopeEnum.CATEGORY,
+        start_at: mockPastDate(86400),
+        type: DiscountTypeEnum.PERCENT,
+        updated_at: null,
+        value: 10,
+    };
+}
 
 export const discountInputPayloads = defineValidatorPayloads<
 	DiscountValidator,

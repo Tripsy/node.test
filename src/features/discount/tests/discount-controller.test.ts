@@ -8,8 +8,7 @@ import type {
 	OrderByEnum,
 } from '@/features/discount/discount.validator';
 import {
-	discountEntityMock,
-	discountInputPayloads,
+    discountInputPayloads, getDiscountEntityMock,
 } from '@/features/discount/tests/discount.mock';
 import {
 	testControllerCreate,
@@ -31,7 +30,7 @@ const basePath = discountRoutes.basePath;
 testControllerCreate<DiscountEntity, DiscountValidator>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: discountEntityMock,
+	entityMock: getDiscountEntityMock(),
 	policy: discountPolicy,
 	service: discountService,
 	createData: validatorPayload(discountInputPayloads, 'create'),
@@ -40,7 +39,7 @@ testControllerCreate<DiscountEntity, DiscountValidator>({
 testControllerUpdate<DiscountEntity, DiscountValidator>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: discountEntityMock,
+	entityMock: getDiscountEntityMock(),
 	policy: discountPolicy,
 	service: discountService,
 	updateData: validatorPayload(discountInputPayloads, 'update'),
@@ -49,7 +48,7 @@ testControllerUpdate<DiscountEntity, DiscountValidator>({
 testControllerRead<DiscountEntity>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: discountEntityMock,
+	entityMock: getDiscountEntityMock(),
 	policy: discountPolicy,
 });
 
@@ -70,7 +69,7 @@ testControllerRestoreSingle({
 testControllerFind<DiscountEntity, DiscountValidator, OrderByEnum>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: discountEntityMock,
+	entityMock: getDiscountEntityMock(),
 	policy: discountPolicy,
 	service: discountService,
 	findData: validatorPayload(discountInputPayloads, 'find'),

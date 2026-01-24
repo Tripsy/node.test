@@ -217,6 +217,7 @@ $ pnpm run madge
 │   │   │   ├── tests/
 │   │   │   │   └── user.mock.ts
 │   │   │   │   └── user-controller.test.ts
+│   │   │   │   └── user-service.test.ts
 │   │   │   │   └── user-validator.test.ts
 │   │   │   ├── user.controller.ts
 │   │   │   ├── user.entity.ts
@@ -249,17 +250,17 @@ $ pnpm run madge
 
 # TODO
 
-1. make tests for services
-    > account, category, discount
-2. make tests for the rest of available features
-    > carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
-3. API documentation > swagger-ui-express
+1. API documentation > swagger-ui-express
+    - OR include http request example in /features
+2. make tests for services
+   > account, category
+3. make tests for the rest of available features
+   > carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
 4. feature - brand (brand-content)
 5. feature - images  (image-content)
 6. Go on FE → category, place, brand, client
-7. Go on FE #2 → carrier, discount, 
-8. Go on FE #3 → image (multer - File upload handling)
-9. wip entities:
+7. Go on FE #3 → image (multer - File upload handling)
+8. wip entities:
     - article
         - article-category
         - article-content
@@ -279,6 +280,7 @@ $ pnpm run madge
     - subscription
         - subscription-evidence
     - term
+9. Go on FE #2 → carrier, discount,
 10. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # Bugs & Issues & Ideas

@@ -8,8 +8,8 @@ import type {
 	OrderByEnum,
 } from '@/features/log-data/log-data.validator';
 import {
-	logDataEntityMock,
-	logDataInputPayloads,
+    getLogDataEntityMock,
+    logDataInputPayloads,
 } from '@/features/log-data/tests/log-data.mock';
 import {
 	testControllerDeleteMultiple,
@@ -28,7 +28,7 @@ const basePath = logDataRoutes.basePath;
 testControllerRead<LogDataEntity>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: logDataEntityMock,
+	entityMock: getLogDataEntityMock(),
 	policy: logDataPolicy,
 });
 
@@ -42,7 +42,7 @@ testControllerDeleteMultiple<LogDataValidator>({
 testControllerFind<LogDataEntity, LogDataValidator, OrderByEnum>({
 	controller: controller,
 	basePath: basePath,
-	entityMock: logDataEntityMock,
+	entityMock: getLogDataEntityMock(),
 	policy: logDataPolicy,
 	service: logDataService,
 	findData: validatorPayload(logDataInputPayloads, 'find'),
