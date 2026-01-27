@@ -32,7 +32,10 @@ export enum DiscountReasonEnum {
       "applicable_countries": ["RO"]    // string[]
     }
 */
-export type DiscountRules = Record<string, number | number[] | string[]>;
+export type DiscountRules = Record<
+	string,
+	number | number[] | string | string[]
+>;
 
 export type DiscountSnapshot = {
 	label: string;

@@ -250,7 +250,7 @@ $ pnpm run madge
 
 # TODO
 
-1. API documentation > swagger-ui-express
+1. API documentation
     - OR include http request example in /features
 2. make tests for services
    > account, category

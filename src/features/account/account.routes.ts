@@ -2,90 +2,81 @@ import {
 	authDefaultRateLimiter,
 	authLoginRateLimiter,
 } from '@/config/rate-limit.config';
+import type { FeatureRoutesModule } from '@/config/routes.setup';
 import { accountController } from '@/features/account/account.controller';
 import { validateParamsWhenString } from '@/middleware/validate-params.middleware';
-import type { RoutesConfigType } from '@/types/routing.type';
 
-export default {
+const routesModule: FeatureRoutesModule<typeof accountController> = {
 	basePath: '/account',
-	documentation: 'account',
 	controller: accountController,
-	routesConfig: {
+	routes: {
 		register: {
 			path: '/register',
 			method: 'post',
-			action: 'register',
 			handlers: [authDefaultRateLimiter],
 		},
 		login: {
 			path: '/login',
 			method: 'post',
-			action: 'login',
 			handlers: [authLoginRateLimiter],
 		},
-		'remove-token': {
+		removeToken: {
 			path: '/token',
 			method: 'delete',
-			action: 'removeToken',
 		},
 		logout: {
 			path: '/logout',
 			method: 'delete',
-			action: 'logout',
 		},
-		'password-recover': {
+		passwordRecover: {
 			path: '/password-recover',
 			method: 'post',
-			action: 'passwordRecover',
 			handlers: [authDefaultRateLimiter],
 		},
-		'password-recover-change': {
+		passwordRecoverChange: {
 			path: '/password-recover-change/:ident',
 			method: 'post',
-			action: 'passwordRecoverChange',
 			handlers: [validateParamsWhenString('ident')],
 		},
-		'password-update': {
+		passwordUpdate: {
 			path: '/password-update',
 			method: 'post',
-			action: 'passwordUpdate',
 		},
-		'email-confirm': {
+		emailConfirm: {
 			path: '/email-confirm/:token',
 			method: 'post',
-			action: 'emailConfirm',
 			handlers: [validateParamsWhenString('token')],
 		},
-		'email-confirm-send': {
+		emailConfirmSend: {
 			path: '/email-confirm-send',
 			method: 'post',
-			action: 'emailConfirmSend',
 			handlers: [authDefaultRateLimiter],
 		},
-		'email-update': {
+		emailUpdate: {
 			path: '/email-update',
 			method: 'post',
-			action: 'emailUpdate',
 		},
-		'me-details': {
+		meDetails: {
 			path: '/me',
 			method: 'get',
-			action: 'meDetails',
 		},
-		'me-sessions': {
+		meSessions: {
 			path: '/me/sessions',
 			method: 'get',
-			action: 'meSessions',
 		},
-		'me-edit': {
+		meEdit: {
 			path: '/me/edit',
 			method: 'post',
-			action: 'meEdit',
 		},
-		'me-delete': {
+		meDelete: {
 			path: '/me/delete',
 			method: 'delete',
-			action: 'meDelete',
 		},
-	} as RoutesConfigType<typeof accountController>,
+	},
 };
+
+const routesConfiguration: FeatureRoutesModule<typeof accountController> = {
+	...routesModule,
+};
+
+export default routesConfiguration;

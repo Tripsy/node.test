@@ -96,12 +96,11 @@ export class OutputWrapper {
 		// Force success to true
 		if ([200, 201, 202, 204].includes(this.res.statusCode)) {
 			this.success(true);
-		}
-
-		// Pull metadata added by metaDocumentation
-		if (this.res.locals._documentationUrl) {
-			this.result.meta.documentationUrl =
-				this.res.locals._documentationUrl;
+		} else {
+			// Attach documentation to meta data (Note: `res.locals._documentation` is set via `meta-documentation` middleware)
+			if (this.res.locals._documentation) {
+				this.result.meta.documentation = this.res.locals._documentation;
+			}
 		}
 
 		if (filter) {

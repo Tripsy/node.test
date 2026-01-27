@@ -1,3 +1,4 @@
+import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
 import { CustomError } from '@/exceptions/custom.error';
 
@@ -6,9 +7,9 @@ export class NotAllowedError extends CustomError {
 		super(403);
 
 		if (Configuration.get('app.debug')) {
-			this.message = message ?? 'Not Allowed';
+			this.message = message ?? lang('shared.error.not_allowed');
 		} else {
-			this.message = 'Not Allowed';
+			this.message = lang('shared.error.not_allowed');
 		}
 	}
 }

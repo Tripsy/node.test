@@ -1,3 +1,4 @@
+import type { FeatureRoutesModule } from '@/config/routes.setup';
 import { clientController } from '@/features/client/client.controller';
 import { ClientStatusEnum } from '@/features/client/client.entity';
 import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
@@ -5,52 +6,43 @@ import {
 	validateParamsWhenId,
 	validateParamsWhenStatus,
 } from '@/middleware/validate-params.middleware';
-import type { RoutesConfigType } from '@/types/routing.type';
 
-export default {
+const routesModule: FeatureRoutesModule<typeof clientController> = {
 	basePath: '/clients',
-	documentation: 'clients',
 	controller: clientController,
-	routesConfig: {
+	routes: {
 		create: {
 			path: '',
 			method: 'post',
-			action: 'create',
 		},
 		read: {
 			path: '/:id',
 			method: 'get',
-			action: 'read',
 			handlers: [validateParamsWhenId('id')],
 		},
 		update: {
 			path: '/:id',
 			method: 'put',
-			action: 'update',
 			handlers: [validateParamsWhenId('id')],
 		},
 		delete: {
 			path: '/:id',
 			method: 'delete',
-			action: 'delete',
 			handlers: [validateParamsWhenId('id')],
 		},
 		restore: {
 			path: '/:id/restore',
 			method: 'patch',
-			action: 'restore',
 			handlers: [validateParamsWhenId('id')],
 		},
 		find: {
 			path: '',
 			method: 'get',
-			action: 'find',
 			handlers: [parseFilterMiddleware],
 		},
-		'update-status': {
+		statusUpdate: {
 			path: '/:id/status/:status',
 			method: 'patch',
-			action: 'statusUpdate',
 			handlers: [
 				validateParamsWhenId('id'),
 				validateParamsWhenStatus({
@@ -61,5 +53,11 @@ export default {
 				}),
 			],
 		},
-	} as RoutesConfigType<typeof clientController>,
+	},
 };
+
+const routesConfiguration: FeatureRoutesModule<typeof clientController> = {
+	...routesModule,
+};
+
+export default routesConfiguration;

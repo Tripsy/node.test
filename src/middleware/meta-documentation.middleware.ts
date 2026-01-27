@@ -1,12 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 
-function apiDocumentationUrl(...args: string[]): string {
-	return `/api-docs/${args.join('/')}`;
-}
-
-function metaDocumentation(...args: string[]) {
+function metaDocumentation(documentation: unknown) {
 	return (_req: Request, res: Response, next: NextFunction) => {
-		res.locals._documentationUrl = apiDocumentationUrl(...args);
+		res.locals._documentation = documentation;
 
 		next(); // Proceed to the next middleware or route handler
 	};

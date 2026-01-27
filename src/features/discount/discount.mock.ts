@@ -8,28 +8,26 @@ import {
 	type DiscountValidator,
 	OrderByEnum,
 } from '@/features/discount/discount.validator';
-import { formatDate } from '@/helpers';
+import { createFutureDate, createPastDate, formatDate } from '@/helpers';
+import { defineValidatorPayloads, findQueryMock } from '@/helpers/mock.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import { findQueryMock } from '@/tests/jest-controller.setup';
-import { defineValidatorPayloads } from '@/tests/jest-validator.setup';
-import { mockFutureDate, mockPastDate } from '@/tests/mocks/helpers.mock';
 
 export function getDiscountEntityMock(): DiscountEntity {
-    return {
-        created_at: mockPastDate(86400),
-        deleted_at: null,
-        end_at: mockFutureDate(86400),
-        id: 1,
-        label: '',
-        notes: null,
-        reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
-        reference: '#abc',
-        scope: DiscountScopeEnum.CATEGORY,
-        start_at: mockPastDate(86400),
-        type: DiscountTypeEnum.PERCENT,
-        updated_at: null,
-        value: 10,
-    };
+	return {
+		created_at: createPastDate(86400),
+		deleted_at: null,
+		end_at: createFutureDate(86400),
+		id: 1,
+		label: '',
+		notes: null,
+		reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
+		reference: '#abc',
+		scope: DiscountScopeEnum.CATEGORY,
+		start_at: createPastDate(86400),
+		type: DiscountTypeEnum.PERCENT,
+		updated_at: null,
+		value: 10,
+	};
 }
 
 export const discountInputPayloads = defineValidatorPayloads<
@@ -43,8 +41,8 @@ export const discountInputPayloads = defineValidatorPayloads<
 		reference: 'BF-2025',
 		type: DiscountTypeEnum.AMOUNT,
 		value: 25,
-		start_at: formatDate(mockFutureDate(14400)),
-		end_at: formatDate(mockFutureDate(28800)),
+		start_at: formatDate(createFutureDate(14400)),
+		end_at: formatDate(createFutureDate(28800)),
 		notes: 'Applied to all orders during January',
 	},
 	update: {
@@ -54,8 +52,8 @@ export const discountInputPayloads = defineValidatorPayloads<
 		reference: 'BF-2025',
 		type: DiscountTypeEnum.AMOUNT,
 		value: 25,
-		start_at: formatDate(mockFutureDate(14400)),
-		end_at: formatDate(mockFutureDate(28800)),
+		start_at: formatDate(createFutureDate(14400)),
+		end_at: formatDate(createFutureDate(28800)),
 		notes: 'Applied to all orders during January',
 	},
 	find: findQueryMock<DiscountValidator, OrderByEnum>({
@@ -68,8 +66,8 @@ export const discountInputPayloads = defineValidatorPayloads<
 			reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
 			type: DiscountTypeEnum.PERCENT,
 			reference: 'test',
-			start_at_start: formatDate(mockPastDate(14400)),
-			start_at_end: formatDate(mockPastDate(7200)),
+			start_at_start: formatDate(createPastDate(14400)),
+			start_at_end: formatDate(createPastDate(7200)),
 			is_deleted: true,
 		},
 	}),
@@ -91,8 +89,8 @@ export const discountOutputPayloads = defineValidatorPayloads<
 			reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
 			type: DiscountTypeEnum.PERCENT,
 			reference: 'test',
-			start_at_start: mockPastDate(14400),
-			start_at_end: mockPastDate(7200),
+			start_at_start: createPastDate(14400),
+			start_at_end: createPastDate(7200),
 			is_deleted: true,
 		},
 	}),
