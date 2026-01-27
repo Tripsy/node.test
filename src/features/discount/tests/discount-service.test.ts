@@ -4,10 +4,8 @@ import type { DiscountQuery } from '@/features/discount/discount.repository';
 import { DiscountService } from '@/features/discount/discount.service';
 import type { DiscountValidator } from '@/features/discount/discount.validator';
 import {
-    discountInputPayloads,
     discountOutputPayloads, getDiscountEntityMock,
 } from '@/features/discount/tests/discount.mock';
-import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 import {
 	createMockRepository,
 	testServiceDelete,
@@ -16,7 +14,6 @@ import {
 	testServiceRestore,
 	testServiceUpdate,
 } from '@/tests/jest-service.setup';
-import { validatorPayload } from '@/tests/jest-validator.setup';
 
 describe('DiscountService', () => {
 	beforeEach(() => {
@@ -29,9 +26,7 @@ describe('DiscountService', () => {
 
 	it('should create entry', async () => {
 		const entity = getDiscountEntityMock();
-		const createData = {
-			...validatorPayload(discountInputPayloads, 'create'),
-		} as ValidatorOutput<DiscountValidator, 'create'>;
+		const createData = discountOutputPayloads.get('create');
 
 		mockDiscount.repository.save.mockResolvedValue(entity);
 
@@ -63,9 +58,6 @@ describe('DiscountService', () => {
 	testServiceFindByFilter<DiscountEntity, DiscountQuery, DiscountValidator>(
 		mockDiscount.query,
 		serviceDiscount,
-		validatorPayload<DiscountValidator, 'find', 'output'>(
-			discountOutputPayloads,
-			'find',
-		),
+        discountOutputPayloads.get('find'),
 	);
 });

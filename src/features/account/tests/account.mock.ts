@@ -3,21 +3,20 @@ import type { AccountValidator } from '@/features/account/account.validator';
 import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import type { AuthValidToken } from '@/features/account/account-token.service';
-import { defineValidatorPayloads } from '@/tests/jest-validator.setup';
+import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 import {
-	mockFutureDate,
-	mockPastDate,
 	mockUuid,
 } from '@/tests/mocks/helpers.mock';
+import {createFutureDate, createPastDate} from "@/helpers";
 
 export function getAccountTokenMock(): AccountTokenEntity {
     return {
         id: 1,
         user_id: 1,
         ident: mockUuid(),
-        created_at: mockPastDate(28800),
-        used_at: mockPastDate(14400),
-        expire_at: mockFutureDate(14400),
+        created_at: createPastDate(28800),
+        used_at: createPastDate(14400),
+        expire_at: createFutureDate(14400),
     }
 }
 
@@ -26,9 +25,9 @@ export function getAccountRecoveryMock(): AccountRecoveryEntity {
         id: 1,
         user_id: 1,
         ident: mockUuid(),
-        created_at: mockPastDate(28800),
-        used_at: mockPastDate(14400),
-        expire_at: mockFutureDate(14400),
+        created_at: createPastDate(28800),
+        used_at: createPastDate(14400),
+        expire_at: createFutureDate(14400),
     }
 }
 
@@ -36,7 +35,7 @@ export function getAuthValidTokenMock(): AuthValidToken {
     return {
         ident: 'some_ident',
         label: 'Windows',
-        used_at: mockPastDate(7200),
+        used_at: createPastDate(7200),
         used_now: true,
     }
 }
@@ -46,9 +45,9 @@ export function getAuthActiveTokenMock(): AccountTokenEntity {
         id: 1,
         user_id: 1,
         ident: mockUuid(),
-        created_at: mockPastDate(28800),
-        used_at: mockPastDate(14400),
-        expire_at: mockFutureDate(14400),
+        created_at: createPastDate(28800),
+        used_at: createPastDate(14400),
+        expire_at: createFutureDate(14400),
     }
 }
 
@@ -59,7 +58,7 @@ export function getConfirmationTokenPayloadMock(): ConfirmationTokenPayload {
     }
 }
 
-export const accountInputPayloads = defineValidatorPayloads<
+export const accountInputPayloads = createValidatorPayloads<
 	AccountValidator,
 	| 'register'
 	| 'login'

@@ -22,7 +22,6 @@ import {
 	testServiceRestore,
 	testServiceUpdate,
 } from '@/tests/jest-service.setup';
-import { validatorPayload } from '@/tests/jest-validator.setup';
 
 describe('UserService', () => {
 	beforeEach(() => {
@@ -45,12 +44,7 @@ describe('UserService', () => {
 
 	it('should create entry', async () => {
 		const entity = getUserEntityMock();
-		const createData = {
-			...validatorPayload(userInputPayloads, 'create'),
-		} as ValidatorOutput<UserValidator, 'create'> & {
-			status: UserStatusEnum;
-			role: UserRoleEnum;
-		};
+		const createData = userOutputPayloads.get('create');
 
 		jest.spyOn(serviceUser, 'findByEmail').mockResolvedValue(null);
 		mockUser.repository.save.mockResolvedValue(entity);
@@ -108,9 +102,6 @@ describe('UserService', () => {
 	testServiceFindByFilter<UserEntity, UserQuery, UserValidator>(
 		mockUser.query,
 		serviceUser,
-		validatorPayload<UserValidator, 'find', 'output'>(
-			userOutputPayloads,
-			'find',
-		),
+        userOutputPayloads.get('find'),
 	);
 });

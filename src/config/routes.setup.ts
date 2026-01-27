@@ -133,8 +133,8 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 			if (Configuration.isEnvironment('development')) {
 				pushRouteInfo(feature, def);
 			}
-		} catch (error) {
-			console.error(`Error importing ${feature}.routes:`, error);
+		} catch {
+			// console.error(`Error importing ${feature}.routes:`, error);
 			// feature has no routes file → ignore
 		}
 	}

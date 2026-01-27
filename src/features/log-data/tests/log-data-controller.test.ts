@@ -16,7 +16,6 @@ import {
 	testControllerFind,
 	testControllerRead,
 } from '@/tests/jest-controller.setup';
-import { validatorPayload } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -45,5 +44,5 @@ testControllerFind<LogDataEntity, LogDataValidator, OrderByEnum>({
 	entityMock: getLogDataEntityMock(),
 	policy: logDataPolicy,
 	service: logDataService,
-	findData: validatorPayload(logDataInputPayloads, 'find'),
+	findData: logDataInputPayloads.get('find'),
 });

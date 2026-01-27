@@ -20,7 +20,6 @@ import {
 	testControllerStatusUpdate,
 	testControllerUpdate,
 } from '@/tests/jest-controller.setup';
-import { validatorPayload } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -35,7 +34,7 @@ testControllerCreate<UserEntity, UserValidator>({
 	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
-	createData: validatorPayload(userInputPayloads, 'create'),
+	createData: userInputPayloads.get('create'),
 });
 
 testControllerUpdate<UserEntity, UserValidator>({
@@ -44,7 +43,7 @@ testControllerUpdate<UserEntity, UserValidator>({
 	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
-	updateData: validatorPayload(userInputPayloads, 'update'),
+	updateData: userInputPayloads.get('update'),
 });
 
 testControllerRead<UserEntity>({
@@ -74,7 +73,7 @@ testControllerFind<UserEntity, UserValidator, OrderByEnum>({
 	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
-	findData: validatorPayload(userInputPayloads, 'find'),
+	findData: userInputPayloads.get('find'),
 });
 
 testControllerStatusUpdate<UserEntity>({

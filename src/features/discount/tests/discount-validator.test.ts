@@ -3,7 +3,6 @@ import { discountValidator } from '@/features/discount/discount.validator';
 import { discountInputPayloads } from '@/features/discount/tests/discount.mock';
 import {
 	addDebugValidated,
-	validatorPayload,
 } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
@@ -22,7 +21,7 @@ describe(validator, () => {
 	listSchemas.forEach((n) => {
 		it(`${n}() accepts valid payload`, () => {
 			const schema = discountValidator[n]();
-			const payload = validatorPayload(discountInputPayloads, n);
+			const payload = discountInputPayloads.get(n);
 			const validated = schema.safeParse(payload);
 
 			try {

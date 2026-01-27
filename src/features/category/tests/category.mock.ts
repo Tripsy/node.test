@@ -3,19 +3,18 @@ import {
 	CategoryStatusEnum,
 	CategoryTypeEnum,
 } from '@/features/category/category.entity';
-import type {
-	CategoryValidator,
+import {
+    type CategoryValidator,
 	OrderByEnum,
 } from '@/features/category/category.validator';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import { findQueryMock } from '@/tests/jest-controller.setup';
-import { defineValidatorPayloads } from '@/tests/jest-validator.setup';
-import { mockPastDate } from '@/tests/mocks/helpers.mock';
+import {createValidatorPayloads} from "@/tests/jest-validator.setup";
+import {createPastDate} from "@/helpers";
 
 export function getCategoryEntityMock(): CategoryEntity {
     return {
         children: [],
-        created_at: mockPastDate(86400),
+        created_at: createPastDate(86400),
         deleted_at: null,
         details: undefined,
         parent: null,
@@ -27,7 +26,7 @@ export function getCategoryEntityMock(): CategoryEntity {
     };
 }
 
-export const categoryInputPayloads = defineValidatorPayloads<
+export const categoryInputPayloads = createValidatorPayloads<
 	CategoryValidator,
 	'create' | 'update' | 'read' | 'find' | 'statusUpdate'
 >({
@@ -74,9 +73,11 @@ export const categoryInputPayloads = defineValidatorPayloads<
 			},
 		],
 	},
-	find: findQueryMock<CategoryValidator, OrderByEnum>({
-		direction: OrderDirectionEnum.DESC,
-		page: 4,
+	find: {
+        page: 1,
+        limit: 10,
+        order_by: OrderByEnum.ID,
+        direction: OrderDirectionEnum.DESC,
 		filter: {
 			language: 'en',
 			type: CategoryTypeEnum.ARTICLE,
@@ -84,7 +85,7 @@ export const categoryInputPayloads = defineValidatorPayloads<
 			term: 'tech',
 			is_deleted: false,
 		},
-	}),
+	},
 	statusUpdate: {
 		force: false,
 	},

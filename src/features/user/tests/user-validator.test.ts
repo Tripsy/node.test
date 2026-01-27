@@ -3,7 +3,6 @@ import { userInputPayloads } from '@/features/user/tests/user.mock';
 import { userValidator } from '@/features/user/user.validator';
 import {
 	addDebugValidated,
-	validatorPayload,
 } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
@@ -22,7 +21,7 @@ describe(validator, () => {
 	listSchemas.forEach((n) => {
 		it(`${n}() accepts valid payload`, () => {
 			const schema = userValidator[n]();
-			const payload = validatorPayload(userInputPayloads, n);
+			const payload = userInputPayloads.get(n);
 			const validated = schema.safeParse(payload);
 
 			try {

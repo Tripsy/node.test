@@ -19,7 +19,7 @@ import {
 	testControllerStatusUpdate,
 	testControllerUpdateWithContent,
 } from '@/tests/jest-controller.setup';
-import { validatorPayload } from '@/tests/jest-validator.setup';
+import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -34,7 +34,7 @@ testControllerCreate<CategoryEntity, CategoryValidator>({
 	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
-	createData: validatorPayload(categoryInputPayloads, 'create'),
+	createData: categoryInputPayloads.get('create'),
 });
 
 testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
@@ -43,7 +43,7 @@ testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
 	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
-	updateData: validatorPayload(categoryInputPayloads, 'update'),
+	updateData: categoryInputPayloads.get('update'),
 });
 
 testControllerRead<CategoryEntity>({
@@ -73,7 +73,7 @@ testControllerFind<CategoryEntity, CategoryValidator, OrderByEnum>({
 	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
-	findData: validatorPayload(categoryInputPayloads, 'find'),
+	findData: categoryInputPayloads.get('find'),
 });
 
 testControllerStatusUpdate<CategoryEntity>({

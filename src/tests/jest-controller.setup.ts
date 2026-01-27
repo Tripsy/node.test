@@ -3,16 +3,11 @@ import request, { type Response } from 'supertest';
 import type { z } from 'zod';
 import app, { appReady, closeHandler, server } from '@/app';
 import { cacheProvider } from '@/providers/cache.provider';
-import type { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 import type {
 	ValidatorInput,
 	ValidatorOutput,
 } from '@/shared/abstracts/validator.abstract';
-import type {
-	ValidatorByShape,
-	ValidatorShape,
-} from '@/tests/jest-validator.setup';
 import {
 	authorizedSpy,
 	notAuthenticatedSpy,
@@ -473,32 +468,6 @@ export type FindValidator = {
 	find: () => z.ZodObject<z.ZodRawShape>;
 };
 
-export function findQueryMock<
-	V extends FindValidator,
-	OB,
-	S extends ValidatorShape = 'input',
->(query: {
-	page?: number;
-	limit?: number;
-	direction?: OrderDirectionEnum;
-	order_by?: OB;
-	filter: ValidatorByShape<V, 'find', S> extends { filter: infer F }
-		? F
-		: never;
-}): ValidatorByShape<V, 'find', S> {
-	const defaults = {
-		page: 1,
-		limit: 10,
-		order_by: 'id' as OB,
-		direction: 'DESC' as OrderDirectionEnum,
-	};
-
-	return {
-		...defaults,
-		...query,
-	} as ValidatorByShape<V, 'find', S>;
-}
-
 type FindService<E, V extends FindValidator> = {
 	findByFilter(
 		data: ValidatorOutput<V, 'find'>,
@@ -527,8 +496,6 @@ export function testControllerFind<E, V extends FindValidator, OB>(
 	describe(`${config.controller} - find`, () => {
 		const link = `${config.basePath}`;
 
-		const mockQuery = findQueryMock<V, OB>(config.findData);
-
 		it('failed validation', async () => {
 			authorizedSpy(config.policy);
 
@@ -538,6 +505,8 @@ export function testControllerFind<E, V extends FindValidator, OB>(
 		});
 
 		it('should return success', async () => {
+            const mockFindData = config.findData;
+
 			authorizedSpy(config.policy);
 
 			jest.spyOn(config.service, 'findByFilter').mockResolvedValue([
@@ -545,12 +514,12 @@ export function testControllerFind<E, V extends FindValidator, OB>(
 				1,
 			]);
 
-			const response = await request(app).get(link).query(mockQuery);
+			const response = await request(app).get(link).query(mockFindData);
 
 			try {
 				expect(response.status).toBe(200);
 				expect(response.body.data.entries).toHaveLength(1);
-				expect(response.body.data.query.limit).toBe(mockQuery.limit);
+				expect(response.body.data.query.limit).toBe(mockFindData.limit);
 			} catch (error) {
 				addDebugResponse(response, `${config.controller} - find`);
 

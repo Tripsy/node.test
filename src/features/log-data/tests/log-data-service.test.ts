@@ -10,7 +10,6 @@ import {
 	testServiceFindByFilter,
 	testServiceFindById,
 } from '@/tests/jest-service.setup';
-import { validatorPayload } from '@/tests/jest-validator.setup';
 
 describe('LogDataService', () => {
 	beforeEach(() => {
@@ -34,9 +33,6 @@ describe('LogDataService', () => {
 	testServiceFindByFilter<LogDataEntity, LogDataQuery, LogDataValidator>(
 		query,
 		serviceLogData,
-		validatorPayload<LogDataValidator, 'find', 'output'>(
-			logDataOutputPayloads,
-			'find',
-		),
+        logDataOutputPayloads.get('find'),
 	);
 });

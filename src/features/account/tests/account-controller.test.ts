@@ -12,8 +12,6 @@ import { UserStatusEnum } from '@/features/user/user.entity';
 import { userService } from '@/features/user/user.service';
 import { addDebugResponse } from '@/tests/jest-controller.setup';
 import {
-	mockFutureDate,
-	mockPastDate,
 	mockUuid,
 } from '@/tests/mocks/helpers.mock';
 import {
@@ -27,6 +25,7 @@ import {
     getConfirmationTokenPayloadMock
 } from "@/features/account/tests/account.mock";
 import {getUserEntityMock} from "@/features/user/tests/user.mock";
+import {createFutureDate, createPastDate} from "@/helpers";
 
 const controller = 'AccountController';
 const basePath = accountRoutes.basePath;
@@ -311,7 +310,7 @@ describe(`${controller} - passwordRecover`, () => {
 		).mockResolvedValue(0);
 		jest.spyOn(accountRecoveryService, 'setupRecovery').mockResolvedValue([
 			mockUuid(),
-			mockFutureDate(28800),
+			createFutureDate(28800),
 		]);
 		mockAccountEmailService();
 
@@ -378,7 +377,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 		jest.spyOn(accountRecoveryService, 'findByIdent').mockResolvedValue({
 			...mockAccountRecovery,
 			used_at: null,
-			expire_at: mockPastDate(14400),
+			expire_at: createPastDate(14400),
 		});
 
 		const response = await request(app).post(link).send({
@@ -696,7 +695,7 @@ describe(`${controller} - emailUpdate`, () => {
 		jest.spyOn(userService, 'findById').mockResolvedValue(getUserEntityMock());
 		jest.spyOn(accountService, 'createConfirmationToken').mockReturnValue({
 			token: mockUuid(),
-			expire_at: mockFutureDate(864000),
+			expire_at: createFutureDate(864000),
 		});
 		mockAccountEmailService();
 
