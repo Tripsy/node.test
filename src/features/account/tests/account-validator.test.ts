@@ -1,9 +1,7 @@
 import { jest } from '@jest/globals';
-import {AccountValidator, accountValidator} from '@/features/account/account.validator';
+import { accountValidator } from '@/features/account/account.validator';
 import { accountInputPayloads } from '@/features/account/tests/account.mock';
-import {
-    addDebugValidated, createValidatorPayloads,
-} from '@/tests/jest-validator.setup';
+import { addDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();

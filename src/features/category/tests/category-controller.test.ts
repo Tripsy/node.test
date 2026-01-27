@@ -3,12 +3,10 @@ import type CategoryEntity from '@/features/category/category.entity';
 import { categoryPolicy } from '@/features/category/category.policy';
 import categoryRoutes from '@/features/category/category.routes';
 import { categoryService } from '@/features/category/category.service';
-import type {
-	CategoryValidator,
-	OrderByEnum,
-} from '@/features/category/category.validator';
+import type { CategoryValidator } from '@/features/category/category.validator';
 import {
-    categoryInputPayloads, getCategoryEntityMock,
+	categoryInputPayloads,
+	getCategoryEntityMock,
 } from '@/features/category/tests/category.mock';
 import {
 	testControllerCreate,
@@ -19,7 +17,6 @@ import {
 	testControllerStatusUpdate,
 	testControllerUpdateWithContent,
 } from '@/tests/jest-controller.setup';
-import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -67,7 +64,7 @@ testControllerRestoreSingle({
 	service: categoryService,
 });
 
-testControllerFind<CategoryEntity, CategoryValidator, OrderByEnum>({
+testControllerFind<CategoryEntity, CategoryValidator>({
 	controller: controller,
 	basePath: basePath,
 	entityMock: getCategoryEntityMock(),

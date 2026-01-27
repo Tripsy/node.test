@@ -1,16 +1,13 @@
 import { jest } from '@jest/globals';
 import {
-    getUserEntityMock,
-    userInputPayloads,
+	getUserEntityMock,
+	userInputPayloads,
 } from '@/features/user/tests/user.mock';
 import type UserEntity from '@/features/user/user.entity';
 import { userPolicy } from '@/features/user/user.policy';
 import userRoutes from '@/features/user/user.routes';
 import { userService } from '@/features/user/user.service';
-import type {
-	OrderByEnum,
-	UserValidator,
-} from '@/features/user/user.validator';
+import type { UserValidator } from '@/features/user/user.validator';
 import {
 	testControllerCreate,
 	testControllerDeleteSingle,
@@ -67,7 +64,7 @@ testControllerRestoreSingle({
 	service: userService,
 });
 
-testControllerFind<UserEntity, UserValidator, OrderByEnum>({
+testControllerFind<UserEntity, UserValidator>({
 	controller: controller,
 	basePath: basePath,
 	entityMock: getUserEntityMock(),

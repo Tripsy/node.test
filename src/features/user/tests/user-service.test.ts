@@ -4,16 +4,14 @@ import type AccountTokenEntity from '@/features/account/account-token.entity';
 import type { AccountTokenQuery } from '@/features/account/account-token.repository';
 import { AccountTokenService } from '@/features/account/account-token.service';
 import {
-    getUserEntityMock,
-    userInputPayloads,
-    userOutputPayloads,
+	getUserEntityMock,
+	userOutputPayloads,
 } from '@/features/user/tests/user.mock';
 import type UserEntity from '@/features/user/user.entity';
-import { type UserRoleEnum, UserStatusEnum } from '@/features/user/user.entity';
+import { UserStatusEnum } from '@/features/user/user.entity';
 import type { UserQuery } from '@/features/user/user.repository';
 import { UserService } from '@/features/user/user.service';
 import type { UserValidator } from '@/features/user/user.validator';
-import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 import {
 	createMockRepository,
 	testServiceDelete,
@@ -58,7 +56,7 @@ describe('UserService', () => {
 	testServiceUpdate<UserEntity>(
 		serviceUser,
 		mockUser.repository,
-        getUserEntityMock(),
+		getUserEntityMock(),
 	);
 
 	it('should fail when status is unchanged', async () => {
@@ -102,6 +100,6 @@ describe('UserService', () => {
 	testServiceFindByFilter<UserEntity, UserQuery, UserValidator>(
 		mockUser.query,
 		serviceUser,
-        userOutputPayloads.get('find'),
+		userOutputPayloads.get('find'),
 	);
 });

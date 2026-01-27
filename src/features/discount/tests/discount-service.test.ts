@@ -4,7 +4,8 @@ import type { DiscountQuery } from '@/features/discount/discount.repository';
 import { DiscountService } from '@/features/discount/discount.service';
 import type { DiscountValidator } from '@/features/discount/discount.validator';
 import {
-    discountOutputPayloads, getDiscountEntityMock,
+	discountOutputPayloads,
+	getDiscountEntityMock,
 } from '@/features/discount/tests/discount.mock';
 import {
 	createMockRepository,
@@ -39,7 +40,7 @@ describe('DiscountService', () => {
 	testServiceUpdate<DiscountEntity>(
 		serviceDiscount,
 		mockDiscount.repository,
-        getDiscountEntityMock(),
+		getDiscountEntityMock(),
 	);
 
 	testServiceDelete<DiscountEntity, DiscountQuery>(
@@ -58,6 +59,6 @@ describe('DiscountService', () => {
 	testServiceFindByFilter<DiscountEntity, DiscountQuery, DiscountValidator>(
 		mockDiscount.query,
 		serviceDiscount,
-        discountOutputPayloads.get('find'),
+		discountOutputPayloads.get('find'),
 	);
 });

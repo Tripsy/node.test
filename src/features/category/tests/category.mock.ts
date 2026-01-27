@@ -4,26 +4,26 @@ import {
 	CategoryTypeEnum,
 } from '@/features/category/category.entity';
 import {
-    type CategoryValidator,
+	type CategoryValidator,
 	OrderByEnum,
 } from '@/features/category/category.validator';
+import { createPastDate } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import {createValidatorPayloads} from "@/tests/jest-validator.setup";
-import {createPastDate} from "@/helpers";
+import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 
 export function getCategoryEntityMock(): CategoryEntity {
-    return {
-        children: [],
-        created_at: createPastDate(86400),
-        deleted_at: null,
-        details: undefined,
-        parent: null,
-        sort_order: 0,
-        status: CategoryStatusEnum.ACTIVE,
-        type: CategoryTypeEnum.ARTICLE,
-        updated_at: null,
-        id: 1,
-    };
+	return {
+		children: [],
+		created_at: createPastDate(86400),
+		deleted_at: null,
+		details: undefined,
+		parent: null,
+		sort_order: 0,
+		status: CategoryStatusEnum.ACTIVE,
+		type: CategoryTypeEnum.ARTICLE,
+		updated_at: null,
+		id: 1,
+	};
 }
 
 export const categoryInputPayloads = createValidatorPayloads<
@@ -74,10 +74,10 @@ export const categoryInputPayloads = createValidatorPayloads<
 		],
 	},
 	find: {
-        page: 1,
-        limit: 10,
-        order_by: OrderByEnum.ID,
-        direction: OrderDirectionEnum.DESC,
+		page: 1,
+		limit: 10,
+		order_by: OrderByEnum.ID,
+		direction: OrderDirectionEnum.DESC,
 		filter: {
 			language: 'en',
 			type: CategoryTypeEnum.ARTICLE,

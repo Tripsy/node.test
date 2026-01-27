@@ -6,30 +6,37 @@ import type {
 
 export type ValidatorShape = 'input' | 'output';
 
-export type ValidatorByShape<V, K extends keyof V, S extends ValidatorShape> =
-    S extends 'input' ? ValidatorInput<V, K> : ValidatorOutput<V, K>;
+export type ValidatorByShape<
+	V,
+	K extends keyof V,
+	S extends ValidatorShape,
+> = S extends 'input' ? ValidatorInput<V, K> : ValidatorOutput<V, K>;
 
-export type ValidatorPayloads<V, K extends keyof V, S extends ValidatorShape = 'input'> = {
-    [P in K]: ValidatorByShape<V, P, S>;
+export type ValidatorPayloads<
+	V,
+	K extends keyof V,
+	S extends ValidatorShape = 'input',
+> = {
+	[P in K]: ValidatorByShape<V, P, S>;
 };
 
 export function createValidatorPayloads<
-    V,
-    K extends keyof V,
-    S extends ValidatorShape = 'input'
+	V,
+	K extends keyof V,
+	S extends ValidatorShape = 'input',
 >(payloads: ValidatorPayloads<V, K, S>) {
-    return {
-        payloads,
-        get: <T extends K>(schema: T): ValidatorByShape<V, T, S> => {
-            const payload = payloads[schema];
+	return {
+		payloads,
+		get: <T extends K>(schema: T): ValidatorByShape<V, T, S> => {
+			const payload = payloads[schema];
 
-            if (!payload) {
-                throw new Error(`No payload for schema: ${String(schema)}`);
-            }
+			if (!payload) {
+				throw new Error(`No payload for schema: ${String(schema)}`);
+			}
 
-            return payload as ValidatorByShape<V, T, S>;
-        }
-    };
+			return payload as ValidatorByShape<V, T, S>;
+		},
+	};
 }
 
 export function addDebugValidated(

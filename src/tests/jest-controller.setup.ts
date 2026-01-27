@@ -490,7 +490,7 @@ type ControllerFindType<E, V extends FindValidator> = {
 	};
 };
 
-export function testControllerFind<E, V extends FindValidator, OB>(
+export function testControllerFind<E, V extends FindValidator>(
 	config: ControllerFindType<E, V>,
 ) {
 	describe(`${config.controller} - find`, () => {
@@ -505,7 +505,7 @@ export function testControllerFind<E, V extends FindValidator, OB>(
 		});
 
 		it('should return success', async () => {
-            const mockFindData = config.findData;
+			const mockFindData = config.findData;
 
 			authorizedSpy(config.policy);
 

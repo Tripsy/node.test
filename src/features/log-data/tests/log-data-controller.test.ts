@@ -3,13 +3,10 @@ import type LogDataEntity from '@/features/log-data/log-data.entity';
 import { logDataPolicy } from '@/features/log-data/log-data.policy';
 import logDataRoutes from '@/features/log-data/log-data.routes';
 import { logDataService } from '@/features/log-data/log-data.service';
-import type {
-	LogDataValidator,
-	OrderByEnum,
-} from '@/features/log-data/log-data.validator';
+import type { LogDataValidator } from '@/features/log-data/log-data.validator';
 import {
-    getLogDataEntityMock,
-    logDataInputPayloads,
+	getLogDataEntityMock,
+	logDataInputPayloads,
 } from '@/features/log-data/tests/log-data.mock';
 import {
 	testControllerDeleteMultiple,
@@ -38,7 +35,7 @@ testControllerDeleteMultiple<LogDataValidator>({
 	service: logDataService,
 });
 
-testControllerFind<LogDataEntity, LogDataValidator, OrderByEnum>({
+testControllerFind<LogDataEntity, LogDataValidator>({
 	controller: controller,
 	basePath: basePath,
 	entityMock: getLogDataEntityMock(),

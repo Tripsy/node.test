@@ -3,59 +3,57 @@ import type { AccountValidator } from '@/features/account/account.validator';
 import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import type { AuthValidToken } from '@/features/account/account-token.service';
+import { createFutureDate, createPastDate } from '@/helpers';
 import { createValidatorPayloads } from '@/tests/jest-validator.setup';
-import {
-	mockUuid,
-} from '@/tests/mocks/helpers.mock';
-import {createFutureDate, createPastDate} from "@/helpers";
+import { mockUuid } from '@/tests/mocks/helpers.mock';
 
 export function getAccountTokenMock(): AccountTokenEntity {
-    return {
-        id: 1,
-        user_id: 1,
-        ident: mockUuid(),
-        created_at: createPastDate(28800),
-        used_at: createPastDate(14400),
-        expire_at: createFutureDate(14400),
-    }
+	return {
+		id: 1,
+		user_id: 1,
+		ident: mockUuid(),
+		created_at: createPastDate(28800),
+		used_at: createPastDate(14400),
+		expire_at: createFutureDate(14400),
+	};
 }
 
 export function getAccountRecoveryMock(): AccountRecoveryEntity {
-    return {
-        id: 1,
-        user_id: 1,
-        ident: mockUuid(),
-        created_at: createPastDate(28800),
-        used_at: createPastDate(14400),
-        expire_at: createFutureDate(14400),
-    }
+	return {
+		id: 1,
+		user_id: 1,
+		ident: mockUuid(),
+		created_at: createPastDate(28800),
+		used_at: createPastDate(14400),
+		expire_at: createFutureDate(14400),
+	};
 }
 
 export function getAuthValidTokenMock(): AuthValidToken {
-    return {
-        ident: 'some_ident',
-        label: 'Windows',
-        used_at: createPastDate(7200),
-        used_now: true,
-    }
+	return {
+		ident: 'some_ident',
+		label: 'Windows',
+		used_at: createPastDate(7200),
+		used_now: true,
+	};
 }
 
 export function getAuthActiveTokenMock(): AccountTokenEntity {
-    return {
-        id: 1,
-        user_id: 1,
-        ident: mockUuid(),
-        created_at: createPastDate(28800),
-        used_at: createPastDate(14400),
-        expire_at: createFutureDate(14400),
-    }
+	return {
+		id: 1,
+		user_id: 1,
+		ident: mockUuid(),
+		created_at: createPastDate(28800),
+		used_at: createPastDate(14400),
+		expire_at: createFutureDate(14400),
+	};
 }
 
 export function getConfirmationTokenPayloadMock(): ConfirmationTokenPayload {
-    return {
-        user_id: 1,
-        user_email: 'john.doe@example.com',
-    }
+	return {
+		user_id: 1,
+		user_email: 'john.doe@example.com',
+	};
 }
 
 export const accountInputPayloads = createValidatorPayloads<

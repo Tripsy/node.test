@@ -1,9 +1,7 @@
 import { jest } from '@jest/globals';
 import { categoryValidator } from '@/features/category/category.validator';
 import { categoryInputPayloads } from '@/features/category/tests/category.mock';
-import {
-	addDebugValidated,
-} from '@/tests/jest-validator.setup';
+import { addDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();

@@ -1,9 +1,7 @@
 import { jest } from '@jest/globals';
 import { logDataValidator } from '@/features/log-data/log-data.validator';
 import { logDataInputPayloads } from '@/features/log-data/tests/log-data.mock';
-import {
-	addDebugValidated,
-} from '@/tests/jest-validator.setup';
+import { addDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();

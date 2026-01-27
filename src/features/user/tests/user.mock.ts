@@ -4,26 +4,26 @@ import {
 	OrderByEnum,
 	type UserValidator,
 } from '@/features/user/user.validator';
-import {createPastDate, formatDate} from '@/helpers';
+import { createPastDate, formatDate } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import {createValidatorPayloads } from '@/tests/jest-validator.setup';
+import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 
 export function getUserEntityMock(): UserEntity {
-    return {
-        id: 1,
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        email_verified_at: null,
-        password: 'hashed_password',
-        password_updated_at: createPastDate(86400),
-        language: 'en',
-        status: UserStatusEnum.INACTIVE,
-        role: UserRoleEnum.MEMBER,
-        operator_type: null,
-        created_at: createPastDate(28800),
-        updated_at: null,
-        deleted_at: null,
-    };
+	return {
+		id: 1,
+		name: 'John Doe',
+		email: 'john.doe@example.com',
+		email_verified_at: null,
+		password: 'hashed_password',
+		password_updated_at: createPastDate(86400),
+		language: 'en',
+		status: UserStatusEnum.INACTIVE,
+		role: UserRoleEnum.MEMBER,
+		operator_type: null,
+		created_at: createPastDate(28800),
+		updated_at: null,
+		deleted_at: null,
+	};
 }
 
 export const userInputPayloads = createValidatorPayloads<
@@ -46,19 +46,19 @@ export const userInputPayloads = createValidatorPayloads<
 		language: 'en',
 	},
 	find: {
-        page: 1,
-        limit: 10,
-        order_by: OrderByEnum.ID,
-        direction: OrderDirectionEnum.DESC,
-        filter: {
-            term: 'test',
-            status: UserStatusEnum.ACTIVE,
-            role: UserRoleEnum.MEMBER,
-            create_date_start: formatDate(createPastDate(14400)),
-            create_date_end: formatDate(createPastDate(7200)),
-            is_deleted: true,
-        },
-    },
+		page: 1,
+		limit: 10,
+		order_by: OrderByEnum.ID,
+		direction: OrderDirectionEnum.DESC,
+		filter: {
+			term: 'test',
+			status: UserStatusEnum.ACTIVE,
+			role: UserRoleEnum.MEMBER,
+			create_date_start: formatDate(createPastDate(14400)),
+			create_date_end: formatDate(createPastDate(7200)),
+			is_deleted: true,
+		},
+	},
 });
 
 export const userOutputPayloads = createValidatorPayloads<
@@ -66,28 +66,28 @@ export const userOutputPayloads = createValidatorPayloads<
 	'find' | 'create',
 	'output'
 >({
-    create: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        password: 'Secure@123',
-        password_confirm: 'Secure@123',
-        language: 'en',
-        status: UserStatusEnum.PENDING, // optional, default anyway
-        role: UserRoleEnum.MEMBER, // optional, default anyway
-        operator_type: null, // correct for non-operator
-    },
+	create: {
+		name: 'John Doe',
+		email: 'john.doe@example.com',
+		password: 'Secure@123',
+		password_confirm: 'Secure@123',
+		language: 'en',
+		status: UserStatusEnum.PENDING, // optional, default anyway
+		role: UserRoleEnum.MEMBER, // optional, default anyway
+		operator_type: null, // correct for non-operator
+	},
 	find: {
-        page: 1,
-        limit: 10,
-        order_by: OrderByEnum.ID,
-        direction: OrderDirectionEnum.DESC,
-        filter: {
-            term: 'test',
-            status: UserStatusEnum.ACTIVE,
-            role: UserRoleEnum.MEMBER,
-            create_date_start: createPastDate(14400),
-            create_date_end: createPastDate(7200),
-            is_deleted: true,
-        },
-    },
+		page: 1,
+		limit: 10,
+		order_by: OrderByEnum.ID,
+		direction: OrderDirectionEnum.DESC,
+		filter: {
+			term: 'test',
+			status: UserStatusEnum.ACTIVE,
+			role: UserRoleEnum.MEMBER,
+			create_date_start: createPastDate(14400),
+			create_date_end: createPastDate(7200),
+			is_deleted: true,
+		},
+	},
 });
