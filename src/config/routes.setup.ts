@@ -2,19 +2,28 @@ import { type RequestHandler, Router } from 'express';
 import { apiRateLimiter } from '@/config/rate-limit.config';
 import { Configuration } from '@/config/settings.config';
 import { buildSrcPath, listDirectories } from '@/helpers';
+import type {
+	ApiOutputDocumentation,
+	HttpMethod,
+} from '@/helpers/api-documentation.helper';
 import metaDocumentation from '@/middleware/meta-documentation.middleware';
 import { getSystemLogger } from '@/providers/logger.provider';
-import type { RoutesConfigType } from '@/types/routing.type';
 
-type ControllerType = Record<string, RequestHandler>;
+type DocumentationType<C> = Record<keyof C, ApiOutputDocumentation>;
 
-type FeatureRoutesModule = {
-	default: {
-		basePath: string;
-		documentation: string;
-		controller: ControllerType;
-		routesConfig: RoutesConfigType<ControllerType>;
+type RoutesType<C> = {
+	[K in keyof C]: {
+		path: string;
+		method: HttpMethod;
+		handlers?: RequestHandler[];
 	};
+};
+
+export type FeatureRoutesModule<C> = {
+	basePath: string;
+	documentation?: DocumentationType<C>;
+	controller: C;
+	routes: RoutesType<C>;
 };
 
 interface RouteInfo {
@@ -35,19 +44,20 @@ function getRoutesFilePath(feature: string) {
 
 function buildRoutes<C>({
 	basePath,
-	documentation,
 	controller,
-	routesConfig,
+	routes,
+	documentation,
 }: {
 	basePath: string;
-	documentation: string;
 	controller: C;
-	routesConfig: RoutesConfigType<C>;
+	routes: RoutesType<C>;
+	documentation?: DocumentationType<C>;
 }): Router {
 	const router = Router();
 
-	Object.entries(routesConfig).forEach(([_routeName, config]) => {
-		const { path, method, action, handlers = [] } = config;
+	for (const action in routes) {
+		const config = routes[action];
+		const { path, method, handlers = [] } = config;
 
 		const fullPath = `${basePath}${path}`;
 		const middleware = [...handlers];
@@ -63,17 +73,16 @@ function buildRoutes<C>({
 			middleware.push(apiRateLimiter);
 		}
 
-		middleware.push(metaDocumentation(documentation, action as string));
-
-		const resolvedController =
-			typeof controller === 'function' ? controller() : controller;
+		if (Configuration.isEnvironment('development') && documentation) {
+			middleware.push(metaDocumentation(documentation[action]));
+		}
 
 		router[method](
 			fullPath,
 			...middleware,
-			resolvedController[action] as RequestHandler,
+			controller[action] as RequestHandler,
 		);
-	});
+	}
 
 	return router;
 }
@@ -84,17 +93,18 @@ export function getRoutesInfo(): RouteInfo[] {
 	return [...allRoutesInfo];
 }
 
-function pushRouteInfo(feature: string, def: FeatureRoutesModule['default']) {
-	Object.entries(def.routesConfig).forEach(([routeName, config]) => {
+function pushRouteInfo<C>(feature: string, def: FeatureRoutesModule<C>) {
+	for (const action in def.routes) {
+		const config = def.routes[action];
 		const fullPath = `${def.basePath}${config.path}`;
 
 		allRoutesInfo.push({
-			name: `${feature}.${routeName}`,
+			name: `${feature}.${action}`,
 			method: config.method,
 			path: fullPath,
-			action: String(config.action),
+			action: action,
 		});
-	});
+	}
 }
 
 export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
@@ -108,7 +118,7 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 	for (const feature of features) {
 		try {
 			const filePath = getRoutesFilePath(feature);
-			const module = (await import(filePath)) as FeatureRoutesModule;
+			const module = await import(filePath);
 			const def = module.default;
 
 			if (!def) {
@@ -120,10 +130,11 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 
 			router.use(apiPrefix, buildRoutes(def));
 
-			if (!Configuration.isEnvironment('production')) {
+			if (Configuration.isEnvironment('development')) {
 				pushRouteInfo(feature, def);
 			}
-		} catch {
+		} catch (error) {
+			console.error(`Error importing ${feature}.routes:`, error);
 			// feature has no routes file → ignore
 		}
 	}
