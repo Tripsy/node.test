@@ -1,8 +1,9 @@
 import type { z } from 'zod';
+import type {FeatureRoutesModule, HttpMethod} from '@/config/routes.setup';
+import { Configuration } from '@/config/settings.config';
 import type { HttpStatusCode } from '@/exceptions';
+import { apiDocumentationMiddleware } from '@/middleware/api-documentation.middleware';
 import sharedMessages from '@/shared/locales/en.json';
-
-export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
 type ZodIssue = z.core.$ZodIssue;
 
@@ -151,11 +152,64 @@ export class ApiDocumentation {
 	}
 }
 
+type HelperApiInputDocumentationData = {
+	description: string;
+	withBearerAuth?: boolean;
+	success: {
+		status: HttpStatusCode;
+		description: string;
+		withMessage?: boolean;
+		dataSample?: Record<string, unknown>;
+	};
+	withAuthErrors?: boolean;
+	withErrors?: HttpStatusCode[];
+	request: ApiInputDocumentation['request'];
+};
+
+export function helperApiInputDocumentation(
+	d: HelperApiInputDocumentationData,
+) {
+	const authErrors: HttpStatusCode[] = [401, 403];
+
+	const statusErrors: HttpStatusCode[] = [
+		...(d.withAuthErrors ? authErrors : []),
+		...(d.withErrors || []),
+		500,
+	];
+
+	return {
+		description: d.description,
+		...(d.withBearerAuth && {
+			authorization: 'Bearer token required',
+		}),
+		responses: [
+			{
+				status: d.success.status,
+				description: d.success.description,
+				content: {
+					success: {
+						type: 'boolean',
+						value: true,
+					},
+					...(d.success.dataSample && {
+						data: {
+							type: 'object',
+							sample: d.success.dataSample,
+						},
+					}),
+				},
+			},
+			...statusErrors,
+		],
+		request: d.request,
+	} as ApiInputDocumentation;
+}
+
 export function generateDocumentation<
 	R extends Record<string, { method: HttpMethod; path: string }>,
 >(
 	module: { basePath: string; routes: R },
-	docs: { [K in keyof R]: ApiInputDocumentation },
+	docs: Record<string, ApiInputDocumentation>,
 ) {
 	const docsGenerator = new ApiDocumentation();
 
@@ -194,57 +248,49 @@ export function generateDocumentation<
 	return docsGenerator.output();
 }
 
-const bearerAuth = {
-	authorization: 'Bearer token required',
-};
+export function addApiDocumentationMiddleware<C>(
+	module: FeatureRoutesModule<C>,
+	docs: Record<string, ApiOutputDocumentation>,
+): FeatureRoutesModule<C>['routes'] {
+	const newRoutes = {} as typeof module.routes;
 
-const authErrors: HttpStatusCode[] = [401, 403];
+	for (const action in module.routes) {
+		const route = module.routes[action];
 
-type HelperApiInputDocumentationData = {
-	description: string;
-	withBearerAuth?: boolean;
-	success: {
-		status: HttpStatusCode;
-		description: string;
-		withMessage?: boolean;
-		dataSample?: Record<string, unknown>;
-	};
-	withAuthErrors?: boolean;
-	withErrors?: HttpStatusCode[];
-	request: unknown;
-};
+		newRoutes[action] = {
+			...route,
+			handlers: [
+				...(route.handlers || []),
+				apiDocumentationMiddleware(docs[action]),
+			],
+		};
+	}
 
-export function helperApiInputDocumentation(
-	d: HelperApiInputDocumentationData,
-) {
-	const statusErrors: HttpStatusCode[] = [
-		...(d.withAuthErrors ? authErrors : []),
-		...(d.withErrors || []),
-		500,
-	];
+	return newRoutes;
+}
 
-	return {
-		description: d.description,
-		...(d.withBearerAuth && bearerAuth),
-		responses: [
-			{
-				status: d.success.status,
-				description: d.success.description,
-				content: {
-					success: {
-						type: 'boolean',
-						value: true,
-					},
-					...(d.success.dataSample && {
-						data: {
-							type: 'object',
-							sample: d.success.dataSample,
-						},
-					}),
-				},
-			},
-			...statusErrors,
-		],
-		request: d.request,
-	} as ApiInputDocumentation;
+export async function setupDevelopmentDocumentation<C>(
+	module: FeatureRoutesModule<C>,
+	docsPath: string,
+): Promise<FeatureRoutesModule<C>> {
+	if (!Configuration.isEnvironment('development')) {
+		return module;
+	}
+
+	try {
+		const { docs } = await import(docsPath);
+
+		if (!docs) {
+			return module;
+		}
+
+		const docsOutput = generateDocumentation(module, docs);
+
+		return {
+			...module,
+			routes: addApiDocumentationMiddleware(module, docsOutput),
+		};
+	} catch {
+		return module;
+	}
 }

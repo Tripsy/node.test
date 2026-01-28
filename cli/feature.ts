@@ -347,7 +347,7 @@ class FeatureManager {
 	async executeMigrationRun() {
 		try {
 			const command =
-				'pnpxxxx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts';
+				'pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts';
 
 			const { stdout, stderr } = await this.execAsync(command, {
 				cwd: this.basePath, // Set a working directory

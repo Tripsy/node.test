@@ -2,8 +2,9 @@ import { type RequestHandler, Router } from 'express';
 import { apiRateLimiter } from '@/config/rate-limit.config';
 import { Configuration } from '@/config/settings.config';
 import { buildSrcPath, listDirectories } from '@/helpers';
-import type { HttpMethod } from '@/helpers/api-documentation.helper';
 import { getSystemLogger } from '@/providers/logger.provider';
+
+export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
 type RoutesType<C> = {
 	[K in keyof C]: {
