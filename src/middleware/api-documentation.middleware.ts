@@ -1,11 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
+import type { ApiOutputDocumentation } from '@/helpers/api-documentation.helper';
 
-function metaDocumentation(documentation: unknown) {
+export function apiDocumentationMiddleware(
+	documentation: ApiOutputDocumentation,
+) {
 	return (_req: Request, res: Response, next: NextFunction) => {
 		res.locals._documentation = documentation;
 
-		next(); // Proceed to the next middleware or route handler
+		next();
 	};
 }
-
-export default metaDocumentation;

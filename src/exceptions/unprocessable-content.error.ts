@@ -1,10 +1,10 @@
 import { lang } from '@/config/i18n.setup';
 import { CustomError } from '@/exceptions/custom.error';
 
-export class BadRequestError extends CustomError {
+export class UnprocessableContentError extends CustomError {
 	constructor(message?: string) {
-		super(400);
+		super(422);
 
-		this.message = message ?? lang('shared.error.invalid_request');
+		this.message = message ?? lang('shared.error.check_errors');
 	}
 }

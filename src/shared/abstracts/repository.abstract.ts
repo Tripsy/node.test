@@ -9,7 +9,7 @@ import type { Repository } from 'typeorm/repository/Repository';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { CustomError, NotFoundError } from '@/exceptions';
-import { formatDate, toKebabCase } from '@/helpers';
+import { formatDate } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 type QueryValue = string | number | (string | number)[] | null;
@@ -229,9 +229,9 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		if (!result) {
 			throw new NotFoundError(
 				lang(
-					`${toKebabCase(this.entity)}.error.not_found`,
+					`${this.entity}.error.not_found`,
 					{},
-					'Entry not found',
+					'Record(s) not found',
 				),
 			);
 		}
@@ -311,7 +311,13 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		const results = await this.query.getMany();
 
 		if (results.length === 0) {
-			return 0;
+			throw new NotFoundError(
+				lang(
+					`${this.entity}.error.not_found`,
+					{},
+					'Record(s) not found',
+				),
+			);
 		}
 
 		if (!multiple && results.length > 1) {
@@ -319,9 +325,13 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		}
 
 		if (isSoftDelete) {
-			results.map((entity) => this.repository.softRemove(entity));
+			await Promise.all(
+				results.map((entity) => this.repository.softRemove(entity)),
+			);
 		} else {
-			results.map((entity) => this.repository.remove(entity));
+			await Promise.all(
+				results.map((entity) => this.repository.remove(entity)),
+			);
 		}
 
 		return results.length;
@@ -341,7 +351,13 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		const results = await this.query.withDeleted().getMany();
 
 		if (results.length === 0) {
-			return 0;
+			throw new NotFoundError(
+				lang(
+					`${this.entity}.error.not_found`,
+					{},
+					'Record(s) not found',
+				),
+			);
 		}
 
 		if (!multiple && results.length > 1) {
@@ -350,9 +366,9 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 
 		for (const entity of results) {
 			(entity as ObjectLiteral).deleted_at = null;
-
-			await this.repository.save(entity);
 		}
+
+		await this.repository.save(results);
 
 		return results.length;
 	}

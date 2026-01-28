@@ -62,13 +62,16 @@ Meanwhile, we're open to suggestions / feedback, and if you find this project us
 - [x] Subscribers (powered by TypeORM)
 - [x] Custom Middlewares
     - Auth (auth.middleware → res.locals.auth)
-    - REST API Documentation Link (meta-documentation.middleware)
-    - Determine language (language.middleware → res.locals.lang)
+    - Language
     - Query params validation, etc
+    - API documentation displayed on error responses (development only)
+    - API Output formatting
+    - Params validation
 - [x] Internationalization / language management (powered by i18next)
 - [x] Complete `Auth System`: Secure, modular auth layer supporting user registration, login (token-based authentication), etc.
 - [x] Authorization policies based on user roles and permissions
 - [x] Testing (powered by Jest & Supertest)
+- [x] Documentation provided for APIs endpoints
 - [x] Development environment available (Docker)
 
 # Features
@@ -250,12 +253,37 @@ $ pnpm run madge
 
 # TODO
 
+1. create CLI script which should generate something like:
+   POST /discounts HTTP/1.1
+   Host: nready.dev:3000
+   Content-Type: application/json
+   Authorization: Bearer ****
+   Content-Length: 344
+
+{
+
+    "scope": "order",
+    "reason": "flash_sale",
+    "reference": "#345",
+    "type": "percent",
+    "value": 7,
+    "rules":     {
+      "min_order_value": 101,
+      "eligible_categories": [1, 2, 5],
+      "applicable_countries": ["RO"]
+    },
+    "start_at": "2025-12-18",
+    "end_at": "2025-12-28",
+    "notes": "Lorem ipsum ..."
+}
+
 1. API documentation
-    - OR include http request example in /features
+    > done for discounts
+    > do for: account, category, carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
 2. make tests for services
-   > account, category
+    > account, category
 3. make tests for the rest of available features
-   > carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
+    > carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
 4. feature - brand (brand-content)
 5. feature - images  (image-content)
 6. Go on FE → category, place, brand, client

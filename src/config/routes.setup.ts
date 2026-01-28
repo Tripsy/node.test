@@ -2,14 +2,8 @@ import { type RequestHandler, Router } from 'express';
 import { apiRateLimiter } from '@/config/rate-limit.config';
 import { Configuration } from '@/config/settings.config';
 import { buildSrcPath, listDirectories } from '@/helpers';
-import type {
-	ApiOutputDocumentation,
-	HttpMethod,
-} from '@/helpers/api-documentation.helper';
-import metaDocumentation from '@/middleware/meta-documentation.middleware';
+import type { HttpMethod } from '@/helpers/api-documentation.helper';
 import { getSystemLogger } from '@/providers/logger.provider';
-
-type DocumentationType<C> = Record<keyof C, ApiOutputDocumentation>;
 
 type RoutesType<C> = {
 	[K in keyof C]: {
@@ -21,7 +15,6 @@ type RoutesType<C> = {
 
 export type FeatureRoutesModule<C> = {
 	basePath: string;
-	documentation?: DocumentationType<C>;
 	controller: C;
 	routes: RoutesType<C>;
 };
@@ -46,12 +39,10 @@ function buildRoutes<C>({
 	basePath,
 	controller,
 	routes,
-	documentation,
 }: {
 	basePath: string;
 	controller: C;
 	routes: RoutesType<C>;
-	documentation?: DocumentationType<C>;
 }): Router {
 	const router = Router();
 
@@ -71,10 +62,6 @@ function buildRoutes<C>({
 
 		if (!hasRateLimiter) {
 			middleware.push(apiRateLimiter);
-		}
-
-		if (Configuration.isEnvironment('development') && documentation) {
-			middleware.push(metaDocumentation(documentation[action]));
 		}
 
 		router[method](
@@ -135,7 +122,7 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 			}
 		} catch {
 			// console.error(`Error importing ${feature}.routes:`, error);
-			// feature has no routes file → ignore
+			// Feature has no routes file → ignore
 		}
 	}
 

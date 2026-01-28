@@ -24,6 +24,7 @@ class DiscountController extends BaseController {
 	) {
 		super();
 	}
+
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
