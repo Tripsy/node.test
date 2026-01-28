@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
+import { accountInputPayloads } from '@/features/account/account.mock';
 import { accountValidator } from '@/features/account/account.validator';
-import { accountInputPayloads } from '@/features/account/tests/account.mock';
 import { addDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {

@@ -1,12 +1,12 @@
 import { expect, jest } from '@jest/globals';
 import type DiscountEntity from '@/features/discount/discount.entity';
-import type { DiscountQuery } from '@/features/discount/discount.repository';
-import { DiscountService } from '@/features/discount/discount.service';
-import type { DiscountValidator } from '@/features/discount/discount.validator';
 import {
 	discountOutputPayloads,
 	getDiscountEntityMock,
-} from '@/features/discount/tests/discount.mock';
+} from '@/features/discount/discount.mock';
+import type { DiscountQuery } from '@/features/discount/discount.repository';
+import { DiscountService } from '@/features/discount/discount.service';
+import type { DiscountValidator } from '@/features/discount/discount.validator';
 import {
 	createMockRepository,
 	testServiceDelete,

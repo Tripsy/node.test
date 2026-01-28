@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { userInputPayloads } from '@/features/user/tests/user.mock';
+import { userInputPayloads } from '@/features/user/user.mock';
 import { userValidator } from '@/features/user/user.validator';
 import { addDebugValidated } from '@/tests/jest-validator.setup';
 

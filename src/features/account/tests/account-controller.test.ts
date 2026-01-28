@@ -2,19 +2,19 @@ import { jest } from '@jest/globals';
 import request from 'supertest';
 import app from '@/app';
 import { Configuration } from '@/config/settings.config';
+import {
+	getAccountTokenMock,
+	getAuthValidTokenMock,
+	getConfirmationTokenPayloadMock,
+} from '@/features/account/account.mock';
 import { accountPolicy } from '@/features/account/account.policy';
 import accountRoutes from '@/features/account/account.routes';
 import { accountService } from '@/features/account/account.service';
 import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import { accountRecoveryService } from '@/features/account/account-recovery.service';
 import { accountTokenService } from '@/features/account/account-token.service';
-import {
-	getAccountTokenMock,
-	getAuthValidTokenMock,
-	getConfirmationTokenPayloadMock,
-} from '@/features/account/tests/account.mock';
-import { getUserEntityMock } from '@/features/user/tests/user.mock';
 import { UserStatusEnum } from '@/features/user/user.entity';
+import { getUserEntityMock } from '@/features/user/user.mock';
 import { userService } from '@/features/user/user.service';
 import { createFutureDate, createPastDate } from '@/helpers';
 import { addDebugResponse } from '@/tests/jest-controller.setup';

@@ -3,12 +3,12 @@ import { BadRequestError } from '@/exceptions';
 import type AccountTokenEntity from '@/features/account/account-token.entity';
 import type { AccountTokenQuery } from '@/features/account/account-token.repository';
 import { AccountTokenService } from '@/features/account/account-token.service';
+import type UserEntity from '@/features/user/user.entity';
+import { UserStatusEnum } from '@/features/user/user.entity';
 import {
 	getUserEntityMock,
 	userOutputPayloads,
-} from '@/features/user/tests/user.mock';
-import type UserEntity from '@/features/user/user.entity';
-import { UserStatusEnum } from '@/features/user/user.entity';
+} from '@/features/user/user.mock';
 import type { UserQuery } from '@/features/user/user.repository';
 import { UserService } from '@/features/user/user.service';
 import type { UserValidator } from '@/features/user/user.validator';

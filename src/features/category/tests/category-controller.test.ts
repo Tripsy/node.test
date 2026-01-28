@@ -1,13 +1,13 @@
 import { jest } from '@jest/globals';
 import type CategoryEntity from '@/features/category/category.entity';
+import {
+	categoryInputPayloads,
+	getCategoryEntityMock,
+} from '@/features/category/category.mock';
 import { categoryPolicy } from '@/features/category/category.policy';
 import categoryRoutes from '@/features/category/category.routes';
 import { categoryService } from '@/features/category/category.service';
 import type { CategoryValidator } from '@/features/category/category.validator';
-import {
-	categoryInputPayloads,
-	getCategoryEntityMock,
-} from '@/features/category/tests/category.mock';
 import {
 	testControllerCreate,
 	testControllerDeleteSingle,

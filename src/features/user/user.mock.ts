@@ -5,8 +5,8 @@ import {
 	type UserValidator,
 } from '@/features/user/user.validator';
 import { createPastDate, formatDate } from '@/helpers';
+import { createValidatorPayloads } from '@/helpers/mock.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 
 export function getUserEntityMock(): UserEntity {
 	return {

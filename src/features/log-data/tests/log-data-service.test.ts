@@ -1,9 +1,9 @@
 import { jest } from '@jest/globals';
 import type LogDataEntity from '@/features/log-data/log-data.entity';
+import { logDataOutputPayloads } from '@/features/log-data/log-data.mock';
 import type { LogDataQuery } from '@/features/log-data/log-data.repository';
 import { LogDataService } from '@/features/log-data/log-data.service';
 import type { LogDataValidator } from '@/features/log-data/log-data.validator';
-import { logDataOutputPayloads } from '@/features/log-data/tests/log-data.mock';
 import {
 	createMockRepository,
 	testServiceDeleteMultiple,

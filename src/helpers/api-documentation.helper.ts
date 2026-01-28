@@ -1,28 +1,35 @@
 import type { z } from 'zod';
 import type { HttpStatusCode } from '@/exceptions';
 import sharedMessages from '@/shared/locales/en.json';
+import {FeatureRoutesModule} from "@/config/routes.setup";
 
 export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
-
-type LocalesMessages = {
-	success: Record<string, string>;
-	validation?: Record<string, string>;
-	error?: Record<string, string>;
-};
 
 type ZodIssue = z.core.$ZodIssue;
 
 type ContentProperties = {
-	success: boolean;
-	message: string;
-	errors?: Array<ZodIssue>;
-	data?: Record<string, unknown>;
+	success: {
+		type: 'boolean';
+		value: boolean;
+	};
+	message?: {
+		type: 'string';
+		value?: string;
+	};
+	errors?: {
+		type: 'array';
+		format: Array<ZodIssue>;
+	};
+	data?: {
+		type: 'object' | 'array' | 'string' | 'number';
+		sample?: Record<string, unknown> | string | number;
+	};
 };
 
 type EntryResponseInput = {
 	status: HttpStatusCode;
-	description: string;
-	properties?: ContentProperties;
+    content: ContentProperties;
+    description: string;
 };
 
 type RequestShapeParam = {
@@ -33,19 +40,15 @@ type RequestShapeParam = {
 	condition?: string;
 };
 
-type RequestShape = {
-	body?: Record<string, RequestShapeParam>;
-	query?: Record<string, RequestShapeParam>;
-	params?: Record<string, RequestShapeParam>;
-};
-
-type ApiInputDocumentation = {
-	method: HttpMethod;
-	path: string;
+export type ApiInputDocumentation = {
 	description: string;
 	authorization: string;
-	responses: EntryResponseInput[];
-	requestShape: RequestShape;
+	responses: (HttpStatusCode | EntryResponseInput)[];
+	request: {
+        type: 'body' | 'query' | 'params';
+        schema: Record<string, RequestShapeParam>;
+        sample: Record<string, unknown>;
+    };
 };
 
 type EntryResponseOutput = {
@@ -53,177 +56,127 @@ type EntryResponseOutput = {
 	content: ContentProperties;
 };
 
-export type ApiOutputDocumentation = {
-	method: HttpMethod;
-	path: string;
-	description: string;
-	authorization: string;
+export type ApiOutputDocumentation = Omit<
+	ApiInputDocumentation,
+	'responses'
+> & {
+    method: HttpMethod;
+    path: string;
 	responses: Partial<Record<HttpStatusCode, EntryResponseOutput>>;
-	requestShape: RequestShape;
 };
 
-export class ApiDocumentation<A extends string> {
-	private actions: Record<A, ApiOutputDocumentation> = {} as Record<
-		A,
-		ApiOutputDocumentation
-	>;
-
-	constructor(
-		private readonly entity: string,
-		private readonly locales: LocalesMessages,
-		private readonly basePath: string,
-	) {}
+export class ApiDocumentation<C> {
+    private actions: Record<keyof C, ApiOutputDocumentation> = {} as Record<
+        keyof C,
+        ApiOutputDocumentation
+    >;
 
 	determineSuccess(status: HttpStatusCode) {
 		return status >= 200 && status < 300;
 	}
 
-	determineSuccessMessage(action: A): ContentProperties['message'] {
-		return this.locales.success[action] ?? 'not defined';
-	}
-
 	displayErrors(): ContentProperties['errors'] {
-		return [
-			{
-				code: 'invalid_type',
-				path: ['field'],
-				message: 'Validation error',
-			} as ZodIssue,
-		];
-	}
-
-	determineData(action: A): ContentProperties['data'] | undefined {
-		switch (action) {
-			case 'create':
-			case 'update':
-			case 'read':
-				return { type: 'object', description: `${this.entity} data` };
-		}
-	}
-
-	actionResponse(
-		action: A,
-		status: HttpStatusCode,
-		description: string,
-		properties?: ContentProperties,
-	): EntryResponseOutput {
-		const success = this.determineSuccess(status);
-		const contentProperties: ContentProperties = {
-			success: success,
-			message: '',
+		return {
+			type: 'array',
+			format: [
+				{
+					code: 'invalid_type',
+					path: ['field'],
+					message: 'Validation error',
+				} as ZodIssue,
+			],
 		};
+	}
 
-		if (success) {
-			contentProperties.message = this.determineSuccessMessage(action);
+	convertToEntryResponseInput(code: HttpStatusCode): EntryResponseInput {
+        const success = this.determineSuccess(code);
+        const content: ContentProperties = {
+            success: {
+                type: 'boolean',
+                value: success,
+            },
+            message: {
+                type: 'string',
+            },
+        };
 
-			const data = this.determineData(action);
+        let description = '';
 
-			if (data) {
-				contentProperties.data = data;
-			}
-		} else {
-			if (status === 400) {
-				contentProperties.message = sharedMessages.error.check_errors;
-				contentProperties.errors = this.displayErrors();
-			} else if (status === 404) {
-				contentProperties.message = sharedMessages.error.not_found;
-			} else if (status === 401) {
-				contentProperties.message = sharedMessages.error.unauthorized;
-			} else if (status === 403) {
-				contentProperties.message = sharedMessages.error.not_allowed;
-			}
-		}
+        switch (code) {
+            case 400:
+                description = sharedMessages.error.check_errors;
+                content.errors = this.displayErrors();
+                break;
+            case 401:
+                description = sharedMessages.error.unauthorized;
+                break;
+            case 403:
+                description = sharedMessages.error.not_allowed;
+                break;
+            case 404:
+                description = sharedMessages.error.not_found;
+                break;
+            default:
+                throw new Error(`convertToEntryResponseInput is not implemented for status code ${code}`);
+        }
 
 		return {
-			description: description,
-			content: {
-				...contentProperties,
-				...properties,
-			},
-		};
-	}
-
-	responseHelperCreate(description: string): EntryResponseInput {
-		return {
-			status: 201,
-			description: description,
-		};
-	}
-
-	responseHelperValidationError(
-		description: string = 'Validation error',
-	): EntryResponseInput {
-		return {
-			status: 400,
-			description: description,
-		};
-	}
-
-	responseHelperAuthorizationError(
-		description: string = 'Unauthorized',
-	): EntryResponseInput {
-		return {
-			status: 401,
-			description: description,
-		};
-	}
-
-	responseHelperNotAllowedError(
-		description: string = 'Not allowed',
-	): EntryResponseInput {
-		return {
-			status: 403,
-			description: description,
-		};
-	}
-
-	responsesCreate(
-		description: string,
-		withAuthorizationError = true,
-		withNotAllowedError = true,
-	) {
-		const responses = [
-			this.responseHelperCreate(description),
-			this.responseHelperValidationError(),
-		];
-
-		if (withAuthorizationError) {
-			responses.push(this.responseHelperAuthorizationError());
-		}
-
-		if (withNotAllowedError) {
-			responses.push(this.responseHelperNotAllowedError());
-		}
-
-		return responses;
+            status: code,
+            description: description,
+            content: content
+        }
 	}
 
 	addActionDocumentation(
-		action: A,
-		actionInputDocumentation: ApiInputDocumentation,
+		action: keyof C,
+		documentation: ApiOutputDocumentation,
 	) {
-		this.actions[action] = {
-			...actionInputDocumentation,
-			path: `${this.basePath}${actionInputDocumentation.path}`,
-			responses: actionInputDocumentation.responses.reduce(
-				(acc, r) => {
-					acc[r.status] = this.actionResponse(
-						action,
-						r.status,
-						r.description,
-						r.properties,
-					);
-
-					return acc;
-				},
-				{} as Partial<Record<HttpStatusCode, EntryResponseOutput>>,
-			),
-		};
+		this.actions[action] = documentation;
 	}
 
 	output() {
 		return this.actions;
 	}
+}
+
+export function generateDocumentation<C>(
+    module: FeatureRoutesModule<C>,
+    docs: Record<keyof C, ApiInputDocumentation>
+): Record<keyof C, ApiOutputDocumentation> {
+    const docsGenerator = new ApiDocumentation<C>();
+
+    for (const action in docs) {
+        const documentation = docs[action];
+        const { responses, ...restDocumentation } = documentation;
+
+        const routeKey = action as keyof typeof module.routes;
+        const route = module.routes[routeKey];
+
+        const apiOutputDocumentation = {
+            method: route.method,
+            path: `${module.basePath}${route.path}`,
+            responses: responses.reduce(
+                (acc, r) => {
+                    if (typeof r === 'number') {
+                        acc[r] = docsGenerator.convertToEntryResponseInput(r);
+                    } else {
+                        acc[r.status] = {
+                            description: r.description,
+                            content: r.content,
+                        };
+                    }
+
+                    return acc;
+                },
+                {} as Partial<Record<HttpStatusCode, EntryResponseOutput>>,
+            ),
+            ...restDocumentation
+        }
+
+        docsGenerator.addActionDocumentation(action, apiOutputDocumentation);
+    }
+
+    return docsGenerator.output();
 }
 
 // export const discountDocs = {

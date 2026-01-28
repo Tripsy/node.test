@@ -8,8 +8,8 @@ import {
 	OrderByEnum,
 } from '@/features/category/category.validator';
 import { createPastDate } from '@/helpers';
+import { createValidatorPayloads } from '@/helpers/mock.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 
 export function getCategoryEntityMock(): CategoryEntity {
 	return {

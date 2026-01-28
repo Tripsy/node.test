@@ -1,9 +1,9 @@
 import { jest } from '@jest/globals';
+import type UserEntity from '@/features/user/user.entity';
 import {
 	getUserEntityMock,
 	userInputPayloads,
-} from '@/features/user/tests/user.mock';
-import type UserEntity from '@/features/user/user.entity';
+} from '@/features/user/user.mock';
 import { userPolicy } from '@/features/user/user.policy';
 import userRoutes from '@/features/user/user.routes';
 import { userService } from '@/features/user/user.service';

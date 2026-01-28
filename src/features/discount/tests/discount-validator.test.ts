@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
+import { discountInputPayloads } from '@/features/discount/discount.mock';
 import { discountValidator } from '@/features/discount/discount.validator';
-import { discountInputPayloads } from '@/features/discount/tests/discount.mock';
 import { addDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {

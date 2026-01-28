@@ -1,8 +1,9 @@
 import type { FeatureRoutesModule } from '@/config/routes.setup';
 import { discountController } from '@/features/discount/discount.controller';
-import { documentation } from '@/features/discount/discount.docs';
+import {docs} from '@/features/discount/discount.docs';
 import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
 import { validateParamsWhenId } from '@/middleware/validate-params.middleware';
+import {generateDocumentation} from "@/helpers/api-documentation.helper";
 
 const routesModule: FeatureRoutesModule<typeof discountController> = {
 	basePath: '/discounts',
@@ -40,9 +41,10 @@ const routesModule: FeatureRoutesModule<typeof discountController> = {
 	},
 };
 
+// TODO make sure is only only working for development environment -> maybe move it directly to routes.setu
 const routesConfiguration: FeatureRoutesModule<typeof discountController> = {
 	...routesModule,
-	documentation: documentation(routesModule),
+	documentation: generateDocumentation(routesModule, docs),
 };
 
 export default routesConfiguration;

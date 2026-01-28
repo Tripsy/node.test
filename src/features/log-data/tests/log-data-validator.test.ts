@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
+import { logDataInputPayloads } from '@/features/log-data/log-data.mock';
 import { logDataValidator } from '@/features/log-data/log-data.validator';
-import { logDataInputPayloads } from '@/features/log-data/tests/log-data.mock';
 import { addDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {

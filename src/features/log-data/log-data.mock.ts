@@ -8,8 +8,8 @@ import {
 	OrderByEnum,
 } from '@/features/log-data/log-data.validator';
 import { createPastDate, formatDate } from '@/helpers';
+import { createValidatorPayloads } from '@/helpers/mock.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 
 export function getLogDataEntityMock(): LogDataEntity {
 	return {

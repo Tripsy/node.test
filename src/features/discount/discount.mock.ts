@@ -9,24 +9,29 @@ import {
 	OrderByEnum,
 } from '@/features/discount/discount.validator';
 import { createFutureDate, createPastDate, formatDate } from '@/helpers';
+import { createValidatorPayloads } from '@/helpers/mock.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import { createValidatorPayloads } from '@/tests/jest-validator.setup';
 
 export function getDiscountEntityMock(): DiscountEntity {
 	return {
-		created_at: createPastDate(86400),
-		deleted_at: null,
-		end_at: createFutureDate(86400),
 		id: 1,
-		label: '',
-		notes: null,
-		reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
-		reference: '#abc',
+		label: 'Black Friday Discount',
 		scope: DiscountScopeEnum.CATEGORY,
-		start_at: createPastDate(86400),
-		type: DiscountTypeEnum.PERCENT,
-		updated_at: null,
-		value: 10,
+		reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
+		reference: 'BF-2025',
+		type: DiscountTypeEnum.AMOUNT,
+		rules: {
+			min_order_value: 101,
+			eligible_categories: [1, 2, 5],
+			applicable_countries: ['RO'],
+		},
+		value: 25,
+		created_at: createPastDate(86400),
+		updated_at: createPastDate(43200),
+		deleted_at: null,
+		start_at: createFutureDate(14400),
+		end_at: createFutureDate(28800),
+		notes: 'Applied to all orders during January',
 	};
 }
 
@@ -40,6 +45,11 @@ export const discountInputPayloads = createValidatorPayloads<
 		reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
 		reference: 'BF-2025',
 		type: DiscountTypeEnum.AMOUNT,
+		rules: {
+			min_order_value: 101,
+			eligible_categories: [1, 2, 5],
+			applicable_countries: ['RO'],
+		},
 		value: 25,
 		start_at: formatDate(createFutureDate(14400)),
 		end_at: formatDate(createFutureDate(28800)),
@@ -52,6 +62,11 @@ export const discountInputPayloads = createValidatorPayloads<
 		reference: 'BF-2025',
 		type: DiscountTypeEnum.AMOUNT,
 		value: 25,
+		rules: {
+			min_order_value: 101,
+			eligible_categories: [1, 2, 5],
+			applicable_countries: ['RO'],
+		},
 		start_at: formatDate(createFutureDate(14400)),
 		end_at: formatDate(createFutureDate(28800)),
 		notes: 'Applied to all orders during January',
@@ -85,6 +100,11 @@ export const discountOutputPayloads = createValidatorPayloads<
 		reason: DiscountReasonEnum.BIRTHDAY_DISCOUNT,
 		reference: 'BF-2025',
 		type: DiscountTypeEnum.AMOUNT,
+		rules: {
+			min_order_value: 101,
+			eligible_categories: [1, 2, 5],
+			applicable_countries: ['RO'],
+		},
 		value: 25,
 		start_at: createFutureDate(14400),
 		end_at: createFutureDate(28800),

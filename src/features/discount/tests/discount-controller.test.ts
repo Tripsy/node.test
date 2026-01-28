@@ -1,13 +1,13 @@
 import { jest } from '@jest/globals';
 import type DiscountEntity from '@/features/discount/discount.entity';
+import {
+	discountInputPayloads,
+	getDiscountEntityMock,
+} from '@/features/discount/discount.mock';
 import { discountPolicy } from '@/features/discount/discount.policy';
 import discountRoutes from '@/features/discount/discount.routes';
 import { discountService } from '@/features/discount/discount.service';
 import type { DiscountValidator } from '@/features/discount/discount.validator';
-import {
-	discountInputPayloads,
-	getDiscountEntityMock,
-} from '@/features/discount/tests/discount.mock';
 import {
 	testControllerCreate,
 	testControllerDeleteSingle,
