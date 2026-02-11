@@ -1,6 +1,7 @@
 import type AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import type UserEntity from '@/features/user/user.entity';
 import { loadEmailTemplate, queueEmail } from '@/providers/email.provider';
+import {formatDate} from "@/helpers";
 
 export class AccountEmailService {
 	public async sendEmailConfirmUpdate(
@@ -22,7 +23,7 @@ export class AccountEmailService {
 		emailTemplate.content.vars = {
 			name: user.name,
 			token: encodeURIComponent(token),
-			expire_at: expire_at.toISOString(),
+			expire_at: formatDate(expire_at, 'date-time') as string
 		};
 
 		void queueEmail(emailTemplate, {
@@ -49,7 +50,7 @@ export class AccountEmailService {
 		emailTemplate.content.vars = {
 			name: user.name,
 			token: encodeURIComponent(token),
-			expire_at: expire_at.toISOString(),
+			expire_at: formatDate(expire_at, 'date-time') as string
 		};
 
 		void queueEmail(emailTemplate, {
@@ -99,7 +100,7 @@ export class AccountEmailService {
 		emailTemplate.content.vars = {
 			name: user.name,
 			ident: token.ident,
-			expire_at: token.expire_at.toISOString(),
+			expire_at: formatDate(token.expire_at, 'date-time') as string,
 		};
 
 		void queueEmail(emailTemplate, {

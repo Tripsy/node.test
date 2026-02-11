@@ -140,7 +140,7 @@ $ pnpm install
 
 Start by copying the `.env.example` file to `.env` and update the environment variables accordingly.
 
-### 5. Database
+### 6. Database
 
 For PostgreSQL only
 
@@ -155,13 +155,13 @@ Run the following commands to create the required database schemas:
 $ pnpm run migration:run
 ```
 
-### 6. Run the application
+### 7. Run the application
 
 ```
 $ pnpm run dev
 ```
 
-### 7. Setup features
+### 8. Setup features
 
 ```
 $ pnpx tsx cli/feature.ts [feature] install
