@@ -5,7 +5,7 @@ import { Configuration } from '@/config/settings.config';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 	ENTITY = 'entity',
 	ACTION = 'action',
