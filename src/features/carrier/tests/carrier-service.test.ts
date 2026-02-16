@@ -23,9 +23,7 @@ describe('CarrierService', () => {
 
 	const mockCarrier = createMockRepository<CarrierEntity, CarrierQuery>();
 
-	const serviceCarrier = new CarrierService(
-		mockCarrier.repository,
-	);
+	const serviceCarrier = new CarrierService(mockCarrier.repository);
 
 	it('should create entry', async () => {
 		const entity = getCarrierEntityMock();

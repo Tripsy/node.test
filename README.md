@@ -283,7 +283,7 @@ $ pnpm run madge
 2. make tests for services
     > account, category
 3. make tests for the rest of available features
-    > carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
+    > client, log-history, mail-queue, permission, place, template, user-permission
 4. feature - brand (brand-content)
 5. feature - images  (image-content)
 6. Go on FE → category, place, brand, client

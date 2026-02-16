@@ -5,7 +5,7 @@ import { CronHistoryStatusEnum } from '@/features/cron-history/cron-history.enti
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 	LABEL = 'label',
 	START_AT = 'start_at',
