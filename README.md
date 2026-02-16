@@ -30,7 +30,7 @@ This project is still a work in progress, and the next goals are:
 
 Meanwhile, we're open to suggestions / feedback, and if you find this project useful, please consider giving it a star ⭐
 
-> On a [separate project](https://github.com/Tripsy/nextjs.test), powered by **React / Next.js** you can find a 
+> On a [separate project](https://github.com/Tripsy/dashboard.dev), powered by **React / Next.js** you can find a 
 > working #FrontEnd interface which demonstrate the usability of the `authentification system` and 
 > an **Administration Dashboard** with some features already included: Users, Permissions, Template,
 > Logs for data, mail queue, entity operations
@@ -341,3 +341,4 @@ Dev only:
 - [supertest](https://www.npmjs.com/package/supertest) — HTTP assertion library for testing Node.js servers
 - [madge](https://github.com/pahen/madge) — Helps finding circular dependencies
 - [mailtrap](https://github.com/mailtrap/mailtrap-nodejs) — Mailtrap client for Node.js
+- [biome](https://biomejs.dev/) — Biome is a fast formatter for JavaScript, TypeScript, JSX, TSX, JSON, HTML, CSS and GraphQL 

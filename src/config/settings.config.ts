@@ -35,11 +35,11 @@ function loadSettings(): Settings {
 			shared: '/shared',
 		},
 		frontend: {
-			url: process.env.FRONTEND_URL || 'http://nextjs.test',
+			url: process.env.FRONTEND_URL || 'http://dashboard.test',
 			name: process.env.FRONTEND_APP_NAME || 'sample-nextjs-client',
 		},
 		security: {
-			allowedOrigins: ['http://nextjs.test'],
+			allowedOrigins: ['http://dashboard.test'],
 		},
 		// database: {
 		// 	connection: process.env.DB_CONNECTION || 'postgres',
