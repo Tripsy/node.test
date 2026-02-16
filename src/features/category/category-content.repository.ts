@@ -1,5 +1,4 @@
-import type { EntityManager } from 'typeorm';
-import type { Repository } from 'typeorm/repository/Repository';
+import type { EntityManager, Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { CustomError } from '@/exceptions';

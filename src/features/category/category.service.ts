@@ -1,5 +1,4 @@
-import type { DeepPartial, EntityManager } from 'typeorm';
-import type { Repository } from 'typeorm/repository/Repository';
+import type { DeepPartial, EntityManager, Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/i18n.setup';
 import { BadRequestError, CustomError } from '@/exceptions';

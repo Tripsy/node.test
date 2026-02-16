@@ -1,0 +1,34 @@
+import { jest } from '@jest/globals';
+import { carrierInputPayloads } from '@/features/carrier/carrier.mock';
+import { carrierValidator } from '@/features/carrier/carrier.validator';
+import { addDebugValidated } from '@/tests/jest-validator.setup';
+
+beforeEach(() => {
+	jest.restoreAllMocks();
+});
+
+type ValidatorMethod = keyof Pick<
+	typeof carrierValidator,
+	'create' | 'update' | 'find'
+>;
+
+const validator = 'CarrierValidator';
+const listSchemas: ValidatorMethod[] = ['create', 'update', 'find'];
+
+describe(validator, () => {
+	listSchemas.forEach((n) => {
+		it(`${n}() accepts valid payload`, () => {
+			const schema = carrierValidator[n]();
+			const payload = carrierInputPayloads.get(n);
+			const validated = schema.safeParse(payload);
+
+			try {
+				expect(validated.success).toBe(true);
+			} catch (error) {
+				addDebugValidated(validated, `${validator} - ${n}`);
+
+				throw error; // Re-throw to fail the test
+			}
+		});
+	});
+});

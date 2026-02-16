@@ -18,14 +18,14 @@ import {
 import { cacheProvider } from '@/providers/cache.provider';
 
 export enum AuthFailureReason {
-    NO_TOKEN = 'NO_TOKEN',
-    INVALID_TOKEN = 'INVALID_TOKEN',
-    TOKEN_EXPIRED = 'TOKEN_EXPIRED',
-    METADATA_MISMATCH = 'METADATA_MISMATCH',
-    USER_NOT_FOUND = 'USER_NOT_FOUND',
-    USER_INACTIVE = 'USER_INACTIVE',
-    UNAUTHORIZED = 'UNAUTHORIZED',
-    SYSTEM_ERROR = 'SYSTEM_ERROR',
+	NO_TOKEN = 'NO_TOKEN',
+	INVALID_TOKEN = 'INVALID_TOKEN',
+	TOKEN_EXPIRED = 'TOKEN_EXPIRED',
+	METADATA_MISMATCH = 'METADATA_MISMATCH',
+	USER_NOT_FOUND = 'USER_NOT_FOUND',
+	USER_INACTIVE = 'USER_INACTIVE',
+	UNAUTHORIZED = 'UNAUTHORIZED',
+	SYSTEM_ERROR = 'SYSTEM_ERROR',
 }
 
 async function getUserPermissions(user_id: number): Promise<string[]> {
@@ -58,12 +58,12 @@ async function getUserPermissions(user_id: number): Promise<string[]> {
 }
 
 function setAuthFailure(
-    reason: AuthFailureReason,
-    details?: Record<string, unknown>,
+	reason: AuthFailureReason,
+	details?: Record<string, unknown>,
 ) {
-    if (Configuration.isEnvironment('development')) {
-        console.error(`[Auth] ${new Date()} ${reason}`, details);
-    }
+	if (Configuration.isEnvironment('development')) {
+		console.error(`[Auth] ${new Date()} ${reason}`, details);
+	}
 }
 
 async function authMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -84,7 +84,7 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 		const token = accountTokenService.getAuthTokenFromHeaders(req);
 
 		if (!token) {
-            setAuthFailure(AuthFailureReason.NO_TOKEN);
+			setAuthFailure(AuthFailureReason.NO_TOKEN);
 
 			return next();
 		}
@@ -94,10 +94,10 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 		try {
 			activeToken = await accountTokenService.findByToken(token);
 		} catch (error) {
-            setAuthFailure(AuthFailureReason.INVALID_TOKEN, {
-                token: token,
-                error: error instanceof Error ? error.message : 'Unknown error',
-            });
+			setAuthFailure(AuthFailureReason.INVALID_TOKEN, {
+				token: token,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 
 			return next();
 		}
@@ -106,7 +106,7 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 		if (activeToken.expire_at < new Date()) {
 			getAccountTokenRepository().removeTokenById(activeToken.id);
 
-            setAuthFailure(AuthFailureReason.TOKEN_EXPIRED, {...activeToken});
+			setAuthFailure(AuthFailureReason.TOKEN_EXPIRED, { ...activeToken });
 
 			return next();
 		}
@@ -121,10 +121,10 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 					'user-agent',
 				))
 		) {
-            setAuthFailure(AuthFailureReason.METADATA_MISMATCH, {
-                ...activeToken,
-                currentMetadata: tokenMetaData(req),
-            });
+			setAuthFailure(AuthFailureReason.METADATA_MISMATCH, {
+				...activeToken,
+				currentMetadata: tokenMetaData(req),
+			});
 
 			return next();
 		}
@@ -146,29 +146,33 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 			.filterById(activeToken.user_id)
 			.first();
 
-        // User was not found
-        if (!user) {
-            getAccountTokenRepository().removeTokenById(activeToken.id);
+		// User was not found
+		if (!user) {
+			getAccountTokenRepository().removeTokenById(activeToken.id);
 
-            setAuthFailure(AuthFailureReason.USER_NOT_FOUND, {...activeToken});
+			setAuthFailure(AuthFailureReason.USER_NOT_FOUND, {
+				...activeToken,
+			});
 
-            return next();
-        }
+			return next();
+		}
 
-        // User is inactive
-        if (user.status !== UserStatusEnum.ACTIVE) {
-            getAccountTokenRepository().removeTokenById(activeToken.id);
+		// User is inactive
+		if (user.status !== UserStatusEnum.ACTIVE) {
+			getAccountTokenRepository().removeTokenById(activeToken.id);
 
-            setAuthFailure(AuthFailureReason.USER_NOT_FOUND, {...activeToken});
+			setAuthFailure(AuthFailureReason.USER_NOT_FOUND, {
+				...activeToken,
+			});
 
-            return next();
-        }
+			return next();
+		}
 
 		// User was not found or inactive
 		if (!user || user.status !== UserStatusEnum.ACTIVE) {
 			getAccountTokenRepository().removeTokenById(activeToken.id);
 
-            setAuthFailure(AuthFailureReason.USER_INACTIVE, {...activeToken});
+			setAuthFailure(AuthFailureReason.USER_INACTIVE, { ...activeToken });
 
 			return next();
 		}
@@ -207,12 +211,15 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 
 		next();
 	} catch (err) {
-        setAuthFailure(AuthFailureReason.SYSTEM_ERROR, {
-            error: err instanceof Error ? {
-                message: err.message,
-                stack: err.stack,
-            } : 'Unknown system error',
-        });
+		setAuthFailure(AuthFailureReason.SYSTEM_ERROR, {
+			error:
+				err instanceof Error
+					? {
+							message: err.message,
+							stack: err.stack,
+						}
+					: 'Unknown system error',
+		});
 
 		next(err);
 	}

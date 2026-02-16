@@ -1,5 +1,4 @@
-import type { DeepPartial } from 'typeorm';
-import type { Repository } from 'typeorm/repository/Repository';
+import type { DeepPartial, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Configuration } from '@/config/settings.config';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';

@@ -1,4 +1,4 @@
-import type { Repository } from 'typeorm/repository/Repository';
+import type { Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import AccountRecoveryEntity from '@/features/account/account-recovery.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';

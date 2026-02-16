@@ -13,7 +13,7 @@ export const paramsUpdateList: string[] = [
 	'notes',
 ];
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 	NAME = 'name',
 	CREATED_AT = 'created_at',

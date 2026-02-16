@@ -1,4 +1,4 @@
-import type { Repository } from 'typeorm/repository/Repository';
+import type { Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import PlaceEntity, { type PlaceTypeEnum } from '@/features/place/place.entity';

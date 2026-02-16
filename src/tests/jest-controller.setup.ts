@@ -501,7 +501,7 @@ export function testControllerFind<E, V extends FindValidator>(
 
 			const response = await request(app).get(link).query({});
 
-			expect(response.status).toBe(400);
+			expect(response.status).toBe(422);
 		});
 
 		it('should return success', async () => {

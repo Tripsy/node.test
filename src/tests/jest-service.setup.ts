@@ -1,6 +1,5 @@
 import { expect, jest } from '@jest/globals';
-import type { ObjectLiteral } from 'typeorm';
-import type { Repository } from 'typeorm/repository/Repository';
+import type { ObjectLiteral, Repository } from 'typeorm';
 import type RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 

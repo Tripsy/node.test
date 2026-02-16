@@ -1,4 +1,4 @@
-import type { Repository } from 'typeorm/repository/Repository';
+import type { Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import type { RequestContextSource } from '@/config/request.context';
 import LogHistoryEntity, {

@@ -1,0 +1,73 @@
+import { jest } from '@jest/globals';
+import type CarrierEntity from '@/features/carrier/carrier.entity';
+import {
+	carrierInputPayloads,
+	getCarrierEntityMock,
+} from '@/features/carrier/carrier.mock';
+import { carrierPolicy } from '@/features/carrier/carrier.policy';
+import carrierRoutes from '@/features/carrier/carrier.routes';
+import { carrierService } from '@/features/carrier/carrier.service';
+import type { CarrierValidator } from '@/features/carrier/carrier.validator';
+import {
+	testControllerCreate,
+	testControllerDeleteSingle,
+	testControllerFind,
+	testControllerRead,
+	testControllerRestoreSingle,
+	testControllerUpdate,
+} from '@/tests/jest-controller.setup';
+
+beforeEach(() => {
+	jest.restoreAllMocks();
+});
+
+const controller = 'CarrierController';
+const basePath = carrierRoutes.basePath;
+
+testControllerCreate<CarrierEntity, CarrierValidator>({
+	controller: controller,
+	basePath: basePath,
+	entityMock: getCarrierEntityMock(),
+	policy: carrierPolicy,
+	service: carrierService,
+	createData: carrierInputPayloads.get('create'),
+});
+
+testControllerUpdate<CarrierEntity, CarrierValidator>({
+	controller: controller,
+	basePath: basePath,
+	entityMock: getCarrierEntityMock(),
+	policy: carrierPolicy,
+	service: carrierService,
+	updateData: carrierInputPayloads.get('update'),
+});
+
+testControllerRead<CarrierEntity>({
+	controller: controller,
+	basePath: basePath,
+	entityMock: getCarrierEntityMock(),
+	policy: carrierPolicy,
+});
+
+testControllerDeleteSingle({
+	controller: controller,
+	basePath: basePath,
+	policy: carrierPolicy,
+	service: carrierService,
+});
+
+testControllerRestoreSingle({
+	controller: controller,
+	basePath: basePath,
+	policy: carrierPolicy,
+	service: carrierService,
+});
+
+testControllerFind<CarrierEntity, CarrierValidator>({
+	controller: controller,
+	basePath: basePath,
+	entityMock: getCarrierEntityMock(),
+	policy: carrierPolicy,
+	service: carrierService,
+	findData: carrierInputPayloads.get('find'),
+});

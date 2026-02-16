@@ -1,4 +1,4 @@
-import type { Repository } from 'typeorm/repository/Repository';
+import type { Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import UserPermissionEntity from '@/features/user-permission/user-permission.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';

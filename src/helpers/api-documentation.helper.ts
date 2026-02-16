@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type {FeatureRoutesModule, HttpMethod} from '@/config/routes.setup';
+import type { FeatureRoutesModule, HttpMethod } from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
 import type { HttpStatusCode } from '@/exceptions';
 import { apiDocumentationMiddleware } from '@/middleware/api-documentation.middleware';

@@ -1,6 +1,6 @@
 import type { Request } from 'express';
 import jwt from 'jsonwebtoken';
-import type { Repository } from 'typeorm/repository/Repository';
+import type { Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Configuration } from '@/config/settings.config';
 import { CustomError } from '@/exceptions';
