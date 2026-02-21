@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';

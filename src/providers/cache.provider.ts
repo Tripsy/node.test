@@ -4,10 +4,12 @@ import { Configuration } from '@/config/settings.config';
 import { getSystemLogger } from '@/providers/logger.provider';
 
 type CacheData = unknown;
+type CacheGetResults = {
+	isCached: boolean;
+	data: CacheData | null;
+};
 
 export class CacheProvider {
-	public isCached: boolean = false;
-
 	constructor(private readonly cache: Redis) {}
 
 	buildKey(...args: string[]) {
@@ -67,7 +69,8 @@ export class CacheProvider {
 	async exists(key: string): Promise<boolean> {
 		try {
 			const exists = await this.cache.exists(key);
-			return exists === 1; // Redis returns 1 if key exists, 0 otherwise
+
+			return exists === 1;
 		} catch (error) {
 			getSystemLogger().error(
 				error,
@@ -81,33 +84,42 @@ export class CacheProvider {
 		key: string,
 		fetchFunction: () => Promise<CacheData>,
 		ttl?: number,
-	): Promise<CacheData> {
+	): Promise<CacheGetResults> {
+		const results: CacheGetResults = {
+			isCached: false,
+			data: null,
+		};
+
 		try {
 			ttl = this.determineTtl(ttl);
 
 			if (ttl === 0) {
-				return await fetchFunction();
+				results.data = await fetchFunction();
+
+				return results;
 			}
 
 			const cachedData = await this.cache.get(key);
 
 			if (cachedData) {
-				this.isCached = true;
-
-				return this.formatOutputData(cachedData);
+				results.isCached = true;
+				results.data = this.formatOutputData(cachedData);
 			}
 
-			const freshData = await fetchFunction();
-			await this.set(key, freshData, ttl);
+			results.data = await fetchFunction();
 
-			return freshData;
+			await this.set(key, results.data, ttl);
+
+			return results;
 		} catch (error) {
 			getSystemLogger().error(
 				error,
 				`Error fetching cache for key: ${key}`,
 			);
 
-			return await fetchFunction(); // Fallback to fetching fresh data
+			results.data = await fetchFunction(); // Fallback to fetching fresh data
+
+			return results;
 		}
 	}
 
@@ -180,5 +192,51 @@ export class CacheProvider {
 	}
 }
 
-const redis = getRedisClient();
-export const cacheProvider = new CacheProvider(redis);
+class MockCacheProvider extends CacheProvider {
+    constructor() {
+        // Passing a dummy Redis, which will not be used
+        super({} as Redis);
+    }
+
+    async exists(_key: string): Promise<boolean> {
+        return false;
+    }
+
+    async get(
+        _key: string,
+        fetchFunction: () => Promise<CacheData>,
+        _ttl?: number,
+    ): Promise<CacheGetResults> {
+        const data = await fetchFunction();
+
+        return {
+            isCached: false,
+            data,
+        };
+    }
+
+    async set(
+        _key: string,
+        _data: CacheData,
+        _ttl?: number,
+    ): Promise<void> {
+        // intentionally no-op
+    }
+
+    async delete(_key: string): Promise<void> {
+        // intentionally no-op
+    }
+
+    async deleteByPattern(_pattern: string): Promise<void> {
+        // intentionally no-op
+    }
+
+    buildKey(...args: string[]): string {
+        return args.join(':');
+    }
+}
+
+export const cacheProvider = Configuration.isEnvironment('test')
+    ? new MockCacheProvider()
+    : new CacheProvider(getRedisClient());
+

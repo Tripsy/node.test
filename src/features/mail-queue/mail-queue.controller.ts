@@ -36,12 +36,12 @@ class MailQueueController extends BaseController {
 			'read',
 		);
 
-		const entry = await this.cache.get(cacheKey, async () =>
+		const cacheGetResults = await this.cache.get(cacheKey, async () =>
 			this.mailQueueService.findById(res.locals.validated.id),
 		);
 
-		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(entry);
+		res.locals.output.meta(cacheGetResults.isCached, 'isCached');
+		res.locals.output.data(cacheGetResults.data);
 
 		res.json(res.locals.output);
 	});

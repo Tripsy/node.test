@@ -1,0 +1,67 @@
+import nodemailer, { type Transporter } from 'nodemailer';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { lang } from '@/config/i18n.setup';
+import { Configuration } from '@/config/settings.config';
+import type {
+	EmailAddressType,
+	EmailContent,
+	EmailService,
+} from '@/types/email.type';
+
+export class SmtpEmailService implements EmailService {
+	private transporter: Transporter<SMTPTransport.SentMessageInfo> | null =
+		null;
+
+	private getTransporter() {
+		if (!this.transporter) {
+			const host = Configuration.get('mail.host');
+
+			if (!host) {
+				throw new Error('MAIL_HOST is not defined');
+			}
+
+			this.transporter = nodemailer.createTransport({
+				host: Configuration.get('mail.host'),
+				port: Configuration.get('mail.port'),
+				secure: Configuration.get('mail.encryption'),
+				auth: {
+					user: Configuration.get('mail.username'),
+					pass: Configuration.get('mail.password'),
+				},
+				connectionTimeout: 10000,
+				logger: true,
+				debug: true,
+			});
+		}
+
+		return this.transporter;
+	}
+
+	async sendEmail(
+		content: EmailContent,
+		from: EmailAddressType,
+		to: EmailAddressType,
+		replyTo: EmailAddressType,
+	): Promise<void> {
+		try {
+			await this.getTransporter().sendMail({
+				to: to,
+				replyTo: replyTo,
+				from: from,
+				subject: content.subject,
+				text: content.text,
+				html: content.html,
+			});
+
+			console.debug(
+				lang('app.email.sent_success', {
+					subject: content.subject,
+					to: to.address,
+				}),
+			);
+		} catch (error) {
+			console.error('SMTP Error:', error);
+			throw error;
+		}
+	}
+}

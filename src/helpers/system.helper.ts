@@ -1,14 +1,10 @@
 import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Request } from 'express';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-export const ROOT_PATH = path.resolve(__dirname, '../../');
-export const SRC_PATH = path.resolve(ROOT_PATH, 'src');
+export const ROOT_PATH = process.cwd();
+export const SRC_PATH = path.join(ROOT_PATH, 'src');
 
 export function buildRootPath(...args: string[]) {
 	return path.join(ROOT_PATH, ...args);

@@ -48,7 +48,7 @@ class PlaceController extends BaseController {
 			'read',
 		);
 
-		const entry = await this.cache.get(
+		const cacheGetResults = await this.cache.get(
 			cacheKey,
 			async () =>
 				await this.placeService.getDataById(
@@ -58,8 +58,8 @@ class PlaceController extends BaseController {
 				),
 		);
 
-		res.locals.output.meta(this.cache.isCached, 'isCached');
-		res.locals.output.data(entry);
+		res.locals.output.meta(cacheGetResults.isCached, 'isCached');
+		res.locals.output.data(cacheGetResults.data);
 
 		res.json(res.locals.output);
 	});

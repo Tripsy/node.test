@@ -1,31 +1,20 @@
-import 'dotenv/config';
 import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import type { LogHistoryDestination } from '@/features/log-history/log-history.entity';
 import { getObjectValue, type ObjectValue, setObjectValue } from '@/helpers';
 
 type Settings = { [key: string]: ObjectValue };
 
-let settings: Settings;
-
-function getSettings(): Settings {
-	if (!settings) {
-		settings = loadSettings();
-	}
-
-	return settings;
-}
-
 function loadSettings(): Settings {
 	return {
 		app: {
-			env: process.env.APP_ENV || 'development',
+			environment: process.env.APP_ENV || 'development',
 			debug: process.env.APP_DEBUG === 'true',
 			url: process.env.APP_URL || 'http://nready.dev',
 			port: parseInt(process.env.APP_PORT || '3000', 10),
 			name: process.env.APP_NAME || 'sample-node-api',
 			email: process.env.APP_EMAIL || 'hello@example.com',
 			timezone: process.env.APP_TIMEZONE || 'UTC',
-			language: process.env.APP_LANG || 'en',
+			language: process.env.APP_LANGUAGE || 'en',
 			languageSupported: (process.env.APP_LANGUAGE_SUPPORTED || 'en')
 				.trim()
 				.split(','),
@@ -39,16 +28,10 @@ function loadSettings(): Settings {
 			name: process.env.FRONTEND_APP_NAME || 'sample-nextjs-client',
 		},
 		security: {
-			allowedOrigins: ['http://dashboard.test'],
+			allowedOrigins: process.env.ALLOWED_ORIGINS?.split(',').map((v) =>
+				v.trim(),
+			) || ['http://localhost'],
 		},
-		// database: {
-		// 	connection: process.env.DB_CONNECTION || 'postgres',
-		// 	host: process.env.DB_HOST || 'localhost',
-		// 	port: parseInt(process.env.DB_PORT || '3306', 10),
-		// 	username: process.env.DB_USER || 'root',
-		// 	password: process.env.DB_PASSWORD || '',
-		// 	name: process.env.DB_NAME || 'sample-node-api',
-		// },
 		redis: {
 			host: process.env.REDIS_HOST || 'localhost',
 			port: parseInt(process.env.REDIS_PORT || '6379', 10),
@@ -78,13 +61,16 @@ function loadSettings(): Settings {
 			history: process.env.LOGGING_HISTORY as LogHistoryDestination,
 		},
 		mail: {
-			host: process.env.MAIL_HOST || '127.0.0.1',
+			provider: process.env.MAIL_PROVIDER || 'smtp', // 'smtp' or 'ses'
+			from: {
+				name: process.env.MAIL_FROM_NAME || 'NReady',
+				address: process.env.MAIL_FROM_ADDRESS || 'engine@play-zone.ro',
+			},
+			host: process.env.MAIL_HOST,
 			port: parseInt(process.env.MAIL_PORT || '2525', 10),
-			encryption: process.env.encryption || 'tls',
+			encryption: process.env.MAIL_ENCRYPTION === 'true',
 			username: process.env.MAIL_USERNAME || '',
 			password: process.env.MAIL_PASSWORD || '',
-			fromAddress: process.env.MAIL_FROM_ADDRESS || 'hello@example.com',
-			fromName: process.env.MAIL_FROM_NAME || 'sample-node-api',
 		},
 		filter: {
 			limit: 20,
@@ -114,7 +100,7 @@ function loadSettings(): Settings {
 
 export const Configuration = {
 	get: <T = ObjectValue>(key: string): T | undefined => {
-		const value = getObjectValue(getSettings(), key);
+		const value = getObjectValue(loadSettings(), key);
 
 		if (value === undefined) {
 			console.warn(`Configuration key not found: ${key}`);
@@ -124,7 +110,7 @@ export const Configuration = {
 	},
 
 	set: (key: string, value: ObjectValue): void => {
-		const success = setObjectValue(getSettings(), key, value);
+		const success = setObjectValue(loadSettings(), key, value);
 
 		if (!success) {
 			console.warn(`Failed to set configuration key: ${key}`);
@@ -138,7 +124,7 @@ export const Configuration = {
 	},
 
 	environment: () => {
-		return Configuration.get('app.env') as string;
+		return Configuration.get('app.environment') as string;
 	},
 
 	isEnvironment: (value: string) => {

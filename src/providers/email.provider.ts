@@ -1,6 +1,3 @@
-import nodemailer, { type Transporter } from 'nodemailer';
-import type Mail from 'nodemailer/lib/mailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { lang } from '@/config/i18n.setup';
 import templates from '@/config/nunjucks.config';
 import { Configuration } from '@/config/settings.config';
@@ -13,31 +10,21 @@ import {
 } from '@/features/template/template.entity';
 import { getTemplateRepository } from '@/features/template/template.repository';
 import { getErrorMessage } from '@/helpers';
+import { SesEmailService } from '@/providers/email/email-ses.service';
+import { SmtpEmailService } from '@/providers/email/email-smtp.service';
 import { getSystemLogger } from '@/providers/logger.provider';
-
-let emailTransporter: Transporter<SMTPTransport.SentMessageInfo> | null = null;
-
-export function getEmailTransporter(): Transporter<SMTPTransport.SentMessageInfo> {
-	if (!emailTransporter) {
-		emailTransporter = nodemailer.createTransport({
-			host: Configuration.get('mail.host') as string,
-			port: Configuration.get('mail.port') as number,
-			secure: Configuration.get('mail.encryption') === 'ssl',
-			auth: {
-				user: Configuration.get('mail.username') as string,
-				pass: Configuration.get('mail.password') as string,
-			},
-		} as SMTPTransport.Options);
-	}
-
-	return emailTransporter;
-}
+import {
+	type EmailAddressType,
+	EmailProvider,
+	type EmailService,
+	type SendEmailArgs,
+} from '@/types/email.type';
 
 export type EmailQueueData = {
 	mailQueueId: number;
 	emailContent: EmailContent;
-	to: Mail.Address;
-	from: Mail.Address | null;
+	to: EmailAddressType;
+	from?: EmailAddressType;
 };
 
 export async function loadEmailTemplate(
@@ -87,7 +74,10 @@ export function prepareEmailContent(template: EmailTemplate): EmailContent {
 
 		return {
 			subject: emailSubject,
-			// text: emailContent.text ? templates.renderString(emailContent.text, vars) : undefined,
+			text: templates.renderString(
+				template.content.text || '',
+				template.content.vars || {},
+			),
 			html: template.content.layout
 				? templates.render(`emails/${template.content.layout}.html`, {
 						language: template.language,
@@ -105,8 +95,8 @@ export function prepareEmailContent(template: EmailTemplate): EmailContent {
 
 export async function queueEmail(
 	template: EmailTemplate,
-	to: Mail.Address,
-	from?: Mail.Address,
+	to: EmailAddressType,
+	from?: EmailAddressType,
 ): Promise<void> {
 	const mailQueueEntity = new MailQueueEntity();
 	mailQueueEntity.template_id = template.id;
@@ -118,40 +108,50 @@ export async function queueEmail(
 	await getMailQueueRepository().save(mailQueueEntity);
 }
 
-export async function sendEmail(
-	content: EmailContent,
-	to: Mail.Address,
-	from: Mail.Address | null,
-): Promise<void> {
+let currentServiceInstance: EmailService | null = null;
+
+export function getEmailService(): EmailService {
+	const provider =
+		(Configuration.get('mail.provider') as EmailProvider) ||
+		EmailProvider.SES;
+
+	if (currentServiceInstance) {
+		return currentServiceInstance;
+	}
+
+	switch (provider) {
+		case EmailProvider.SMTP:
+			currentServiceInstance = new SmtpEmailService();
+			break;
+		default:
+			currentServiceInstance = new SesEmailService();
+			break;
+	}
+
+	return currentServiceInstance;
+}
+
+export async function sendEmail(data: SendEmailArgs): Promise<void> {
 	try {
-		// Fallback to default `from` address
-		if (!from) {
-			from = {
-				name: Configuration.get('mail.fromName') as string,
-				address: Configuration.get('mail.fromAddress') as string,
-			};
+		if (!data.from) {
+			data.from = Configuration.get('mail.from') as EmailAddressType;
 		}
 
-		await getEmailTransporter().sendMail({
-			to: to,
-			from: from,
-			subject: content.subject,
-			text: content.text,
-			html: content.html,
-		});
+		if (!data.replyTo) {
+			data.replyTo = data.from;
+		}
 
-		getSystemLogger().debug(
-			lang('shared.debug.email_sent', {
-				subject: content.subject,
-				to: to.address,
-			}),
-		);
+		await getEmailService()
+			.sendEmail(data.content, data.from, data.to, data.replyTo)
+			.catch((error) => {
+				throw error;
+			});
 	} catch (error: unknown) {
 		getSystemLogger().error(
 			error,
 			lang('shared.debug.email_error', {
-				subject: content.subject,
-				to: to.address,
+				subject: data.content.subject,
+				to: data.to.address,
 				error: getErrorMessage(error),
 			}),
 		);

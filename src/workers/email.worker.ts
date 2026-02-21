@@ -16,7 +16,11 @@ const emailWorker = new Worker(
 				`Processing email job ${job.id} for mailQueueId: ${mailQueueId}`,
 			);
 
-			await sendEmail(emailContent, to, from);
+			await sendEmail({
+				content: emailContent,
+				to: to,
+				from: from,
+			});
 
 			await getMailQueueRepository().update(mailQueueId, {
 				status: MailQueueStatusEnum.SENT,

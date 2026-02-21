@@ -5,7 +5,7 @@ import { MailQueueStatusEnum } from '@/features/mail-queue/mail-queue.entity';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 	TEMPLATE_ID = 'template_id',
 	SENT_AT = 'sent_at',

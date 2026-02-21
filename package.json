@@ -25,6 +25,8 @@
 		"migration:revert": "pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts"
 	},
 	"dependencies": {
+		"@aws-sdk/client-ses": "^3.994.0",
+		"@aws-sdk/credential-provider-node": "^3.972.10",
 		"bcrypt": "^6.0.0",
 		"bullmq": "^5.66.1",
 		"compression": "^1.8.1",

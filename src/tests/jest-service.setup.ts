@@ -4,29 +4,32 @@ import type RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
 export function createMockQuery() {
-	return {
-		// Chainable methods
-		filterBy: jest.fn().mockReturnThis(),
-		filterById: jest.fn().mockReturnThis(),
-		filterByRange: jest.fn().mockReturnThis(),
-		filterByTerm: jest.fn().mockReturnThis(),
-		filterByStatus: jest.fn().mockReturnThis(),
-		filterByEmail: jest.fn().mockReturnThis(),
-		orderBy: jest.fn().mockReturnThis(),
-		pagination: jest.fn().mockReturnThis(),
-		withDeleted: jest.fn().mockReturnThis(),
+    return {
+        // Chainable methods
+        select: jest.fn().mockReturnThis(),
+        join: jest.fn().mockReturnThis(),
+        filterBy: jest.fn().mockReturnThis(),
+        filterById: jest.fn().mockReturnThis(),
+        filterByRange: jest.fn().mockReturnThis(),
+        filterByTerm: jest.fn().mockReturnThis(),
+        filterByStatus: jest.fn().mockReturnThis(),
+        filterByEmail: jest.fn().mockReturnThis(),
+        filterByTemplate: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        pagination: jest.fn().mockReturnThis(),
+        withDeleted: jest.fn().mockReturnThis(),
 
-		// Methods from RepositoryAbstract
-		filterAny: jest.fn().mockReturnThis(),
+        // Methods from RepositoryAbstract
+        filterAny: jest.fn().mockReturnThis(),
 
-		// Execute methods
-		save: jest.fn(),
-		delete: jest.fn(),
-		restore: jest.fn(),
-		firstOrFail: jest.fn(),
-		first: jest.fn(),
-		all: jest.fn(),
-	};
+        // Execute methods
+        save: jest.fn(),
+        delete: jest.fn(),
+        restore: jest.fn(),
+        firstOrFail: jest.fn(),
+        first: jest.fn(),
+        all: jest.fn(),
+    };
 }
 
 export function createMockRepository<

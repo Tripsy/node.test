@@ -1,11 +1,8 @@
-import { Queue } from 'bullmq';
-import { getRedisClient } from '@/config/init-redis.config';
+import { QueueFactory } from './queue.factory';
 
-const emailQueue = new Queue('emailQueue', {
-	connection: getRedisClient(),
-});
+const getEmailQueue = () => QueueFactory.getQueue('emailQueue');
 
-export default emailQueue;
+export default getEmailQueue;
 
 // Debug
 // async function checkQueueStatus() {

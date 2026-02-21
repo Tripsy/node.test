@@ -35,7 +35,7 @@ async function getUserPermissions(user_id: number): Promise<string[]> {
 		'permissions',
 	);
 
-	return (await cacheProvider.get(
+	const cacheGetResults = await cacheProvider.get(
 		cacheKey,
 		async () => {
 			const userPermissions =
@@ -54,7 +54,9 @@ async function getUserPermissions(user_id: number): Promise<string[]> {
 			return results;
 		},
 		1800,
-	)) as string[];
+	);
+
+	return cacheGetResults.data as string[];
 }
 
 function setAuthFailure(

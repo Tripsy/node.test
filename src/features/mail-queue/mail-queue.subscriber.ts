@@ -1,30 +1,36 @@
-import type Mail from 'nodemailer/lib/mailer';
 import { EventSubscriber, type InsertEvent } from 'typeorm';
+import { Configuration } from '@/config/settings.config';
 import MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import {
 	type EmailQueueData,
 	prepareEmailContent,
 } from '@/providers/email.provider';
-import emailQueue from '@/queues/email.queue';
+import getEmailQueue from '@/queues/email.queue';
 import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
+import type { EmailAddressType } from '@/types/email.type';
 
 @EventSubscriber()
 export class MailQueueSubscriber extends SubscriberAbstract<MailQueueEntity> {
 	protected readonly Entity = MailQueueEntity;
 
 	async afterInsert(event: InsertEvent<MailQueueEntity>) {
+		// Skip in test environment
+		if (Configuration.isEnvironment('test')) {
+			return;
+		}
+
 		const emailQueueData: EmailQueueData = {
 			mailQueueId: event.entity.id,
 			emailContent: prepareEmailContent({
 				language: event.entity.language,
 				content: event.entity.content,
 			}),
-			to: event.entity.to as Mail.Address,
-			from: event.entity.from as Mail.Address | null,
+			to: event.entity.to as EmailAddressType,
+			from: event.entity.from as EmailAddressType | undefined,
 		};
 
 		// Add email to the queue
-		await emailQueue.add('email:queue', emailQueueData, {
+		await getEmailQueue()?.add('email:queue', emailQueueData, {
 			removeOnComplete: true, // Automatically remove completed jobs
 			attempts: 3, // Retry failed emails up to 3 times
 			backoff: {

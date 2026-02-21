@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import request, { type Response } from 'supertest';
 import type { z } from 'zod';
-import app, { appReady, closeHandler, server } from '@/app';
+import app, { appReady, server } from '@/app';
 import { cacheProvider } from '@/providers/cache.provider';
 import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 import type {
@@ -19,27 +19,14 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-	const srv = server;
+	// Close server if it exists
+	await new Promise<void>((resolve) => {
+		server?.close(() => resolve());
+	});
 
-	if (srv) {
-		await new Promise<void>((resolve, reject) => {
-			srv.close((err) => {
-				if (err) {
-					return reject(err);
-				}
-
-				// Add delay before closing handlers
-				setTimeout(() => {
-					closeHandler().then(resolve).catch(reject);
-				}, 1000); // 1-second delay
-			});
-		});
-	} else {
-		await closeHandler();
-	}
-
-	// Additional cleanup for TypeORM
-	await new Promise((resolve) => setTimeout(resolve, 500));
+	// Clear any test-specific mocks/data
+	jest.clearAllMocks();
+	jest.resetModules();
 });
 
 // Debugging
@@ -147,7 +134,10 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 
 			jest.spyOn(cacheProvider, 'get').mockImplementation(
 				async (_key, _fallback) => {
-					return config.entityMock;
+					return {
+						isCached: false,
+						data: config.entityMock,
+					};
 				},
 			);
 

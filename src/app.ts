@@ -10,6 +10,7 @@ import { handle as i18nextMiddleware } from 'i18next-http-middleware';
 import qs from 'qs';
 import { v4 as uuid } from 'uuid';
 import { initializeI18next } from '@/config/i18n.setup';
+import { initializeQueues } from '@/config/init-queue.config';
 import { redisClose } from '@/config/init-redis.config';
 import { setupListeners } from '@/config/listeners.setup';
 import { initRoutes } from '@/config/routes.setup';
@@ -25,7 +26,7 @@ import { requestContextMiddleware } from '@/middleware/request-context.middlewar
 import startCronJobs from '@/providers/cron.provider';
 import { destroyDatabase, initDatabase } from '@/providers/database.provider';
 import { getSystemLogger, LogStream } from '@/providers/logger.provider';
-import emailQueue from '@/queues/email.queue';
+import { QueueFactory } from '@/queues/queue.factory';
 
 const app: express.Application = express();
 export let server: Server | null = null;
@@ -125,8 +126,7 @@ function printStartupInfo(): void {
 export async function closeHandler(): Promise<void> {
 	const closeOperations = [
 		{ name: 'Redis', fn: redisClose },
-		{ name: 'Email queue close', fn: () => emailQueue.close() },
-		{ name: 'Email queue disconnect', fn: () => emailQueue.disconnect() },
+		{ name: 'Queues', fn: () => QueueFactory.closeAll() },
 		{ name: 'Database', fn: destroyDatabase },
 		{ name: 'Log streams', fn: () => new LogStream().closeFileStreams() },
 	];
@@ -135,6 +135,7 @@ export async function closeHandler(): Promise<void> {
 		closeOperations.map(async ({ name, fn }) => {
 			try {
 				await fn();
+
 				getSystemLogger().debug(`${name} closed successfully`);
 			} catch (error) {
 				getSystemLogger().warn(error, `${name} close warning:`);
@@ -302,7 +303,9 @@ async function initializeApp(): Promise<void> {
 		app.use(i18nextMiddleware(i18next));
 
 		// Initialize database
-		await initDatabase();
+		if (!Configuration.isEnvironment('test')) {
+			await initDatabase();
+		}
 
 		// Middleware
 		app.set('query parser', (str: string) =>
@@ -314,7 +317,9 @@ async function initializeApp(): Promise<void> {
 		app.use(outputHandler); // Set `res.locals.output`
 
 		// Event listeners
-		await setupListeners();
+		if (!Configuration.isEnvironment('test')) {
+			await setupListeners();
+		}
 
 		// Routes
 		const router = await initRoutes();
@@ -337,16 +342,24 @@ async function initializeApp(): Promise<void> {
 
 		// Start background services (non-test env only)
 		if (!Configuration.isEnvironment('test')) {
+			// Init queues
+			await initializeQueues();
+
 			// Email worker
-			import('@/workers/email.worker').catch((error) => {
+			import('@/workers/email.worker').catch((error) =>
 				getSystemLogger().error(
 					{ err: error },
 					'Failed to start email worker',
-				);
-			});
+				),
+			);
 
 			// Cron jobs
-			startCronJobs();
+			startCronJobs().catch((error) =>
+				getSystemLogger().error(
+					{ err: error },
+					'Failed to start cron jobs',
+				),
+			);
 		}
 
 		// Mark app as ready
