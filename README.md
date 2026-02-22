@@ -256,14 +256,16 @@ $ pnpm run madge
 
 # TODO
 
-1. Deploy on AWS
-2. make tests for services
+"Not a template anymore"
+
+1. make tests for services
     > account, category
-3. make tests for the rest of available features
+2. make tests for the rest of available features
     > client, permission, place, template, user-permission
-4. API documentation
+3. API documentation
    > done for discounts
    > do for: account, category, carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
+4. Deploy on AWS
 5. create CLI script which should generate something like:
    POST /discounts HTTP/1.1
    Host: nready.dev:3000
