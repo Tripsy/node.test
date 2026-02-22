@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
 import type { LogHistoryDestination } from '@/features/log-history/log-history.entity';
 import { getObjectValue, type ObjectValue, setObjectValue } from '@/helpers';
@@ -11,6 +12,10 @@ function loadSettings(): Settings {
 			debug: process.env.APP_DEBUG === 'true',
 			url: process.env.APP_URL || 'http://nready.dev',
 			port: parseInt(process.env.APP_PORT || '3000', 10),
+			port_while_testing: parseInt(
+				process.env.APP_PORT_WHILE_TESTING || '3001',
+				10,
+			),
 			name: process.env.APP_NAME || 'sample-node-api',
 			email: process.env.APP_EMAIL || 'hello@example.com',
 			timezone: process.env.APP_TIMEZONE || 'UTC',

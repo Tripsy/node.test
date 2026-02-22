@@ -7,7 +7,7 @@ type QueueInstances = Map<string, Queue>;
 
 const instances: QueueInstances = new Map();
 
-export const QueueFactory = {
+export const queueFactory = {
 	getQueue(name: string): Queue | null {
 		if (Configuration.isEnvironment('test')) {
 			return null;

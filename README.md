@@ -245,6 +245,9 @@ $ pnpm run madge
 │   └── tests/             # Jest & Supertest tests
 │   └── types/             # Global/shared TypeScript types
 │   └── workers/           # Background workers
+│   └── app.ts          
+│   └── bootstrap.ts          
+│   └── server.ts          
 ├── .env
 ├── docker-compose.yml
 ├── biome.json
@@ -253,16 +256,17 @@ $ pnpm run madge
 
 # TODO
 
-1. CI / CD
-2. Deploy on AWS
-3. make tests for services
+1. Implement rate limiting
+2. CI / CD
+3. Deploy on AWS
+4. make tests for services
     > account, category
-4. make tests for the rest of available features
+5. make tests for the rest of available features
     > client, permission, place, template, user-permission
-5. API documentation
+6. API documentation
    > done for discounts
    > do for: account, category, carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
-6. create CLI script which should generate something like:
+7. create CLI script which should generate something like:
    POST /discounts HTTP/1.1
    Host: nready.dev:3000
    Content-Type: application/json

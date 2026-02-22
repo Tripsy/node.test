@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import type { Server } from 'node:http';
+import 'dotenv/config';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import type { Request, Response } from 'express';
@@ -9,13 +9,8 @@ import i18next from 'i18next';
 import { handle as i18nextMiddleware } from 'i18next-http-middleware';
 import qs from 'qs';
 import { v4 as uuid } from 'uuid';
-import { initializeI18next } from '@/config/i18n.setup';
-import { initializeQueues } from '@/config/init-queue.config';
-import { redisClose } from '@/config/init-redis.config';
-import { setupListeners } from '@/config/listeners.setup';
 import { initRoutes } from '@/config/routes.setup';
 import { Configuration } from '@/config/settings.config';
-import { getErrorMessage } from '@/helpers';
 import authMiddleware from '@/middleware/auth.middleware';
 import { corsHandler } from '@/middleware/cors-handler.middleware';
 import { errorHandler } from '@/middleware/error-handler.middleware';
@@ -23,382 +18,142 @@ import languageMiddleware from '@/middleware/language.middleware';
 import { notFoundHandler } from '@/middleware/not-found-handler.middleware';
 import { outputHandler } from '@/middleware/output-handler.middleware';
 import { requestContextMiddleware } from '@/middleware/request-context.middleware';
-import startCronJobs from '@/providers/cron.provider';
-import { destroyDatabase, initDatabase } from '@/providers/database.provider';
-import { getSystemLogger, LogStream } from '@/providers/logger.provider';
-import { QueueFactory } from '@/queues/queue.factory';
+import { getSystemLogger } from '@/providers/logger.provider';
 
-const app: express.Application = express();
-export let server: Server | null = null;
+// Used for `req.setTimeout`
+const REQUEST_TIMEOUT = Number(process.env.REQUEST_TIMEOUT) || 60000; // 60 seconds
 
-// Configuration
-const FORCE_SHUTDOWN_TIMEOUT = Number(
-	process.env.FORCE_SHUTDOWN_TIMEOUT ?? 10000,
-);
-const REQUEST_TIMEOUT = Number(process.env.REQUEST_TIMEOUT) || 30000;
+export async function createApp() {
+	const app = express();
 
-const appConfigCall = () => ({
-	port: Number(Configuration.get('app.port')),
-	env: Configuration.environment(),
-	name: Configuration.get('app.name') as string,
-	url: Configuration.get('app.url') as string,
-});
+	// Helmet security headers (configured for API)
+	app.use(
+		helmet({
+			/**
+			 * APIs don't render HTML.
+			 */
+			contentSecurityPolicy: {
+				useDefaults: false,
+				directives: {
+					defaultSrc: ["'none'"],
+				},
+			},
 
-// Startup state tracking
-let isStartingUp = true;
-let isAppReady = false;
-let appReadyResolve: () => void;
+			/**
+			 * Stop browsers from sniffing MIME types.
+			 * Prevents some XSS attacks.
+			 */
+			noSniff: true,
 
-// App readiness promise
-export const appReady = new Promise<void>((resolve) => {
-	appReadyResolve = () => {
-		isAppReady = true;
-		resolve();
-	};
-});
+			/**
+			 * Prevent browser from sending cross-domain requests automatically.
+			 * A must for secure APIs.
+			 */
+			referrerPolicy: { policy: 'no-referrer' },
 
-// Validate critical configuration
-function validateConfig(): void {
-	const required = ['app.port'];
-	const missing = required.filter((key) => !Configuration.get(key));
+			/**
+			 * Not relevant for APIs
+			 */
+			frameguard: { action: 'deny' },
 
-	if (missing.length > 0) {
-		throw new Error(`Missing required config: ${missing.join(', ')}`);
-	}
+			/**
+			 * HSTS only in production.
+			 * WARNING: Never enable in dev or localhost.
+			 */
+			hsts:
+				process.env.NODE_ENV === 'production'
+					? { maxAge: 31536000, includeSubDomains: true }
+					: false,
 
-	const appConfig = appConfigCall();
-
-	// Port validation
-	if (appConfig.port < 1 || appConfig.port > 65535) {
-		throw new Error(`Invalid port: ${appConfig.port}. Must be 1-65535`);
-	}
-}
-
-// Print startup banner
-function printStartupInfo(): void {
-	return; // TODO disabled temporary
-	// const appConfig = appConfigCall();
-	//
-	// if (appConfig.env === 'test') {
-	// 	return;
-	// }
-	//
-	// const width = 60;
-	// const lines = [
-	// 	['Environment:', appConfig.env],
-	// 	['Port:', appConfig.port.toString()],
-	// 	['URL:', `${appConfig.url}:${appConfig.port}`],
-	// 	['Health:', `${appConfig.url}:${appConfig.port}/health`],
-	// ];
-	//
-	// console.log(`┌${'─'.repeat(width + 2)}┐`);
-	// console.log(`│ ${appConfig.name.padEnd(width)} │`);
-	// console.log(`├${'─'.repeat(width + 2)}┤`);
-	//
-	// for (const [label, value] of lines) {
-	// 	const text = `${label} ${value}`.padEnd(width);
-	// 	console.log(`│ ${text} │`);
-	// }
-	//
-	// // Display routes
-	// if (appConfig.env === 'development') {
-	// 	const routes = getRoutesInfo();
-	//
-	// 	if (routes.length > 0) {
-	// 		console.log(`├${'─'.repeat(width + 2)}┤`);
-	// 		console.log(
-	// 			`│ ${`Routes (${routes.length} total):`.padEnd(width)} │`,
-	// 		);
-	// 		console.log(`│${' '.repeat(width + 2)}│`);
-	//
-	// 		routes.forEach((route) => {
-	// 			console.log(
-	// 				`│ ${route.method.padEnd(7)} ${route.path.padEnd(width - 8)} │`,
-	// 			);
-	// 		});
-	// 	}
-	// }
-	//
-	// console.log(`└${'─'.repeat(width + 2)}┘`);
-}
-
-// Graceful shutdown helpers
-export async function closeHandler(): Promise<void> {
-	const closeOperations = [
-		{ name: 'Redis', fn: redisClose },
-		{ name: 'Queues', fn: () => QueueFactory.closeAll() },
-		{ name: 'Database', fn: destroyDatabase },
-		{ name: 'Log streams', fn: () => new LogStream().closeFileStreams() },
-	];
-
-	await Promise.allSettled(
-		closeOperations.map(async ({ name, fn }) => {
-			try {
-				await fn();
-
-				getSystemLogger().debug(`${name} closed successfully`);
-			} catch (error) {
-				getSystemLogger().warn(error, `${name} close warning:`);
-			}
+			/**
+			 * Hide "X-Powered-By: Express"
+			 */
+			hidePoweredBy: true,
 		}),
 	);
-}
 
-function shutdown(signal: string): void {
-	getSystemLogger().debug(
-		`${signal} received. Starting graceful shutdown...`,
+	// Configuration
+	app.set('trust proxy', false);
+
+	// CORS handling
+	app.use(corsHandler);
+
+	// Compression
+	app.use(
+		compression({
+			threshold: 1024,
+			filter: (req: Request, res: Response): boolean => {
+				// skip for small responses
+				const skip = req.get('x-no-compression');
+
+				if (skip) {
+					return false;
+				}
+
+				return compression.filter(req, res);
+			},
+		}),
 	);
 
-	if (isStartingUp) {
-		getSystemLogger().debug('Shutdown requested during startup');
-		process.exit(1);
-	}
+	// Request parsing
+	app.use(cookieParser());
+	app.use(express.json({ limit: '10mb' }));
+	app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-	if (!server) {
-		getSystemLogger().debug('No server instance to close');
-		process.exit(0);
-	}
+	// Request ID middleware
+	app.use((_req, res, next) => {
+		res.locals.request_id = uuid();
+		res.setHeader('X-Request-ID', res.locals.request_id);
 
-	server.close(async () => {
-		try {
-			await closeHandler();
-			getSystemLogger().debug('Server closed gracefully');
-			process.exit(0);
-		} catch (error) {
-			getSystemLogger().fatal(error, 'Error during shutdown:');
-			process.exit(1);
-		}
+		next();
 	});
 
-	setTimeout(() => {
-		getSystemLogger().fatal(
-			`Forcing shutdown after ${FORCE_SHUTDOWN_TIMEOUT}ms`,
-		);
-		process.exit(1);
-	}, FORCE_SHUTDOWN_TIMEOUT).unref();
-}
-
-// ========== MIDDLEWARE SETUP ==========
-
-// Helmet security headers (configured for API)
-app.use(
-	helmet({
-		/**
-		 * APIs don't render HTML.
-		 */
-		contentSecurityPolicy: {
-			useDefaults: false,
-			directives: {
-				defaultSrc: ["'none'"],
-			},
-		},
-
-		/**
-		 * Stop browsers from sniffing MIME types.
-		 * Prevents some XSS attacks.
-		 */
-		noSniff: true,
-
-		/**
-		 * Prevent browser from sending cross-domain requests automatically.
-		 * A must for secure APIs.
-		 */
-		referrerPolicy: { policy: 'no-referrer' },
-
-		/**
-		 * Not relevant for APIs
-		 */
-		frameguard: { action: 'deny' },
-
-		/**
-		 * HSTS only in production.
-		 * WARNING: Never enable in dev or localhost.
-		 */
-		hsts:
-			process.env.NODE_ENV === 'production'
-				? { maxAge: 31536000, includeSubDomains: true }
-				: false,
-
-		/**
-		 * Hide "X-Powered-By: Express"
-		 */
-		hidePoweredBy: true,
-	}),
-);
-
-// Configuration
-app.set('trust proxy', false);
-
-// CORS handling
-app.use(corsHandler);
-
-// Compression (skip for small responses)
-app.use(
-	compression({
-		threshold: 1024,
-		filter: (req: Request, res: Response): boolean => {
-			const skip = req.get('x-no-compression');
-
-			if (skip) {
-				return false;
-			}
-
-			return compression.filter(req, res);
-		},
-	}),
-);
-
-// Request parsing
-app.use(cookieParser());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Request ID middleware
-app.use((_req, res, next) => {
-	res.locals.request_id = uuid();
-	res.setHeader('X-Request-ID', res.locals.request_id);
-
-	next();
-});
-
-// Request timeout
-app.use((req, res, next) => {
-	req.setTimeout(REQUEST_TIMEOUT, () => {
-		getSystemLogger().warn(
-			`Request timeout: ${req.method} ${req.url} (${res.locals.request_id})`,
-		);
-	});
-
-	next();
-});
-
-// ========== ROUTES ==========
-
-// Health
-app.get('/health', (_req, res) => {
-	res.status(200).json({
-		status: 'OK',
-		timestamp: new Date().toISOString(),
-		uptime: process.uptime(),
-	});
-});
-
-// Ready
-app.get('/ready', (_req, res) => {
-	if (isAppReady) {
-		res.status(200).json({ ready: true });
-	} else {
-		res.status(503).json({ ready: false }); // Service Unavailable
-	}
-});
-
-// ========== APPLICATION INITIALIZATION ==========
-
-async function initializeApp(): Promise<void> {
-	try {
-		validateConfig();
-
-		// Initialize i18next before attaching middleware
-		await initializeI18next();
-		app.use(i18nextMiddleware(i18next));
-
-		// Initialize database
-		if (!Configuration.isEnvironment('test')) {
-			await initDatabase();
-		}
-
-		// Middleware
-		app.set('query parser', (str: string) =>
-			qs.parse(str, { allowDots: true }),
-		);
-		app.use(languageMiddleware); // Set `res.locals.lang`
-		app.use(authMiddleware); // Set `res.locals.auth`
-		app.use(requestContextMiddleware); // Prepare `requestContext`
-		app.use(outputHandler); // Set `res.locals.output`
-
-		// Event listeners
-		if (!Configuration.isEnvironment('test')) {
-			await setupListeners();
-		}
-
-		// Routes
-		const router = await initRoutes();
-		app.use('/', router);
-		getSystemLogger().debug('Routes initialized');
-
-		// Error handlers (must be last)
-		app.use(notFoundHandler);
-		app.use(errorHandler);
-
-		// Start server (await listen)
-		await new Promise<void>((resolve) => {
-			server = app.listen(Configuration.get('app.port') as number, () => {
-				resolve();
-			});
+	// Request timeout
+	app.use((req, res, next) => {
+		req.setTimeout(REQUEST_TIMEOUT, () => {
+			getSystemLogger().warn(
+				`Request timeout: ${req.method} ${req.url} (${res.locals.request_id})`,
+			);
 		});
 
-		// Mark startup as complete
-		isStartingUp = false;
+		next();
+	});
 
-		// Start background services (non-test env only)
-		if (!Configuration.isEnvironment('test')) {
-			// Init queues
-			await initializeQueues();
+	// Middleware
+	app.set('query parser', (str: string) =>
+		qs.parse(str, { allowDots: true }),
+	);
+	app.use(outputHandler); // Set `res.locals.output`
 
-			// Email worker
-			import('@/workers/email.worker').catch((error) =>
-				getSystemLogger().error(
-					{ err: error },
-					'Failed to start email worker',
-				),
-			);
-
-			// Cron jobs
-			startCronJobs().catch((error) =>
-				getSystemLogger().error(
-					{ err: error },
-					'Failed to start cron jobs',
-				),
-			);
-		}
-
-		// Mark app as ready
-		appReadyResolve();
-
-		// Print startup banner
-		printStartupInfo();
-	} catch (error) {
-		const errorMsg = getErrorMessage(error);
-
-		getSystemLogger().fatal(
-			error,
-			`Failed to initialize application: ${errorMsg}`,
-		);
-
-		throw error;
+	if (!Configuration.isEnvironment('test')) {
+		app.use(i18nextMiddleware(i18next));
 	}
+
+	app.use(languageMiddleware); // Set `res.locals.lang`
+	app.use(authMiddleware); // Set `res.locals.auth`
+	app.use(requestContextMiddleware); // Prepare `requestContext`
+
+	// Routes
+	const router = await initRoutes();
+	app.use('/', router);
+
+	// Route - health
+	app.get('/health', (_req, res) => {
+		res.status(200).json({
+			status: 'OK',
+			timestamp: new Date().toISOString(),
+			uptime: process.uptime(),
+		});
+	});
+
+	// Route - ready
+	app.get('/ready', (_req, res) => {
+		res.status(200).json({ ready: true });
+	});
+
+	// Error handlers (must be last)
+	app.use(notFoundHandler);
+	app.use(errorHandler);
+
+	return app;
 }
-
-// ========== SIGNAL HANDLERS ==========
-
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('uncaughtException', (error) => {
-	getSystemLogger().fatal(error, 'Uncaught exception');
-
-	process.exit(1);
-});
-process.on('unhandledRejection', (reason) => {
-	getSystemLogger().fatal(reason, 'Unhandled rejection');
-
-	process.exit(1);
-});
-
-// ========== START APPLICATION ==========
-
-initializeApp().catch((error) => {
-	getSystemLogger().fatal('Application startup failed:', error);
-	process.exit(1);
-});
-
-export default app;

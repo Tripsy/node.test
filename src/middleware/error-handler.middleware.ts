@@ -48,12 +48,12 @@ export const errorHandler = (
 		}
 	}
 
-	// if (err instanceof NotFoundError || err instanceof NotAllowedError) {
-	//
-	// }
-
 	res.status(status);
-	res.locals.output.message(err.message);
 
-	res.json(res.locals.output);
+	if (res.locals?.output) {
+		res.locals.output.message(err.message);
+		res.json(res.locals.output);
+	} else {
+		res.json({ err });
+	}
 };

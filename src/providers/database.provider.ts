@@ -22,10 +22,7 @@ export const destroyDatabase = async () => {
 
 		getSystemLogger().debug('Database connection closed gracefully');
 	} catch (error) {
-		getSystemLogger().error(
-			{ err: error },
-			'Error closing database connection',
-		);
+		getSystemLogger().error(error, 'Error closing database connection');
 
 		throw error;
 	}

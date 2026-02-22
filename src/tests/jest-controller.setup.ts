@@ -1,7 +1,8 @@
 import { jest } from '@jest/globals';
+import type { Express } from 'express';
 import request, { type Response } from 'supertest';
 import type { z } from 'zod';
-import app, { appReady, server } from '@/app';
+import { createApp } from '@/app';
 import { cacheProvider } from '@/providers/cache.provider';
 import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 import type {
@@ -14,17 +15,17 @@ import {
 	notAuthorizedSpy,
 } from '@/tests/mocks/policies.mock';
 
+let app: Express;
+
 beforeAll(async () => {
-	await appReady;
+	app = await createApp();
+});
+
+afterEach(() => {
+	jest.restoreAllMocks();
 });
 
 afterAll(async () => {
-	// Close server if it exists
-	await new Promise<void>((resolve) => {
-		server?.close(() => resolve());
-	});
-
-	// Clear any test-specific mocks/data
 	jest.clearAllMocks();
 	jest.resetModules();
 });
@@ -32,6 +33,19 @@ afterAll(async () => {
 // Debugging
 export function addDebugResponse(response: Response, hint: string) {
 	console.log(hint, response.body);
+}
+
+export function withDebug<T>(testFn: () => T, response: Response): T {
+	try {
+		return testFn();
+	} catch (error) {
+		// Get current test info from Jest
+		const testName = expect.getState().currentTestName;
+
+		addDebugResponse(response, testName ?? '');
+
+		throw error;
+	}
 }
 
 // Controller test - Create
@@ -63,7 +77,9 @@ export function testControllerCreate<E, V extends CreateValidator>(
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).post(link).send();
 
-			expect(response.status).toBe(401);
+			withDebug(() => {
+				expect(response.status).toBe(401);
+			}, response);
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
@@ -71,7 +87,9 @@ export function testControllerCreate<E, V extends CreateValidator>(
 
 			const response = await request(app).post(link).send();
 
-			expect(response.status).toBe(403);
+			withDebug(() => {
+				expect(response.status).toBe(403);
+			}, response);
 		});
 
 		it('should return success', async () => {
@@ -85,18 +103,14 @@ export function testControllerCreate<E, V extends CreateValidator>(
 				.post(link)
 				.send(config.createData);
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(201);
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
 					'id',
 					config.entityMock.id,
 				);
-			} catch (error) {
-				addDebugResponse(response, `${config.controller} - create`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }
@@ -118,7 +132,9 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).get(link).query({});
 
-			expect(response.status).toBe(401);
+			withDebug(() => {
+				expect(response.status).toBe(401);
+			}, response);
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
@@ -126,7 +142,9 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 
 			const response = await request(app).get(link).query({});
 
-			expect(response.status).toBe(403);
+			withDebug(() => {
+				expect(response.status).toBe(403);
+			}, response);
 		});
 
 		it('should return success', async () => {
@@ -143,18 +161,14 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 
 			const response = await request(app).get(link).query({});
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(200);
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
 					'id',
 					config.entityMock.id,
 				);
-			} catch (error) {
-				addDebugResponse(response, `${config.controller} - read`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }
@@ -192,7 +206,9 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).put(link).send();
 
-			expect(response.status).toBe(401);
+			withDebug(() => {
+				expect(response.status).toBe(401);
+			}, response);
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
@@ -200,7 +216,9 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 
 			const response = await request(app).put(link).send();
 
-			expect(response.status).toBe(403);
+			withDebug(() => {
+				expect(response.status).toBe(403);
+			}, response);
 		});
 
 		it('should return success', async () => {
@@ -214,18 +232,14 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 				.put(link)
 				.send(config.updateData);
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(200);
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
 					'id',
 					config.entityMock.id,
 				);
-			} catch (error) {
-				addDebugResponse(response, `${config.controller} - update`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }
@@ -258,7 +272,9 @@ export function testControllerUpdateWithContent<E, V extends UpdateValidator>(
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).put(link).send();
 
-			expect(response.status).toBe(401);
+			withDebug(() => {
+				expect(response.status).toBe(401);
+			}, response);
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
@@ -266,7 +282,9 @@ export function testControllerUpdateWithContent<E, V extends UpdateValidator>(
 
 			const response = await request(app).put(link).send();
 
-			expect(response.status).toBe(403);
+			withDebug(() => {
+				expect(response.status).toBe(403);
+			}, response);
 		});
 
 		it('should return success', async () => {
@@ -281,18 +299,14 @@ export function testControllerUpdateWithContent<E, V extends UpdateValidator>(
 				.put(link)
 				.send(config.updateData);
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(200);
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
 					'id',
 					config.entityMock.id,
 				);
-			} catch (error) {
-				addDebugResponse(response, `${config.controller} - update`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }
@@ -328,7 +342,9 @@ export function testControllerDeleteMultiple<V extends DeleteValidator>(
 
 			const response = await request(app).delete(link).send();
 
-			expect(response.status).toBe(401);
+			withDebug(() => {
+				expect(response.status).toBe(401);
+			}, response);
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
@@ -336,7 +352,9 @@ export function testControllerDeleteMultiple<V extends DeleteValidator>(
 
 			const response = await request(app).delete(link).send();
 
-			expect(response.status).toBe(403);
+			withDebug(() => {
+				expect(response.status).toBe(403);
+			}, response);
 		});
 
 		it('should return success', async () => {
@@ -346,13 +364,9 @@ export function testControllerDeleteMultiple<V extends DeleteValidator>(
 
 			const response = await request(app).delete(link).send(testData);
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(200);
-			} catch (error) {
-				addDebugResponse(response, `${config.controller} - delete`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }
@@ -375,7 +389,9 @@ export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).delete(link).query({});
 
-			expect(response.status).toBe(401);
+			withDebug(() => {
+				expect(response.status).toBe(401);
+			}, response);
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
@@ -383,7 +399,9 @@ export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 
 			const response = await request(app).delete(link).query({});
 
-			expect(response.status).toBe(403);
+			withDebug(() => {
+				expect(response.status).toBe(403);
+			}, response);
 		});
 
 		it('should return success', async () => {
@@ -393,13 +411,9 @@ export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 
 			const response = await request(app).delete(link).query({});
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(200);
-			} catch (error) {
-				addDebugResponse(response, `${config.controller} - delete`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }
@@ -425,7 +439,9 @@ export function testControllerRestoreSingle(
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).patch(link).query({});
 
-			expect(response.status).toBe(401);
+			withDebug(() => {
+				expect(response.status).toBe(401);
+			}, response);
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
@@ -433,7 +449,9 @@ export function testControllerRestoreSingle(
 
 			const response = await request(app).patch(link).query({});
 
-			expect(response.status).toBe(403);
+			withDebug(() => {
+				expect(response.status).toBe(403);
+			}, response);
 		});
 
 		it('should return success', async () => {
@@ -443,13 +461,9 @@ export function testControllerRestoreSingle(
 
 			const response = await request(app).patch(link).query({});
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(200);
-			} catch (error) {
-				addDebugResponse(response, `${config.controller} - restore`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }
@@ -506,15 +520,11 @@ export function testControllerFind<E, V extends FindValidator>(
 
 			const response = await request(app).get(link).query(mockFindData);
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(200);
 				expect(response.body.data.entries).toHaveLength(1);
 				expect(response.body.data.query.limit).toBe(mockFindData.limit);
-			} catch (error) {
-				addDebugResponse(response, `${config.controller} - find`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }
@@ -548,7 +558,9 @@ export function testControllerStatusUpdate<E>(
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).patch(link).query({});
 
-			expect(response.status).toBe(401);
+			withDebug(() => {
+				expect(response.status).toBe(401);
+			}, response);
 		});
 
 		it("should fail if it doesn't have proper permission", async () => {
@@ -556,7 +568,9 @@ export function testControllerStatusUpdate<E>(
 
 			const response = await request(app).patch(link).query({});
 
-			expect(response.status).toBe(403);
+			withDebug(() => {
+				expect(response.status).toBe(403);
+			}, response);
 		});
 
 		it('should return success', async () => {
@@ -568,17 +582,10 @@ export function testControllerStatusUpdate<E>(
 
 			const response = await request(app).patch(link).query({});
 
-			try {
+			withDebug(() => {
 				expect(response.status).toBe(200);
 				expect(response.body).toHaveProperty('success', true);
-			} catch (error) {
-				addDebugResponse(
-					response,
-					`${config.controller} - statusUpdate`,
-				);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, response);
 		});
 	});
 }

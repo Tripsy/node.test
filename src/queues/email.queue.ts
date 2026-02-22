@@ -1,6 +1,6 @@
-import { QueueFactory } from './queue.factory';
+import { queueFactory } from './queue.factory';
 
-const getEmailQueue = () => QueueFactory.getQueue('emailQueue');
+const getEmailQueue = () => queueFactory.getQueue('emailQueue');
 
 export default getEmailQueue;
 

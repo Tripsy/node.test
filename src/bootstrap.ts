@@ -1,0 +1,40 @@
+import { initializeI18next } from '@/config/i18n.setup';
+import { initQueues } from '@/config/init-queue.config';
+import { setupListeners } from '@/config/listeners.setup';
+import { Configuration } from '@/config/settings.config';
+import startCronJobs from '@/providers/cron.provider';
+import { initDatabase } from '@/providers/database.provider';
+
+// Validate critical configuration
+function validateConfig(): void {
+	const required = ['app.port'];
+	const missing = required.filter((key) => !Configuration.get(key));
+
+	if (missing.length > 0) {
+		throw new Error(`Missing required config: ${missing.join(', ')}`);
+	}
+
+	const appPort = Number(Configuration.get('app.port'));
+
+	// Port validation
+	if (appPort < 1 || appPort > 65535) {
+		throw new Error(`Invalid port: ${appPort}. Must be 1-65535`);
+	}
+}
+
+// Application bootstrap
+export async function bootstrap(): Promise<void> {
+	validateConfig();
+
+	await initializeI18next();
+
+	if (!Configuration.isEnvironment('test')) {
+		await initDatabase();
+		await setupListeners();
+		await initQueues();
+
+		import('@/workers/email.worker').catch(console.error);
+
+		await startCronJobs();
+	}
+}

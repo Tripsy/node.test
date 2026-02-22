@@ -101,31 +101,42 @@ export const initRoutes = async (apiPrefix: string = ''): Promise<Router> => {
 	const featuresPath = buildSrcPath(
 		Configuration.get('folder.features') as string,
 	);
+
 	const features = listDirectories(featuresPath);
 
 	for (const feature of features) {
-		try {
-			const filePath = getRoutesFilePath(feature);
-			const module = await import(filePath);
-			const def = module.default;
-
-			if (!def) {
-				getSystemLogger().fatal(
-					`Feature ${feature} does not export default routes config`,
-				);
-				continue;
-			}
-
-			router.use(apiPrefix, buildRoutes(def));
-
-			if (Configuration.isEnvironment('development')) {
-				pushRouteInfo(feature, def);
-			}
-		} catch {
-			// console.error(`Error importing ${feature}.routes:`, error);
-			// Feature has no routes file → ignore
-		}
+		await loadFeatureRoutes(router, feature, apiPrefix);
 	}
+
+	getSystemLogger().debug('Routes initialized');
 
 	return router;
 };
+
+async function loadFeatureRoutes(
+	router: Router,
+	feature: string,
+	apiPrefix: string,
+): Promise<void> {
+	try {
+		const filePath = getRoutesFilePath(feature);
+		const module = await import(filePath);
+		const def = module.default;
+
+		if (!def) {
+			getSystemLogger().warn(
+				`Feature ${feature} does not export default routes config`,
+			);
+
+			return;
+		}
+
+		router.use(apiPrefix, buildRoutes(def));
+
+		if (Configuration.isEnvironment('development')) {
+			pushRouteInfo(feature, def);
+		}
+	} catch {
+		// Feature has no routes file → ignore
+	}
+}

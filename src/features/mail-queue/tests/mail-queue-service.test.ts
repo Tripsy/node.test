@@ -1,4 +1,4 @@
-import { expect, jest } from '@jest/globals';
+import { jest } from '@jest/globals';
 import type MailQueueEntity from '@/features/mail-queue/mail-queue.entity';
 import { mailQueueOutputPayloads } from '@/features/mail-queue/mail-queue.mock';
 import type { MailQueueQuery } from '@/features/mail-queue/mail-queue.repository';
@@ -33,17 +33,6 @@ describe('MailQueueService', () => {
 		query,
 		serviceMailQueue,
 	);
-
-	// it('should apply filters and return paginated results', async () => {
-	//     query.all.mockResolvedValue([[], 0]);
-	//
-	//     const findData = mailQueueOutputPayloads.get('find')
-	//
-	//     const result = await serviceMailQueue.findByFilter(findData);
-	//
-	//     expect(query.all).toHaveBeenCalledWith(true);
-	//     expect(result).toEqual([[], 0]);
-	// });
 
 	testServiceFindByFilter<
 		MailQueueEntity,

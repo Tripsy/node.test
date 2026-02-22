@@ -193,50 +193,45 @@ export class CacheProvider {
 }
 
 class MockCacheProvider extends CacheProvider {
-    constructor() {
-        // Passing a dummy Redis, which will not be used
-        super({} as Redis);
-    }
+	constructor() {
+		// Passing a dummy Redis, which will not be used
+		super({} as Redis);
+	}
 
-    async exists(_key: string): Promise<boolean> {
-        return false;
-    }
+	async exists(_key: string): Promise<boolean> {
+		return false;
+	}
 
-    async get(
-        _key: string,
-        fetchFunction: () => Promise<CacheData>,
-        _ttl?: number,
-    ): Promise<CacheGetResults> {
-        const data = await fetchFunction();
+	async get(
+		_key: string,
+		fetchFunction: () => Promise<CacheData>,
+		_ttl?: number,
+	): Promise<CacheGetResults> {
+		const data = await fetchFunction();
 
-        return {
-            isCached: false,
-            data,
-        };
-    }
+		return {
+			isCached: false,
+			data,
+		};
+	}
 
-    async set(
-        _key: string,
-        _data: CacheData,
-        _ttl?: number,
-    ): Promise<void> {
-        // intentionally no-op
-    }
+	async set(_key: string, _data: CacheData, _ttl?: number): Promise<void> {
+		// intentionally no-op
+	}
 
-    async delete(_key: string): Promise<void> {
-        // intentionally no-op
-    }
+	async delete(_key: string): Promise<void> {
+		// intentionally no-op
+	}
 
-    async deleteByPattern(_pattern: string): Promise<void> {
-        // intentionally no-op
-    }
+	async deleteByPattern(_pattern: string): Promise<void> {
+		// intentionally no-op
+	}
 
-    buildKey(...args: string[]): string {
-        return args.join(':');
-    }
+	buildKey(...args: string[]): string {
+		return args.join(':');
+	}
 }
 
 export const cacheProvider = Configuration.isEnvironment('test')
-    ? new MockCacheProvider()
-    : new CacheProvider(getRedisClient());
-
+	? new MockCacheProvider()
+	: new CacheProvider(getRedisClient());

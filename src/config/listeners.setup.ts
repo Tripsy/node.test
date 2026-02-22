@@ -57,6 +57,7 @@ async function registerListener(filePath: string) {
 	}
 }
 
+// Setup event listeners
 export async function setupListeners() {
 	const featureListenerPaths = getFeatureListenerPaths();
 	const coreListenerPaths = getCoreListenerPaths();
