@@ -61,8 +61,7 @@ class FeatureManager {
 			output: process.stdout,
 		});
 
-		// TODO > sanity checks
-		// git status check
+		// TODO >  git status check
 	}
 
 	async run() {
@@ -258,131 +257,87 @@ class FeatureManager {
 		return 0;
 	}
 
-	// "migration:generate": "pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts",
-	// "migration:run": "pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts",
-	// "migration:revert": "pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts"
-	// async createTmpDataSourceConfigFile(entities: string[]) {
-	//     this.tmpDataSourceConfigFile = path.resolve(`${this.basePath}/cli/tmp/data-source.config.tmp.ts`);
-	//
-	//     const ENTITY_PATHS: string[] = [];
-	//
-	//     entities.forEach((e) => {
-	//         ENTITY_PATHS.push(`${this.baseFeaturePath}/${this.feature}/${e}.entity.ts`)
-	//     })
-	//
-	//     let content = await fs.readFile(path.resolve(`${this.basePath}/src/config/data-source.config.ts`), 'utf8');
-	//
-	//     // Set entities
-	//     content = content.replace(
-	//         /entities:\s*\[[^\]]*],/m,
-	//         `entities: [\n${ENTITY_PATHS.map((p) => `'${p}'`).join(',\n')}\n],`
-	//     );
-	//
-	//     // Remove migrations
-	//     content = content.replace(
-	//         /migrations\s*:\s*\[[\s\S]*?],\s*/g,
-	//         `migrations: ['${this.basePath}/src/database/migrations/*-feature-${this.feature}.ts'],\n`
-	//     );
-	//
-	//     // Remove subscribers
-	//     content = content.replace(
-	//         /subscribers\s*:\s*\[[\s\S]*?],\s*/g,
-	//         ''
-	//     );
-	//
-	//     await fs.writeFile(this.tmpDataSourceConfigFile, content);
-	//
-	//     this.rollback.addUndoStep({
-	//         description: `Remove data-source.config.tmp.ts`,
-	//         action: async () => {
-	//             await fs.rm(this.tmpDataSourceConfigFile, {
-	//                 force: true,
-	//             });
-	//         },
-	//     });
+	// async executeMigrationGenerate() {
+	// 	try {
+	// 		const command = `pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d ${this.tmpDataSourceConfigFile} /var/www/html/src/database/migrations/feature-${this.feature}`;
+    //
+	// 		const { stdout, stderr } = await this.execAsync(command, {
+	// 			cwd: this.basePath, // Set a working directory
+	// 			maxBuffer: 1024 * 1024 * 10, // 10MB buffer for a large output
+	// 		});
+    //
+	// 		// TypeORM often outputs to stderr even on success
+	// 		const hasRealErrors =
+	// 			stderr.toLowerCase().includes('error') &&
+	// 			!stderr.toLowerCase().includes('no changes');
+    //
+	// 		if (hasRealErrors) {
+	// 			display.blank().warning(`Warnings: ${stderr}`);
+    //
+	// 			return false;
+	// 		}
+    //
+	// 		display
+	// 			.blank()
+	// 			.success('Migration generated successfully')
+	// 			.text(stdout);
+    //
+	// 		return true;
+	// 	} catch (error) {
+	// 		if (error instanceof Error) {
+	// 			display
+	// 				.blank()
+	// 				.error(
+	// 					`Failed to generate migration: ${error.message || 'Unknown error'}`,
+	// 				);
+	// 		} else {
+	// 			console.log('');
+	// 			console.error(error);
+	// 		}
+    //
+	// 		return false;
+	// 	}
 	// }
-
-	async executeMigrationGenerate() {
-		try {
-			const command = `pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d ${this.tmpDataSourceConfigFile} /var/www/html/src/database/migrations/feature-${this.feature}`;
-
-			const { stdout, stderr } = await this.execAsync(command, {
-				cwd: this.basePath, // Set a working directory
-				maxBuffer: 1024 * 1024 * 10, // 10MB buffer for a large output
-			});
-
-			// TypeORM often outputs to stderr even on success
-			const hasRealErrors =
-				stderr.toLowerCase().includes('error') &&
-				!stderr.toLowerCase().includes('no changes');
-
-			if (hasRealErrors) {
-				display.blank().warning(`Warnings: ${stderr}`);
-
-				return false;
-			}
-
-			display
-				.blank()
-				.success('Migration generated successfully')
-				.text(stdout);
-
-			return true;
-		} catch (error) {
-			if (error instanceof Error) {
-				display
-					.blank()
-					.error(
-						`Failed to generate migration: ${error.message || 'Unknown error'}`,
-					);
-			} else {
-				console.log('');
-				console.error(error);
-			}
-
-			return false;
-		}
-	}
-
-	async executeMigrationRun() {
-		try {
-			const command =
-				'pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts';
-
-			const { stdout, stderr } = await this.execAsync(command, {
-				cwd: this.basePath, // Set a working directory
-				maxBuffer: 1024 * 1024 * 10, // 10MB buffer for a large output
-			});
-
-			// TypeORM often outputs to stderr even on success
-			const hasRealErrors =
-				stderr.toLowerCase().includes('error') &&
-				!stderr.toLowerCase().includes('no changes');
-
-			if (hasRealErrors) {
-				display.blank().warning(`Warnings: ${stderr}`);
-
-				return false;
-			}
-
-			display.blank().success('Migration run successfully').text(stdout);
-
-			return true;
-		} catch (error) {
-			if (error instanceof Error) {
-				display
-					.blank()
-					.error(
-						`Failed to run migration: ${error.message || 'Unknown error'}`,
-					);
-			} else {
-				console.log('');
-				console.error(error);
-			}
-
-			return false;
-		}
-	}
+    //
+	// async executeMigrationRun() {
+	// 	try {
+	// 		const command =
+	// 			'pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts';
+    //
+	// 		const { stdout, stderr } = await this.execAsync(command, {
+	// 			cwd: this.basePath, // Set a working directory
+	// 			maxBuffer: 1024 * 1024 * 10, // 10MB buffer for a large output
+	// 		});
+    //
+	// 		// TypeORM often outputs to stderr even on success
+	// 		const hasRealErrors =
+	// 			stderr.toLowerCase().includes('error') &&
+	// 			!stderr.toLowerCase().includes('no changes');
+    //
+	// 		if (hasRealErrors) {
+	// 			display.blank().warning(`Warnings: ${stderr}`);
+    //
+	// 			return false;
+	// 		}
+    //
+	// 		display.blank().success('Migration run successfully').text(stdout);
+    //
+	// 		return true;
+	// 	} catch (error) {
+	// 		if (error instanceof Error) {
+	// 			display
+	// 				.blank()
+	// 				.error(
+	// 					`Failed to run migration: ${error.message || 'Unknown error'}`,
+	// 				);
+	// 		} else {
+	// 			console.log('');
+	// 			console.error(error);
+	// 		}
+    //
+	// 		return false;
+	// 	}
+	// }
 
 	private async removeFeature() {
 		const featurePath = path.join(this.baseFeaturePath, this.feature);
