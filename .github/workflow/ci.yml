@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  NReadyCI:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
