@@ -256,6 +256,8 @@ $ pnpm run madge
 
 # TODO
 
+"Not a template anymore"
+
 1. make tests for services
     > account, category
 2. make tests for the rest of available features
