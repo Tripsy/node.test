@@ -18,7 +18,7 @@
 	"scripts": {
 		"dev": "nodemon",
 		"test": "NODE_OPTIONS=--experimental-vm-modules APP_DEBUG=false APP_ENV=test NODE_ENV=test jest",
-        "typecheck": "tsc --noEmit",
+		"typecheck": "tsc --noEmit",
 		"biome": "NODE_OPTIONS=--no-deprecation biome check --write",
 		"madge": "madge --circular src",
 		"migration:generate": "pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts",

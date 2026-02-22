@@ -1,8 +1,8 @@
-import { exec } from 'node:child_process';
+// import { exec } from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as readline from 'node:readline';
-import { promisify } from 'node:util';
+// import { promisify } from 'node:util';
 import { display } from './helpers/console-display';
 import { logToFile } from './helpers/console-log';
 import { ConsoleRollback } from './helpers/console-rollback';
@@ -41,8 +41,8 @@ class FeatureManager {
 
 	private rollback: ConsoleRollback;
 
-	private execAsync = promisify(exec);
-	private tmpDataSourceConfigFile: string = '';
+	// private execAsync = promisify(exec);
+	// private tmpDataSourceConfigFile: string = '';
 
 	constructor(args: FeatureManagerArgs) {
 		this.basePath = args.basePath;
@@ -260,28 +260,28 @@ class FeatureManager {
 	// async executeMigrationGenerate() {
 	// 	try {
 	// 		const command = `pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d ${this.tmpDataSourceConfigFile} /var/www/html/src/database/migrations/feature-${this.feature}`;
-    //
+	//
 	// 		const { stdout, stderr } = await this.execAsync(command, {
 	// 			cwd: this.basePath, // Set a working directory
 	// 			maxBuffer: 1024 * 1024 * 10, // 10MB buffer for a large output
 	// 		});
-    //
+	//
 	// 		// TypeORM often outputs to stderr even on success
 	// 		const hasRealErrors =
 	// 			stderr.toLowerCase().includes('error') &&
 	// 			!stderr.toLowerCase().includes('no changes');
-    //
+	//
 	// 		if (hasRealErrors) {
 	// 			display.blank().warning(`Warnings: ${stderr}`);
-    //
+	//
 	// 			return false;
 	// 		}
-    //
+	//
 	// 		display
 	// 			.blank()
 	// 			.success('Migration generated successfully')
 	// 			.text(stdout);
-    //
+	//
 	// 		return true;
 	// 	} catch (error) {
 	// 		if (error instanceof Error) {
@@ -294,34 +294,34 @@ class FeatureManager {
 	// 			console.log('');
 	// 			console.error(error);
 	// 		}
-    //
+	//
 	// 		return false;
 	// 	}
 	// }
-    //
+	//
 	// async executeMigrationRun() {
 	// 	try {
 	// 		const command =
 	// 			'pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts';
-    //
+	//
 	// 		const { stdout, stderr } = await this.execAsync(command, {
 	// 			cwd: this.basePath, // Set a working directory
 	// 			maxBuffer: 1024 * 1024 * 10, // 10MB buffer for a large output
 	// 		});
-    //
+	//
 	// 		// TypeORM often outputs to stderr even on success
 	// 		const hasRealErrors =
 	// 			stderr.toLowerCase().includes('error') &&
 	// 			!stderr.toLowerCase().includes('no changes');
-    //
+	//
 	// 		if (hasRealErrors) {
 	// 			display.blank().warning(`Warnings: ${stderr}`);
-    //
+	//
 	// 			return false;
 	// 		}
-    //
+	//
 	// 		display.blank().success('Migration run successfully').text(stdout);
-    //
+	//
 	// 		return true;
 	// 	} catch (error) {
 	// 		if (error instanceof Error) {
@@ -334,7 +334,7 @@ class FeatureManager {
 	// 			console.log('');
 	// 			console.error(error);
 	// 		}
-    //
+	//
 	// 		return false;
 	// 	}
 	// }
