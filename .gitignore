@@ -15,9 +15,6 @@
 # npm package-lock file
 /package-lock.json
 
-# pnpm lock file (if you're using pnpm)
-/pnpm-lock.yaml
-
 # IDE or editor directories and files
 /.idea/
 
