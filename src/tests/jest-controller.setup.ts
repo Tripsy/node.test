@@ -58,7 +58,7 @@ export function withDebugResponse<T>(testFn: () => T, response: Response): T {
 
 // Controller test - Create
 export type CreateValidator = {
-	create: () => z.ZodObject<z.ZodRawShape>;
+	create: () => z.ZodTypeAny;
 };
 
 type CreateService<E, V extends CreateValidator> = {
@@ -107,7 +107,7 @@ export function testControllerCreate<E, V extends CreateValidator>(
 
 			const response = await request(app)
 				.post(config.route)
-				.send(config.createData);
+				.send(config.createData as object);
 
 			withDebugResponse(() => {
 				expect(response.status).toBe(201);
@@ -179,7 +179,7 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 
 // Controller test - Update
 export type UpdateValidator = {
-	update: () => z.ZodObject<z.ZodRawShape>;
+	update: () => z.ZodTypeAny;
 };
 
 type UpdateService<E, V extends UpdateValidator> = {
@@ -232,7 +232,7 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 
 			const response = await request(app)
 				.put(config.route)
-				.send(config.updateData);
+				.send(config.updateData as object);
 
 			withDebugResponse(() => {
 				expect(response.status).toBe(200);
@@ -297,7 +297,7 @@ export function testControllerUpdateWithContent<E, V extends UpdateValidator>(
 
 			const response = await request(app)
 				.put(config.route)
-				.send(config.updateData);
+				.send(config.updateData as object);
 
 			withDebugResponse(() => {
 				expect(response.status).toBe(200);

@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { type RequestHandler, Router } from 'express';
 import { apiRateLimiter } from '@/config/rate-limit.config';
 import { Configuration } from '@/config/settings.config';
@@ -120,6 +121,12 @@ async function loadFeatureRoutes(
 ): Promise<void> {
 	try {
 		const filePath = getRoutesFilePath(feature);
+		const filePathWithExtension = `${filePath}.${Configuration.resolveExtension()}`;
+
+		if (!fs.existsSync(filePathWithExtension)) {
+			return;
+		}
+
 		const module = await import(filePath);
 		const def = module.default;
 
@@ -137,16 +144,6 @@ async function loadFeatureRoutes(
 			pushRouteInfo(feature, def);
 		}
 	} catch (error) {
-		const isModuleNotFound =
-			error instanceof Error &&
-			((error as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND' ||
-				error.message.includes('Cannot find module'));
-
-		if (isModuleNotFound) {
-			// Feature has no routes file → ignore
-			return;
-		}
-
 		getSystemLogger().error(
 			{ err: error, feature, path: getRoutesFilePath(feature) },
 			`Failed to load routes for feature "${feature}"`,

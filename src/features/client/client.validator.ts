@@ -76,7 +76,7 @@ export class ClientValidator extends BaseValidator {
 			address_info: this.validateString(
 				lang('client.validation.address_info_invalid'),
 			).optional(),
-			address_postal_code: this.validateString(
+			address_postal_code: this.validateNumber(
 				lang('client.validation.address_postal_code_invalid'),
 			).optional(),
 			notes: this.nullableString(

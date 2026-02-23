@@ -28,7 +28,11 @@ class ClientController extends BaseController {
 	public create = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canCreate(res.locals.auth);
 
-		const data = this.validate(this.validator.create(), req.body, res);
+		const data = await this.validateAsync(
+			this.validator.create(),
+			req.body,
+			res,
+		);
 
 		const entry = await this.clientService.create(data);
 

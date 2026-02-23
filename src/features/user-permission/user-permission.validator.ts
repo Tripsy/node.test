@@ -22,7 +22,7 @@ export class UserPermissionValidator extends BaseValidator {
 	public create() {
 		return z.object({
 			permission_ids: z.array(
-				z.coerce
+				z
 					.number({
 						message: lang('shared.validation.invalid_ids', {
 							name: 'ids',
