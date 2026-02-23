@@ -1,12 +1,10 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
 import { Configuration } from '@/config/settings.config';
-import {
-	LogDataCategoryEnum,
-	LogDataLevelEnum,
-} from '@/features/log-data/log-data.entity';
+import { LogDataCategoryEnum } from '@/features/log-data/log-data.entity';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
+import { LogDataLevelEnum } from '@/shared/types/log-data.type';
 
 export enum OrderByEnum {
 	ID = 'id',

@@ -131,9 +131,9 @@ export async function createApp() {
 
 	app.use(languageMiddleware); // Set `res.locals.lang`
 
-    if (!Configuration.isEnvironment('test')) {
-        app.use(authMiddleware); // Set `res.locals.auth`
-    }
+	if (!Configuration.isEnvironment('test')) {
+		app.use(authMiddleware); // Set `res.locals.auth`
+	}
 
 	app.use(requestContextMiddleware); // Prepare `requestContext`
 

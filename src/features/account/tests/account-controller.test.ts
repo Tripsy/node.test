@@ -19,12 +19,13 @@ import { getUserEntityMock } from '@/features/user/user.mock';
 import { userService } from '@/features/user/user.service';
 import { createFutureDate, createPastDate } from '@/helpers';
 import { withDebug } from '@/tests/jest-controller.setup';
+import { mockConfig, mockUuid } from '@/tests/mocks/helpers.mock';
 import {
 	isAuthenticatedSpy,
 	notAuthenticatedSpy,
 } from '@/tests/mocks/policies.mock';
 import { mockAccountEmailService } from '@/tests/mocks/services.mock';
-import {mockConfig, mockUuid} from "@/tests/mocks/helpers.mock";
+
 // import {Configuration} from "@/config/settings.config";
 
 let app: Express;
@@ -387,7 +388,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 	it('should return success', async () => {
 		notAuthenticatedSpy(accountPolicy);
 
-        mockConfig('user.recoveryEnableMetadataCheck', false);
+		mockConfig('user.recoveryEnableMetadataCheck', false);
 
 		jest.spyOn(accountRecoveryService, 'findByIdent').mockResolvedValue({
 			...mockAccountRecovery,
@@ -548,9 +549,9 @@ describe(`${controller} - emailConfirm`, () => {
 			status: UserStatusEnum.PENDING,
 		});
 
-        jest.spyOn(userService, 'update').mockResolvedValue(
-            getUserEntityMock(),
-        );
+		jest.spyOn(userService, 'update').mockResolvedValue(
+			getUserEntityMock(),
+		);
 
 		const response = await request(app).post(link).send();
 

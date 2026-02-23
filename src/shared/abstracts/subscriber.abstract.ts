@@ -6,7 +6,7 @@ import type {
 	UpdateEvent,
 } from 'typeorm';
 import { eventEmitter } from '@/config/event.config';
-import { LogHistoryAction } from '@/features/log-history/log-history.entity';
+import { LogHistoryAction } from '@/shared/types/log-history.type';
 
 interface BaseEntity {
 	id: number;

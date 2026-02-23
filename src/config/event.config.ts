@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import type { LogHistoryAction } from '@/features/log-history/log-history.entity';
+import type { LogHistoryAction } from '@/shared/types/log-history.type';
 
 export type LogHistoryEventPayload = {
 	entity: string;

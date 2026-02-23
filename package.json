@@ -21,9 +21,9 @@
 		"typecheck": "tsc --noEmit",
 		"biome": "NODE_OPTIONS=--no-deprecation biome check --write",
 		"madge": "madge --circular src",
-		"migration:generate": "pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d /var/www/html/src/config/data-source.config.ts",
-		"migration:run": "pnpx tsx ./node_modules/typeorm/cli.js migration:run -d /var/www/html/src/config/data-source.config.ts",
-		"migration:revert": "pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d /var/www/html/src/config/data-source.config.ts"
+		"migration:generate": "pnpx tsx ./node_modules/typeorm/cli.js migration:generate -d ./src/config/data-source.config.ts",
+		"migration:run": "pnpx tsx ./node_modules/typeorm/cli.js migration:run -d ./src/config/data-source.config.ts",
+		"migration:revert": "pnpx tsx ./node_modules/typeorm/cli.js migration:revert -d ./src/config/data-source.config.ts"
 	},
 	"dependencies": {
 		"@aws-sdk/client-ses": "^3.994.0",

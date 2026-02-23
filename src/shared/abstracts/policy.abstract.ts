@@ -1,6 +1,6 @@
 import { NotAllowedError, UnauthorizedError } from '@/exceptions';
-import { UserRoleEnum } from '@/features/user/user.entity';
-import type { AuthContext } from '@/types/express';
+import type { AuthContext } from '@/shared/types/express';
+import { UserRoleEnum } from '@/shared/types/user-role.type';
 
 class PolicyAbstract {
 	constructor(readonly entity: string) {}

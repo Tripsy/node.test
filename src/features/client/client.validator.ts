@@ -5,6 +5,7 @@ import {
 	ClientStatusEnum,
 	ClientTypeEnum,
 } from '@/features/client/client.entity';
+import { getPlaceRepository } from '@/features/place/place.repository';
 import { hasAtLeastOneValue } from '@/helpers';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
@@ -109,7 +110,9 @@ export class ClientValidator extends BaseValidator {
 		return z
 			.union([ClientCreateCompanyValidator, ClientCreatePersonValidator])
 			.superRefine(async (data, ctx) => {
-				await this.validateAddressPlaceTypes(data, ctx);
+				await this.validateAddressPlaceTypes(data, ctx, (id, type) =>
+					getPlaceRepository().checkPlaceType(id, type),
+				);
 			});
 	}
 
@@ -186,7 +189,9 @@ export class ClientValidator extends BaseValidator {
 				path: ['_global'],
 			})
 			.superRefine(async (data, ctx) => {
-				await this.validateAddressPlaceTypes(data, ctx);
+				await this.validateAddressPlaceTypes(data, ctx, (id, type) =>
+					getPlaceRepository().checkPlaceType(id, type),
+				);
 			});
 	}
 

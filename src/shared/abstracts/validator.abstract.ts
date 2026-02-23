@@ -1,8 +1,12 @@
 import { z } from 'zod';
 import { lang } from '@/config/i18n.setup';
-import { PlaceTypeEnum } from '@/features/place/place.entity';
-import { getPlaceRepository } from '@/features/place/place.repository';
 import { isValidDate, stringToDate } from '@/helpers';
+import { PlaceTypeEnum } from '@/shared/types/place.type';
+
+export type CheckPlaceTypeFn = (
+	id: number,
+	type: PlaceTypeEnum,
+) => Promise<boolean>;
 
 export type ValidatorInput<V, K extends keyof V> = V[K] extends (
 	...args: unknown[]
@@ -171,9 +175,14 @@ export abstract class BaseValidator {
 		});
 	}
 
+	/**
+	 * Validates that address place IDs match the expected place types (country/region/city).
+	 * Requires a checker function so shared code does not depend on the place feature.
+	 */
 	protected async validateAddressPlaceTypes(
 		data: AddressFields,
 		ctx: z.RefinementCtx,
+		checkPlaceType: CheckPlaceTypeFn,
 	) {
 		const checks: Array<{
 			field: keyof AddressFields;
@@ -204,10 +213,7 @@ export abstract class BaseValidator {
 				continue;
 			}
 
-			const isValid = await getPlaceRepository().checkPlaceType(
-				id,
-				check.type,
-			);
+			const isValid = await checkPlaceType(id, check.type);
 
 			if (!isValid) {
 				ctx.addIssue({

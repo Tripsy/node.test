@@ -18,7 +18,7 @@ import {
 	EmailProvider,
 	type EmailService,
 	type SendEmailArgs,
-} from '@/types/email.type';
+} from '@/shared/types/email.type';
 
 export type EmailQueueData = {
 	mailQueueId: number;

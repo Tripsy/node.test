@@ -8,18 +8,13 @@ import {
 } from 'typeorm';
 import type { RequestContextSource } from '@/config/request.context';
 import type UserEntity from '@/features/user/user.entity';
+import {
+	LogHistoryAction,
+	type LogHistoryDestination,
+} from '@/shared/types/log-history.type';
 
-export type LogHistoryDestination = 'pino' | 'db' | null;
-
-export enum LogHistoryAction {
-	CREATED = 'created',
-	UPDATED = 'updated',
-	DELETED = 'deleted',
-	REMOVED = 'removed',
-	RESTORED = 'restored',
-	STATUS = 'status',
-	PASSWORD_CHANGE = 'password_change',
-}
+export type { LogHistoryDestination };
+export { LogHistoryAction };
 
 const ENTITY_TABLE_NAME = 'log_history';
 

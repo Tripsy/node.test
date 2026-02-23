@@ -1,5 +1,6 @@
 import { Column, Entity, Index } from 'typeorm';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
+import { UserRoleEnum } from '@/shared/types/user-role.type';
 
 export enum UserStatusEnum {
 	ACTIVE = 'active',
@@ -7,11 +8,7 @@ export enum UserStatusEnum {
 	PENDING = 'pending',
 }
 
-export enum UserRoleEnum {
-	ADMIN = 'admin',
-	MEMBER = 'member',
-	OPERATOR = 'operator',
-}
+export { UserRoleEnum };
 
 export enum UserOperatorTypeEnum {
 	SELLER = 'seller',
