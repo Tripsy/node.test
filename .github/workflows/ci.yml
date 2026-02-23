@@ -35,7 +35,7 @@ jobs:
         run: pnpm run typecheck
 
       - name: Lint (Biome)
-        run: pnpm run check
+        run: pnpm run biome
 
       - name: Check circular deps
         run: pnpm run madge

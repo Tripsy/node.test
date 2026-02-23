@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
+
 import type { Express } from 'express';
 import request from 'supertest';
 import { createApp } from '@/app';
-import { Configuration } from '@/config/settings.config';
 import {
 	getAccountTokenMock,
 	getAuthValidTokenMock,
@@ -19,14 +19,16 @@ import { getUserEntityMock } from '@/features/user/user.mock';
 import { userService } from '@/features/user/user.service';
 import { createFutureDate, createPastDate } from '@/helpers';
 import { withDebug } from '@/tests/jest-controller.setup';
-import { mockUuid } from '@/tests/mocks/helpers.mock';
 import {
 	isAuthenticatedSpy,
 	notAuthenticatedSpy,
 } from '@/tests/mocks/policies.mock';
 import { mockAccountEmailService } from '@/tests/mocks/services.mock';
+import {mockConfig, mockUuid} from "@/tests/mocks/helpers.mock";
+// import {Configuration} from "@/config/settings.config";
 
 let app: Express;
+// const configurationGet = Configuration.get;
 
 beforeAll(async () => {
 	app = await createApp();
@@ -385,7 +387,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 	it('should return success', async () => {
 		notAuthenticatedSpy(accountPolicy);
 
-		Configuration.set('user.recoveryEnableMetadataCheck', false);
+        mockConfig('user.recoveryEnableMetadataCheck', false);
 
 		jest.spyOn(accountRecoveryService, 'findByIdent').mockResolvedValue({
 			...mockAccountRecovery,
@@ -517,6 +519,7 @@ describe(`${controller} - emailConfirm`, () => {
 			accountService,
 			'determineConfirmationTokenPayload',
 		).mockReturnValue(mockConfirmationTokenPayload);
+
 		jest.spyOn(userService, 'findById').mockResolvedValue({
 			...getUserEntityMock(),
 			email: 'not_matching@example.com',
@@ -539,13 +542,15 @@ describe(`${controller} - emailConfirm`, () => {
 			accountService,
 			'determineConfirmationTokenPayload',
 		).mockReturnValue(mockConfirmationTokenPayload);
-		jest.spyOn(userService, 'findById').mockResolvedValue(
-			getUserEntityMock(),
-		);
+
 		jest.spyOn(userService, 'findById').mockResolvedValue({
 			...getUserEntityMock(),
 			status: UserStatusEnum.PENDING,
 		});
+
+        jest.spyOn(userService, 'update').mockResolvedValue(
+            getUserEntityMock(),
+        );
 
 		const response = await request(app).post(link).send();
 
@@ -739,9 +744,11 @@ describe(`${controller} - meEdit`, () => {
 		jest.spyOn(accountPolicy, 'getId').mockReturnValue(
 			getUserEntityMock().id,
 		);
+
 		jest.spyOn(userService, 'findById').mockResolvedValue(
 			getUserEntityMock(),
 		);
+
 		jest.spyOn(userService, 'update').mockResolvedValue(
 			getUserEntityMock(),
 		);

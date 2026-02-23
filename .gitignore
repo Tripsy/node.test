@@ -29,9 +29,6 @@ Thumbs.db
 .env.staging
 .env.production
 
-# TypeScript declaration files (if generated)
-*.d.ts
-
 # Logs
 /logs/
 audit.json
