@@ -58,7 +58,7 @@ testControllerDeleteSingle({
 
 testControllerRestoreSingle({
 	controller: controller,
-	route: `${basePath}/${getDiscountEntityMock().id}`,
+	route: `${basePath}/${getDiscountEntityMock().id}/restore`,
 	policy: discountPolicy,
 	service: discountService,
 });

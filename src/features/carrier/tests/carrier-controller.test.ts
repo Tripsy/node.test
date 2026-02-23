@@ -58,7 +58,7 @@ testControllerDeleteSingle({
 
 testControllerRestoreSingle({
 	controller: controller,
-	route: `${basePath}/${getCarrierEntityMock().id}`,
+	route: `${basePath}/${getCarrierEntityMock().id}/restore`,
 	policy: carrierPolicy,
 	service: carrierService,
 });

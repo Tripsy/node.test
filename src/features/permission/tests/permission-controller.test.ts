@@ -1,0 +1,291 @@
+import { jest } from '@jest/globals';
+import type { Express } from 'express';
+import request from 'supertest';
+import { createApp } from '@/app';
+import type PermissionEntity from '@/features/permission/permission.entity';
+import {
+	getPermissionEntityMock,
+	permissionInputPayloads,
+} from '@/features/permission/permission.mock';
+import { permissionPolicy } from '@/features/permission/permission.policy';
+import permissionRoutes from '@/features/permission/permission.routes';
+import { permissionService } from '@/features/permission/permission.service';
+import type { PermissionValidator } from '@/features/permission/permission.validator';
+import {
+	testControllerDeleteSingle,
+	testControllerFind,
+	testControllerRead,
+	testControllerRestoreSingle,
+	withDebugResponse,
+} from '@/tests/jest-controller.setup';
+import { authorizedSpy, notAuthorizedSpy } from '@/tests/mocks/policies.mock';
+
+let app: Express;
+
+beforeAll(async () => {
+	app = await createApp();
+});
+
+beforeEach(() => {
+	jest.restoreAllMocks();
+});
+
+const controller = 'PermissionController';
+const basePath = permissionRoutes.basePath;
+
+describe(`${controller} - create`, () => {
+	const route = basePath;
+
+	it('should fail if not authenticated', async () => {
+		const response = await request(app).post(route).send();
+
+		withDebugResponse(() => {
+			expect(response.status).toBe(401);
+		}, response);
+	});
+
+	it("should fail if it doesn't have proper permission", async () => {
+		notAuthorizedSpy(permissionPolicy);
+
+		const response = await request(app).post(route).send();
+
+		withDebugResponse(() => {
+			expect(response.status).toBe(403);
+		}, response);
+	});
+
+	it('should return success', async () => {
+		authorizedSpy(permissionPolicy);
+
+		jest.spyOn(permissionService, 'create').mockResolvedValue({
+			permission: getPermissionEntityMock(),
+			action: 'create',
+		});
+
+		const response = await request(app)
+			.post(route)
+			.send(permissionInputPayloads.get('manage'));
+
+		withDebugResponse(() => {
+			expect(response.status).toBe(201);
+			expect(response.body).toHaveProperty('success', true);
+			expect(response.body.data).toHaveProperty(
+				'id',
+				getPermissionEntityMock().id,
+			);
+		}, response);
+	});
+});
+
+describe(`${controller} - update`, () => {
+	const route = `${basePath}/1`;
+
+	it('should fail if not authenticated', async () => {
+		const response = await request(app).put(route).send();
+
+		withDebugResponse(() => {
+			expect(response.status).toBe(401);
+		}, response);
+	});
+
+	it("should fail if it doesn't have proper permission", async () => {
+		notAuthorizedSpy(permissionPolicy);
+
+		const response = await request(app).put(route).send();
+
+		withDebugResponse(() => {
+			expect(response.status).toBe(403);
+		}, response);
+	});
+
+	it('should return success', async () => {
+		authorizedSpy(permissionPolicy);
+
+		jest.spyOn(permissionService, 'updateData').mockResolvedValue(
+			getPermissionEntityMock(),
+		);
+
+		const response = await request(app)
+			.put(route)
+			.send(permissionInputPayloads.get('manage'));
+
+		withDebugResponse(() => {
+			expect(response.status).toBe(200);
+			expect(response.body).toHaveProperty('success', true);
+			expect(response.body.data).toHaveProperty(
+				'id',
+				getPermissionEntityMock().id,
+			);
+		}, response);
+	});
+});
+
+testControllerRead<PermissionEntity>({
+	controller: controller,
+	route: `${basePath}/${getPermissionEntityMock().id}`,
+	entityMock: getPermissionEntityMock(),
+	policy: permissionPolicy,
+});
+
+testControllerDeleteSingle({
+	controller: controller,
+	route: `${basePath}/${getPermissionEntityMock().id}`,
+	policy: permissionPolicy,
+	service: permissionService,
+});
+
+testControllerRestoreSingle({
+	controller: controller,
+	route: `${basePath}/${getPermissionEntityMock().id}/restore`,
+	policy: permissionPolicy,
+	service: permissionService,
+});
+
+testControllerFind<PermissionEntity, PermissionValidator>({
+	controller: controller,
+	route: basePath,
+	entityMock: getPermissionEntityMock(),
+	policy: permissionPolicy,
+	service: permissionService,
+	findData: permissionInputPayloads.get('find'),
+});
+
+// describe(`${controller} - read`, () => {
+// 	const link = `${basePath}/1`;
+//
+// 	it('should fail if not authenticated', async () => {
+// 		const response = await request(app).get(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(401);
+// 		}, response);
+// 	});
+//
+// 	it("should fail if it doesn't have proper permission", async () => {
+// 		notAuthorizedSpy(permissionPolicy);
+//
+// 		const response = await request(app).get(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(403);
+// 		}, response);
+// 	});
+//
+// 	it('should return success', async () => {
+// 		authorizedSpy(permissionPolicy);
+//
+// 		jest.spyOn(cacheProvider, 'get').mockImplementation(async () => ({
+// 			isCached: false,
+// 			data: getPermissionEntityMock(),
+// 		}));
+//
+// 		const response = await request(app).get(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(200);
+// 			expect(response.body).toHaveProperty('success', true);
+// 			expect(response.body.data).toHaveProperty(
+// 				'id',
+// 				getPermissionEntityMock().id,
+// 			);
+// 		}, response);
+// 	});
+// });
+
+// describe(`${controller} - delete`, () => {
+// 	const link = `${basePath}/1`;
+//
+// 	it('should fail if not authenticated', async () => {
+// 		const response = await request(app).delete(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(401);
+// 		}, response);
+// 	});
+//
+// 	it("should fail if it doesn't have proper permission", async () => {
+// 		notAuthorizedSpy(permissionPolicy);
+//
+// 		const response = await request(app).delete(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(403);
+// 		}, response);
+// 	});
+//
+// 	it('should return success', async () => {
+// 		authorizedSpy(permissionPolicy);
+//
+// 		jest.spyOn(permissionService, 'delete').mockResolvedValue();
+//
+// 		const response = await request(app).delete(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(200);
+// 		}, response);
+// 	});
+// });
+//
+// describe(`${controller} - restore`, () => {
+// 	const link = `${basePath}/1/restore`;
+//
+// 	it('should fail if not authenticated', async () => {
+// 		const response = await request(app).patch(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(401);
+// 		}, response);
+// 	});
+//
+// 	it("should fail if it doesn't have proper permission", async () => {
+// 		notAuthorizedSpy(permissionPolicy);
+//
+// 		const response = await request(app).patch(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(403);
+// 		}, response);
+// 	});
+//
+// 	it('should return success', async () => {
+// 		authorizedSpy(permissionPolicy);
+//
+// 		jest.spyOn(permissionService, 'restore').mockResolvedValue();
+//
+// 		const response = await request(app).patch(link).query({});
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(200);
+// 		}, response);
+// 	});
+// });
+//
+// describe(`${controller} - find`, () => {
+// 	const link = `${basePath}`;
+//
+// 	it('failed validation', async () => {
+// 		authorizedSpy(permissionPolicy);
+//
+// 		const response = await request(app).get(link).query({});
+//
+// 		expect(response.status).toBe(422);
+// 	});
+//
+// 	it('should return success', async () => {
+// 		authorizedSpy(permissionPolicy);
+//
+// 		jest.spyOn(permissionService, 'findByFilter').mockResolvedValue([
+// 			[getPermissionEntityMock()],
+// 			1,
+// 		]);
+//
+// 		const response = await request(app)
+// 			.get(link)
+// 			.query(permissionInputPayloads.get('find'));
+//
+// 		withDebugResponse(() => {
+// 			expect(response.status).toBe(200);
+// 			expect(response.body.data.entries).toHaveLength(1);
+// 		}, response);
+// 	});
+// });

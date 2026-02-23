@@ -59,7 +59,7 @@ testControllerDeleteSingle({
 
 testControllerRestoreSingle({
 	controller: controller,
-	route: `${basePath}/${getUserEntityMock().id}`,
+	route: `${basePath}/${getUserEntityMock().id}/restore`,
 	policy: userPolicy,
 	service: userService,
 });
