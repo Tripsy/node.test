@@ -155,7 +155,7 @@ class AccountController extends BaseController {
 		this.policy.requiredAuth(res.locals.auth);
 
 		// Read the token from the request
-		const token = accountTokenService.getAuthTokenFromHeaders(req);
+		const token = this.accountTokenService.getAuthTokenFromHeaders(req);
 
 		if (!token) {
 			throw new BadRequestError(lang('account.error.not_logged_in'));
@@ -389,7 +389,7 @@ class AccountController extends BaseController {
 
 		// Verify JWT and extract payload
 		const confirmationTokenPayload =
-			accountService.determineConfirmationTokenPayload(token);
+			this.accountService.determineConfirmationTokenPayload(token);
 
 		const user = await this.userService.findById(
 			confirmationTokenPayload.user_id,
