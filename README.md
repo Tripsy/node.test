@@ -270,49 +270,48 @@ $ pnpm run madge
    Content-Type: application/json
    Authorization: Bearer ****
    Content-Length: 344
-
-{
-
-    "scope": "order",
-    "reason": "flash_sale",
-    "reference": "#345",
-    "type": "percent",
-    "value": 7,
-    "rules":     {
-      "min_order_value": 101,
-      "eligible_categories": [1, 2, 5],
-      "applicable_countries": ["RO"]
-    },
-    "start_at": "2025-12-18",
-    "end_at": "2025-12-28",
-    "notes": "Lorem ipsum ..."
-}
-1. feature - brand (brand-content)
-2. feature - images  (image-content)
-3. Go on FE → category, place, brand, client
-4. Go on FE #3 → image (multer - File upload handling)
-5. wip entities:
-    - article
-        - article-category
-        - article-content
-        - article-tag  
-        - article-track
-    - invoice
-    - order
-        - order-product
-    - order-shipping
-        - order-shipping-product
-    - payment
-    - product
-        - product-attribute
-        - product-category
-        - product-tag
-        - product-content
-    - subscription
-        - subscription-evidence
-    - term
-6. Go on FE #2 → carrier, discount,
-7. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+    {
+    
+        "scope": "order",
+        "reason": "flash_sale",
+        "reference": "#345",
+        "type": "percent",
+        "value": 7,
+        "rules":     {
+          "min_order_value": 101,
+          "eligible_categories": [1, 2, 5],
+          "applicable_countries": ["RO"]
+        },
+        "start_at": "2025-12-18",
+        "end_at": "2025-12-28",
+        "notes": "Lorem ipsum ..."
+    }
+6. feature - brand (brand-content)
+7. feature - images  (image-content)
+8. Go on FE → category, place, brand, client
+9. Go on FE #3 → image (multer - File upload handling)
+10. wip entities:
+     - article
+         - article-category
+         - article-content
+         - article-tag  
+         - article-track
+     - invoice
+     - order
+         - order-product
+     - order-shipping
+         - order-shipping-product
+     - payment
+     - product
+         - product-attribute
+         - product-category
+         - product-tag
+         - product-content
+     - subscription
+         - subscription-evidence
+     - term
+11. Go on FE #2 → carrier, discount,
+12. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # Bugs & Issues & Ideas
 

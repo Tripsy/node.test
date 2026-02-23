@@ -61,3 +61,43 @@ export const placeInputPayloads = createValidatorPayloads<
 		},
 	},
 });
+
+export const placeOutputPayloads = createValidatorPayloads<
+	PlaceValidator,
+	'create' | 'update' | 'find'
+>({
+	create: {
+		type: PlaceTypeEnum.COUNTRY,
+		code: 'RO',
+		content: [
+			{
+				language: 'en',
+				name: 'Romania',
+				type_label: 'Country',
+			},
+		],
+	},
+	update: {
+		type: PlaceTypeEnum.COUNTRY,
+		code: 'RO',
+		content: [
+			{
+				language: 'en',
+				name: 'Romania',
+				type_label: 'Country',
+			},
+		],
+	},
+	find: {
+		page: 1,
+		limit: 10,
+		order_by: OrderByEnum.ID,
+		direction: OrderDirectionEnum.DESC,
+		filter: {
+			term: 'roma',
+			type: PlaceTypeEnum.COUNTRY,
+			language: 'en',
+			is_deleted: false,
+		},
+	},
+});

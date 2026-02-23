@@ -37,10 +37,8 @@ export class PlaceValidator extends BaseValidator {
 				code: this.validateString(
 					lang('place.validation.code_invalid'),
 				).optional(),
-				parent_id: z.coerce
-					.number({
-						message: lang('place.validation.invalid_parent_id'),
-					})
+				parent_id: z
+					.number({ message: lang('shared.error.invalid_parent_id') })
 					.optional(),
 				content: this.placeContentSchema().array(),
 			})
@@ -71,7 +69,7 @@ export class PlaceValidator extends BaseValidator {
 				code: this.nullableString(
 					lang('place.validation.code_invalid'),
 				),
-				parent_id: z.coerce
+				parent_id: z
 					.number({ message: lang('shared.error.invalid_parent_id') })
 					.optional(),
 				content: this.placeContentSchema().array().optional(),
