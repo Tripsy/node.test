@@ -8,12 +8,9 @@ import {
 } from 'typeorm';
 import type PlaceContentEntity from '@/features/place/place-content.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
+import { PlaceTypeEnum } from '@/shared/types/place.type';
 
-export enum PlaceTypeEnum {
-	COUNTRY = 'country',
-	REGION = 'region',
-	CITY = 'city',
-}
+export { PlaceTypeEnum };
 
 export type PlaceContentInput = {
 	language: string;

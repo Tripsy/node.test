@@ -7,7 +7,7 @@ import type {
 	EmailAddressType,
 	EmailContent,
 	EmailService,
-} from '@/types/email.type';
+} from '@/shared/types/email.type';
 
 export class SesEmailService implements EmailService {
 	private ses: SESClient;

@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import type { LogDataLevelEnum } from '@/features/log-data/log-data.entity';
-import type { LogHistoryDestination } from '@/features/log-history/log-history.entity';
 import { getObjectValue, type ObjectValue, setObjectValue } from '@/helpers';
+import type { LogDataLevelEnum } from '@/shared/types/log-data.type';
+import type { LogHistoryDestination } from '@/shared/types/log-history.type';
 
 type Settings = { [key: string]: ObjectValue };
 

@@ -6,7 +6,7 @@ import type {
 	EmailAddressType,
 	EmailContent,
 	EmailService,
-} from '@/types/email.type';
+} from '@/shared/types/email.type';
 
 export class SmtpEmailService implements EmailService {
 	private transporter: Transporter<SMTPTransport.SentMessageInfo> | null =

@@ -7,7 +7,7 @@ import {
 } from '@/providers/email.provider';
 import getEmailQueue from '@/queues/email.queue';
 import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
-import type { EmailAddressType } from '@/types/email.type';
+import type { EmailAddressType } from '@/shared/types/email.type';
 
 @EventSubscriber()
 export class MailQueueSubscriber extends SubscriberAbstract<MailQueueEntity> {

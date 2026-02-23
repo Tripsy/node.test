@@ -136,7 +136,20 @@ async function loadFeatureRoutes(
 		if (Configuration.isEnvironment('development')) {
 			pushRouteInfo(feature, def);
 		}
-	} catch {
-		// Feature has no routes file → ignore
+	} catch (error) {
+		const isModuleNotFound =
+			error instanceof Error &&
+			((error as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND' ||
+				error.message.includes('Cannot find module'));
+
+		if (isModuleNotFound) {
+			// Feature has no routes file → ignore
+			return;
+		}
+
+		getSystemLogger().error(
+			{ err: error, feature, path: getRoutesFilePath(feature) },
+			`Failed to load routes for feature "${feature}"`,
+		);
 	}
 }
