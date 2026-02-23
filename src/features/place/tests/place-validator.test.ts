@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
-import { userInputPayloads } from '@/features/user/user.mock';
-import { userValidator } from '@/features/user/user.validator';
+import { placeInputPayloads } from '@/features/place/place.mock';
+import { placeValidator } from '@/features/place/place.validator';
 import { withDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
@@ -8,18 +8,18 @@ beforeEach(() => {
 });
 
 type ValidatorMethod = keyof Pick<
-	typeof userValidator,
+	typeof placeValidator,
 	'create' | 'update' | 'find'
 >;
 
-const validator = 'UserValidator';
+const validator = 'PlaceValidator';
 const listSchemas: ValidatorMethod[] = ['create', 'update', 'find'];
 
 describe(validator, () => {
 	listSchemas.forEach((n) => {
 		it(`${n}() accepts valid payload`, () => {
-			const schema = userValidator[n]();
-			const payload = userInputPayloads.get(n);
+			const schema = placeValidator[n]();
+			const payload = placeInputPayloads.get(n);
 			const validated = schema.safeParse(payload);
 
 			withDebugValidated(() => {

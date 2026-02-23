@@ -1,8 +1,24 @@
 import type { z } from 'zod';
 
-export function addDebugValidated(
+function addDebugValidated(
 	validated: z.ZodSafeParseResult<unknown>,
 	hint: string,
 ) {
 	console.log(hint, validated);
+}
+
+export function withDebugValidated<T>(
+	testFn: () => T,
+	validated: z.ZodSafeParseResult<unknown>,
+): T {
+	try {
+		return testFn();
+	} catch (error) {
+		// Get current test info from Jest
+		const testName = expect.getState().currentTestName;
+
+		addDebugValidated(validated, testName ?? '');
+
+		throw error;
+	}
 }

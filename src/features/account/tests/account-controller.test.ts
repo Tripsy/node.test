@@ -18,7 +18,7 @@ import { UserStatusEnum } from '@/features/user/user.entity';
 import { getUserEntityMock } from '@/features/user/user.mock';
 import { userService } from '@/features/user/user.service';
 import { createFutureDate, createPastDate } from '@/helpers';
-import { withDebug } from '@/tests/jest-controller.setup';
+import { withDebugResponse } from '@/tests/jest-controller.setup';
 import { mockConfig, mockUuid } from '@/tests/mocks/helpers.mock';
 import {
 	isAuthenticatedSpy,
@@ -26,10 +26,7 @@ import {
 } from '@/tests/mocks/policies.mock';
 import { mockAccountEmailService } from '@/tests/mocks/services.mock';
 
-// import {Configuration} from "@/config/settings.config";
-
 let app: Express;
-// const configurationGet = Configuration.get;
 
 beforeAll(async () => {
 	app = await createApp();
@@ -55,7 +52,7 @@ describe(`${controller} - register`, () => {
 
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(403);
 		}, response);
 	});
@@ -75,7 +72,7 @@ describe(`${controller} - register`, () => {
 			language: 'en',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(201);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -98,7 +95,7 @@ describe(`${controller} - login`, () => {
 
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(403);
 		}, response);
 	});
@@ -116,7 +113,7 @@ describe(`${controller} - login`, () => {
 			password: 'Secure@123',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(401);
 			expect(response.body).toHaveProperty('success', false);
 		}, response);
@@ -142,7 +139,7 @@ describe(`${controller} - login`, () => {
 			password: 'Secure@123',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(403);
 			expect(response.body).toHaveProperty('success', false);
 			expect(response.body).toHaveProperty(
@@ -173,7 +170,7 @@ describe(`${controller} - login`, () => {
 			password: 'Secure@123',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -200,7 +197,7 @@ describe(`${controller} - removeToken`, () => {
 			ident: mockUuid(),
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -219,7 +216,7 @@ describe(`${controller} - logout`, () => {
 
 		const response = await request(app).delete(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(401);
 		}, response);
 	});
@@ -243,7 +240,7 @@ describe(`${controller} - logout`, () => {
 
 		const response = await request(app).delete(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -262,7 +259,7 @@ describe(`${controller} - passwordRecover`, () => {
 
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(403);
 		}, response);
 	});
@@ -283,7 +280,7 @@ describe(`${controller} - passwordRecover`, () => {
 			email: 'john.doe@example.com',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(425);
 			expect(response.body).toHaveProperty('success', false);
 			expect(response.body).toHaveProperty(
@@ -314,7 +311,7 @@ describe(`${controller} - passwordRecover`, () => {
 			email: 'john.doe@example.com',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -334,7 +331,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(403);
 		}, response);
 	});
@@ -351,7 +348,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 			password_confirm: 'Secure@123!',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(400);
 			expect(response.body).toHaveProperty('success', false);
 			expect(response.body).toHaveProperty(
@@ -375,7 +372,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 			password_confirm: 'Secure@123!',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(400);
 			expect(response.body).toHaveProperty('success', false);
 			expect(response.body).toHaveProperty(
@@ -413,7 +410,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 			password_confirm: 'Secure@123!',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -432,7 +429,7 @@ describe(`${controller} - passwordUpdate`, () => {
 
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(401);
 		}, response);
 	});
@@ -455,7 +452,7 @@ describe(`${controller} - passwordUpdate`, () => {
 			password_confirm: 'Secure@123!',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(400);
 			expect(response.body).toHaveProperty('success', false);
 		}, response);
@@ -487,7 +484,7 @@ describe(`${controller} - passwordUpdate`, () => {
 			password_confirm: 'Secure@123!',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -505,7 +502,7 @@ describe(`${controller} - emailConfirm`, () => {
 	it('should fail - confirmation_token_invalid', async () => {
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(400);
 			expect(response.body).toHaveProperty('success', false);
 			expect(response.body).toHaveProperty(
@@ -528,7 +525,7 @@ describe(`${controller} - emailConfirm`, () => {
 
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(400);
 			expect(response.body).toHaveProperty('success', false);
 			expect(response.body).toHaveProperty(
@@ -555,7 +552,7 @@ describe(`${controller} - emailConfirm`, () => {
 
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -574,7 +571,7 @@ describe(`${controller} - emailConfirmSend`, () => {
 
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(403);
 		}, response);
 	});
@@ -586,7 +583,7 @@ describe(`${controller} - emailConfirmSend`, () => {
 			email: getUserEntityMock().email,
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(400);
 			expect(response.body).toHaveProperty('success', false);
 			expect(response.body).toHaveProperty(
@@ -609,7 +606,7 @@ describe(`${controller} - emailConfirmSend`, () => {
 			email: getUserEntityMock().email,
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -626,7 +623,7 @@ describe(`${controller} - emailUpdate`, () => {
 	it('should fail if not authenticated', async () => {
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(401);
 		}, response);
 	});
@@ -642,7 +639,7 @@ describe(`${controller} - emailUpdate`, () => {
 			email_new: 'new-email@example.com',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(409);
 			expect(response.body).toHaveProperty('success', false);
 			expect(response.body).toHaveProperty(
@@ -672,7 +669,7 @@ describe(`${controller} - emailUpdate`, () => {
 			email_new: 'new-email@example.com',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -689,7 +686,7 @@ describe(`${controller} - meDetails`, () => {
 	it('should fail if not authenticated', async () => {
 		const response = await request(app).get(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(401);
 		}, response);
 	});
@@ -701,7 +698,7 @@ describe(`${controller} - meSessions`, () => {
 	it('should fail if not authenticated', async () => {
 		const response = await request(app).get(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(401);
 		}, response);
 	});
@@ -720,7 +717,7 @@ describe(`${controller} - meSessions`, () => {
 
 		const response = await request(app).get(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body.data).toHaveLength(1);
@@ -734,7 +731,7 @@ describe(`${controller} - meEdit`, () => {
 	it('should fail if not authenticated', async () => {
 		const response = await request(app).post(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(401);
 		}, response);
 	});
@@ -759,7 +756,7 @@ describe(`${controller} - meEdit`, () => {
 			language: 'ro',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(
@@ -776,7 +773,7 @@ describe(`${controller} - meDelete`, () => {
 	it('should fail if not authenticated', async () => {
 		const response = await request(app).delete(link).send();
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(401);
 		}, response);
 	});
@@ -797,7 +794,7 @@ describe(`${controller} - meDelete`, () => {
 			password_current: 'some_password',
 		});
 
-		withDebug(() => {
+		withDebugResponse(() => {
 			expect(response.status).toBe(200);
 			expect(response.body).toHaveProperty('success', true);
 			expect(response.body).toHaveProperty(

@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { logDataInputPayloads } from '@/features/log-data/log-data.mock';
 import { logDataValidator } from '@/features/log-data/log-data.validator';
-import { addDebugValidated } from '@/tests/jest-validator.setup';
+import { withDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -19,13 +19,9 @@ describe(validator, () => {
 			const payload = logDataInputPayloads.get(n);
 			const validated = schema.safeParse(payload);
 
-			try {
+			withDebugValidated(() => {
 				expect(validated.success).toBe(true);
-			} catch (error) {
-				addDebugValidated(validated, `${validator} - ${n}`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, validated);
 		});
 	});
 });
