@@ -8,7 +8,7 @@ import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 export const paramsUpdateList: string[] = ['type', 'code', 'parent_id'];
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 }
 

@@ -8,6 +8,7 @@ export function createMockQuery() {
 		// Chainable methods
 		select: jest.fn().mockReturnThis(),
 		join: jest.fn().mockReturnThis(),
+		joinAndSelect: jest.fn().mockReturnThis(),
 		filterBy: jest.fn().mockReturnThis(),
 		filterById: jest.fn().mockReturnThis(),
 		filterByRange: jest.fn().mockReturnThis(),
@@ -15,6 +16,7 @@ export function createMockQuery() {
 		filterByStatus: jest.fn().mockReturnThis(),
 		filterByEmail: jest.fn().mockReturnThis(),
 		filterByTemplate: jest.fn().mockReturnThis(),
+		filterByIdent: jest.fn().mockReturnThis(),
 		orderBy: jest.fn().mockReturnThis(),
 		pagination: jest.fn().mockReturnThis(),
 		withDeleted: jest.fn().mockReturnThis(),
@@ -28,6 +30,7 @@ export function createMockQuery() {
 		restore: jest.fn(),
 		firstOrFail: jest.fn(),
 		first: jest.fn(),
+		firstRaw: jest.fn(),
 		all: jest.fn(),
 	};
 }

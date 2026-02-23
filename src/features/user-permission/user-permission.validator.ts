@@ -4,7 +4,7 @@ import { Configuration } from '@/config/settings.config';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
-enum UserPermissionOrderByEnum {
+export enum UserPermissionOrderByEnum {
 	ID = 'id',
 	PERMISSION_ID = 'permission_id',
 	ENTITY = 'permission.entity',

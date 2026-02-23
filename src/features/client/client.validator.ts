@@ -31,7 +31,7 @@ export const paramsUpdateList = [
 	'notes',
 ];
 
-enum OrderByEnum {
+export enum OrderByEnum {
 	ID = 'id',
 	CREATED_AT = 'created_at',
 }
