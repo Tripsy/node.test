@@ -26,7 +26,7 @@ const basePath = carrierRoutes.basePath;
 
 testControllerCreate<CarrierEntity, CarrierValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getCarrierEntityMock(),
 	policy: carrierPolicy,
 	service: carrierService,
@@ -35,7 +35,7 @@ testControllerCreate<CarrierEntity, CarrierValidator>({
 
 testControllerUpdate<CarrierEntity, CarrierValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCarrierEntityMock().id}`,
 	entityMock: getCarrierEntityMock(),
 	policy: carrierPolicy,
 	service: carrierService,
@@ -44,28 +44,28 @@ testControllerUpdate<CarrierEntity, CarrierValidator>({
 
 testControllerRead<CarrierEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCarrierEntityMock().id}`,
 	entityMock: getCarrierEntityMock(),
 	policy: carrierPolicy,
 });
 
 testControllerDeleteSingle({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCarrierEntityMock().id}`,
 	policy: carrierPolicy,
 	service: carrierService,
 });
 
 testControllerRestoreSingle({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCarrierEntityMock().id}`,
 	policy: carrierPolicy,
 	service: carrierService,
 });
 
 testControllerFind<CarrierEntity, CarrierValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getCarrierEntityMock(),
 	policy: carrierPolicy,
 	service: carrierService,

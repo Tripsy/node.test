@@ -23,21 +23,21 @@ const basePath = cronHistoryRoutes.basePath;
 
 testControllerRead<CronHistoryEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCronHistoryEntityMock().id}`,
 	entityMock: getCronHistoryEntityMock(),
 	policy: cronHistoryPolicy,
 });
 
 testControllerDeleteMultiple<CronHistoryValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	policy: cronHistoryPolicy,
 	service: cronHistoryService,
 });
 
 testControllerFind<CronHistoryEntity, CronHistoryValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getCronHistoryEntityMock(),
 	policy: cronHistoryPolicy,
 	service: cronHistoryService,

@@ -23,21 +23,21 @@ const basePath = mailQueueRoutes.basePath;
 
 testControllerRead<MailQueueEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getMailQueueEntityMock().id}`,
 	entityMock: getMailQueueEntityMock(),
 	policy: mailQueuePolicy,
 });
 
 testControllerDeleteMultiple<MailQueueValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	policy: mailQueuePolicy,
 	service: mailQueueService,
 });
 
 testControllerFind<MailQueueEntity, MailQueueValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getMailQueueEntityMock(),
 	policy: mailQueuePolicy,
 	service: mailQueueService,

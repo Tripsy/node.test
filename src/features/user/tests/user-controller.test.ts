@@ -27,7 +27,7 @@ const basePath = userRoutes.basePath;
 
 testControllerCreate<UserEntity, UserValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
@@ -36,7 +36,7 @@ testControllerCreate<UserEntity, UserValidator>({
 
 testControllerUpdate<UserEntity, UserValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getUserEntityMock().id}`,
 	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
@@ -45,28 +45,28 @@ testControllerUpdate<UserEntity, UserValidator>({
 
 testControllerRead<UserEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getUserEntityMock().id}`,
 	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 });
 
 testControllerDeleteSingle({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getUserEntityMock().id}`,
 	policy: userPolicy,
 	service: userService,
 });
 
 testControllerRestoreSingle({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getUserEntityMock().id}`,
 	policy: userPolicy,
 	service: userService,
 });
 
 testControllerFind<UserEntity, UserValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
@@ -75,9 +75,8 @@ testControllerFind<UserEntity, UserValidator>({
 
 testControllerStatusUpdate<UserEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getUserEntityMock().id}/status/active`,
 	entityMock: getUserEntityMock(),
 	policy: userPolicy,
 	service: userService,
-	newStatus: 'active',
 });

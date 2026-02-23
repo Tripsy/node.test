@@ -192,7 +192,7 @@ type UpdateService<E, V extends UpdateValidator> = {
 
 type ControllerUpdateType<E, V extends UpdateValidator> = {
 	controller: string;
-	basePath: string;
+	route: string;
 	entityMock: E & {
 		id: number;
 	};
@@ -205,10 +205,8 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 	config: ControllerUpdateType<E, V>,
 ) {
 	describe(`${config.controller} - update`, () => {
-		const link = `${config.basePath}/1`;
-
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).put(link).send();
+			const response = await request(app).put(config.route).send();
 
 			withDebugResponse(() => {
 				expect(response.status).toBe(401);
@@ -218,7 +216,7 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).put(link).send();
+			const response = await request(app).put(config.route).send();
 
 			withDebugResponse(() => {
 				expect(response.status).toBe(403);
@@ -233,7 +231,7 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 			);
 
 			const response = await request(app)
-				.put(link)
+				.put(config.route)
 				.send(config.updateData);
 
 			withDebugResponse(() => {
@@ -544,15 +542,12 @@ type ControllerStatusUpdateType<E> = {
 	};
 	policy: PolicyAbstract;
 	service: StatusUpdateService;
-	newStatus: string;
 };
 
 export function testControllerStatusUpdate<E>(
 	config: ControllerStatusUpdateType<E>,
 ) {
 	describe(`${config.controller} - statusUpdate`, () => {
-		// const link = `${config.basePath}/${config.entityMock.id}/status/${config.newStatus}`;
-
 		it('should fail if not authenticated', async () => {
 			const response = await request(app).patch(config.route).query({});
 
