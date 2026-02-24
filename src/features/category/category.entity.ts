@@ -72,12 +72,12 @@ export default class CategoryEntity extends EntityAbstract {
 	/**
 	 * Hierarchy
 	 */
-    @TreeParent()
-    @JoinColumn({ name: 'parent_id' })
-    parent?: CategoryEntity | null;
+	@TreeParent()
+	@JoinColumn({ name: 'parent_id' })
+	parent?: CategoryEntity | null;
 
-    @TreeChildren()
-    children?: CategoryEntity[];
+	@TreeChildren()
+	children?: CategoryEntity[];
 
 	@Column('jsonb', {
 		nullable: true,
