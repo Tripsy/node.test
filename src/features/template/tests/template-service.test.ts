@@ -39,29 +39,29 @@ describe('TemplateService', () => {
 	});
 
 	testServiceUpdate<TemplateEntity>(
-        serviceTemplate,
+		serviceTemplate,
 		mockTemplate.repository,
 		getTemplateEntityMock(),
 	);
 
 	testServiceFindById<TemplateEntity, TemplateQuery>(
 		mockTemplate.query,
-        serviceTemplate,
+		serviceTemplate,
 	);
 
 	testServiceFindByFilter<TemplateEntity, TemplateQuery, TemplateValidator>(
 		mockTemplate.query,
-        serviceTemplate,
+		serviceTemplate,
 		templateOutputPayloads.get('find'),
 	);
 
 	testServiceDelete<TemplateEntity, TemplateQuery>(
 		mockTemplate.query,
-        serviceTemplate,
+		serviceTemplate,
 	);
 	testServiceRestore<TemplateEntity, TemplateQuery>(
 		mockTemplate.query,
-        serviceTemplate,
+		serviceTemplate,
 	);
 
 	it('should find by label, language, type', async () => {

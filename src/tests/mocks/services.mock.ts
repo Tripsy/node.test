@@ -6,17 +6,21 @@ export function mockAccountEmailService() {
 		accountEmailService,
 		'sendEmailConfirmUpdate',
 	).mockImplementation(() => Promise.resolve());
+
 	jest.spyOn(
 		accountEmailService,
 		'sendEmailConfirmCreate',
 	).mockImplementation(() => Promise.resolve());
+
 	jest.spyOn(accountEmailService, 'sendWelcomeEmail').mockImplementation(() =>
 		Promise.resolve(),
 	);
+
 	jest.spyOn(
 		accountEmailService,
 		'sendEmailPasswordRecover',
 	).mockImplementation(() => Promise.resolve());
+
 	jest.spyOn(
 		accountEmailService,
 		'sendEmailPasswordChange',

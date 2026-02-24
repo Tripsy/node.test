@@ -256,15 +256,11 @@ $ pnpm run madge
 
 # TODO
 
-1. make tests for services
-    > account, category
-2. make tests for the rest of available features
-    > client, permission, place, template, user-permission
-3. API documentation
-   > done for discounts
-   > do for: account, category, carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
-4. Deploy on AWS
-5. create CLI script which should generate something like:
+1. Deploy on AWS
+2. API documentation
+    > done for discounts
+    > do for: account, category, carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
+3. create CLI script which should generate something like:
    POST /discounts HTTP/1.1
    Host: nready.dev:3000
    Content-Type: application/json
@@ -286,32 +282,33 @@ $ pnpm run madge
         "end_at": "2025-12-28",
         "notes": "Lorem ipsum ..."
     }
-6. feature - brand (brand-content)
-7. feature - images  (image-content)
-8. Go on FE → category, place, brand, client
-9. Go on FE #3 → image (multer - File upload handling)
-10. wip entities:
-     - article
-         - article-category
-         - article-content
-         - article-tag  
-         - article-track
-     - invoice
-     - order
-         - order-product
-     - order-shipping
-         - order-shipping-product
-     - payment
-     - product
-         - product-attribute
-         - product-category
-         - product-tag
-         - product-content
-     - subscription
-         - subscription-evidence
-     - term
-11. Go on FE #2 → carrier, discount,
-12. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+5. Tests 
+4. feature - brand (brand-content)
+5. feature - images  (image-content)
+6. Go on FE → category, place, brand, client
+7. Go on FE #3 → image (multer - File upload handling)
+8. wip entities:
+    - article
+        - article-category
+        - article-content
+        - article-tag  
+        - article-track
+    - invoice
+    - order
+        - order-product
+    - order-shipping
+        - order-shipping-product
+    - payment
+    - product
+        - product-attribute
+        - product-category
+        - product-tag
+        - product-content
+    - subscription
+        - subscription-evidence
+    - term
+9. Go on FE #2 → carrier, discount,
+10. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # Bugs & Issues & Ideas
 
