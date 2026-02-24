@@ -4,7 +4,7 @@ import { Configuration } from '@/config/settings.config';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
-enum UserPermissionOrderByEnum {
+export enum UserPermissionOrderByEnum {
 	ID = 'id',
 	PERMISSION_ID = 'permission_id',
 	ENTITY = 'permission.entity',
@@ -22,7 +22,7 @@ export class UserPermissionValidator extends BaseValidator {
 	public create() {
 		return z.object({
 			permission_ids: z.array(
-				z.coerce
+				z
 					.number({
 						message: lang('shared.validation.invalid_ids', {
 							name: 'ids',

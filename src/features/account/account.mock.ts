@@ -13,6 +13,7 @@ export function getAccountTokenMock(): AccountTokenEntity {
 		user_id: 1,
 		ident: mockUuid(),
 		created_at: createPastDate(28800),
+		metadata: { 'user-agent': 'test-agent' },
 		used_at: createPastDate(14400),
 		expire_at: createFutureDate(14400),
 	};

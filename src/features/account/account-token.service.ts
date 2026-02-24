@@ -117,7 +117,7 @@ export class AccountTokenService {
 			.select(['id', 'ident', 'metadata', 'used_at'])
 			.filterBy('user_id', user_id)
 			.filterByRange('expire_at', new Date())
-			.all();
+			.all(false);
 
 		return authValidTokens.map((token) => {
 			return {

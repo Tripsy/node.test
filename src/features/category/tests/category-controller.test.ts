@@ -27,7 +27,7 @@ const basePath = categoryRoutes.basePath;
 
 testControllerCreate<CategoryEntity, CategoryValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
@@ -36,7 +36,7 @@ testControllerCreate<CategoryEntity, CategoryValidator>({
 
 testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCategoryEntityMock().id}`,
 	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
@@ -45,28 +45,28 @@ testControllerUpdateWithContent<CategoryEntity, CategoryValidator>({
 
 testControllerRead<CategoryEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCategoryEntityMock().id}`,
 	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 });
 
 testControllerDeleteSingle({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCategoryEntityMock().id}`,
 	policy: categoryPolicy,
 	service: categoryService,
 });
 
 testControllerRestoreSingle({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCategoryEntityMock().id}/restore`,
 	policy: categoryPolicy,
 	service: categoryService,
 });
 
 testControllerFind<CategoryEntity, CategoryValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
@@ -75,9 +75,8 @@ testControllerFind<CategoryEntity, CategoryValidator>({
 
 testControllerStatusUpdate<CategoryEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getCategoryEntityMock().id}/status/active`,
 	entityMock: getCategoryEntityMock(),
 	policy: categoryPolicy,
 	service: categoryService,
-	newStatus: 'active',
 });

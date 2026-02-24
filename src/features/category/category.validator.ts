@@ -42,7 +42,7 @@ export class CategoryValidator extends BaseValidator {
 			type: z.enum(CategoryTypeEnum, {
 				message: lang('category.validation.type_invalid'),
 			}),
-			parent_id: z.coerce
+			parent_id: z
 				.number({ message: lang('shared.error.invalid_parent_id') })
 				.optional(),
 			content: this.categoryContentSchema().array(),
@@ -52,7 +52,7 @@ export class CategoryValidator extends BaseValidator {
 	update() {
 		return z
 			.object({
-				parent_id: z.coerce
+				parent_id: z
 					.number({ message: lang('shared.error.invalid_parent_id') })
 					.optional(),
 				content: this.categoryContentSchema().array().optional(),

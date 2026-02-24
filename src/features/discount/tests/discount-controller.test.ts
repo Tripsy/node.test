@@ -26,7 +26,7 @@ const basePath = discountRoutes.basePath;
 
 testControllerCreate<DiscountEntity, DiscountValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getDiscountEntityMock(),
 	policy: discountPolicy,
 	service: discountService,
@@ -35,7 +35,7 @@ testControllerCreate<DiscountEntity, DiscountValidator>({
 
 testControllerUpdate<DiscountEntity, DiscountValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getDiscountEntityMock().id}`,
 	entityMock: getDiscountEntityMock(),
 	policy: discountPolicy,
 	service: discountService,
@@ -44,28 +44,28 @@ testControllerUpdate<DiscountEntity, DiscountValidator>({
 
 testControllerRead<DiscountEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getDiscountEntityMock().id}`,
 	entityMock: getDiscountEntityMock(),
 	policy: discountPolicy,
 });
 
 testControllerDeleteSingle({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getDiscountEntityMock().id}`,
 	policy: discountPolicy,
 	service: discountService,
 });
 
 testControllerRestoreSingle({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getDiscountEntityMock().id}/restore`,
 	policy: discountPolicy,
 	service: discountService,
 });
 
 testControllerFind<DiscountEntity, DiscountValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getDiscountEntityMock(),
 	policy: discountPolicy,
 	service: discountService,

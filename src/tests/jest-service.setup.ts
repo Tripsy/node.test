@@ -1,5 +1,6 @@
 import { expect, jest } from '@jest/globals';
-import type { ObjectLiteral, Repository } from 'typeorm';
+import type { EntityManager, ObjectLiteral, Repository } from 'typeorm';
+import dataSource from '@/config/data-source.config';
 import type RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 import type { ValidatorOutput } from '@/shared/abstracts/validator.abstract';
 
@@ -8,6 +9,7 @@ export function createMockQuery() {
 		// Chainable methods
 		select: jest.fn().mockReturnThis(),
 		join: jest.fn().mockReturnThis(),
+		joinAndSelect: jest.fn().mockReturnThis(),
 		filterBy: jest.fn().mockReturnThis(),
 		filterById: jest.fn().mockReturnThis(),
 		filterByRange: jest.fn().mockReturnThis(),
@@ -15,6 +17,7 @@ export function createMockQuery() {
 		filterByStatus: jest.fn().mockReturnThis(),
 		filterByEmail: jest.fn().mockReturnThis(),
 		filterByTemplate: jest.fn().mockReturnThis(),
+		filterByIdent: jest.fn().mockReturnThis(),
 		orderBy: jest.fn().mockReturnThis(),
 		pagination: jest.fn().mockReturnThis(),
 		withDeleted: jest.fn().mockReturnThis(),
@@ -28,6 +31,7 @@ export function createMockQuery() {
 		restore: jest.fn(),
 		firstOrFail: jest.fn(),
 		first: jest.fn(),
+		firstRaw: jest.fn(),
 		all: jest.fn(),
 	};
 }
@@ -53,6 +57,52 @@ export function createMockRepository<
 		query,
 		repository,
 	};
+}
+
+export function createMockContentRepository<
+	E extends ObjectLiteral,
+	Q extends RepositoryAbstract<E>,
+>() {
+	const query = createMockQuery() as unknown as jest.Mocked<Q>;
+
+	const createQueryMock = jest.fn(() => {
+		return query;
+	});
+
+	const repository = {
+		createQuery: createQueryMock,
+		save: jest.fn(),
+		saveContent: jest.fn(),
+	};
+
+	return {
+		query,
+		repository,
+	};
+}
+
+export function setupTransactionMock() {
+	return jest
+		.spyOn(dataSource, 'transaction')
+		.mockImplementation(
+			async <T>(
+				isolationOrCb:
+					| ((manager: EntityManager) => Promise<T>)
+					| string,
+				maybeCb?: (manager: EntityManager) => Promise<T>,
+			): Promise<T> => {
+				if (typeof isolationOrCb === 'function') {
+					return isolationOrCb({} as EntityManager);
+				} else {
+					if (!maybeCb) {
+						throw new Error(
+							'Callback is required when isolation level is provided',
+						);
+					}
+					return maybeCb({} as EntityManager);
+				}
+			},
+		);
 }
 
 interface IUpdateService<E> {

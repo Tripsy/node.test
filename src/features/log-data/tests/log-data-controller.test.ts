@@ -23,21 +23,21 @@ const basePath = logDataRoutes.basePath;
 
 testControllerRead<LogDataEntity>({
 	controller: controller,
-	basePath: basePath,
+	route: `${basePath}/${getLogDataEntityMock().id}`,
 	entityMock: getLogDataEntityMock(),
 	policy: logDataPolicy,
 });
 
 testControllerDeleteMultiple<LogDataValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	policy: logDataPolicy,
 	service: logDataService,
 });
 
 testControllerFind<LogDataEntity, LogDataValidator>({
 	controller: controller,
-	basePath: basePath,
+	route: basePath,
 	entityMock: getLogDataEntityMock(),
 	policy: logDataPolicy,
 	service: logDataService,

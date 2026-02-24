@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { carrierInputPayloads } from '@/features/carrier/carrier.mock';
 import { carrierValidator } from '@/features/carrier/carrier.validator';
-import { addDebugValidated } from '@/tests/jest-validator.setup';
+import { withDebugValidated } from '@/tests/jest-validator.setup';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -22,13 +22,9 @@ describe(validator, () => {
 			const payload = carrierInputPayloads.get(n);
 			const validated = schema.safeParse(payload);
 
-			try {
+			withDebugValidated(() => {
 				expect(validated.success).toBe(true);
-			} catch (error) {
-				addDebugValidated(validated, `${validator} - ${n}`);
-
-				throw error; // Re-throw to fail the test
-			}
+			}, validated);
 		});
 	});
 });

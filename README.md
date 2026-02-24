@@ -256,42 +256,38 @@ $ pnpm run madge
 
 # TODO
 
-1. make tests for services
-    > account, category
-2. make tests for the rest of available features
-    > client, permission, place, template, user-permission
-3. API documentation
-   > done for discounts
-   > do for: account, category, carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
-4. Deploy on AWS
-5. create CLI script which should generate something like:
+1. Deploy on AWS
+2. API documentation
+    > done for discounts
+    > do for: account, category, carrier, client, cron-history, log-history, mail-queue, permission, place, template, user-permission
+3. create CLI script which should generate something like:
    POST /discounts HTTP/1.1
    Host: nready.dev:3000
    Content-Type: application/json
    Authorization: Bearer ****
    Content-Length: 344
-
-{
-
-    "scope": "order",
-    "reason": "flash_sale",
-    "reference": "#345",
-    "type": "percent",
-    "value": 7,
-    "rules":     {
-      "min_order_value": 101,
-      "eligible_categories": [1, 2, 5],
-      "applicable_countries": ["RO"]
-    },
-    "start_at": "2025-12-18",
-    "end_at": "2025-12-28",
-    "notes": "Lorem ipsum ..."
-}
-1. feature - brand (brand-content)
-2. feature - images  (image-content)
-3. Go on FE → category, place, brand, client
-4. Go on FE #3 → image (multer - File upload handling)
-5. wip entities:
+    {
+    
+        "scope": "order",
+        "reason": "flash_sale",
+        "reference": "#345",
+        "type": "percent",
+        "value": 7,
+        "rules":     {
+          "min_order_value": 101,
+          "eligible_categories": [1, 2, 5],
+          "applicable_countries": ["RO"]
+        },
+        "start_at": "2025-12-18",
+        "end_at": "2025-12-28",
+        "notes": "Lorem ipsum ..."
+    }
+4. Tests for account-recovery.service.ts are missing 
+5. feature - brand (brand-content)
+6. feature - images  (image-content)
+7. Go on FE → category, place, brand, client
+8. Go on FE #3 → image (multer - File upload handling)
+9. wip entities:
     - article
         - article-category
         - article-content
@@ -311,8 +307,8 @@ $ pnpm run madge
     - subscription
         - subscription-evidence
     - term
-6. Go on FE #2 → carrier, discount,
-7. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+10. Go on FE #2 → carrier, discount,
+11. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # Bugs & Issues & Ideas
 

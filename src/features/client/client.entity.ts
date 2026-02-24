@@ -115,7 +115,7 @@ export default class ClientEntity extends EntityAbstract {
 	address_info!: string | null;
 
 	@Column('varchar', { nullable: true })
-	address_postal_code!: string | null;
+	address_postal_code!: number | null;
 
 	// OTHER
 	@Column('text', { nullable: true })

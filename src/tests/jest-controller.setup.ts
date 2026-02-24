@@ -3,6 +3,15 @@ import type { Express } from 'express';
 import request, { type Response } from 'supertest';
 import type { z } from 'zod';
 import { createApp } from '@/app';
+
+// jest.mock('@/features/place/place.repository', () => ({
+// 	getPlaceRepository: jest.fn(() => ({
+// 		checkPlaceType: jest
+// 			.fn<() => Promise<boolean>>()
+// 			.mockResolvedValue(true),
+// 	})),
+// }));
+
 import { cacheProvider } from '@/providers/cache.provider';
 import type PolicyAbstract from '@/shared/abstracts/policy.abstract';
 import type {
@@ -30,12 +39,11 @@ afterAll(async () => {
 	jest.resetModules();
 });
 
-// Debugging
-export function addDebugResponse(response: Response, hint: string) {
+function addDebugResponse(response: Response, hint: string) {
 	console.log(hint, response.body);
 }
 
-export function withDebug<T>(testFn: () => T, response: Response): T {
+export function withDebugResponse<T>(testFn: () => T, response: Response): T {
 	try {
 		return testFn();
 	} catch (error) {
@@ -50,7 +58,7 @@ export function withDebug<T>(testFn: () => T, response: Response): T {
 
 // Controller test - Create
 export type CreateValidator = {
-	create: () => z.ZodObject<z.ZodRawShape>;
+	create: () => z.ZodTypeAny;
 };
 
 type CreateService<E, V extends CreateValidator> = {
@@ -59,7 +67,7 @@ type CreateService<E, V extends CreateValidator> = {
 
 type ControllerCreateType<E, V extends CreateValidator> = {
 	controller: string;
-	basePath: string;
+	route: string;
 	entityMock: E & {
 		id: number;
 	};
@@ -72,12 +80,10 @@ export function testControllerCreate<E, V extends CreateValidator>(
 	config: ControllerCreateType<E, V>,
 ) {
 	describe(`${config.controller} - create`, () => {
-		const link = `${config.basePath}`;
-
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).post(link).send();
+			const response = await request(app).post(config.route).send();
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(401);
 			}, response);
 		});
@@ -85,9 +91,9 @@ export function testControllerCreate<E, V extends CreateValidator>(
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).post(link).send();
+			const response = await request(app).post(config.route).send();
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(403);
 			}, response);
 		});
@@ -100,10 +106,10 @@ export function testControllerCreate<E, V extends CreateValidator>(
 			);
 
 			const response = await request(app)
-				.post(link)
-				.send(config.createData);
+				.post(config.route)
+				.send(config.createData as object);
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(201);
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
@@ -118,7 +124,7 @@ export function testControllerCreate<E, V extends CreateValidator>(
 // Controller test - Read
 type ControllerReadType<E> = {
 	controller: string;
-	basePath: string;
+	route: string;
 	entityMock: E & {
 		id: number;
 	};
@@ -127,12 +133,10 @@ type ControllerReadType<E> = {
 
 export function testControllerRead<E>(config: ControllerReadType<E>) {
 	describe(`${config.controller} - read`, () => {
-		const link = `${config.basePath}/1`;
-
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).get(link).query({});
+			const response = await request(app).get(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(401);
 			}, response);
 		});
@@ -140,9 +144,9 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).get(link).query({});
+			const response = await request(app).get(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(403);
 			}, response);
 		});
@@ -159,9 +163,9 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 				},
 			);
 
-			const response = await request(app).get(link).query({});
+			const response = await request(app).get(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(200);
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
@@ -175,7 +179,7 @@ export function testControllerRead<E>(config: ControllerReadType<E>) {
 
 // Controller test - Update
 export type UpdateValidator = {
-	update: () => z.ZodObject<z.ZodRawShape>;
+	update: () => z.ZodTypeAny;
 };
 
 type UpdateService<E, V extends UpdateValidator> = {
@@ -188,7 +192,7 @@ type UpdateService<E, V extends UpdateValidator> = {
 
 type ControllerUpdateType<E, V extends UpdateValidator> = {
 	controller: string;
-	basePath: string;
+	route: string;
 	entityMock: E & {
 		id: number;
 	};
@@ -201,12 +205,10 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 	config: ControllerUpdateType<E, V>,
 ) {
 	describe(`${config.controller} - update`, () => {
-		const link = `${config.basePath}/1`;
-
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).put(link).send();
+			const response = await request(app).put(config.route).send();
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(401);
 			}, response);
 		});
@@ -214,9 +216,9 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).put(link).send();
+			const response = await request(app).put(config.route).send();
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(403);
 			}, response);
 		});
@@ -229,10 +231,10 @@ export function testControllerUpdate<E, V extends UpdateValidator>(
 			);
 
 			const response = await request(app)
-				.put(link)
-				.send(config.updateData);
+				.put(config.route)
+				.send(config.updateData as object);
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(200);
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
@@ -254,7 +256,7 @@ type UpdateWithContentService<E, V extends UpdateValidator> = {
 
 type ControllerUpdateWithContentType<E, V extends UpdateValidator> = {
 	controller: string;
-	basePath: string;
+	route: string;
 	entityMock: E & {
 		id: number;
 	};
@@ -267,12 +269,10 @@ export function testControllerUpdateWithContent<E, V extends UpdateValidator>(
 	config: ControllerUpdateWithContentType<E, V>,
 ) {
 	describe(`${config.controller} - update`, () => {
-		const link = `${config.basePath}/${config.entityMock.id}`;
-
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).put(link).send();
+			const response = await request(app).put(config.route).send();
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(401);
 			}, response);
 		});
@@ -280,9 +280,9 @@ export function testControllerUpdateWithContent<E, V extends UpdateValidator>(
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).put(link).send();
+			const response = await request(app).put(config.route).send();
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(403);
 			}, response);
 		});
@@ -296,10 +296,10 @@ export function testControllerUpdateWithContent<E, V extends UpdateValidator>(
 			).mockResolvedValue(config.entityMock);
 
 			const response = await request(app)
-				.put(link)
-				.send(config.updateData);
+				.put(config.route)
+				.send(config.updateData as object);
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(200);
 				expect(response.body).toHaveProperty('success', true);
 				expect(response.body.data).toHaveProperty(
@@ -322,7 +322,7 @@ type DeleteMultipleService<V extends DeleteValidator> = {
 
 type ControllerDeleteMultipleType<V extends DeleteValidator> = {
 	controller: string;
-	basePath: string;
+	route: string;
 	policy: PolicyAbstract;
 	service: DeleteMultipleService<V>;
 };
@@ -331,8 +331,6 @@ export function testControllerDeleteMultiple<V extends DeleteValidator>(
 	config: ControllerDeleteMultipleType<V>,
 ) {
 	describe(`${config.controller} - delete`, () => {
-		const link = `${config.basePath}`;
-
 		const testData = {
 			ids: [3, 4],
 		};
@@ -340,9 +338,9 @@ export function testControllerDeleteMultiple<V extends DeleteValidator>(
 		it('should fail if not authenticated', async () => {
 			notAuthenticatedSpy(config.policy);
 
-			const response = await request(app).delete(link).send();
+			const response = await request(app).delete(config.route).send();
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(401);
 			}, response);
 		});
@@ -350,9 +348,9 @@ export function testControllerDeleteMultiple<V extends DeleteValidator>(
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).delete(link).send();
+			const response = await request(app).delete(config.route).send();
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(403);
 			}, response);
 		});
@@ -362,9 +360,11 @@ export function testControllerDeleteMultiple<V extends DeleteValidator>(
 
 			jest.spyOn(config.service, 'delete').mockResolvedValue(3);
 
-			const response = await request(app).delete(link).send(testData);
+			const response = await request(app)
+				.delete(config.route)
+				.send(testData);
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(200);
 			}, response);
 		});
@@ -377,19 +377,17 @@ type DeleteSingleService = {
 
 type ControllerDeleteSingleType = {
 	controller: string;
-	basePath: string;
+	route: string;
 	policy: PolicyAbstract;
 	service: DeleteSingleService;
 };
 
 export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 	describe(`${config.controller} - delete`, () => {
-		const link = `${config.basePath}/1`;
-
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).delete(link).query({});
+			const response = await request(app).delete(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(401);
 			}, response);
 		});
@@ -397,9 +395,9 @@ export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).delete(link).query({});
+			const response = await request(app).delete(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(403);
 			}, response);
 		});
@@ -409,9 +407,9 @@ export function testControllerDeleteSingle(config: ControllerDeleteSingleType) {
 
 			jest.spyOn(config.service, 'delete').mockResolvedValue();
 
-			const response = await request(app).delete(link).query({});
+			const response = await request(app).delete(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(200);
 			}, response);
 		});
@@ -425,7 +423,7 @@ type RestoreSingleService = {
 
 type ControllerRestoreSingleType = {
 	controller: string;
-	basePath: string;
+	route: string;
 	policy: PolicyAbstract;
 	service: RestoreSingleService;
 };
@@ -434,12 +432,10 @@ export function testControllerRestoreSingle(
 	config: ControllerRestoreSingleType,
 ) {
 	describe(`${config.controller} - restore`, () => {
-		const link = `${config.basePath}/1/restore`;
-
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).patch(link).query({});
+			const response = await request(app).patch(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(401);
 			}, response);
 		});
@@ -447,9 +443,9 @@ export function testControllerRestoreSingle(
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).patch(link).query({});
+			const response = await request(app).patch(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(403);
 			}, response);
 		});
@@ -459,9 +455,9 @@ export function testControllerRestoreSingle(
 
 			jest.spyOn(config.service, 'restore').mockResolvedValue();
 
-			const response = await request(app).patch(link).query({});
+			const response = await request(app).patch(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(200);
 			}, response);
 		});
@@ -481,7 +477,7 @@ type FindService<E, V extends FindValidator> = {
 
 type ControllerFindType<E, V extends FindValidator> = {
 	controller: string;
-	basePath: string;
+	route: string;
 	entityMock: E & {
 		id: number;
 	};
@@ -498,12 +494,10 @@ export function testControllerFind<E, V extends FindValidator>(
 	config: ControllerFindType<E, V>,
 ) {
 	describe(`${config.controller} - find`, () => {
-		const link = `${config.basePath}`;
-
 		it('failed validation', async () => {
 			authorizedSpy(config.policy);
 
-			const response = await request(app).get(link).query({});
+			const response = await request(app).get(config.route).query({});
 
 			expect(response.status).toBe(422);
 		});
@@ -518,9 +512,11 @@ export function testControllerFind<E, V extends FindValidator>(
 				1,
 			]);
 
-			const response = await request(app).get(link).query(mockFindData);
+			const response = await request(app)
+				.get(config.route)
+				.query(mockFindData);
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(200);
 				expect(response.body.data.entries).toHaveLength(1);
 				expect(response.body.data.query.limit).toBe(mockFindData.limit);
@@ -540,25 +536,22 @@ type StatusUpdateService = {
 
 type ControllerStatusUpdateType<E> = {
 	controller: string;
-	basePath: string;
+	route: string;
 	entityMock: E & {
 		id: number;
 	};
 	policy: PolicyAbstract;
 	service: StatusUpdateService;
-	newStatus: string;
 };
 
 export function testControllerStatusUpdate<E>(
 	config: ControllerStatusUpdateType<E>,
 ) {
 	describe(`${config.controller} - statusUpdate`, () => {
-		const link = `${config.basePath}/${config.entityMock.id}/status/${config.newStatus}`;
-
 		it('should fail if not authenticated', async () => {
-			const response = await request(app).patch(link).query({});
+			const response = await request(app).patch(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(401);
 			}, response);
 		});
@@ -566,9 +559,9 @@ export function testControllerStatusUpdate<E>(
 		it("should fail if it doesn't have proper permission", async () => {
 			notAuthorizedSpy(config.policy);
 
-			const response = await request(app).patch(link).query({});
+			const response = await request(app).patch(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(403);
 			}, response);
 		});
@@ -580,9 +573,9 @@ export function testControllerStatusUpdate<E>(
 				undefined,
 			);
 
-			const response = await request(app).patch(link).query({});
+			const response = await request(app).patch(config.route).query({});
 
-			withDebug(() => {
+			withDebugResponse(() => {
 				expect(response.status).toBe(200);
 				expect(response.body).toHaveProperty('success', true);
 			}, response);
