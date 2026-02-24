@@ -280,7 +280,7 @@ export class CategoryService {
 			throw new CustomError(400, lang('category.error.parent_deleted'));
 		}
 
-		if (category.parent?.status !== CategoryStatusEnum.ACTIVE) {
+		if (category.parent && category.parent.status !== CategoryStatusEnum.ACTIVE) {
 			throw new CustomError(
 				400,
 				lang('category.error.parent_not_active'),

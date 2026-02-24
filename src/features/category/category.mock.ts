@@ -13,7 +13,6 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 export function getCategoryEntityMock(): CategoryEntity {
 	return {
-		children: [],
 		created_at: createPastDate(86400),
 		deleted_at: null,
 		details: undefined,
