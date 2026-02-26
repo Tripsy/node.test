@@ -81,7 +81,7 @@ export class UserSubscriber extends SubscriberAbstract<UserEntity> {
 			});
 
 			if (event.entity.status === UserStatusEnum.ACTIVE) {
-				await this.accountService.processRegistration({
+				this.accountService.processRegistration({
 					id: id,
 					name: event.entity.name || event.databaseEntity.name,
 					email: event.entity.email || event.databaseEntity.email,

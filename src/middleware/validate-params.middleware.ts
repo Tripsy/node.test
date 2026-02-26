@@ -35,7 +35,7 @@ export const validateParamsWhenId = (...args: string[]) => {
 	};
 };
 
-export const validateParamsWhenStatus = (data: Record<string, unknown[]>) => {
+export const validateParamsWhenEnum = (data: Record<string, unknown[]>) => {
 	return (req: Request, res: Response, next: NextFunction) => {
 		const validated: Record<string, string> = {};
 		const errors: Record<string, unknown>[] = [];
@@ -45,7 +45,7 @@ export const validateParamsWhenStatus = (data: Record<string, unknown[]>) => {
 
 			if (!allowedValues.includes(value)) {
 				errors.push({
-					[name]: lang('shared.validation.invalid_status', {
+					[name]: lang('shared.validation.invalid_enum', {
 						name: name,
 						allowedValues: allowedValues.join(', '),
 					}),

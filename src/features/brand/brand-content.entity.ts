@@ -1,5 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
+import {
+	EntityAbstract,
+	type PageMeta,
+} from '@/shared/abstracts/entity.abstract';
 import type BrandEntity from './brand.entity';
 
 const ENTITY_TABLE_NAME = 'brand_content';
@@ -9,7 +12,9 @@ const ENTITY_TABLE_NAME = 'brand_content';
 	schema: 'public',
 	comment: 'Language-specific content for brands (descriptions, meta)',
 })
-@Index('IDX_brand_content_unique_per_lang', ['brand_id', 'language'])
+@Index('IDX_brand_content_unique_per_lang', ['brand_id', 'language'], {
+	unique: true,
+})
 export default class BrandContentEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
@@ -28,9 +33,9 @@ export default class BrandContentEntity extends EntityAbstract {
 
 	@Column('jsonb', {
 		nullable: true,
-		comment: 'SEO metadata for brand pages.',
+		comment: 'SEO metadata, canonical URL, images, structured data, etc.',
 	})
-	meta!: Record<string, number> | null;
+	meta!: PageMeta | null;
 
 	// RELATIONS
 	@ManyToOne('BrandEntity', {

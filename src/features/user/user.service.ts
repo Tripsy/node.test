@@ -26,10 +26,10 @@ export class UserService {
 	public async create(
 		data: ValidatorOutput<UserValidator, 'create'>,
 	): Promise<UserEntity> {
-		const existingUser = await this.findByEmail(data.email, true);
+		const existing = await this.findByEmail(data.email, true);
 
-		if (existingUser) {
-			throw new CustomError(409, lang('user.error.email_already_used'));
+		if (existing) {
+			throw new CustomError(409, lang('user.error.already_exists'));
 		}
 
 		const entry = {
@@ -81,18 +81,15 @@ export class UserService {
 		const entry = await this.findById(id, withDeleted);
 
 		if (data.email) {
-			const existingUser = await this.findByEmail(
+			const existing = await this.findByEmail(
 				data.email,
 				true,
 				undefined,
 				id,
 			);
 
-			if (existingUser) {
-				throw new CustomError(
-					409,
-					lang('user.error.email_already_used'),
-				);
+			if (existing) {
+				throw new CustomError(409, lang('user.error.already_exists'));
 			}
 		}
 

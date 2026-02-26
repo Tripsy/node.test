@@ -16,7 +16,7 @@
 	"validation": {
 		"invalid_id": "Invalid ID parameter (eg: {{name}})",
 		"invalid_ids": "Invalid IDs parameter (eg: {{name}})",
-		"invalid_status": "Invalid status parameter (eg: {{name}}). Accepted: {{allowedValues}}",
+		"invalid_enum": "Invalid enum parameter (eg: {{name}}). Accepted: {{allowedValues}}",
 		"invalid_string": "Field must be a string",
 		"invalid_number": "Field must be a number",
 		"invalid_boolean": "Field must have a boolean value",
@@ -28,7 +28,8 @@
 		"meta_title_invalid": "Meta title must be a string",
 		"meta_description_invalid": "Meta description must be a string",
 		"meta_keywords_invalid": "Meta keywords must be a string",
-		"language_invalid": "Invalid language"
+		"language_invalid": "Invalid language",
+		"array_min": "Minimum array length is {{length}}"
 	},
 	"debug": {
 		"email_error": "Failed to send email with subject `{{subject}}` to `{{to}}` (eg: {{error}})",

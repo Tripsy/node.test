@@ -44,6 +44,7 @@ export default class PlaceEntity extends EntityAbstract {
 	@Index('IDX_place_code')
 	code?: string;
 
+	// RELATIONS
 	@ManyToOne(
 		() => PlaceEntity,
 		(place) => place.children,

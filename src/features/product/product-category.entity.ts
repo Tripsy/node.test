@@ -28,7 +28,7 @@ export default class ProductCategoryEntity extends EntityAbstract {
 		nullable: true,
 		comment: 'Reserved column for future use',
 	})
-	details!: Record<string, string | number | boolean>;
+	details!: Record<string, string | number | boolean> | null;
 
 	// RELATIONS
 	@ManyToOne('ProductEntity', {

@@ -33,6 +33,7 @@ export function createMockQuery() {
 		first: jest.fn(),
 		firstRaw: jest.fn(),
 		all: jest.fn(),
+		count: jest.fn(),
 	};
 }
 
@@ -82,7 +83,12 @@ export function createMockContentRepository<
 }
 
 export function setupTransactionMock() {
-	return jest
+	const manager = {
+		query: jest.fn(),
+		getRepository: jest.fn(),
+	} as unknown as EntityManager;
+
+	const transaction = jest
 		.spyOn(dataSource, 'transaction')
 		.mockImplementation(
 			async <T>(
@@ -92,17 +98,19 @@ export function setupTransactionMock() {
 				maybeCb?: (manager: EntityManager) => Promise<T>,
 			): Promise<T> => {
 				if (typeof isolationOrCb === 'function') {
-					return isolationOrCb({} as EntityManager);
+					return isolationOrCb(manager);
 				} else {
 					if (!maybeCb) {
 						throw new Error(
 							'Callback is required when isolation level is provided',
 						);
 					}
-					return maybeCb({} as EntityManager);
+					return maybeCb(manager);
 				}
 			},
 		);
+
+	return { transaction, manager };
 }
 
 interface IUpdateService<E> {
@@ -194,9 +202,9 @@ export function testServiceFindById<
 
 		query.firstOrFail.mockResolvedValue(entity);
 
-		const result = await service.findById(1, true);
+		const result = await service.findById(entity.id, true);
 
-		expect(query.filterById).toHaveBeenCalledWith(1);
+		expect(query.filterById).toHaveBeenCalledWith(entity.id);
 		expect(query.firstOrFail).toHaveBeenCalled();
 		expect(result).toBe(entity);
 	});
