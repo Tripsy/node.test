@@ -13,4 +13,3 @@ services:
             development:
 networks:
     development:
-        external: true

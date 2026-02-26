@@ -1,11 +1,5 @@
-import {
-	Column,
-	CreateDateColumn,
-	Entity,
-	Index,
-	PrimaryGeneratedColumn,
-	UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
+import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 export enum PaymentStatusEnum {
 	PENDING = 'pending', // Created, waiting for gateway or user redirect
@@ -30,18 +24,9 @@ const ENTITY_TABLE_NAME = 'payment';
 	comment:
 		'Tracks payments from various gateways and links them to invoices.',
 })
-export default class PaymentEntity {
+export default class PaymentEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
-
-	@PrimaryGeneratedColumn({ type: 'int', unsigned: false })
-	id!: number;
-
-	@CreateDateColumn({ type: 'timestamp', nullable: false })
-	created_at!: Date;
-
-	@UpdateDateColumn({ type: 'timestamp', nullable: true })
-	updated_at!: Date | null;
 
 	@Column('int', { nullable: false })
 	@Index('IDX_payment_invoice_id')

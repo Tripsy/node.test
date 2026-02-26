@@ -71,13 +71,10 @@ export class AccountService {
 		data: z.infer<ReturnType<AccountValidator['register']>>,
 		language: string,
 	): Promise<UserEntity> {
-		const existingUser = await this.userService.findByEmail(
-			data.email,
-			true,
-		);
+		const existing = await this.userService.findByEmail(data.email, true);
 
-		if (existingUser) {
-			if (existingUser.status === UserStatusEnum.PENDING) {
+		if (existing) {
+			if (existing.status === UserStatusEnum.PENDING) {
 				throw new CustomError(
 					409,
 					lang('account.error.pending_account'),

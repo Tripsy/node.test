@@ -283,11 +283,10 @@ $ pnpm run madge
         "notes": "Lorem ipsum ..."
     }
 4. Tests for account-recovery.service.ts are missing 
-5. feature - brand (brand-content)
-6. feature - images  (image-content)
-7. Go on FE → category, place, brand, client
-8. Go on FE #3 → image (multer - File upload handling)
-9. wip entities:
+5. feature - images  (image-content)
+6. Go on FE → category, place, brand, client
+7. Go on FE #3 → image (multer - File upload handling)
+8. wip entities:
     - article
         - article-category
         - article-content
@@ -307,8 +306,8 @@ $ pnpm run madge
     - subscription
         - subscription-evidence
     - term
-10. Go on FE #2 → carrier, discount,
-11. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
+9. Go on FE #2 → carrier, discount,
+10. For reporting create separate DB table (in a new schema `reporting`). This new table can be updated via subscribers.
 
 # Bugs & Issues & Ideas
 

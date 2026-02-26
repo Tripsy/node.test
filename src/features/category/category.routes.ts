@@ -3,8 +3,8 @@ import { categoryController } from '@/features/category/category.controller';
 import { CategoryStatusEnum } from '@/features/category/category.entity';
 import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
 import {
+	validateParamsWhenEnum,
 	validateParamsWhenId,
-	validateParamsWhenStatus,
 } from '@/middleware/validate-params.middleware';
 
 const routesModule: FeatureRoutesModule<typeof categoryController> = {
@@ -45,7 +45,7 @@ const routesModule: FeatureRoutesModule<typeof categoryController> = {
 			method: 'patch',
 			handlers: [
 				validateParamsWhenId('id'),
-				validateParamsWhenStatus({
+				validateParamsWhenEnum({
 					status: [
 						CategoryStatusEnum.ACTIVE,
 						CategoryStatusEnum.INACTIVE,

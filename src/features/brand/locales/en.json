@@ -1,0 +1,31 @@
+{
+	"validation": {
+		"name_invalid": "Invalid name",
+		"slug_invalid": "Invalid slug",
+		"type_invalid": "Invalid type",
+		"status_invalid": "Invalid status",
+		"description_invalid": "Invalid description",
+		"invalid_ids_provided": "Invalid ids provided for ordering"
+	},
+	"error": {
+		"not_found": "Brand not found",
+		"already_exist": "Another brand already set with this name / type",
+		"status_unchanged": "Status unchanged (eg: {{status}})"
+	},
+	"success": {
+		"create": "Brand created successfully",
+		"update": "Brand updated successfully",
+		"delete": "Brand deleted successfully",
+		"restore": "Brand restored successfully",
+		"status_update": "Brand status updated successfully",
+		"order_update": "Brand order updated successfully"
+	},
+	"history": {
+		"created": "Brand #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Brand #{{entity_id}} updated by user #{{auth_id}}",
+		"deleted": "Brand(s) {{entity_ids}} marked as deleted by user #{{auth_id}}",
+		"removed": "Brand(s) {{entity_ids}} removed by user #{{auth_id}}",
+		"restored": "Brand(s) {{entity_ids}}restored by user #{{auth_id}}",
+		"status": "Brand #{{entity_id}} updated from {{oldStatus}} to {{newStatus}} by user #{{auth_id}}"
+	}
+}

@@ -1,24 +1,28 @@
 import type { FeatureRoutesModule } from '@/config/routes.setup';
-import { clientController } from '@/features/client/client.controller';
-import { ClientStatusEnum } from '@/features/client/client.entity';
+import { brandController } from '@/features/brand/brand.controller';
+import { BrandStatusEnum, BrandTypeEnum } from '@/features/brand/brand.entity';
 import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
 import {
 	validateParamsWhenEnum,
 	validateParamsWhenId,
+	validateParamsWhenString,
 } from '@/middleware/validate-params.middleware';
 
-const routesModule: FeatureRoutesModule<typeof clientController> = {
-	basePath: '/clients',
-	controller: clientController,
+const routesModule: FeatureRoutesModule<typeof brandController> = {
+	basePath: '/brands',
+	controller: brandController,
 	routes: {
 		create: {
 			path: '',
 			method: 'post',
 		},
 		read: {
-			path: '/:id',
+			path: '/:id/:language',
 			method: 'get',
-			handlers: [validateParamsWhenId('id')],
+			handlers: [
+				validateParamsWhenId('id'),
+				validateParamsWhenString('language'),
+			],
 		},
 		update: {
 			path: '/:id',
@@ -46,17 +50,23 @@ const routesModule: FeatureRoutesModule<typeof clientController> = {
 			handlers: [
 				validateParamsWhenId('id'),
 				validateParamsWhenEnum({
-					status: [
-						ClientStatusEnum.ACTIVE,
-						ClientStatusEnum.INACTIVE,
-					],
+					status: [BrandStatusEnum.ACTIVE, BrandStatusEnum.INACTIVE],
+				}),
+			],
+		},
+		orderUpdate: {
+			path: '/:type/order',
+			method: 'patch',
+			handlers: [
+				validateParamsWhenEnum({
+					type: Object.values(BrandTypeEnum),
 				}),
 			],
 		},
 	},
 };
 
-const routesConfiguration: FeatureRoutesModule<typeof clientController> = {
+const routesConfiguration: FeatureRoutesModule<typeof brandController> = {
 	...routesModule,
 };
 

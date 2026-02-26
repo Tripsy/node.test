@@ -51,7 +51,7 @@ function createMockRepositoryForPlace<
 
 describe('PlaceService', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		jest.restoreAllMocks();
 	});
 
 	const mockPlace = createMockRepositoryForPlace<PlaceEntity, PlaceQuery>();
@@ -78,7 +78,7 @@ describe('PlaceService', () => {
 		const entity = getPlaceEntityMock();
 		const createData = placeOutputPayloads.get('create');
 
-		const transaction = setupTransactionMock();
+		const { transaction } = setupTransactionMock();
 
 		mockScopedRepository.repository.save.mockResolvedValue(entity);
 

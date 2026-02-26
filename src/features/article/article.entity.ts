@@ -50,7 +50,7 @@ export default class ArticleEntity extends EntityAbstract {
 		nullable: true,
 		comment: 'Reserved column for future use',
 	})
-	details!: Record<string, string | number | boolean>;
+	details!: Record<string, string | number | boolean> | null;
 
 	@Column({ type: 'timestamp', nullable: true })
 	publish_at?: Date | null;

@@ -3,8 +3,8 @@ import { userController } from '@/features/user/user.controller';
 import { UserStatusEnum } from '@/features/user/user.entity';
 import { parseFilterMiddleware } from '@/middleware/parse-filter.middleware';
 import {
+	validateParamsWhenEnum,
 	validateParamsWhenId,
-	validateParamsWhenStatus,
 } from '@/middleware/validate-params.middleware';
 
 const routesModule: FeatureRoutesModule<typeof userController> = {
@@ -45,7 +45,7 @@ const routesModule: FeatureRoutesModule<typeof userController> = {
 			method: 'patch',
 			handlers: [
 				validateParamsWhenId('id'),
-				validateParamsWhenStatus({
+				validateParamsWhenEnum({
 					status: [UserStatusEnum.ACTIVE, UserStatusEnum.INACTIVE],
 				}),
 			],

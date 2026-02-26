@@ -1,16 +1,34 @@
-import { Column, Entity, Index } from 'typeorm';
-import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
+import type BrandContentEntity from '@/features/brand/brand-content.entity';
+import {
+	EntityAbstract,
+	type PageMeta,
+} from '@/shared/abstracts/entity.abstract';
 
 export enum BrandStatusEnum {
 	ACTIVE = 'active',
 	INACTIVE = 'inactive',
 }
 
+export enum BrandTypeEnum {
+	PRODUCT = 'product',
+}
+
+export type BrandContentInput = {
+	language: string;
+	description?: string;
+	meta: PageMeta;
+};
+
 const ENTITY_TABLE_NAME = 'brand';
 
 @Entity({
 	name: ENTITY_TABLE_NAME,
 	schema: 'public',
+})
+
+@Index('IDX_brand_slug', ['slug', 'type'], {
+	unique: true,
 })
 export default class BrandEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
@@ -20,7 +38,6 @@ export default class BrandEntity extends EntityAbstract {
 	name!: string;
 
 	@Column('varchar', { nullable: false })
-	@Index('IDX_brand_slug', { unique: true })
 	slug!: string;
 
 	@Column({
@@ -30,6 +47,15 @@ export default class BrandEntity extends EntityAbstract {
 		nullable: false,
 	})
 	status!: BrandStatusEnum;
+
+	@Column({
+		type: 'enum',
+		enum: BrandTypeEnum,
+		default: BrandTypeEnum.PRODUCT,
+		nullable: false,
+		comment: 'Specifies the entity type this brand belongs to',
+	})
+	type!: BrandTypeEnum;
 
 	@Column('int', {
 		nullable: false,
@@ -42,5 +68,12 @@ export default class BrandEntity extends EntityAbstract {
 		nullable: true,
 		comment: 'Reserved column for future use',
 	})
-	details!: Record<string, string | number | boolean>;
+	details!: Record<string, string | number | boolean> | null;
+
+	// RELATIONS
+	@OneToMany(
+		'BrandContentEntity',
+		(content: BrandContentEntity) => content.brand,
+	)
+	contents!: BrandContentEntity[];
 }

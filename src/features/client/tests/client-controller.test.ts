@@ -44,15 +44,6 @@ testControllerCreate<ClientEntity, ClientValidator>({
 	createData: clientInputPayloads.get('create'),
 });
 
-// testControllerUpdate<ClientEntity, ClientValidator>({
-// 	controller: controller,
-// 	route: `${basePath}/${getClientEntityMock().id}`,
-// 	entityMock: getClientEntityMock(),
-// 	policy: clientPolicy,
-// 	service: clientService,
-// 	updateData: clientInputPayloads.get('update'),
-// });
-
 describe(`${controller} - update`, () => {
 	const route = `${basePath}/${getClientEntityMock().id}`;
 
