@@ -79,35 +79,33 @@ Meanwhile, we're open to suggestions / feedback, and if you find this project us
 ### Core features
 
 - [x] account: register, login, removeToken, logout, passwordRecover, passwordRecoverChange, passwordUpdate, emailConfirm, emailUpdate, me, sessions, edit, delete
-- [x] cron-history.controller: read, delete, find
-- [x] log-data.controller: read, delete, find
-- [x] log-history.controller: read, delete, find
-- [x] mail-queue.controller: read, delete, find
-- [x] permission.controller (create, read, update, delete, restore, find
-- [x] template.controller (create, read, update, delete, restore, find)
-- [x] user.controller (create, read, update, delete, restore, find, statusUpdate)
-- [x] user-permission.controller (create, delete, restore, find)
+- [x] cron-history: read, delete, find
+- [x] log-data: read, delete, find
+- [x] log-history: read, delete, find
+- [x] mail-queue: read, delete, find
+- [x] permission (create, read, update, delete, restore, find
+- [x] template (create, read, update, delete, restore, find)
+- [x] user (create, read, update, delete, restore, find, statusUpdate)
+- [x] user-permission (create, delete, restore, find)
 
 ### Modular features
 
+- [ ] article: 
+- [x] brand: create, read, update, delete, restore, find
 - [x] carrier: create, read, update, delete, restore, find
+- [x] cash-flow: create, read, update, delete, restore, find, statusUpdate
+      * this module will be further enhanced
 - [x] category: create, read, update, delete, restore, find, statusUpdate
 - [x] client: create, read, update, delete, restore, find, statusUpdate
 - [x] discount: create, read, update, delete, restore, find
+- [ ] image:
+- [ ] invoice:
+- [ ] order:
+- [ ] order-shipping:
 - [x] place: create, read, update, delete, restore, find
-
-### Upcoming features
-
-- article
-- brand
-- image
-- invoice
-- order
-- order-shipping
-- payment
-- product
-- subscription
-- term
+- [ ] product:
+- [ ] subscription:
+- [ ] term:
 
 # Setup
 
@@ -256,6 +254,10 @@ $ pnpm run madge
 
 # TODO
 
+1. payment -> cash-flow
+  - review controller & service 
+  - handle tests
+  - do documentation  
 1. Deploy on AWS
 2. API documentation
     > done for discounts
