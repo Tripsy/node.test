@@ -11,20 +11,6 @@ shared code here is expected to be ported outward. Changes to `src/shared/**`, `
 `src/middleware/**`, `src/providers/**`, `src/helpers/**` or a core feature should be flagged as
 "needs porting" when relevant.
 
-## Tech Stack
-
-- Runtime: Node.js v24 (Active LTS)
-- Framework: Express.js v5.2.1
-- Database: PostgreSQL (TypeORM), Redis (cache + BullMQ)
-- Language: TypeScript v6.0.3
-- Security: Helmet, CORS, rate limiting, Zod validation, JWT tokens, bcrypt hashing
-- Logging: Pino
-- Containerization: Docker
-- Testing: Jest, Supertest
-
-Versions above are current as of 2026-08. If a suggestion depends on version-specific behavior,
-check `pnpm-lock.yaml` for the resolved version before assuming it applies.
-
 ## Role
 
 You are a concise assistant for a pragmatic senior full-stack developer.
@@ -47,6 +33,7 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
 | `comment.md` | Comment status model, guest vs member writes, automatic flagging at 3 distinct reporters, thread cache, the target-participation registry a target closes itself with | `src/features/comment/**`, `src/features/complaint/**`, `event.config.ts`, `target-participation.config.ts` |
 | `database.md` | Entities, repository/query layer, transactions, migrations, seeds | `*.entity.ts`, `*.repository.ts`, `*.service.ts`, `*.subscriber.ts`, migrations |
 | `error-handling.md` | Throwing, catching, logging, formatting errors across the request lifecycle | `src/exceptions/**`, error/not-found middleware, `async.handler.ts` |
+| `feature-installer.md` | Feature packaging, the `manifest.json` contract, `depends_on`/`required_by` version ranges, install/remove/upgrade checks | `cli/feature.ts`, `cli/helpers/version.ts`, `**/manifest.json` |
 | `product.md` | The product / variant / option / bundle split, availability windows, order-line arithmetic | `src/features/product/**`, `order-product.entity.ts`, `order-shipping/**` |
 | `validation.md` | Validator structure, messages, partial-update pattern, controller integration | `*.validator.ts`, feature/shared `locales/*.json` |
 | `testing.md` | Test layout, reusable builders, mocking conventions | `src/tests/**`, `features/**/tests/*.test.ts`, `*.mock.ts` |
@@ -61,21 +48,8 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
 - Path alias `@/*` maps to `src/*` (see `tsconfig.json`). Use it consistently in imports.
 - Import helpers by file — `@/helpers/date.helper`, not `@/helpers`. There is no helpers barrel and
   none is planned; the one that existed was removed so the module graph stays explicit.
-- Biome enforces **tab indent (width 4)**, **single quotes** in JS/TS, and organized imports.
-  `strict` TypeScript with `experimentalDecorators`/`emitDecoratorMetadata` (TypeORM). ES modules
-  (`"type": "module"`).
-
-## Coding Standards
-
-- **Readability** over cleverness - code is read 10x more than written
-- **Maintainability** - future developers (including yourself) should understand intent immediately
-- **Error handling** - always consider edge cases and failure modes
-- Prefer async/await over .then() chains
-- Explicit error handling - no empty catch blocks
 - Follow existing code conventions used in the project. When creating or editing a file, check
   sibling files for the correct structure, approach, and naming.
-- The code should follow **best practices** and **design principles** like SOLID, KISS, DRY, and
-  strong security standards.
 
 ## Code Comments
 
@@ -169,9 +143,12 @@ trustworthy-run command are in `.claude/rules/testing.md` §2.1.
 - **`src/bootstrap.ts`** initializes infrastructure in order: messages, database, event listeners,
   queues, email worker, cron jobs. In the `test` environment, database/listeners/queues/cron are
   skipped.
-- **`src/app.ts`** builds the Express app: Helmet (locked-down API CSP), CORS, compression,
-  cookie/JSON parsing, request-ID, timeout, then the middleware chain, dynamically-loaded routes,
-  `/health` + `/ready`, and finally `notFoundHandler` + `errorHandler` (must remain last).
+- **`src/app.ts`** builds the Express app: Helmet (locked-down API CSP), CORS, the client-key
+  gate (`clientKeyMiddleware` — behind CORS and ahead of the body parsers, so an unkeyed caller
+  is refused before a 10mb body is read; `/health` and `/ready` are exempt), compression,
+  cookie/JSON parsing, request-ID, timeout, then the middleware chain, dynamically-loaded
+  routes, `/health` + `/ready`, and finally `notFoundHandler` + `errorHandler` (must remain
+  last).
 - **`server.ts`** owns graceful shutdown — `closeHandler()` closes Redis, queues, DB, log streams
   and WebSockets.
 
@@ -219,12 +196,6 @@ field, not a kind of image.
 Features are categorized as core and additional; further projects are started from this one and more
 additional features are expected over time.
 
-- **core:** account, cron-history, docs, log-data, log-history, mail-queue, permission, template,
-  user, user-permission
-- **additional:** address, article, brand, carrier, cash-flow, category, client, comment, complaint,
-  discount, document-series, grn, image, invoice, order, order-shipping, place, product, rating,
-  review, stats, subscription, term, vendor, warehouse
-
 ### Convention-based auto-discovery
 
 The framework scans the filesystem at startup instead of using a central registry. Follow the naming
@@ -254,49 +225,6 @@ which owns the scan, the import, the "no default export" error and the one-line-
 The dev/prod file extension is resolved by `Configuration.resolveExtension()` (`ts` in dev, `js` in
 production), so discovery works against built output too.
 
-### Feature installer (`cli/feature.ts`)
-
-Features can be packaged in `packages/` and installed into `src/features/` via
-`tsx cli/feature.ts <feature> install|remove|upgrade`. The CLI enforces dependency ordering, blocks
-removal of core features, backs up on upgrade, supports rollback, and **prompts you to run
-migrations manually** for entity-bearing features. Hardcodes `basePath = /var/www/html`.
-
-Each package carries a `manifest.json`:
-
-```json
-{
-  "name": "product",
-  "version": "1.0.0",
-  "is_core": true,
-  "relativePath": "/product",
-  "entities": ["product", "product-variant"],
-  "depends_on": ["brand", "vendor@^2.0.0"],
-  "required_by": ["order", "grn"]
-}
-```
-
-**The two dependency fields point in opposite directions.** `depends_on` is what this feature needs;
-`required_by` is what needs *it*, and exists so `remove` can refuse to delete something still in use.
-`is_core` is a separate boolean (omitted when false), not a magic entry inside a list.
-
-**Both are version-aware.** An entry is either a bare name (any version) or `name@range` —
-`vendor@^2.0.0`, `order@>=1.2.0`. Ranges are matched by `cli/helpers/version.ts`, a small subset of
-semver: one constraint per entry, operators `^ ~ >= <= > < =` (or none, meaning exact) over
-`major.minor.patch`, plus `*`. No pre-release tags, no unions — bump `version` on any change a
-dependent could notice, majors for breaking ones.
-
-Three checks run per mode:
-
-- **install / upgrade** — every `depends_on` entry must be installed *and* inside its range.
-- **install / upgrade** — every already-installed feature that names this one must accept the
-  incoming version, so an upgrade cannot silently break what sits on top of it.
-- **remove** — refused outright when `is_core`, otherwise blocked by any installed dependent.
-  Reverse dependencies are found by scanning every installed manifest's `depends_on`, not by
-  trusting `required_by`, which is hand-maintained and drifts; `required_by` still declares intent.
-
-`pnpm run manifests:check` validates the whole graph — unresolvable or unsatisfiable `depends_on`,
-dependency cycles, and `required_by` entries that have fallen out of step.
-
 ### Configuration
 
 `src/config/settings.config.ts` centralizes all settings behind `Configuration.get('dot.path')`,
@@ -315,31 +243,9 @@ normalized by `error-handler.middleware.ts`. User-facing strings come from `lang
 `app.debug` is on — model actionable failures as 4xx. Full detail in `rules/api.md`,
 `rules/error-handling.md` and `rules/validation.md`.
 
-Response shape (omit `request`/`meta` unless debugging):
-
-```typescript
-type OutputData = Record<string, unknown>;
-type ZodIssue = z.core.$ZodIssue;
-
-interface OutputWrapperInterface {
-  success: boolean;
-  message: string;
-  errors: Array<ZodIssue | OutputData>;
-  data: OutputData;
-  meta: OutputData;
-  request: {
-    url: string;
-    headers: OutputData;
-    method: string;
-    query?: OutputData;
-    body?: OutputData;
-    params?: OutputData;
-  };
-}
-```
-
-Dates are ISO 8601 strings (not timestamps). Protected routes require `Authorization: Bearer
-{accessToken}`.
+The envelope shape is `OutputWrapperInterface` in `src/middleware/output-handler.middleware.ts`;
+`request` and `meta` are omitted unless debugging. Dates are ISO 8601 strings (not timestamps).
+Protected routes require `Authorization: Bearer {accessToken}`.
 
 ### Cross-cutting infrastructure
 
@@ -430,67 +336,6 @@ The two connect purely over HTTP, so the API contract is the whole coupling:
 - Frontend conventions live in that repo's own `.claude/rules/` (`forms.md`, `data-fetching.md`,
   `state.md`, `typescript.md`) — consult those rather than inferring frontend rules from this
   project.
-
-## Project Structure
-
-```
-├── cli/                   # feature installer, cron runner, build/message tooling
-├── docker/
-├── src/
-│   ├── config/            # Configuration files
-│   ├── database/
-│   │   ├── migrations/    # TypeORM migrations
-│   │   └── migrate.ts
-│   ├── exceptions/        # Custom error classes
-│   ├── features/          # Feature-based modules
-│   │   ├── user/
-│   │   │   ├── cron-jobs/        # Optional — see account/, log-data/
-│   │   │   ├── database/
-│   │   │   │   └── user.seed.ts
-│   │   │   ├── locales/
-│   │   │   │   └── en.json
-│   │   │   ├── tests/
-│   │   │   │   ├── user-controller.test.ts
-│   │   │   │   ├── user-service.test.ts
-│   │   │   │   └── user-validator.test.ts
-│   │   │   ├── manifest.json
-│   │   │   ├── user.controller.ts
-│   │   │   ├── user.entity.ts
-│   │   │   ├── user.mock.ts
-│   │   │   ├── user.policy.ts
-│   │   │   ├── user.repository.ts
-│   │   │   ├── user.routes.ts
-│   │   │   ├── user.service.ts
-│   │   │   ├── user.subscriber.ts
-│   │   │   └── user.validator.ts
-│   │   └── ...            # Other features (product, order, invoice, cash-flow, etc.)
-│   ├── helpers/           # Utilities (date, string, object, etc.)
-│   ├── middleware/        # Custom Express middlewares
-│   ├── providers/         # Infrastructure (DB, Redis, logger, email, cron)
-│   │   ├── logger/        # One LogDestination per sink
-│   │   └── email/         # One EmailService per transport (SMTP/SES) + factory
-│   ├── queues/            # BullMQ queues
-│   ├── shared/
-│   │   ├── abstracts/     # Base / abstract classes
-│   │   ├── cron-jobs/     # System cron-jobs
-│   │   ├── decorators/
-│   │   ├── listeners/     # Core event listeners
-│   │   ├── locales/       # Shared language
-│   │   └── types/         # Shared types
-│   ├── templates/         # Email layout templates
-│   ├── tests/             # Jest & Supertest shared setup + mocks
-│   ├── workers/           # Background workers
-│   ├── app.ts
-│   ├── bootstrap.ts
-│   └── server.ts
-├── biome.json
-├── docker-compose.yml
-├── jest.config.js
-├── package.json
-├── pnpm-workspace.yaml
-├── tsconfig.json
-└── tsconfig.build.json
-```
 
 ## Restrictions
 

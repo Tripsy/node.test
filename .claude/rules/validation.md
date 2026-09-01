@@ -28,30 +28,7 @@ the message key and its locale entry must exist.
 
 ## 2. File & Class Structure
 
-Every feature that accepts input has a `<feature>.validator.ts` exporting a class that extends `BaseValidator`:
-
-```typescript
-import { z } from 'zod';
-import { hasAtLeastOneValue } from '@/helpers/objects.helper';
-import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
-import {
-  BaseValidator,
-  sharedValidatorMessages,
-} from '@/shared/abstracts/validator.abstract';
-
-const validatorMessages = [
-  ...sharedValidatorMessages,
-  'invalid_model', // feature-specific keys go here
-] as const;
-
-export class ProductValidator extends BaseValidator<typeof validatorMessages> {
-  readonly create = z.object({ /* ... */ });
-  readonly read = z.object({ /* ... */ });
-  readonly update = z.object({ /* ... */ }).refine(/* see §4 */);
-  readonly delete = z.object({ /* ... */ });
-  readonly find = this.validateFind({ /* ... */ });
-}
-```
+Every feature that accepts input has a `<feature>.validator.ts` exporting a class that extends `BaseValidator<typeof validatorMessages>`, where `validatorMessages` is a `const` array spreading `sharedValidatorMessages` plus the feature's own keys. `src/features/brand/brand.validator.ts` is the reference shape.
 
 - Instantiate once per controller, passing the entity/namespace name that matches the feature's locale file: `new ProductValidator('product')`.
 - Name schema properties after the controller action they validate (`create`, `read`, `update`, `delete`, `restore`, `find`, `statusUpdate`, ...), not generic names like `schema` or `bodySchema`.
@@ -101,19 +78,6 @@ const paramsUpdateCheckList = paramsUpdateList.filter(
 });
 ```
 
-```typescript
-export const paramsUpdateList: string[] = ['brand_id', 'name', /* ... */];
-
-readonly update = z
-  .object({ /* all fields optional */ })
-  .refine((data) => hasAtLeastOneValue(data, paramsUpdateList), {
-    message: this.getMessage('params_at_least_one', {
-      params: paramsUpdateList.join(', '),
-    }),
-    path: ['_global'],
-  });
-```
-
 The same list drives both the check and the message, so they cannot drift: if the message
 names a field, that field is genuinely accepted. Don't patch extras into the message
 (`[...paramsUpdateList, 'contents']`) — put them in the list.
@@ -121,10 +85,6 @@ names a field, that field is genuinely accepted. Don't patch extras into the mes
 ## 5. Controller Integration
 
 Controllers extend `BaseController` and call `this.validate()` (`safeParse`) — never call a validator's `.parse()`/`.safeParse()` directly in a controller or service.
-
-```typescript
-const data = this.validate(this.validator.create, req.body, res);
-```
 
 - On failure, `this.validate()` writes issues to `res.locals.output.errors(...)` and throws `UnprocessableContentError` — don't catch and re-wrap these; let them propagate to the error-handler middleware. A falsy `sourceData` throws `BadRequestError` before the schema runs.
 - Validate `req.params` for path IDs (`read`/`delete`/`restore`), `req.body` for writes, `req.query` for `find`. For `update`, merge `req.params.id` into the body payload before validating (`{ ...req.body, id: req.params.id }`).

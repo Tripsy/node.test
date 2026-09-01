@@ -20,7 +20,7 @@ paths:
 
 ## 2. CustomError Hierarchy
 
-All HTTP-facing errors extend `CustomError` (`src/exceptions/custom.error.ts`), which fixes a `statusCode` (from the `HttpStatusCode` union: 200/201/204/400/401/403/404/406/409/422/425/429/500) and a `message`.
+All HTTP-facing errors extend `CustomError` (`src/exceptions/custom.error.ts`), which fixes a `statusCode` (from the `HttpStatusCode` union declared there — it includes `501` for a capability this deployment does not offer, e.g. an unconfigured OAuth provider, and `502` for a failed upstream such as an identity provider) and a `message`.
 
 | Class | Status | Use for |
 |---|---|---|
@@ -36,19 +36,13 @@ All HTTP-facing errors extend `CustomError` (`src/exceptions/custom.error.ts`), 
 
 ## 3. Import Path
 
-`@/exceptions` (the barrel `index.ts`) re-exports every error class — `BadRequestError`, `CustomError`, `NotAllowedError`, `NotFoundError`, `UnauthorizedError`, `UnprocessableContentError`, and `ModuleError`. Always import from the barrel (`@/exceptions`), never from a class's specific file path.
+`@/exceptions` (the barrel `index.ts`) re-exports every error class. Always import from the barrel, never from a class's specific file path.
 
 `ModuleError` is **not** an HTTP error (no `statusCode`) — it's for internal module/bootstrap failures (`cron.provider.ts`, `init-websocket.setup.ts`, `listeners.setup.ts`). Never throw it from a controller, service, or policy.
 
 ## 4. `asyncHandler` Is Mandatory
 
-Every controller action must be wrapped in `asyncHandler` (`src/helpers/async.handler.ts`):
-
-```typescript
-public create = asyncHandler(async (req: Request, res: Response) => {
-  // ...
-});
-```
+Every controller action must be wrapped in `asyncHandler` (`src/helpers/async.handler.ts`) — an unwrapped action crashes the process instead of returning an error response.
 
 It does `fn(req, res, next).catch(next)` — without it, a rejected promise inside the action becomes an unhandled rejection instead of reaching `errorHandler`.
 

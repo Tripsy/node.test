@@ -15,16 +15,15 @@ paths:
 - **Three layers per feature, one file each.** `<feature>-controller.test.ts` (integration, real Express app), `<feature>-service.test.ts` (unit, repository mocked), `<feature>-validator.test.ts` (schema-only). Don't blend layers in one file.
 - **Reach for the shared builders before hand-writing a test.** Most CRUD behavior (auth/permission/success checks) is identical across features and already implemented once in `src/tests/jest-controller.setup.ts` / `jest-service.setup.ts`. Only write bespoke `it(...)` blocks for behavior specific to that feature.
 - **Never fake auth.** `authMiddleware` is disabled in the `test` environment (`src/app.ts`); authentication/authorization in tests is simulated purely by spying on the policy instance, not by minting real tokens.
-- Not every feature has tests yet — `article`, `invoice`, `order`, `order-shipping`, `product`, `subscription`, `term` and `vendor` currently don't. When adding tests to an untested feature, mirror the `template` feature's three files — it's the cleanest reference for the standard CRUD pattern.
+- Not every feature has tests yet. When adding tests to an untested feature, mirror the `template` feature's three files — it's the cleanest reference for the standard CRUD pattern.
 
 ## 2. Running Tests
 
-`pnpm test` runs `NODE_OPTIONS=--experimental-vm-modules APP_DEBUG=false APP_ENV=test NODE_ENV=test jest`. Jest config (`jest.config.js`) worth knowing:
+`pnpm test` runs jest against `APP_ENV=test` (see the `test` script). Jest config (`jest.config.js`) worth knowing:
 
 - `testMatch`: `src/tests/**/*.test.ts` and `src/features/**/tests/*.test.ts` — a test file outside these two locations won't run.
 - `bail: 3` — stops after 3 failing test files, not 3 failing assertions.
 - `clearMocks: true` is set globally, but call/mock **state** reset still needs explicit `jest.restoreAllMocks()` (usually in `afterEach`/`beforeEach`) to remove spies between tests.
-- `moduleNameMapper` maps `@/*` → `src/*`, matching the app's own path alias — use the same `@/` imports in tests as in source.
 - ESM + `ts-jest` (`extensionsToTreatAsEsm: ['.ts']`, `preset: 'ts-jest/presets/default-esm'`) — this is why test files use top-level `await` freely (e.g. `const basePath = (await accountRoutes()).basePath;`).
 - `maxWorkers: 2` — **do not raise it.** See §2.1.
 
@@ -71,41 +70,11 @@ Every tested feature has a `<feature>.mock.ts` exporting:
 - `<feature>InputPayloads` — an object keyed by validator action (`create`, `update`, `find`, ...) with **raw request-shaped** payloads (what a client would send).
 - `<feature>OutputPayloads` — the same actions, but **validated/service-shaped** payloads (what the validator would produce, used to drive service-layer tests directly without going through validation).
 
-```typescript
-export function getTemplateEntityMock(): TemplateEntity {
-  return { id: 1, label: 'email-welcome', /* ... */, created_at: createPastDate(86400), updated_at: null, deleted_at: null };
-}
-
-export const templateInputPayloads = { create: { /* ... */ }, update: { id: 1, /* ... */ }, find: { /* ... */ } };
-```
-
 ## 4. Controller Tests (Integration)
 
 Boot the real app once per file and hit it with `supertest`; only service and policy methods are mocked — routing, middleware, validation, and the response envelope all run for real.
 
-```typescript
-import { createApp } from '@/app';
-
-let app: Express;
-beforeAll(async () => { app = await createApp(); });
-afterEach(() => { jest.restoreAllMocks(); });
-afterAll(() => { jest.clearAllMocks(); jest.resetModules(); });
-
-const basePath = (await templateRoutes()).basePath;
-
-testControllerCreate<TemplateEntity, TemplateValidator>({
-  controller: 'TemplateController',
-  route: basePath,
-  entityMock: getTemplateEntityMock(),
-  policy: templatePolicy,
-  service: templateService,
-  createData: templateInputPayloads.create,
-});
-```
-
-Shared builders (`@/tests/jest-controller.setup`), each generating the standard 401/403/2xx triad — pass the route, the real policy/service singleton, and mock data:
-
-`testControllerCreate`, `testControllerRead`, `testControllerUpdate`, `testControllerUpdateWithContent`, `testControllerDeleteSingle`, `testControllerDeleteMultiple`, `testControllerRestoreSingle`, `testControllerFind`, `testControllerStatusUpdate`.
+Shared builders live in `@/tests/jest-controller.setup` — read it for the full set. Each generates the standard 401/403/2xx triad; pass the route, the real policy/service singleton, and mock data.
 
 For non-standard actions (auth flows, custom endpoints like `account.controller.ts`'s `login`/`passwordRecover`), write `describe`/`it` blocks directly, following the same shape: spy the policy, spy the services the action calls, assert on `response.status` and `response.body`. Wrap assertions in `withDebugResponse(() => { ... }, response)` — on failure it dumps the actual response body via `console.debug`, which is the primary way to diagnose a failing controller test.
 
@@ -124,39 +93,15 @@ Call one of these at the top of each `it(...)` before making the request — nev
 
 Mock the repository, instantiate the real service class against the mock, assert on repository/query calls and return values.
 
-```typescript
-const mockTemplate = createMockRepository<TemplateEntity, TemplateQuery>();
-const serviceTemplate = new TemplateService(mockTemplate.repository);
-
-testServiceUpdate<TemplateEntity>(serviceTemplate, mockTemplate.repository, getTemplateEntityMock());
-testServiceFindById<TemplateEntity, TemplateQuery>(mockTemplate.query, serviceTemplate);
-testServiceDelete<TemplateEntity, TemplateQuery>(mockTemplate.query, serviceTemplate);
-```
-
-From `@/tests/jest-service.setup`:
+From `@/tests/jest-service.setup` (read it for the full builder list):
 - `createMockRepository<Entity, Query>()` / `createMockContentRepository(...)` — returns `{ query, repository }`, both fully jest-mocked (every `RepositoryAbstract` chain method returns `this`; execute methods — `save`, `delete`, `firstOrFail`, `all`, ... — are plain `jest.fn()`s you configure per test with `.mockResolvedValue(...)`).
 - `setupTransactionMock()` — stubs `dataSource.transaction(...)` for services that wrap writes in a transaction.
-- `testServiceUpdate`, `testServiceUpdateStatus`, `testServiceDelete`, `testServiceDeleteMultiple`, `testServiceRestore`, `testServiceFindById`, `testServiceFindByFilter` — pre-built assertions for the standard service methods (mirrors the `RepositoryAbstract`/`EntityAbstract` conventions from `database.md`).
 
 Only hand-write `it(...)` blocks for feature-specific methods (e.g. `TemplateService.findByLabel`).
 
 ## 7. Validator Tests (Schema-Only)
 
-No app, no mocking — just `.safeParse()` against known-good and known-bad payloads:
-
-```typescript
-const accountValidator = new AccountValidator('account');
-
-listSchemas.forEach((action) => {
-  it(`${action}() accepts valid payload`, () => {
-    const validated = accountValidator[action].safeParse(accountInputPayloads[action]);
-
-    withDebugValidated(() => {
-      expect(validated.success).toBe(true);
-    }, validated);
-  });
-});
-```
+No app, no mocking — just `.safeParse()` against known-good and known-bad payloads, looped over the validator's action list.
 
 Use `withDebugValidated(() => {...}, validated)` (`@/tests/jest-validator.setup`) the same way as `withDebugResponse` — it dumps the zod result on assertion failure.
 

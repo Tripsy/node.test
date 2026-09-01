@@ -33,38 +33,14 @@ Auth tokens are a **hybrid**: a signed JWT carries the identity, but a DB row is
 
 ## 3. `res.locals.auth`
 
-Always present, shaped as `AuthContext` (`src/shared/types/express.d.ts`):
-
-```typescript
-{
-  id: number;           // 0 for an unauthenticated "visitor"
-  email: string;
-  name: string;
-  language: string;
-  role: UserRole | 'visitor';  // 'admin' | 'member' | 'operator' | 'visitor'
-  operator_type: UserOperatorType | null;  // 'seller' | 'product_manager' | 'content_editor'
-  permissions: Record<string, string[]>;  // { [entity]: operation[] }
-  has_password: boolean;  // false for a social sign-in account that never set one (§7.2)
-  activeToken: string;
-}
-```
+Always present, shaped as `AuthContext` in `src/shared/types/express.d.ts` — read the fields there. `id` is `0` for an unauthenticated "visitor", and `role` widens the `UserRole` union with `'visitor'`.
 
 - Permissions are `{ entity: [operations] }` pairs (`create`/`read`/`update`/`delete`/`find`, matching `PolicyAbstract`'s `canX` methods), loaded from `user-permission` and cached per user via `cacheProvider`.
 - `operator_type` only carries meaning when `role` is `operator`; it is `null` for every other role.
 
 ## 4. Policy Layer
 
-Every feature that needs authorization has a `<feature>.policy.ts`:
-
-```typescript
-export class ProductPolicy extends PolicyAbstract {
-  constructor() {
-    super(ProductEntity.NAME);
-  }
-}
-
-export const productPolicy = new ProductPolicy();
-```
+Every feature that needs authorization has a `<feature>.policy.ts` — a bare `extends PolicyAbstract` passing `<Entity>.NAME` to `super()`, exporting a singleton.
 
 `PolicyAbstract` (`src/shared/abstracts/policy.abstract.ts`) provides, keyed to the entity name passed to the constructor:
 
@@ -84,7 +60,7 @@ Only add methods to a feature's own `<feature>.policy.ts` for checks that don't 
 
 ## 6. Rate Limiting Auth Routes
 
-`src/config/rate-limit.config.ts` defines three limiter types: `api` (default, 150 req/15min), `authLogin` and `authDefault` (10 req/15min). Auth-sensitive routes attach the stricter limiter explicitly in their `*.routes.ts` `handlers` array — see `account.routes.ts` (`authLoginRateLimiter` on `/login`, `authDefaultRateLimiter` on `/register`, `/password-recover`, `/email-confirm-send`). Any new credential-guessing-prone endpoint (login, recovery, token issuance) should do the same rather than relying on the default `apiRateLimiter`.
+`src/config/rate-limit.config.ts` defines three limiter types: `api` (the default) plus the stricter `authLogin` and `authDefault` — read the current numbers there. Auth-sensitive routes attach the stricter limiter explicitly in their `*.routes.ts` `handlers` array — see `account.routes.ts` (`authLoginRateLimiter` on `/login`, `authDefaultRateLimiter` on `/register`, `/password-recover`, `/email-confirm-send`). Any new credential-guessing-prone endpoint (login, recovery, token issuance) should do the same rather than relying on the default `apiRateLimiter`.
 
 ## 7. Social Login (OAuth)
 

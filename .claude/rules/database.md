@@ -50,54 +50,7 @@ information belongs to, which the columns alone do not reveal. Read it before ad
 
 Every entity extends `EntityAbstract` (`src/shared/abstracts/entity.abstract.ts`), which already
 provides `id`, `created_at`, `updated_at` and `deleted_at`. Do not redeclare them.
-
-```typescript
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
-
-export const UserStatusEnum = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-} as const;
-
-export type UserStatus = (typeof UserStatusEnum)[keyof typeof UserStatusEnum];
-
-const ENTITY_TABLE_NAME = 'user';
-
-@Entity({
-  name: ENTITY_TABLE_NAME,
-  schema: 'public',
-  comment: 'Store users',
-})
-@SoftDeleteIndex(ENTITY_TABLE_NAME) // Partial index scoped to deleted_at IS NULL
-export default class UserEntity extends EntityAbstract {
-  static readonly NAME: string = ENTITY_TABLE_NAME;
-  static readonly HAS_CACHE: boolean = true;
-
-  @Column('varchar', { nullable: false })
-  @Index('IDX_user_email')
-  email!: string;
-
-  @Column({
-    type: 'enum',
-    enum: UserStatusEnum,
-    default: UserStatusEnum.ACTIVE,
-    nullable: false,
-  })
-  @Index('IDX_user_status')
-  status!: UserStatus;
-
-  // RELATIONS
-  @Column('int', { nullable: true })
-  @Index('IDX_user_company_id')
-  company_id!: number | null;
-
-  @ManyToOne('CompanyEntity', { onDelete: 'SET NULL', nullable: true })
-  @JoinColumn({ name: 'company_id' })
-  company!: CompanyEntity | null;
-}
-```
+`src/features/brand/brand.entity.ts` is the reference shape.
 
 - Default-export the class; expose `static readonly NAME` (the table name, reused by policies and
   repositories) and `HAS_CACHE`.
@@ -115,31 +68,7 @@ and no `@InjectRepository()`. A feature's `<feature>.repository.ts` exports **tw
 class named `<Feature>Query` (not `<Feature>Repository`), and a factory that extends TypeORM's
 repository with a `createQuery()` hook.
 
-```typescript
-import type { Repository } from 'typeorm';
-import dataSource from '@/config/data-source.config';
-import ProductEntity from '@/features/product/product.entity';
-import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
-
-export class ProductQuery extends RepositoryAbstract<ProductEntity> {
-  constructor(repository: Repository<ProductEntity>) {
-    super(repository, ProductEntity.NAME);
-  }
-
-  // Feature-specific filters live here and return `this` so they stay chainable
-  filterByTerm(term?: string): this {
-    // ...
-    return this;
-  }
-}
-
-export const getProductRepository = () =>
-  dataSource.getRepository(ProductEntity).extend({
-    createQuery() {
-      return new ProductQuery(this);
-    },
-  });
-```
+`src/features/brand/brand.repository.ts` is the reference for both halves.
 
 - Pass `Entity.NAME` to `super()`, not a hand-written string — the entity already owns its table name.
 - A service takes the repository in its constructor, typed off the factory
@@ -216,38 +145,15 @@ keeps ordering deterministic and avoids collisions between branches.
 Both directions are required — a migration without a working `down()` cannot be rolled back in
 production.
 
-```typescript
-import { MigrationInterface, QueryRunner } from 'typeorm';
-
-export class Image1782779682393 implements MigrationInterface {
-  name = 'Image1782779682393';
-
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
-      CREATE TABLE "image" (
-        "id" SERIAL NOT NULL,
-        "url" character varying NOT NULL,
-        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-        CONSTRAINT "PK_image" PRIMARY KEY ("id")
-      )
-    `);
-  }
-
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE "image"`);
-  }
-}
-```
+The shape is stock TypeORM `MigrationInterface` — `src/database/migrations/` has the examples.
 
 ### 5.3. Commands
 
-```bash
-# Generate from entity changes (recommended over hand-writing)
-pnpm run migration:generate /var/www/html/src/database/migrations/UpdateUserEntity
-pnpm run migration:run
-pnpm run migration:revert
+`migration:generate` / `migration:run` / `migration:revert` are package.json scripts —
+generating from entity changes is preferred over hand-writing one. Resetting the schema has no
+script:
 
-# Reset the schema (raw CLI, no npm script)
+```bash
 tsx ./node_modules/typeorm/cli.js schema:drop -d src/config/data-source.config.ts
 ```
 
@@ -277,11 +183,6 @@ Deliberately absent from the `seeds` array, so `pnpm run seed` stays runnable wi
 configured.
 
 **Demo data** — generated volume for local development, driven by `src/database/seed/`.
-
-```bash
-pnpm run seed            # every entity, in foreign-key order
-pnpm run seed brand      # one entity
-```
 
 **Every new feature that owns a table ships with a demo seed.** It is part of the feature's
 definition of done, alongside its entity and migration — not a later chore. The exceptions are

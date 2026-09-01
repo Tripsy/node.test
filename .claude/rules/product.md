@@ -404,13 +404,7 @@ is §7's, and the form cannot place a value without it: *Colour* asked once for 
 ### 12.4. `value_type` and `type` are orthogonal
 
 `value_type` is storage, `type` is capture — *330* is a number whether typed or picked from a list.
-A `@Check` holds the pairings that mean something:
-
-| `type` | admissible `value_type` |
-|---|---|
-| `input` | `number`, `string`, `boolean` |
-| `select`, `radio` | `term` |
-| `checkbox` | `term` (multi-pick) or `boolean` (lone toggle) |
+The admissible `type` → `value_type` pairings are held by a `@Check` on `product-category-attribute.entity.ts` — read it there rather than restating it.
 
 Options live in **`product_category_attribute_option`** — one row per admissible value, pointing at
 an `attribute_value` term, ordered by `sort_order`. A table rather than a `jsonb` array of strings,
@@ -499,4 +493,4 @@ walk in §12.6 and the `@Check` combinations in §12.4 both want tests when they
   consumes; the dish itself stays untracked. Only worth building once the `grn` behaviour exists.
 - **Full-text search** — `ProductQuery.filterByTerm` will ILIKE across `product_content.label` and
   `description`, which no btree can serve. The GIN expression index belongs in a hand-written
-  migration and **must not** be added to the entity; see `1786240000000-search-indexes.ts`.
+  migration and **must not** be added to the entity; see `1786415990000-search-indexes.ts`.

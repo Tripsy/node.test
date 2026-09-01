@@ -22,15 +22,7 @@ paths:
 
 ## 2. Response Envelope
 
-`res.locals.output` (`OutputWrapper`, `src/middleware/output-handler.middleware.ts`) exposes:
-
-- `.data(value, key?)` — result payload; merges under `key` if given, otherwise replaces the whole `data` object.
-- `.message(value)` — message string (always via `lang('<feature>.success.*' | '<feature>.error.*')`).
-- `.errors(value)` — zod issues or custom error objects (used by validation failures).
-- `.meta(value, key?)` — auxiliary metadata (e.g. `isCached`, pagination hints).
-- `.raw(filter?)` / `.toJSON()` — called implicitly by `res.json(res.locals.output)`. It auto-sets `success: true` for 2xx status codes and strips empty `errors`/`data`/`meta`.
-
-A controller action ends with `res.json(res.locals.output)` — never manually construct `{ success, data, ... }`.
+`res.locals.output` is an `OutputWrapper` (`src/middleware/output-handler.middleware.ts`) — read its methods there. Two behaviors are not obvious from the signatures: `raw()`/`toJSON()` are called implicitly by `res.json(res.locals.output)`, and they auto-set `success: true` for 2xx status codes and strip empty `errors`/`data`/`meta`.
 
 **Messages are English-only.** `lang()` resolves against `en.json` and nothing else — the client receives finished English text, not a key. The frontend displays it verbatim (falling back to its own generic copy where it prefers to). Never build a response message by concatenating strings or reading `res.locals.language`.
 
@@ -44,38 +36,7 @@ A controller action ends with `res.json(res.locals.output)` — never manually c
 
 ## 4. Controller Structure
 
-```typescript
-class ProductController extends BaseController {
-  constructor(
-    private policy: ProductPolicy,
-    private validator: ProductValidator,
-    private cache: CacheProvider,
-    private productService: ProductService,
-  ) {
-    super();
-  }
-
-  public create = asyncHandler(async (req: Request, res: Response) => {
-    this.policy.canCreate(res.locals.auth);
-
-    const data = this.validate(this.validator.create, req.body, res);
-
-    const entry = await this.productService.create(data);
-
-    res.locals.output.data(entry);
-    res.locals.output.message(lang('product.success.create'));
-
-    res.status(201).json(res.locals.output);
-  });
-}
-
-export const productController = new ProductController(
-  productPolicy,
-  new ProductValidator('product'),
-  cacheProvider,
-  productService,
-);
-```
+See `src/features/brand/brand.controller.ts` for the canonical shape.
 
 - Extend `BaseController`, inject dependencies (policy, validator, service, and anything else the feature needs — cache provider, other services) via the constructor.
 - Every action is a class-field arrow function wrapped in `asyncHandler(...)` (`src/helpers/async.handler.ts`) — this forwards rejected promises to Express's error pipeline. An action not wrapped in `asyncHandler` will crash the process instead of returning an error response.
@@ -83,25 +44,7 @@ export const productController = new ProductController(
 
 ## 5. Route Files
 
-Every feature with HTTP endpoints has a `<feature>.routes.ts` that default-exports an **async factory** (routes are auto-discovered by scanning `**/*.routes.ts` under `src/features/`, see `src/config/routes.setup.ts`):
-
-```typescript
-export default async () => {
-  const { productController } = await import('@/features/product/product.controller');
-
-  const config: FeatureRoutesModule<typeof productController> = {
-    basePath: '/products',
-    controller: productController,
-    routes: {
-      create: { path: '', method: 'post' },
-      read: { path: '/:id', method: 'get', handlers: [validateParamsWhenId('id')] },
-      update: { path: '/:id', method: 'put', handlers: [validateParamsWhenId('id')] },
-    },
-  };
-
-  return config;
-};
-```
+Every feature with HTTP endpoints has a `<feature>.routes.ts` that default-exports an **async factory** (routes are auto-discovered by scanning `**/*.routes.ts` under `src/features/`, see `src/config/routes.setup.ts`). `src/features/brand/brand.routes.ts` is the canonical shape.
 
 - Lazy-import the controller inside the factory (`await import(...)`) — don't import it at module top-level, this keeps route registration decoupled from full controller instantiation order.
 - `basePath` + each route's `path` form the full URL; `method` is one of `get`/`post`/`put`/`delete`/`patch`.
@@ -112,7 +55,9 @@ export default async () => {
 
 Don't reorder this chain without a specific reason — later middleware depends on earlier ones (`outputHandler` before anything that reads `res.locals.output`; `authMiddleware` before any route needs `res.locals.auth`):
 
-`helmet` → `corsHandler` → `compression` → body parsers (`cookie-parser`, `express.json({limit:'10mb'})`, `express.urlencoded`) → request-id → request-timeout → `outputHandler` → `languageMiddleware` → `authMiddleware` → `requestContextMiddleware` → feature routes → `/health`, `/ready` → `notFoundHandler` → `errorHandler`.
+`helmet` → `corsHandler` → `clientKeyMiddleware` → `compression` → body parsers (`cookie-parser`, `express.json({limit:'10mb'})`, `express.urlencoded`) → request-id → request-timeout → `outputHandler` → `languageMiddleware` → `authMiddleware` → `requestContextMiddleware` → feature routes → `/health`, `/ready` → `notFoundHandler` → `errorHandler`.
+
+`clientKeyMiddleware` sits directly behind CORS and ahead of the body parsers so an unkeyed caller is refused before a 10mb body is read; `/health` and `/ready` are exempt inside the middleware.
 
 - `languageMiddleware` sets `res.locals.language`, which selects **content** language (brand/address/place/template entries, email rendering) — it has no effect on response messages, which are English-only (see §2).
 - `authMiddleware` is skipped when `Configuration.isEnvironment('test')` — auth is never real in tests (see `testing.md`).
