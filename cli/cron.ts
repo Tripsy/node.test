@@ -1,9 +1,3 @@
-// TODO:
-//  data-source.config.ts is loading subscribers and entities and basically triggers things from the system;
-//  therefore while testing the cron (which works) some errors are reported related to language system
-//  possible solutions will be to use a separate data source for cron jobs (e.g. a separate database) or maybe lazy load
-//  the data source dependencies
-
 import { Command } from 'commander';
 import { setupFeatureBootstrap } from '@/config/bootstrap.setup';
 import { setupListeners } from '@/config/listeners.setup';
@@ -13,6 +7,7 @@ import publicRestrictedArticle from '@/features/article/cron-jobs/public-restric
 import publishScheduledArticle from '@/features/article/cron-jobs/publish-scheduled-article.cron';
 import notifyCommentSubscribers from '@/features/comment/cron-jobs/notify-comment-subscribers.cron';
 import cronTimeCheck from '@/features/cron-history/cron-jobs/cron-time-check.cron';
+import importExchangeRate from '@/features/exchange-rate/cron-jobs/import-exchange-rate.cron';
 import dataSource from '../src/config/data-source.config';
 import { getCronJobsPaths } from '../src/providers/cron.provider';
 
@@ -34,6 +29,7 @@ const cronJobs: Record<string, CronJob> = {
 	'public-restricted-article': publicRestrictedArticle,
 	'publish-scheduled-article': publishScheduledArticle,
 	'notify-comment-subscribers': notifyCommentSubscribers,
+	'import-exchange-rate': importExchangeRate,
 };
 
 program

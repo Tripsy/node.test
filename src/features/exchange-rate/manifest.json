@@ -1,0 +1,8 @@
+{
+	"name": "exchange-rate",
+	"version": "1.0.0",
+	"relativePath": "/exchange-rate",
+	"entities": ["exchange-rate"],
+	"depends_on": [],
+	"required_by": []
+}

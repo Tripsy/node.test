@@ -1,0 +1,28 @@
+{
+	"validation": {
+		"invalid_currency": "Invalid currency; expected a 3-letter ISO 4217 code",
+		"invalid_base_currency": "Invalid base currency; expected a 3-letter ISO 4217 code",
+		"invalid_rate": "Invalid rate; expected a positive number with at most 8 decimals",
+		"invalid_rate_date": "Invalid rate date",
+		"invalid_rate_date_format": "Rate date must be in the format YYYY-MM-DD",
+		"rate_date_in_the_future": "An exchange rate cannot be added for a future date",
+		"invalid_source": "Invalid source",
+		"invalid_provider": "Invalid provider"
+	},
+	"error": {
+		"not_found": "Exchange rate not found",
+		"already_exists": "An exchange rate for {{currency}} in {{base_currency}} on {{rate_date}} already exists",
+		"same_currency": "{{currency}} is the base currency; it needs no exchange rate",
+		"update_window_expired": "An exchange rate can only be edited within {{days}} days of the date it applies to ({{rate_date}})"
+	},
+	"success": {
+		"create": "Exchange rate created successfully",
+		"update": "Exchange rate updated successfully",
+		"delete": "Exchange rate deleted successfully"
+	},
+	"history": {
+		"created": "Exchange rate #{{entity_id}} created by user #{{auth_id}}",
+		"updated": "Exchange rate #{{entity_id}} updated by user #{{auth_id}}",
+		"removed": "Exchange rate {{entity_ids}} removed by user #{{auth_id}}"
+	}
+}
