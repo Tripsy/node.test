@@ -4,8 +4,7 @@
 
 NReady is a Node.js / Express 5 / TypeScript boilerplate for building complex, secure REST APIs.
 It is fully modular and feature-based, with an emphasis on SOLID/DRY/KISS, strong validation,
-policy-based authorization and layered logging. PostgreSQL is the primary database (MariaDB also
-tested), via TypeORM.
+policy-based authorization and layered logging. PostgreSQL is the database, via TypeORM.
 
 It is the **base project**: other backends (e.g. `../star-api`) are started from it, so core and
 shared code here is expected to be ported outward. Changes to `src/shared/**`, `src/config/**`,

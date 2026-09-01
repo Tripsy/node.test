@@ -136,7 +136,7 @@ export default class ProductVariantEntity extends EntityAbstract {
 	 * Once goods receipts exist this becomes a weighted moving average, recomputed on each
 	 * confirmed receipt as
 	 * `(qty_on_hand × cost_price + received_qty × unit_cost_base) / (qty_on_hand + received_qty)`.
-	 * Inbound only — selling stock must not move what it cost. See the README TODO.
+	 * Inbound only — selling stock must not move what it cost.
 	 */
 	@Column('decimal', {
 		precision: 12,

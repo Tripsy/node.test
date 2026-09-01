@@ -379,17 +379,6 @@ program
 				process.exit(1);
 			}
 
-			if (
-				process.env.DB_CONNECTION &&
-				process.env.DB_CONNECTION !== 'postgres'
-			) {
-				display.error(
-					`Only the postgres connection is supported, got "${process.env.DB_CONNECTION}"`,
-				);
-
-				process.exit(1);
-			}
-
 			const consolidator = new MigrationConsolidator(
 				{
 					host: process.env.DB_HOST || 'localhost',

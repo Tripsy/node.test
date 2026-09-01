@@ -32,7 +32,7 @@ and many [goodies](#-characteristics) including:
 The code follows **best practices** and **design principles** like SOLID, KISS, DRY, and strong security standards. 
 The codebase is fully typed in **TypeScript**. **Biome** ensures code quality.
 
-The recommended database is **PostgreSQL**, though it has also been tested with MariaDB, using **TypeORM** as the ORM layer.
+The database is **PostgreSQL**, using **TypeORM** as the ORM layer.
 **Redis** backs both the cache and the queues.
 
 A ready-to-use Docker environment is provided for quick [setup](#-setup).
@@ -69,8 +69,7 @@ Meanwhile, we're open to suggestions / feedback, and if you find this project us
 - HTML Sanitizing: sanitize-html
 
 ## Database
-- Primary: PostgreSQL 18
-- Secondary: MariaDB 11
+- PostgreSQL 18
 - ORM: TypeORM
 - Cache & Queues: Redis (ioredis, BullMQ)
 
@@ -357,138 +356,13 @@ $ pnpx tsx cli/cron.ts run cron-time-check
 └── tsconfig.json
 ```
 
-# 📌 TODO
-
-1. Go product, then reviews 
-2. Prepared entities:
-    - grn
-        - grn-item
-        - warehouse-movement
-    - invoice
-    - order
-        - order-product
-    - order-shipping
-        - order-shipping-product
-    - product
-        - product-attribute
-        - product-availability
-        - product-bundle-group
-        - product-bundle-item
-        - product-bundle-item-price
-        - product-category
-        - product-content
-        - product-option
-        - product-option-group
-        - product-option-price
-        - product-price
-        - product-tag
-        - product-variant
-        - product-variant-attribute
-    - subscription
-        - subscription-evidence
-    - warehouse
-    - reviews 
-
-# 📌 TODO - EXTRA
-
-1. Implement kill all sessions except current
-   // // This will actually remove all sessions - keep it for further implementation
-   // await AccountTokenRepository.createQuery()
-   //     .filterBy('user_id', policy.getUserId())
-   //     .delete(false, true);
-2. For template section
-   - would be a nice idea to keep track of the last changes (maybe add a new column - prev version id and a button to restore to that version)
-   - view presentation could be enhanced
-3. Extend `article` 
-     - parsing capabilities
-     - `article_source` - list of available sources from where articles were parsed; `article`
-       already carries `source_mode` (`input` / `parsed`) and a `source` jsonb holding the
-       display side (`label`, `url`, `disclaimer`, `about`), so this only needs the table plus a
-       nullable `source_id` FK on `article`. The jsonb then stays as the per-article override for
-       one-off sources that don't deserve a row.
-4. For reporting create separate DB table (in a new schema `reporting`). Hint: data could be updated via subscribers.
-5. cron hanging / delaying / semaphore 
-6. Revisit `discount` once `product` ships — the feature is complete except where it
-   depends on products existing:
-    - The dashboard target picker covers `client`, `category` and `brand` only. For the
-      `product` and `variant` scopes it renders an explanatory note instead, because there
-      is no product dashboard to search (`form-targets-discount.component.tsx`).
-    - The "pick at least one target" rule applies to every scope except `order`, so until
-      that picker exists a product- or variant-scoped discount cannot be saved from the
-      form at all. The API accepts both.
-    - `discount-target.seed.ts` skips the two scopes for the same reason, so nothing
-      exercises them against real rows.
-    - `DiscountLineContext` already carries `variantId`/`productId` and the resolver
-      matches them; only the ways of *creating* those links are missing.
-7. Stock handling — entities exist (`warehouse`, `grn`), the behaviour does not
-   The tables are in place and documented on themselves; what is missing is every rule that makes
-   them mean anything, since none of it can live in a constraint:
-   - **Confirming a GRN** writes `warehouse_movement` rows, sets `qty_remaining = qty` on each lot,
-     stamps `confirmed_at`, and recomputes `product_variant.cost_price` as a weighted moving
-     average in base currency:
-     `(qty_on_hand × cost_price + received_qty × unit_cost_base) / (qty_on_hand + received_qty)`.
-     Inbound only — sales, write-offs and supplier returns must not move what the goods cost
-   - **Cancelling a confirmed GRN** posts reversing movements and reduces `qty_remaining`; it never
-     deletes. It must refuse when the lot has already been partly consumed
-   - **FIFO allocation on shipment.** Oldest open lot first, splitting across lots as needed, one
-     movement per lot, `source_type = order_shipping_product`. Fires on the `order_shipping` status
-     transition, not on order confirmation — a lot cannot be picked before the warehouse is known.
-     **Pick order is `(grn.received_at, grn_item.id)`** — two deliveries the same day tie on the
-     timestamp, and an unordered pick reports a different cost of goods on replay
-   - **The weighted average is global, not per warehouse.** `cost_price` lives on
-     `product_variant`, so `qty_on_hand` in the formula is the total across every warehouse.
-     Averaging against one warehouse's quantity while storing the result globally produces a
-     number that looks right and is not. Per-warehouse costing would mean moving `cost_price` onto
-     a per-warehouse row, which is a different design
-   - **`order_shipping.warehouse_id` is `NOT NULL`** — everything shipped leaves from somewhere,
-     and a kitchen is a warehouse for this purpose. `warehouse.is_default` covers the single-site
-     case; `order-shipping` therefore `depends_on` `warehouse`
-   - **Reconciliation cron** comparing `SUM(warehouse_movement.qty)` per lot against
-     `grn_item.qty_remaining`, reporting drift rather than silently correcting it
-   - **`track_stock` is not enforced.** Nothing stops a GRN line naming an untracked variant, or a
-     shipment of a tracked one skipping allocation
-   - **A repository that refuses to delete.** `warehouse_movement` extends
-     `AppendOnlyEntityAbstract`, so there is no `deleted_at` to soft-delete into — but
-     `RepositoryAbstract.delete` would still issue a hard delete. Its repository should override
-     `delete`/`restore` to throw
-   - **Cost never touches the selling price automatically.** A shelf price that moves because a
-     supplier invoice arrived is impossible to explain to a customer who saw a different number
-     yesterday. The GRN should instead flag when margin against `min_price` falls through a
-     threshold
-   - a demo seed for both features; `warehouse` needs its default row seeded — after `place` and
-     `address`, since `warehouse.address_id` is `NOT NULL` — and `vendor` needs the "unknown"
-     sentinel that day-one stock is received against
-   - dropped from scope for now: reservations (only matter once there is a fulfilment gap), serial
-     numbers, stocktake documents, landing costs, and the payable a
-     confirmed GRN should raise in `cash-flow`
-8. Named menus for `product_availability`
-   - the recurring windows say *when* a product can be ordered, but nothing groups them into a
-     named "lunch menu" / "brunch" a customer can be shown, and two products sharing one schedule
-     repeat it row for row
-   - would be a `menu` entity holding the schedule once, with products linked to it; the current
-     per-product windows stay as the override
-9. Document numbering — leftovers from the `document-series` feature
-   - the entity, the atomic allocation and the CRUD surface are in place; what is not:
-   - **nothing calls `documentSeriesService.allocate` yet.** `invoice`, `order`, `grn` and
-     `subscription` are still entity-only, so the wiring happens when their services are written —
-     inside the same transaction as the document insert, which is what keeps the series gapless
-   - drafts still have nowhere to reserve a number from without consuming it. That needs a
-     reservation row (series, number, expires_at) the draft can hold and either claim or release,
-     not another counter
-   - the number handed out never comes back. A canceled document leaves its number spent; a
-     credit-note-style reuse would need an explicit release path
-   - one series per document type, by design. Two concurrent invoice series (per company, per
-     branch) would mean re-keying the table and giving `allocate` something to choose with
-10. Run cron`s on a separate work / container 
-
 # 🔗 Dependencies
 
 ### Runtime
 
 - [express](https://expressjs.com/) — Web framework
 - [TypeORM](https://github.com/typeorm/typeorm) — ORM for TypeScript and JavaScript with support for multiple databases
-- [pg](https://github.com/brianc/node-postgres) — PostgreSQL client, the primary driver
-- [mysql2](https://github.com/sidorares/node-mysql2) — MySQL / MariaDB client, for the secondary database
+- [pg](https://github.com/brianc/node-postgres) — PostgreSQL client
 - [ioredis](https://github.com/redis/ioredis) — Robust Redis client, backing both the cache and the queues
 - [BullMQ](https://docs.bullmq.io/) — Redis-based message queue
 - [zod](https://zod.dev) — TypeScript-first schema validation with static type inference

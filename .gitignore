@@ -44,3 +44,4 @@ audit.json
 /cli/tmp
 /cli/history.txt
 /.migrations-backup
+/TODO.md
