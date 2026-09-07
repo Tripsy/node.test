@@ -781,6 +781,7 @@ export class CategoryService {
 
 				'parentContent.label',
 			])
+			.filterById(data.filter.id)
 			.filterBy('type', data.filter.type)
 			.filterBy('status', data.filter.status)
 			.filterByTerm(data.filter.term);

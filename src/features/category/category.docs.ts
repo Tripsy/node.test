@@ -240,7 +240,13 @@ export const docs: Record<
 					default: OrderDirectionEnum.ASC,
 				},
 				filter: {
-					id: { type: 'number', required: false },
+					id: {
+						type: 'array',
+						required: false,
+						format: 'number[]',
+						condition:
+							'one id or several; a single value may be sent unwrapped',
+					},
 					language: languageParam,
 					type: {
 						...typeParam,

@@ -270,7 +270,13 @@ export const docs: Record<keyof typeof brandController, ApiInputDocumentation> =
 						default: OrderDirectionEnum.ASC,
 					},
 					filter: {
-						id: { type: 'number', required: false },
+						id: {
+							type: 'array',
+							required: false,
+							format: 'number[]',
+							condition:
+								'one id or several; a single value may be sent unwrapped',
+						},
 						term: {
 							type: 'string',
 							required: false,

@@ -1,14 +1,12 @@
 {
 	"name": "product",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"relativePath": "/product",
 	"entities": [
 		"product",
 		"product-attribute",
 		"product-availability",
-		"product-bundle-group",
 		"product-bundle-item",
-		"product-bundle-item-price",
 		"product-category",
 		"product-category-attribute",
 		"product-category-attribute-option",
@@ -21,6 +19,6 @@
 		"product-variant",
 		"product-variant-attribute"
 	],
-	"depends_on": ["brand", "category", "term", "vendor@^2.0.0"],
+	"depends_on": ["brand", "category", "term"],
 	"required_by": ["order", "grn", "review"]
 }

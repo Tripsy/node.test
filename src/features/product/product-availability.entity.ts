@@ -15,6 +15,11 @@ const ENTITY_TABLE_NAME = 'product_availability';
  * the hours *within* that life when ordering is open, repeat forever, and leave `sale_status`
  * untouched — an out-of-hours product is still `available`, just not right now.
  *
+ * A window is a weekday and, optionally, a span of clock times — no hours at all means the whole
+ * of that day. Bounding the recurrence itself — a list that runs daily but only over the summer —
+ * is the product's own life in the catalog, so it belongs on those absolute dates rather than
+ * being expressed a second time here where it would not reach `sale_status`.
+ *
  * **No row means always available.** The absence of a restriction is the common case and should
  * not require one row per weekday to express.
  */
@@ -27,10 +32,20 @@ const ENTITY_TABLE_NAME = 'product_availability';
 @SoftDeleteIndex(ENTITY_TABLE_NAME)
 // Resolving "can this be ordered now" reads every window for one product and filters by weekday
 @Index('IDX_product_availability_product_id', ['product_id', 'day_of_week'])
-@Check(`(day_of_week IS NULL OR (day_of_week >= 0 AND day_of_week <= 6))`)
-@Check(`(ends_at > starts_at)`)
+// ISO 8601 weekdays, the numbering `discount.conditions.day_range` is also written in — one
+// reading of "day 1" across the codebase, resolved from a `Date` by `isoWeekday`
 @Check(
-	`(valid_until IS NULL OR valid_from IS NULL OR valid_until >= valid_from)`,
+	'CHK_product_availability_day_of_week',
+	`(day_of_week IS NULL OR (day_of_week >= 1 AND day_of_week <= 7))`,
+)
+// Both or neither: a row with one time set has no reading anything could agree on
+@Check(
+	'CHK_product_availability_hours_paired',
+	`(("starts_at" IS NULL) = ("ends_at" IS NULL))`,
+)
+@Check(
+	'CHK_product_availability_hours_order',
+	`("starts_at" IS NULL OR "ends_at" > "starts_at")`,
 )
 export default class ProductAvailabilityEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
@@ -39,41 +54,40 @@ export default class ProductAvailabilityEntity extends EntityAbstract {
 	@Column('int', { nullable: false })
 	product_id!: number;
 
-	// ISO-8601 numbering (1 = Monday … 7 = Sunday) would collide with the 0-based `getDay()` the
-	// rest of the stack speaks, so this is 0 = Sunday … 6 = Saturday, matching JavaScript
+	/*
+	 * ISO 8601 numbering, 1 = Monday … 7 = Sunday — the same one `discount.conditions.day_range`
+	 * is written in, so a weekday means one thing everywhere it is stored or compared. It is not
+	 * what `Date.getDay()` returns; `isoWeekday` in `helpers/date.helper` is the conversion, and
+	 * is the only place that knows JavaScript counts from Sunday as 0.
+	 */
 	@Column('smallint', {
 		nullable: true,
-		comment: 'Day this window applies to, 0 = Sunday; NULL means every day',
+		comment:
+			'Day this window applies to, ISO 8601 weekday, 1 = Monday; NULL means every day',
 	})
 	day_of_week!: number | null;
 
-	// `time` rather than `timestamp`: these are clock times that recur, with no date attached.
-	// They are read in the venue's timezone, not the customer's
+	/*
+	 * `time` rather than `timestamp`: these are clock times that recur, with no date attached.
+	 * They are read in the venue's timezone, not the customer's.
+	 *
+	 * **Null in both together means all day** — "available on Sundays" rather than the same rule
+	 * spelled `00:00`–`23:59`. One set and one null is refused by a check constraint, because
+	 * nothing could agree on what half a window means.
+	 */
 	@Column('time', {
-		nullable: false,
-		comment: 'Window opens, venue local time',
+		nullable: true,
+		comment:
+			'Window opens, venue local time; NULL together with ends_at means all day',
 	})
-	starts_at!: string;
+	starts_at!: string | null;
 
 	@Column('time', {
-		nullable: false,
-		comment: 'Window closes, venue local time',
-	})
-	ends_at!: string;
-
-	// A seasonal menu is a recurring window that itself expires — the summer terrace list runs
-	// daily, but only between May and September
-	@Column('date', {
 		nullable: true,
-		comment: 'First date this window applies; NULL means no lower bound',
+		comment:
+			'Window closes, venue local time; NULL together with starts_at means all day',
 	})
-	valid_from!: string | null;
-
-	@Column('date', {
-		nullable: true,
-		comment: 'Last date this window applies; NULL means no upper bound',
-	})
-	valid_until!: string | null;
+	ends_at!: string | null;
 
 	// RELATIONS
 	@ManyToOne('ProductEntity', {

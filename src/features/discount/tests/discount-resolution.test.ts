@@ -80,23 +80,22 @@ describe('computeReduction', () => {
 		expect(reduction).toBe(20);
 	});
 
-	it('falls back to cost price when min_price is absent, converting from base', () => {
-		// cost 60 base at rate 2 is 30 in sale currency, so at most 70 off
+	it('takes the line to zero when min_price is absent, whatever the goods cost', () => {
+		// Cost is an accounting figure and never floors a sale: without a min_price the only
+		// guard left is zero.
 		const reduction = computeReduction(makeDiscount({ value: 90 }), {
 			...baseContext,
 			exchangeRate: 2,
-			costPrice: 60,
 		});
 
-		expect(reduction).toBe(70);
+		expect(reduction).toBe(90);
 	});
 
-	it('prefers min_price over cost even when min_price sits below cost', () => {
+	it('honors a min_price that sits below cost', () => {
 		// a campaign may deliberately price under cost; min_price is the commercial decision
 		const reduction = computeReduction(makeDiscount({ value: 100 }), {
 			...baseContext,
 			minPrice: 10,
-			costPrice: 40,
 		});
 
 		expect(reduction).toBe(90);

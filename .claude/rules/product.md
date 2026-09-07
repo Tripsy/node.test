@@ -47,18 +47,29 @@ something that is not a product.
   and a precedence rule to remember.
 - `product_price` is keyed on `variant_id`, never on `product_id`. So is stock: `grn_item` and
   `warehouse_movement` both point at the variant, because the variant is the thing that runs out.
-- **Price is per market, cost is not.** `product_price` holds `price`, `rrp` and `min_price` per
-  currency, since those are quoted rather than converted. `product_variant.cost_price` is a single
+- **Price is per market, cost is not.** `product_price` holds `sale_price`, `reference_price` and
+  `min_price` per currency, since those are quoted rather than converted. `reference_price` (the
+  column once called `rrp`) is display only — no pricing path reads it, and nothing checks it
+  against `sale_price` but the dashboard's own warning. `product_variant.cost_price` is a single
   base-currency figure — the books are kept in one currency, a foreign purchase is converted once
   at the receiving day's rate and frozen, and margin settles in base on both sides via
   `order_product.exchange_rate`. Converting cost at read time would make last month's margin move
   with today's rate.
+- **Cost never influences the sale price.** `min_price` is the only floor a discount is clamped to
+  (`discount-resolution.service.ts` → `resolveFloor`); `cost_price` feeds reporting and nothing
+  else. Absent a `min_price`, a stacked discount is bounded only by zero — which is why the
+  product form warns on a price row that has none. A seller who wants cost respected states it as
+  a `min_price` in that market's currency.
 - **`track_stock` decides whether stock applies at all**, per variant. False for a restaurant dish,
   true for a shirt on a shelf. It cannot be derived from `product.type` — a dish and a
   print-on-demand shirt are both `physical` and neither is stocked. `low_stock_threshold` and
   `allow_backorder` sit beside it.
-- `product.sku` is the style code; `product_variant.sku` is what is actually sold. `barcode` sits on
-  the variant, because a barcode identifies one sellable unit — two sizes carry two different EANs.
+- **The SKU is the variant's, and only the variant's.** `product` carries no code of its own: for a
+  single-variant product — the normal case — a style code above it said the same thing twice, and
+  nothing downstream ever read it (no order line, goods receipt, invoice or report). `barcode` sits
+  beside it for the same reason a SKU does: both identify one sellable unit, so two sizes carry two
+  different EANs. A product is identified to a person by its translation's `label`, and addressed in
+  a URL by that translation's `slug`; a code lookup in the catalog search matches variant SKUs.
 - What distinguishes the siblings lives in `product_variant_attribute`, so the axes are whatever the
   catalog needs rather than a fixed size/colour pair.
 - Its unique key stops at the label (`variant_id`, `attribute_label_id`), so a variant holds exactly
@@ -97,7 +108,8 @@ records as the English one.
 
 ## 4. Worked example — Pizza Margherita
 
-**Product** `PIZZA-MARG`, `unit = piece`, `vat_category = reduced`, no brand.
+**Product** *Pizza Margherita*, `unit = piece`, `vat_category = reduced`, no brand. It carries no
+code of its own — the codes below are its variants'.
 
 **Variants** — size is the axis, so it is a variant: different price, different dough cost.
 
@@ -185,69 +197,75 @@ per category — see §12.
 `physical / digital / service` describes fulfilment and stays orthogonal, so a bundle of physical
 goods is both `physical` and `bundle`.
 
-A bundle is a product like any other — its own SKU, content, categories, availability and headline
-price on its default variant. What it adds is components.
+A bundle is a product like any other — its own content, categories, availability and headline price
+on its default variant. What it adds is components.
 
 ### 8.1. Structure, and how it mirrors options
 
+A bundle is a **flat list** of `product_bundle_item` rows, every one of them always included:
+`product_id` names the bundle, `variant_id` names what is consumed, `quantity` how much of it.
+
 | Bundle | Option equivalent | Difference |
 |---|---|---|
-| `product_bundle_group` | `product_option_group` | — |
 | `product_bundle_item` | `product_option` | The answer is a **variant**, not a `term` |
-| `product_bundle_item_price` | `product_option_price` | — |
+| — | `product_option_group` | A bundle asks no question, so it has no groups |
+| — | `product_option_price` | A component carries no delta; the bundle price is the price |
 
-That single difference is the whole reason they are separate tables rather than one with a nullable
-column: an option's answer is a label with a delta and nothing behind it, while a bundle item's
-answer is a real sellable thing that consumes stock, carries its own VAT class and can be refunded
-on its own. The behaviour at checkout diverges completely.
+The first difference is the whole reason components and options are separate tables rather than one
+with a nullable column: an option's answer is a label with a delta and nothing behind it, while a
+component is a real sellable thing that consumes stock, carries its own VAT class and can be
+refunded on its own. The behaviour at checkout diverges completely.
 
-`product_bundle_item.group_id` is **nullable**:
+The other two are a deliberate omission. **A bundle is not customizable**: there is no "choose a
+side", no preselected candidate, no per-component price adjustment. `product_option_group` already
+expresses "ask a question and adjust the price" for any product, bundle included, so what is absent
+is specifically an answer that is itself *another product*.
 
-- **`NULL`** — always included, never presented as a question. Modeling it as a group of one would
-  force a term label for a prompt nobody is shown.
-- **set** — one candidate within that group's choice.
+The intended route to customization, when it is wanted, is **optional components** — a component
+flagged as swappable for a named alternative, priced as the difference between the two. It is not
+built, and nothing here should be shaped to anticipate it.
 
-`product_id` names the bundle either way, so a component is reachable without a group.
+A bundle must add up to **at least two units** — `SUM(quantity)` over its components — or it is a
+product wearing a bundle's clothes. Counted in units rather than components, so a two-pack (one
+component, `quantity: 2`) qualifies. `ProductService.assertBundleIsComposed` enforces it on write,
+reading the rows back after the sync because an update is partial and a payload that omits
+`bundle_items` leaves the existing ones in place.
 
 ### 8.2. Worked example — "Burger Menu"
 
 Bundle price **55.00 RON**.
 
-| group | item | quantity | delta |
-|---|---|---|---|
-| *(none — always included)* | Cheeseburger | 1 | — |
-| Choose a side (1–1) | Fries | 1 | +0.00 |
-| Choose a side | Sweet potato fries | 1 | +5.00 |
-| Choose a side | Salad | 1 | +3.00 |
-| Choose a drink (1–1) | Cola 0.5 | 1 | +0.00 |
-| Choose a drink | Beer 0.5 | 1 | +6.00 |
-| Choose a drink | Water | 1 | +0.00 |
+| item | quantity |
+|---|---|
+| Cheeseburger | 1 |
+| Fries | 1 |
+| Cola 0.5 | 1 |
 
-Menu with sweet potato fries and a beer: `55.00 + 5.00 + 6.00 = 66.00` net. Same arithmetic as
-options — base price plus deltas.
+The customer pays 55.00 for the three. A menu with a beer instead of the cola is a **different
+bundle product**, at its own price — not a variation of this one.
 
-A **fixed kit** (gift set) is the same tables with every item at `group_id = NULL` and no groups.
+A **fixed kit** (gift set) is the same table with more rows.
 
 ### 8.3. Why the order line explodes
 
-Those 66.00 contain food at 11% and beer at 21%. A single `order_product.vat_rate` cannot represent
-that, and getting it wrong is a tax error rather than a display bug. So a bundle becomes **one
-header line plus one child line per component**, linked by `order_product.parent_id`:
+A bundle's 55.00 covers food at 11% and a drink at 21%. A single `order_product.vat_rate` cannot
+represent that, and getting it wrong is a tax error rather than a display bug. So a bundle becomes
+**one header line plus one child line per component**, linked by `order_product.parent_id`:
 
 - **Header** — the bundle variant, quantity, `price = 0`.
 - **Children** — each component's apportioned share of the bundle price, at its *own* `vat_rate`.
 
 Apportionment is pro-rata by the components' **standalone** prices. With standalone prices of
-38 / 18 / 14 (total 70) against a charged 66.00:
+38 / 18 / 14 (total 70) against a charged 55.00:
 
 | Component | Share | Apportioned | Rate | VAT |
 |---|---|---|---|---|
-| Cheeseburger | 38/70 | 35.83 | 11% | 3.94 |
-| Sweet potato fries | 18/70 | 16.97 | 11% | 1.87 |
-| Beer 0.5 | 14/70 | 13.20 | 21% | 2.77 |
-| | | **66.00** | | **8.58** |
+| Cheeseburger | 38/70 | 29.86 | 11% | 3.28 |
+| Fries | 18/70 | 14.14 | 11% | 1.56 |
+| Cola 0.5 | 14/70 | 11.00 | 21% | 2.31 |
+| | | **55.00** | | **7.15** |
 
-Gross 74.58.
+Gross 62.15.
 
 The header carries zero money so that `SUM(price)` over an order stays correct with no
 special-casing. Exploding also makes stock deplete on the right variants and lets a single
@@ -259,6 +277,8 @@ largest share so the parts sum to the charged total exactly.
 ### 8.4. Excluded on purpose
 
 - **Multi-buy** ("3 for 2", "6-pack") is a promotion, not a composition — use `discount`.
+- **Customer-chosen components** — see §8.1. Options cover "ask a question"; a swappable component
+  is the planned shape, and is not built.
 - **Nested bundles** are forbidden. A bundle item pointing at another bundle's variant creates a
   cycle no constraint can detect; the service must reject it.
 - **Bundle-level stock** does not exist. Availability is the `min` over the components, and a
@@ -279,8 +299,27 @@ Do not merge these; they answer different things and only one drives status.
   is still `available`, just not right now. **No row at all means unrestricted**, so the common case
   costs nothing.
 
-`day_of_week` is 0 = Sunday, matching JavaScript's `getDay()` rather than ISO-8601's 1 = Monday.
-`starts_at` / `ends_at` are `time`, read in the venue's timezone.
+**Weekdays are ISO 8601 everywhere — 1 = Monday through 7 = Sunday.** `day_of_week` and
+`discount.conditions.day_range` are the only two places a weekday is stored, and they use the same
+numbering so a day means one thing across the codebase. It is *not* what `Date.getDay()` returns:
+`isoWeekday` in `helpers/date.helper` is the conversion, and adding a second one anywhere is how the
+two drift back apart. `starts_at` / `ends_at` are `time`, read in the venue's timezone.
+
+**One interval per day, per product.** A partial unique index on
+`(product_id, day_of_week) NULLS NOT DISTINCT WHERE deleted_at IS NULL` holds the same-day half —
+`NULLS NOT DISTINCT` is what also stops a second *every-day* interval, which the default would
+treat as distinct. The other half, that an every-day interval excludes an interval on a specific
+day, compares rows holding different values and so no index reaches it: `ProductValidator` carries
+that one. Both are also mirrored client-side, and each message lands on the offending row's own
+`day_of_week`.
+
+An interval is a weekday and, optionally, a span of clock times — **null in both columns together
+means all day**, and a check constraint refuses one set with the other null because half a window
+has no agreed reading. Bounding the recurrence itself
+— a terrace list that runs daily but only over the summer — is the product's own life in the
+catalog, so it goes on the absolute dates above, where it reaches `sale_status`. Expressing it a
+second time on the window would put the same fact in two places with only one of them deciding
+whether the product is listed.
 
 ## 10. Invariants the database cannot hold
 
@@ -295,10 +334,9 @@ These need the service layer. None of them can be pushed into a constraint.
    can count what was submitted.
 4. **The line total.** `price` plus the sum of the option deltas, then quantity, then discounts,
    then VAT — in that order, since discounts apply to prices excluding VAT.
-5. **`product_bundle_item.product_id` must equal `group.product_id`** when `group_id` is set. Both
-   columns exist so an ungrouped component still names its bundle, and nothing checks that a
-   grouped one agrees.
-6. **No nested bundles**, and **no bundle without components** once `composition = bundle`.
+5. **A bundle adds up to at least two units.** `SUM(product_bundle_item.quantity)` over the bundle
+   has to reach two once `composition = bundle`; a check constraint sees one row at a time.
+6. **No nested bundles**, and no bundle that contains one of its own variants.
 7. **Bundle apportionment reconciles to the charged total**, remainder to the largest share (§8.3).
 8. **Shipment allocation must not exceed what was ordered.** The sum of
    `order_shipping_product.quantity` across every shipment of one `order_product` has to stay
@@ -320,8 +358,7 @@ These need the service layer. None of them can be pushed into a constraint.
 
 `order_product.variant_id` and `product_id` used to belong on this list. They no longer do: the
 `variant` relation is a composite foreign key over both columns against
-`product_variant (id, product_id)`, so the database rejects the mismatch. Worth copying for
-`product_bundle_item` if (5) ever bites.
+`product_variant (id, product_id)`, so the database rejects the mismatch.
 
 ## 11. Stock lives elsewhere
 
@@ -433,8 +470,10 @@ every NULL as distinct.
 - Scalar rows are unique on `(product_id, attribute_label_id)`, so a label admits exactly one
   number, string or boolean. A product has one volume.
 
-A multi-pick `checkbox` is therefore **one row** whose `value_text` holds the joined selection, not
-one row per choice.
+A multi-pick `checkbox` over terms is therefore **one row per choice**, not one row holding a
+joined string: the partial unique index is what admits them, each stays a `value_term_id` the
+facet index can answer on, and renaming the term corrects every product carrying it. That is what
+`FormAttributesProduct` renders it as.
 
 ### 12.6. Resolving the form for a product
 
@@ -472,12 +511,47 @@ SELECT product_id FROM product_attribute
 `is_filterable` governs which facets the storefront offers. The indexes cover every row regardless,
 so it is a product decision, not a performance one.
 
-### 12.8. Not built yet
+`is_required` is enforced in `ProductService.assertRequiredSupplied`, called once for the product
+scope and once per variant. It cannot live with the per-value checks: those only see the values a
+payload carries, and a required attribute the caller omitted has no row for them to look at. The
+product form mirrors it, so an empty required field fails before the request.
 
-The entities exist and nothing else does — no migration, repository, service, validator, policy or
-routes, and no UI. The `product` feature has no HTTP surface at all, so the end goal (the product
-form rendering its category's attributes) is blocked on that feature being built. The resolution
-walk in §12.6 and the `@Check` combinations in §12.4 both want tests when they are written.
+### 12.8. Where the pieces live
+
+The backend is complete: migration `1786920000000-product-category-attribute.ts`, plus repository,
+service, validator, policy, routes, controller and docs. `/product-category-attributes` carries the
+usual create / read / update / delete / restore / find, and one route of its own:
+
+`GET /product-category-attributes/resolve` is §12.6's walk over HTTP. It takes the `category_id`s
+the form is being drawn for rather than a product id, because a product being created has no id
+yet. It is declared **ahead of `/:id`** in the routes module, or Express matches the literal
+against the id parameter and the param validator rejects it before the handler is reached.
+
+Tests cover the resolution walk (`product-category-attribute-service.test.ts`) and the §12.4
+capture/storage matrix (`product-category-attribute-validator.test.ts`, which repeats the entity's
+`@Check` as a table).
+
+The definitions themselves are edited from the category that declares them, not from a page of
+their own: `ManagerAttributesCategory` (`../nready-ui/src/app/(dashboard)/dashboard/category/`) is
+the `attributes` row action on a **product** category, and it opens the standard form windows of
+the `product-category-attribute` data source.
+
+**Every read that draws a control joins the wording**, because the rows carry ids and nothing else
+to name them by: `find` brings the label, `read` brings the label and each option's term, and
+`findForCategories` — behind `resolve` — brings both, since that set *is* the form a product
+renders.
+
+The product side is closed too. `FormAttributesProduct`
+(`../nready-ui/src/app/(dashboard)/dashboard/product/`) draws one field per definition, keyed on
+the `type` / `value_type` pairing (§12.4), and every editor that writes a product renders it:
+the product form on its own Attributes tab for the `product` scope and inside each row of the
+variants editor for the `variant` scope, and the bundle form on both — a bundle carries one
+sellable line, so it answers the `variant` scope once rather than per row. That is not cosmetic:
+`assertRequiredSupplied` runs per variant, so a required axis would otherwise leave a bundle in
+that category unsavable with no field to satisfy it. The form calls `resolve` for the categories currently picked and reconciles its
+answers against the result on every change — one entry per definition, empties included so a
+required one has something to fail on, and nothing for a label the categories no longer declare,
+which the backend would refuse.
 
 ## 13. Deferred, with the decision already made
 

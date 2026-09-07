@@ -600,6 +600,50 @@ export abstract class BaseValidator<
 	}
 
 	/**
+	 * Validate a query filter naming several IDs, for a caller that has to resolve a set of rows
+	 * in one request rather than one round trip per id.
+	 *
+	 * `qs` hands over a bare value for a single `filter[id][]` and an array for several, so one
+	 * id is wrapped rather than rejected. That is also what keeps a caller written against the
+	 * scalar form working unchanged.
+	 *
+	 * The list is non-empty when present: `filter[id][]=` with nothing in it would otherwise
+	 * reach the query as `IN ()`, which Postgres rejects as a syntax error rather than
+	 * answering with no rows.
+	 */
+	// Overload signatures
+	protected validateIdFilter(
+		message?: string,
+		optionsData?: { required?: true },
+	): z.ZodType<number[]>;
+
+	protected validateIdFilter(
+		message?: string,
+		optionsData?: { required: false },
+	): z.ZodType<number[] | undefined>;
+
+	// Implementation signature
+	protected validateIdFilter(
+		message: string = 'Invalid IDs',
+		optionsData?: { required?: boolean },
+	): z.ZodType<number[] | undefined> {
+		const options = {
+			required: true,
+			...optionsData,
+		};
+
+		const schema = z.preprocess(
+			(value) =>
+				value === undefined || Array.isArray(value) ? value : [value],
+			z
+				.array(this.validateId(message, { required: true }))
+				.nonempty({ message }),
+		);
+
+		return options.required ? schema : schema.optional();
+	}
+
+	/**
 	 * Validate date string and convert to `Date` object with time validation
 	 *
 	 * @param messageData - Optional string or object with custom error messages

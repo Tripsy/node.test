@@ -9,13 +9,12 @@ import {
 import type BrandEntity from '@/features/brand/brand.entity';
 import type ProductAttributeEntity from '@/features/product/product-attribute.entity';
 import type ProductAvailabilityEntity from '@/features/product/product-availability.entity';
-import type ProductBundleGroupEntity from '@/features/product/product-bundle-group.entity';
 import type ProductBundleItemEntity from '@/features/product/product-bundle-item.entity';
 import type ProductCategoryEntity from '@/features/product/product-category.entity';
+import type ProductContentEntity from '@/features/product/product-content.entity';
 import type ProductOptionGroupEntity from '@/features/product/product-option-group.entity';
 import type ProductTagEntity from '@/features/product/product-tag.entity';
 import type ProductVariantEntity from '@/features/product/product-variant.entity';
-import type VendorEntity from '@/features/vendor/vendor.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
@@ -102,6 +101,25 @@ export type ProductUnit =
 	(typeof ProductUnitEnum)[keyof typeof ProductUnitEnum];
 
 /**
+ * Which units each type may be sold in. A service is priced by time, a download has no physical
+ * dimension to measure, and only a physical good can be sold by weight, volume or length.
+ *
+ * Enforced by `ProductService.assertUnitForType` rather than by a column check: the pairing spans
+ * two columns and a partial update may move either one alone, so it can only be judged after the
+ * payload is merged onto the stored row.
+ */
+export const UNITS_BY_TYPE: Record<ProductType, readonly ProductUnit[]> = {
+	[ProductTypeEnum.PHYSICAL]: [
+		ProductUnitEnum.PIECE,
+		ProductUnitEnum.KG,
+		ProductUnitEnum.LITRE,
+		ProductUnitEnum.METRE,
+	],
+	[ProductTypeEnum.DIGITAL]: [ProductUnitEnum.PIECE],
+	[ProductTypeEnum.SERVICE]: [ProductUnitEnum.HOUR],
+};
+
+/**
  * The VAT *class* a product declares. The *rate* it resolves to is a function of jurisdiction and
  * date, so it is worked out when the order line is written and snapshot there
  * (`order_product.vat_rate`).
@@ -154,12 +172,6 @@ export default class ProductEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	// The style code, one level above what is actually sold — the purchasable code and the barcode
-	// live on `product_variant`, since two sizes of the same dish are two sellable things
-	@Column('varchar', { nullable: false })
-	@Index('IDX_product_sku', { unique: true, where: 'deleted_at IS NULL' })
-	sku!: string;
-
 	@Column({
 		type: 'enum',
 		enum: ProductWorkflowEnum,
@@ -175,9 +187,16 @@ export default class ProductEntity extends EntityAbstract {
 		default: ProductSaleStatusEnum.AVAILABLE,
 		nullable: false,
 	})
-	// Kept alongside the two composites above: those are partial, so the planner cannot use them
-	// for a plain "what is sellable" filter that says nothing about the availability window
-	@Index('IDX_product_sale_status')
+	/*
+	 * **A projection, never the authority.** Nothing that decides what may be sold reads this:
+	 * `filterBySellable` compares the three timestamps directly, because a column a cron catches
+	 * up on a schedule trails the deadline it describes between passes. This is what the
+	 * dashboard's badge and its status facet are built on, and that is the whole of its job.
+	 *
+	 * Deliberately unindexed. The facet is admin traffic, paginated, over four values that skew
+	 * heavily to `available` — a btree Postgres would decline to use for the common one anyway.
+	 * The two partial composites above stay: those serve the cron, which seeks on a deadline.
+	 */
 	sale_status!: ProductSaleStatus;
 
 	@Column({
@@ -248,10 +267,6 @@ export default class ProductEntity extends EntityAbstract {
 	@Index('IDX_product_brand_id')
 	brand_id!: number | null;
 
-	@Column('int', { nullable: true })
-	@Index('IDX_product_vendor_id')
-	vendor_id!: number | null;
-
 	// RELATIONS
 	// RESTRICT even though the column is nullable: an absent brand is a legitimate state, silently
 	// losing the one that was set is not
@@ -262,12 +277,11 @@ export default class ProductEntity extends EntityAbstract {
 	@JoinColumn({ name: 'brand_id' })
 	brand?: BrandEntity | null;
 
-	@ManyToOne('VendorEntity', {
-		onDelete: 'SET NULL',
-		nullable: true,
-	})
-	@JoinColumn({ name: 'vendor_id' })
-	vendor?: VendorEntity | null;
+	@OneToMany(
+		'ProductContentEntity',
+		(content: ProductContentEntity) => content.product,
+	)
+	contents?: ProductContentEntity[];
 
 	// Prices hang off the variant, not the product — a product is priced only through them
 	@OneToMany(
@@ -288,15 +302,7 @@ export default class ProductEntity extends EntityAbstract {
 	)
 	availabilities?: ProductAvailabilityEntity[];
 
-	// Populated only while `composition` is `bundle`
-	@OneToMany(
-		'ProductBundleGroupEntity',
-		(bundleGroup: ProductBundleGroupEntity) => bundleGroup.product,
-	)
-	bundle_groups?: ProductBundleGroupEntity[];
-
-	// Every component of this bundle, whether or not it sits in a group — `product_bundle_item`
-	// links to the bundle directly so an always-included component needs no group
+	// Populated only while `composition` is `bundle`; every component is always included
 	@OneToMany(
 		'ProductBundleItemEntity',
 		(bundleItem: ProductBundleItemEntity) => bundleItem.product,

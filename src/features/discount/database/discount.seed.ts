@@ -43,8 +43,8 @@ type DiscountBlueprint = {
 	 * scope — an order-wide discount is bounded by `applicable_countries` or
 	 * `min_order_value`.
 	 *
-	 * Conditions gate *when* a discount applies. What it attaches to lives in the link tables
-	 * (`category_discount`, `brand_discount`, …), so no condition key names an entity id.
+	 * Conditions gate *when* a discount applies. What it attaches to lives in `discount_target`,
+	 * so no condition key names an entity id.
 	 */
 	buildConditions: () => DiscountConditions | undefined;
 	notes: string | null;
@@ -148,7 +148,7 @@ const DISCOUNTS: readonly DiscountBlueprint[] = [
 		value: 7,
 		window: WINDOW_RUNNING,
 		buildConditions: () => undefined,
-		notes: 'Linked to products through product_discount',
+		notes: 'Linked to products through discount_target',
 	},
 	{
 		reference: 'PRODLAUNCH',
@@ -158,6 +158,28 @@ const DISCOUNTS: readonly DiscountBlueprint[] = [
 		type: DiscountTypeEnum.PERCENT,
 		value: 18,
 		window: WINDOW_SCHEDULED,
+		buildConditions: () => undefined,
+		notes: null,
+	},
+	{
+		reference: 'VAR12',
+		label: 'Variant Clearance 12%',
+		scope: DiscountScopeEnum.VARIANT,
+		reason: DiscountReasonEnum.SPECIAL_DISCOUNT,
+		type: DiscountTypeEnum.PERCENT,
+		value: 12,
+		window: WINDOW_RUNNING,
+		buildConditions: () => undefined,
+		notes: 'One size or colour marked down, not the whole product',
+	},
+	{
+		reference: 'VARFIX5',
+		label: 'Variant Fixed Cut',
+		scope: DiscountScopeEnum.VARIANT,
+		reason: DiscountReasonEnum.SPECIAL_DISCOUNT,
+		type: DiscountTypeEnum.AMOUNT,
+		value: 5,
+		window: WINDOW_OPEN,
 		buildConditions: () => undefined,
 		notes: null,
 	},

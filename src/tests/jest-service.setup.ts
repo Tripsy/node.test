@@ -15,6 +15,7 @@ export function createMockQuery() {
 		filterByRange: jest.fn().mockReturnThis(),
 		filterByTerm: jest.fn().mockReturnThis(),
 		filterPublished: jest.fn().mockReturnThis(),
+		filterBySellable: jest.fn().mockReturnThis(),
 		filterByStatus: jest.fn().mockReturnThis(),
 		filterByEmail: jest.fn().mockReturnThis(),
 		filterByIdent: jest.fn().mockReturnThis(),
@@ -82,9 +83,15 @@ export function createMockRepository<
 	const repository = {
 		createQuery: createQueryMock,
 		createQueryBuilder: jest.fn(() => queryBuilder),
+		// TypeORM's entity factory, which a service calls before `save` when it has to run
+		// checks against the row as it will be stored. It only ever builds the object, so
+		// echoing the input back is what it does.
+		create: jest.fn((entityLike: unknown) => entityLike),
 		save: jest.fn(),
 		update: jest.fn(),
 		softDelete: jest.fn(),
+		find: jest.fn(async () => [] as E[]),
+		count: jest.fn(async () => 0),
 	} as unknown as jest.Mocked<Repository<E>> & {
 		createQuery(): Q;
 	};

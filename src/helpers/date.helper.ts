@@ -53,6 +53,21 @@ export function createPastDate(seconds: number): Date {
 }
 
 /**
+ * The ISO 8601 weekday of a date — Monday is 1 through Sunday is 7.
+ *
+ * Every weekday stored or evaluated in this codebase is written in this numbering:
+ * `discount.conditions.day_range` and `product_availability.day_of_week`. This is the one place
+ * that knows `Date.getDay()` counts from Sunday as 0, so nothing else re-derives the conversion
+ * and drifts by a day.
+ *
+ * @param {Date} date - The date to read
+ * @returns {number} - 1 (Monday) through 7 (Sunday)
+ */
+export function isoWeekday(date: Date): number {
+	return date.getDay() || 7;
+}
+
+/**
  * Check if a string is a valid date
  *
  * @param {string} date - The date string to check

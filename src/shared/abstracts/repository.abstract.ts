@@ -601,10 +601,27 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		return this;
 	}
 
-	filterById(id?: number | null) {
+	/**
+	 * Filters on the primary key, by one id or by several.
+	 *
+	 * A list goes through `IN` and is skipped when empty — an empty array would otherwise reach
+	 * Postgres as `IN ()`, a syntax error rather than a query answering with no rows. Either
+	 * form marks the query as filtered, so a `delete`/`restore` scoped to a set of ids is
+	 * accepted where an unfiltered one is refused.
+	 */
+	filterById(id?: number | readonly number[] | null) {
+		if (Array.isArray(id)) {
+			if (id.length > 0) {
+				this.hasFilter = true;
+				this.filterBy('id', [...id], 'IN');
+			}
+
+			return this;
+		}
+
 		if (id) {
 			this.hasFilter = true;
-			this.filterBy('id', id);
+			this.filterBy('id', id as number);
 		}
 
 		return this;

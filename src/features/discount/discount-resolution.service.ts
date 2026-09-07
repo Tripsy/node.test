@@ -9,6 +9,7 @@ import DiscountTargetEntity, {
 	type DiscountTargetType,
 	DiscountTargetTypeEnum,
 } from '@/features/discount/discount-target.entity';
+import { isoWeekday } from '@/helpers/date.helper';
 
 /**
  * Everything the resolver needs about one basket line.
@@ -33,8 +34,6 @@ export type DiscountLineContext = {
 
 	/** `product_price.min_price` — sale currency, already market-specific. */
 	minPrice?: number | null;
-	/** `product_variant.cost_price` — base currency. */
-	costPrice?: number | null;
 
 	/** Basket subtotal excluding VAT, sale currency, for `min_order_value`. */
 	orderValue?: number;
@@ -236,10 +235,9 @@ export function evaluateConditions(
 			}
 
 			case 'day_range': {
-				// `getDay()` is Sunday-based; conditions are written in ISO weekdays.
-				const isoDay = now.getDay() === 0 ? 7 : now.getDay();
-
-				if (!inCyclicRange(isoDay, value as [number, number])) {
+				if (
+					!inCyclicRange(isoWeekday(now), value as [number, number])
+				) {
 					return false;
 				}
 
@@ -269,21 +267,18 @@ export function evaluateConditions(
 /**
  * The lowest unit price a discount may resolve to, in the sale currency.
  *
- * `min_price` wins outright when set: it is a deliberate per-market commercial decision and
- * may legitimately sit below cost for a campaign. Cost is the fallback safety net for variants
- * with no floor of their own. Both absent means no floor — the only remaining guard is that a
- * line cannot go negative.
+ * `min_price` is the whole rule: a deliberate per-market commercial decision, which may
+ * legitimately sit below cost for a campaign. Absent, there is no floor — the only remaining
+ * guard is that a line cannot go negative.
+ *
+ * **Cost is deliberately not a fallback.** What the goods cost is an accounting figure and must
+ * not move what a customer is charged: a floor derived from it would make the sale price of two
+ * identical items differ by their purchase history, and would shift under a variant the moment a
+ * goods receipt recomputes the weighted average. A seller who wants cost respected states it as a
+ * `min_price`, in the market's own currency, where it is visible and auditable.
  */
 function resolveFloor(context: DiscountLineContext): number | null {
-	if (context.minPrice !== null && context.minPrice !== undefined) {
-		return context.minPrice;
-	}
-
-	if (context.costPrice !== null && context.costPrice !== undefined) {
-		return context.costPrice / context.exchangeRate;
-	}
-
-	return null;
+	return context.minPrice ?? null;
 }
 
 /**

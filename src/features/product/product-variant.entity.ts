@@ -133,6 +133,11 @@ export default class ProductVariantEntity extends EntityAbstract {
 	 * month's margin change. Margin is settled in base currency on both sides:
 	 * `order_product.exchange_rate` brings the sale back to meet this.
 	 *
+	 * **It never moves what a customer is charged.** Reporting reads it; no pricing or discount
+	 * path does. A floor on a sale is `product_price.min_price` alone — deriving one from cost
+	 * would make the price of two identical items differ by their purchase history, and would
+	 * shift the moment a goods receipt recomputes the average below.
+	 *
 	 * Once goods receipts exist this becomes a weighted moving average, recomputed on each
 	 * confirmed receipt as
 	 * `(qty_on_hand × cost_price + received_qty × unit_cost_base) / (qty_on_hand + received_qty)`.

@@ -107,9 +107,17 @@ export class CategoryValidator extends BaseValidator<typeof validatorMessages> {
 		defaultPage: 1,
 
 		filterSchema: {
-			id: this.validateNumber(this.getMessage('invalid_number'), {
-				required: false,
-			}),
+			/*
+			 * A list rather than a scalar, so a caller holding several ids — the discount view
+			 * naming its targets — resolves them all in one request. A single id still arrives
+			 * as one.
+			 */
+			id: this.validateIdFilter(
+				this.getMessage('invalid_ids', { name: 'id' }),
+				{
+					required: false,
+				},
+			),
 			language: this.validateLanguage(
 				this.getMessage('invalid_language'),
 				{ required: false },

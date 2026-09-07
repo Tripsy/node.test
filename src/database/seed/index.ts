@@ -14,6 +14,7 @@ import { discountSeed } from '@/features/discount/database/discount.seed';
 import { documentSeriesSeed } from '@/features/document-series/database/document-series.seed';
 import { imageSeed } from '@/features/image/database/image.seed';
 import { placeSeed } from '@/features/place/database/place.seed';
+import { productSeed } from '@/features/product/database/product.seed';
 import { ratingSeed } from '@/features/rating/database/rating.seed';
 import { termSeed } from '@/features/term/database/term.seed';
 import { userSeed } from '@/features/user/database/user.seed';
@@ -41,6 +42,9 @@ const seeds: readonly SeedDefinition[] = [
 	userSeed,
 	cashFlowSeed,
 	termSeed,
+	// Reads category, term, brand ids; seeds the category attribute definitions
+	// its products answer to before the products themselves
+	productSeed,
 	discountSeed,
 	// Reads discount ids alongside client, category and brand ids
 	discountTargetSeed,
