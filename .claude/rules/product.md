@@ -106,6 +106,30 @@ a promotion.
 Labels on both groups and options are `term` rows, so the Romanian menu renders from the same
 records as the English one.
 
+### 3.1. Where the pieces live
+
+The three tables are written as **one aggregate** by `ProductOptionRepository.syncGroups`, reached
+from `ProductService` whenever a payload carries `option_groups`. A group is the question and its
+options are what it means, so neither is saved without the other.
+
+**The label term is the natural key at every level**: `syncGroups` keys a product's groups by
+`label_id`, `syncOptions` keys a group's answers by `label_id`, and `syncPrices` keys the deltas by
+`currency`. Nothing in the schema forbids a product asking the same question twice, but a payload
+that did could not be told apart from an edit of the first — it collapses into one row and the
+duplicate silently disappears. The editor is what refuses the repeat, per level
+(`ProductValidator.manage`'s `superRefine` in `../nready-ui/.../product.definition.ts`), because a
+form showing "Crust" twice is a defect either way.
+
+`attachBranches` **joins the wording on both levels** and orders the answers by `position` — the
+same rule §12.8 states for attribute definitions, for the same reason: the rows carry ids and
+nothing else to name themselves by, and insertion order matches `position` only until a group is
+reordered. The deltas are ordered by `currency`, which is all they have.
+
+The editor is `FormOptionsProduct` (`../nready-ui/src/app/(dashboard)/dashboard/product/`), on the
+product form's own Options tab. It seeds no group: most products ask nothing, so an empty list is
+the meaningful default — the opposite of the variants editor, where one row is required. Cardinality
+is restated in words beside the two numbers, since they are its only expression.
+
 ## 4. Worked example — Pizza Margherita
 
 **Product** *Pizza Margherita*, `unit = piece`, `vat_category = reduced`, no brand. It carries no

@@ -808,10 +808,37 @@ export class ProductService {
 				where: { product_id },
 				order: { day_of_week: 'ASC', starts_at: 'ASC' },
 			}),
+			/*
+			 * The wording comes with the ids on both levels, the way `findForCategories` brings
+			 * it behind `resolve`: a group and its answers are `term` references and nothing
+			 * else, so an editor handed the ids alone has a control it cannot draw and no way
+			 * to resolve them but one request per row.
+			 *
+			 * Every translation, not the request's own — the dashboard edits a product under
+			 * all of them at once and picks per language at render time.
+			 *
+			 * `options` is ordered explicitly. Insertion order matches `position` only until a
+			 * group is reordered, after which the editor would draw the answers shuffled and
+			 * then re-stamp `position` from what it drew.
+			 */
 			dataSource.getRepository(ProductOptionGroupEntity).find({
 				where: { product_id },
-				relations: { options: { prices: true } },
-				order: { position: 'ASC', id: 'ASC' },
+				relations: {
+					label: { contents: true },
+					options: { label: { contents: true }, prices: true },
+				},
+				order: {
+					position: 'ASC',
+					id: 'ASC',
+					options: {
+						position: 'ASC',
+						id: 'ASC',
+						// The deltas have no position of their own, so a market is named by its
+						// code — an unordered read hands a multi-market answer back in a
+						// different order each time, and the editor redraws its rows to match.
+						prices: { currency: 'ASC' },
+					},
+				},
 			}),
 			dataSource.getRepository(ProductBundleItemEntity).find({
 				where: { product_id },
