@@ -55,6 +55,18 @@ const categoryData: readonly CategorySeedRow[] = [
 		parent_slug: null,
 		description: 'Tools, lighting and household equipment.',
 	},
+	/*
+	 * Food sits beside the hardware tree because it is the catalog's only family where a
+	 * product is configured at order time - crust, toppings, a drink chosen inside a menu -
+	 * so it is what the option groups and the bundle choices are demonstrated on.
+	 */
+	{
+		slug: 'food',
+		label: 'Food',
+		type: CategoryTypeEnum.PRODUCT,
+		parent_slug: null,
+		description: 'Kitchen menu - pizza, drinks and what goes beside them.',
+	},
 
 	// Product — children
 	{
@@ -126,6 +138,27 @@ const categoryData: readonly CategorySeedRow[] = [
 		type: CategoryTypeEnum.PRODUCT,
 		parent_slug: 'home-and-garden',
 		description: 'Indoor and outdoor lighting fixtures.',
+	},
+	{
+		slug: 'pizza',
+		label: 'Pizza',
+		type: CategoryTypeEnum.PRODUCT,
+		parent_slug: 'food',
+		description: 'Stone-baked pizza, sized by the centimetre.',
+	},
+	{
+		slug: 'drinks',
+		label: 'Drinks',
+		type: CategoryTypeEnum.PRODUCT,
+		parent_slug: 'food',
+		description: 'Soft drinks, water and juice by the bottle.',
+	},
+	{
+		slug: 'sauces',
+		label: 'Sauces & Dips',
+		type: CategoryTypeEnum.PRODUCT,
+		parent_slug: 'food',
+		description: 'Dips and sauces served on the side.',
 	},
 
 	/*
