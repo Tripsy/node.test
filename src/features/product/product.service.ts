@@ -35,7 +35,9 @@ import ProductAttributeRepository, {
 } from '@/features/product/product-attribute.repository';
 import ProductAvailabilityEntity from '@/features/product/product-availability.entity';
 import ProductAvailabilityRepository from '@/features/product/product-availability.repository';
+import type { ResolvedBundleItem } from '@/features/product/product-bundle.repository';
 import ProductBundleRepository from '@/features/product/product-bundle.repository';
+import ProductBundleGroupEntity from '@/features/product/product-bundle-group.entity';
 import ProductBundleItemEntity from '@/features/product/product-bundle-item.entity';
 import ProductCategoryRepository from '@/features/product/product-category.repository';
 import type ProductCategoryAttributeEntity from '@/features/product/product-category-attribute.entity';
@@ -90,8 +92,21 @@ export type WithCoverImage<T> = T & {
 	cover_image: ProductCoverImageType | null;
 };
 
-/** How many units a bundle has to add up to before it is a bundle rather than a product. */
+/**
+ * How many units a bundle has to add up to before it is a bundle rather than a product.
+ *
+ * Counted over the components that are always included, so the floor holds for the cheapest
+ * thing the customer can walk away with — see `assertBundleIsComposed`.
+ */
 const BUNDLE_MINIMUM_UNITS = 2;
+
+/**
+ * How many candidates a choice needs before it is a choice.
+ *
+ * A group takes exactly one of its candidates, so one candidate is not an alternative to anything
+ * — see `assertBundleGroupsAreUsable`.
+ */
+const BUNDLE_GROUP_MINIMUM_CANDIDATES = 2;
 
 export class ProductService {
 	constructor(private repository: ReturnType<typeof getProductRepository>) {}
@@ -422,7 +437,9 @@ export class ProductService {
 		data: Partial<ValidatorOutput<ProductValidator, 'create'>>,
 	): Promise<void> {
 		if (entry.composition === ProductCompositionEnum.SIMPLE) {
+			// Components first: a group is only removable once nothing is a candidate for it
 			await ProductBundleRepository.syncItems(manager, entry.id, []);
+			await ProductBundleRepository.syncGroups(manager, entry.id, []);
 
 			return;
 		}
@@ -431,11 +448,114 @@ export class ProductService {
 
 		await this.assertComponents(manager, entry, items ?? []);
 
+		if (data.bundle_groups) {
+			await ProductBundleRepository.syncGroups(
+				manager,
+				entry.id,
+				data.bundle_groups,
+			);
+		}
+
 		if (items) {
-			await ProductBundleRepository.syncItems(manager, entry.id, items);
+			await ProductBundleRepository.syncItems(
+				manager,
+				entry.id,
+				await this.resolveComponentGroups(manager, entry.id, items),
+			);
 		}
 
 		await this.assertBundleIsComposed(manager, entry.id);
+		await this.assertBundleGroupsAreUsable(manager, entry.id);
+	}
+
+	/**
+	 * Turns each component's `group_label_id` into the `group_id` its column holds.
+	 *
+	 * Read after the groups are synced rather than from the payload, because an update is partial
+	 * in both directions: a request may add candidates to a group it is not resending, and one
+	 * that resends `bundle_groups` may have just removed the group a component still names. Only
+	 * the live rows know which groups the bundle has by the time the components are written.
+	 */
+	private async resolveComponentGroups(
+		manager: EntityManager,
+		product_id: number,
+		items: ProductBundleItemType[],
+	): Promise<ResolvedBundleItem[]> {
+		const needsGroup = items.some((item) => item.group_label_id);
+
+		if (!needsGroup) {
+			return items.map((item) => ({ ...item, group_id: null }));
+		}
+
+		const groups = await manager
+			.getRepository(ProductBundleGroupEntity)
+			.find({ where: { product_id } });
+
+		const byLabel = new Map(
+			groups.map((group) => [group.label_id, group.id]),
+		);
+
+		return items.map((item) => {
+			if (!item.group_label_id) {
+				return { ...item, group_id: null };
+			}
+
+			const group_id = byLabel.get(item.group_label_id);
+
+			if (!group_id) {
+				throw new CustomError(
+					422,
+					lang('product.error.bundle_group_unknown'),
+				);
+			}
+
+			return { ...item, group_id };
+		});
+	}
+
+	/**
+	 * The one rule that spans a group and its candidates, and so belongs to neither alone.
+	 *
+	 * A group takes exactly one of its candidates, so it needs **two** to be a choice at all. With
+	 * one it is a component that is always included wearing a prompt, and with none a question
+	 * with no answers — both reachable only through a payload that removed candidates, or created
+	 * the group and never filled it.
+	 *
+	 * Read back from the rows just written for the reason `assertBundleIsComposed` gives: an
+	 * update is partial, and a payload that carries only half of the pair leaves the other half
+	 * where it was.
+	 *
+	 * The label term is loaded so the failure can name the group. A bundle offering three
+	 * choices otherwise reports which rule broke without saying where.
+	 */
+	private async assertBundleGroupsAreUsable(
+		manager: EntityManager,
+		product_id: number,
+	): Promise<void> {
+		const groups = await manager
+			.getRepository(ProductBundleGroupEntity)
+			.find({
+				where: { product_id },
+				relations: { items: true, label: { contents: true } },
+			});
+
+		for (const group of groups) {
+			const candidates = (group.items ?? []).filter(
+				(item) => item.deleted_at === null,
+			).length;
+
+			const name =
+				group.label?.contents?.[0]?.value ?? String(group.label_id);
+
+			if (candidates < BUNDLE_GROUP_MINIMUM_CANDIDATES) {
+				throw new CustomError(
+					422,
+					lang('product.validation.bundle_group_too_few', {
+						group: name,
+					}),
+				);
+			}
+		}
 	}
 
 	/**
@@ -495,6 +615,12 @@ export class ProductService {
 	 * Counted in units a customer ends up with rather than in components, so a single component
 	 * with `quantity: 2` — a two-pack — qualifies where the same component alone does not.
 	 *
+	 * **Only what the customer cannot decline counts.** The floor has to hold for the least the
+	 * customer can walk away with, so an optional component is out — it can be left unticked —
+	 * and so is a candidate: the group guarantees *a* candidate is taken, not that one in
+	 * particular, and their quantities may differ — a bundle whose whole content is one choice is
+	 * a single product with a decision attached.
+	 *
 	 * Read back from the rows just written instead of from the payload: an update is partial,
 	 * so a payload that omits `bundle_items` leaves the existing components in place and only
 	 * the table knows what the bundle now holds.
@@ -508,6 +634,8 @@ export class ProductService {
 			.createQueryBuilder('item')
 			.select('COALESCE(SUM(item.quantity), 0)', 'total')
 			.where('item.product_id = :product_id', { product_id })
+			.andWhere('item.is_optional = false')
+			.andWhere('item.group_id IS NULL')
 			.getRawOne<{ total: string }>();
 
 		if (Number(includedUnits?.total ?? 0) < BUNDLE_MINIMUM_UNITS) {
@@ -792,6 +920,7 @@ export class ProductService {
 			attributes,
 			availabilities,
 			optionGroups,
+			bundleGroups,
 			bundleItems,
 		] = await Promise.all([
 			dataSource.getRepository(ProductVariantEntity).find({
@@ -840,9 +969,30 @@ export class ProductService {
 					},
 				},
 			}),
+			/*
+			 * The deltas come along, unlike the component's variant, which the dashboard resolves
+			 * itself through `GET /product-variants`. They are the bundle form's own state: an
+			 * edit reopened without them shows every delta blank, and the next save writes that
+			 * blank back.
+			 */
+			/*
+			 * The groups come back flat beside the components rather than around them, which is
+			 * the shape the payload takes too. A component names its group by `group_id`, and the
+			 * label term rides along so the editor can draw the prompt without a second read.
+			 */
+			dataSource.getRepository(ProductBundleGroupEntity).find({
+				where: { product_id },
+				relations: { label: { contents: true } },
+				order: { position: 'ASC', id: 'ASC' },
+			}),
 			dataSource.getRepository(ProductBundleItemEntity).find({
 				where: { product_id },
-				order: { position: 'ASC', id: 'ASC' },
+				relations: { prices: true },
+				order: {
+					position: 'ASC',
+					id: 'ASC',
+					prices: { currency: 'ASC' },
+				},
 			}),
 		]);
 
@@ -850,6 +1000,7 @@ export class ProductService {
 		entry.attributes = attributes;
 		entry.availabilities = availabilities;
 		entry.option_groups = optionGroups;
+		entry.bundle_groups = bundleGroups;
 		entry.bundle_items = bundleItems;
 
 		return entry;
@@ -1103,7 +1254,7 @@ export class ProductService {
 	/**
 	 * The catalog listing.
 	 *
-	 * Facets are one indexed subquery per facet, `INTERSECT`ed. A single `OR`-of-`AND`s cannot
+	 * Facets are one indexed `IN` subquery per facet, `AND`ed. A single `OR`-of-`AND`s cannot
 	 * use a composite index leading on the label and degrades to a sequential scan — see
 	 * `.claude/rules/product.md` §12.7. Ranges compare `value_base`, which is why the payload's
 	 * figures are converted through the definition's unit first.
@@ -1372,9 +1523,20 @@ export class ProductService {
 			.filterBySellable(data.filter.is_sellable)
 			.withDeleted(withDeleted && data.filter.is_deleted);
 
+		/*
+		 * Pinned to live links like the display joins above, and here it is the filter that
+		 * depends on it: `withDeleted` lifts TypeORM's condition from every join, so without
+		 * this a product unlinked from a category in an earlier edit still answers that
+		 * category's filter as soon as an admin ticks "deleted".
+		 */
 		if (data.filter.category_id) {
 			query
-				.join('product.categories', 'category_filter', 'INNER')
+				.join(
+					'product.categories',
+					'category_filter',
+					'INNER',
+					'category_filter.deleted_at IS NULL',
+				)
 				.filterRaw('category_filter.category_id IN (:...categoryIds)', {
 					categoryIds: await this.resolveCategorySubtree(
 						data.filter.category_id,
@@ -1384,7 +1546,7 @@ export class ProductService {
 
 		if (data.filter.tag_id) {
 			query
-				.join('product.tags', 'tag', 'INNER')
+				.join('product.tags', 'tag', 'INNER', 'tag.deleted_at IS NULL')
 				.filterBy('tag.tag_id', data.filter.tag_id);
 		}
 

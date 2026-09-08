@@ -36,6 +36,7 @@ export const paramsUpdateList: string[] = [
 	'attributes',
 	'availabilities',
 	'option_groups',
+	'bundle_groups',
 	'bundle_items',
 ];
 
@@ -87,7 +88,11 @@ const validatorMessages = [
 	'option_min_above_options',
 	'option_default_duplicate',
 	'invalid_bundle_item',
+	'bundle_group_too_few',
+	'bundle_optional_in_group',
 	'bundle_composition_too_small',
+	'bundle_default_not_chosen',
+	'bundle_delta_not_chosen',
 	'available_until_before_from',
 ] as const;
 
@@ -453,16 +458,97 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			},
 		);
 
-	readonly bundleItemSchema = z.object({
-		variant_id: this.validateId(
-			this.getMessage('invalid_id', { name: 'variant_id' }),
+	/**
+	 * A choice offered inside a bundle: a prompt, and nothing else. Exactly one of its candidates
+	 * is taken, which is the whole of what a bundle choice means — there is no `min_select` /
+	 * `max_select` pair to carry, unlike `optionGroupSchema`. See the entity for why a bound
+	 * counting candidate rows could not state the one case that would want it.
+	 *
+	 * Named by its label term rather than by an id, the way `optionGroupSchema` is and for the
+	 * same reason: a group has no id until it is written, and the payload has to be able to name
+	 * one it is creating in the same request.
+	 *
+	 * Nothing is checked here. How many candidates the group has spans this array and
+	 * `bundle_items` — and on an update either may be absent, so only the rows read back after the
+	 * write know the answer. That rule lives in `assertBundleGroupsAreUsable`.
+	 */
+	readonly bundleGroupSchema = z.object({
+		label_id: this.validateId(
+			this.getMessage('invalid_id', { name: 'label_id' }),
 		),
-		quantity: this.validateNumber(this.getMessage('invalid_quantity'), {
-			required: false,
-			allowDecimals: 2,
-		}),
 		position: this.nonNegative(this.getMessage('invalid_number')),
 	});
+
+	/**
+	 * A component, and who gets to decide on it: nobody, the customer, or the group it is a
+	 * candidate for.
+	 *
+	 * The three refines guard one idea from three sides. `is_default` and `prices` describe a
+	 * choice, so a component that is always included — no group, not optional — may carry
+	 * neither: its delta would have nothing to adjust, since the bundle's own price already
+	 * covers it, and preselecting something the customer cannot untick says nothing at all.
+	 * `is_optional` is the mirror image, refused inside a group: a group already says exactly one
+	 * of its candidates is taken, and a row claiming to be optional on its own terms as well
+	 * would be two answers to one question. Refused rather than ignored,
+	 * so a payload that means one thing and stores another is caught at the edge.
+	 *
+	 * `quantity` is the same positive figure throughout, read as a count on a component that is
+	 * always included or a candidate, and as a ceiling on an optional one - a group decides which
+	 * candidate is taken, never how many of it.
+	 */
+	readonly bundleItemSchema = z
+		.object({
+			variant_id: this.validateId(
+				this.getMessage('invalid_id', { name: 'variant_id' }),
+			),
+			quantity: this.validateNumber(this.getMessage('invalid_quantity'), {
+				required: false,
+				allowDecimals: 2,
+			}),
+			position: this.nonNegative(this.getMessage('invalid_number')),
+			/*
+			 * The label of a group in the same payload, not a `group_id`: the group it names may
+			 * be created by this very request. Resolved to a row id by the service, which is
+			 * where an unknown label is refused.
+			 */
+			group_label_id: this.validateId(
+				this.getMessage('invalid_id', { name: 'group_label_id' }),
+				{ required: false },
+			),
+			is_optional: this.validateBoolean(
+				this.getMessage('invalid_boolean'),
+				{ required: false },
+			).default(false),
+			is_default: this.validateBoolean(
+				this.getMessage('invalid_boolean'),
+				{ required: false },
+			).default(false),
+			prices: z.array(this.priceDeltaSchema).default([]),
+		})
+		.refine((data) => !data.is_optional || !data.group_label_id, {
+			message: this.getMessage('bundle_optional_in_group'),
+			path: ['is_optional'],
+		})
+		.refine(
+			(data) =>
+				data.is_optional ||
+				Boolean(data.group_label_id) ||
+				!data.is_default,
+			{
+				message: this.getMessage('bundle_default_not_chosen'),
+				path: ['is_default'],
+			},
+		)
+		.refine(
+			(data) =>
+				data.is_optional ||
+				Boolean(data.group_label_id) ||
+				data.prices.length === 0,
+			{
+				message: this.getMessage('bundle_delta_not_chosen'),
+				path: ['prices'],
+			},
+		);
 
 	/**
 	 * `required` means "not empty when present" rather than "the key must exist": an update is
@@ -584,7 +670,13 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 		attributes: z.array(this.attributeSchema).optional(),
 		availabilities: this.availabilitiesSchema.optional(),
 		option_groups: z.array(this.optionGroupSchema).optional(),
-		// Every component of a bundle is always included, so the list is flat
+		/*
+		 * Two flat lists rather than candidates nested inside their group, so the shape a bundle
+		 * had before groups existed still parses and a component is described in exactly one
+		 * place whether it belongs to a group or not. `bundle_items[].group_label_id` is the tie,
+		 * and the service resolves it against the groups live after `bundle_groups` is synced.
+		 */
+		bundle_groups: z.array(this.bundleGroupSchema).optional(),
 		bundle_items: z.array(this.bundleItemSchema).optional(),
 		tags: this.idListSchema(this.getMessage('invalid_tags')),
 	};
@@ -911,6 +1003,10 @@ export type ProductAvailabilityType = z.infer<
 export type ProductOptionGroupType = z.infer<
 	ProductValidator['optionGroupSchema']
 >;
+export type ProductBundleGroupType = z.infer<
+	ProductValidator['bundleGroupSchema']
+>;
+
 export type ProductBundleItemType = z.infer<
 	ProductValidator['bundleItemSchema']
 >;

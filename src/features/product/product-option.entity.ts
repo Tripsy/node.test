@@ -10,7 +10,6 @@ import type ProductOptionGroupEntity from '@/features/product/product-option-gro
 import type ProductOptionPriceEntity from '@/features/product/product-option-price.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 /**
  * What an order line records about a chosen option. Frozen at the moment of ordering, like
@@ -35,7 +34,6 @@ const ENTITY_TABLE_NAME = 'product_option';
 	schema: 'public',
 	comment: 'An answer within a product option group; priced as a delta',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_product_option_group_id', ['option_group_id', 'position'])
 @Index('IDX_product_option_label_id', ['label_id'])
 // At most one preselected answer per group, mirroring the default-variant rule

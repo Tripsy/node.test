@@ -2,7 +2,6 @@ import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type ProductEntity from '@/features/product/product.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 const ENTITY_TABLE_NAME = 'product_attribute';
@@ -36,7 +35,6 @@ const ENTITY_TABLE_NAME = 'product_attribute';
 	schema: 'public',
 	comment: 'Key/value attributes for products, using multilingual terms',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 /**
  * Uniqueness splits in two, because the rule genuinely differs by value shape and a single key
  * cannot say both. A nullable `value_term_id` inside one unique index would say neither: Postgres
@@ -103,9 +101,14 @@ export default class ProductAttributeEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	// No index of its own: it is the leftmost column of `IDX_product_attribute_unique`, which every
-	// read reaches through, and the sibling link tables (product_tag, product_category) do the same
+	/*
+	 * Non-partial on purpose. `ProductAttributeRepository.syncValues` reads this key with `withDeleted`, so it can revive a
+	 * row rather than collide with the partial unique index, and no index carrying
+	 * `WHERE deleted_at IS NULL` answers a query that does not say it. The foreign key's cascade
+	 * looks the children up the same way.
+	 */
 	@Column('int', { nullable: false })
+	@Index('IDX_product_attribute_product_id')
 	product_id!: number;
 
 	// Indexed for the cascade `term` triggers on delete — Postgres looks the children up by this

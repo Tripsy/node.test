@@ -11,7 +11,6 @@ import type ProductEntity from '@/features/product/product.entity';
 import type ProductPriceEntity from '@/features/product/product-price.entity';
 import type ProductVariantAttributeEntity from '@/features/product/product-variant-attribute.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 const ENTITY_TABLE_NAME = 'product_variant';
@@ -35,7 +34,6 @@ const ENTITY_TABLE_NAME = 'product_variant';
 	comment:
 		'The purchasable unit of a product; prices and order lines reference this, not the product',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // Redundant on its own — `id` is already unique — but it is the target a composite foreign key
 // needs. `order_product` points at (variant_id, product_id) together, which is what stops a line
 // naming a variant that belongs to a different product

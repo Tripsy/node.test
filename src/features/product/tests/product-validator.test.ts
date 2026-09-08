@@ -447,6 +447,164 @@ describe(validator, () => {
 				expect(validated.success).toBe(true);
 			}, validated);
 		});
+
+		it('defaults a component to always included and free of deltas', () => {
+			const validated = createWith({
+				bundle_items: [{ variant_id: 3 }],
+			});
+
+			withDebugValidated(() => {
+				expect(validated.success).toBe(true);
+			}, validated);
+
+			expect(validated.data?.bundle_items?.[0]).toMatchObject({
+				is_optional: false,
+				is_default: false,
+				prices: [],
+			});
+		});
+
+		it('accepts an optional component carrying a signed delta', () => {
+			const validated = createWith({
+				bundle_items: [
+					{
+						// On an optional component this is the ceiling, not a count
+						variant_id: 3,
+						quantity: 2,
+						is_optional: true,
+						is_default: true,
+						prices: [{ currency: 'ron', price_delta: -10.5 }],
+					},
+				],
+			});
+
+			withDebugValidated(() => {
+				expect(validated.success).toBe(true);
+			}, validated);
+
+			// Upper-cased by `currencySchema`, so one market cannot arrive as two rows
+			expect(validated.data?.bundle_items?.[0].prices[0]).toEqual({
+				currency: 'RON',
+				price_delta: -10.5,
+			});
+		});
+
+		it('rejects preselecting a component that is always included', () => {
+			expect(
+				createWith({
+					bundle_items: [{ variant_id: 3, is_default: true }],
+				}).success,
+			).toBe(false);
+		});
+
+		it('rejects a delta on a component that is always included', () => {
+			expect(
+				createWith({
+					bundle_items: [
+						{
+							variant_id: 3,
+							prices: [{ currency: 'RON', price_delta: -10 }],
+						},
+					],
+				}).success,
+			).toBe(false);
+		});
+	});
+
+	describe('bundle choice groups', () => {
+		it('accepts a swap: one group of two candidates, each priced', () => {
+			const validated = createWith({
+				bundle_groups: [{ label_id: 41, position: 0 }],
+				bundle_items: [
+					{ variant_id: 3, quantity: 1 },
+					{ variant_id: 4, quantity: 1 },
+					{
+						variant_id: 9,
+						group_label_id: 41,
+						is_default: true,
+						prices: [{ currency: 'RON', price_delta: -5 }],
+					},
+					{
+						variant_id: 10,
+						group_label_id: 41,
+						prices: [{ currency: 'RON', price_delta: -5 }],
+					},
+				],
+			});
+
+			withDebugValidated(() => {
+				expect(validated.success).toBe(true);
+			}, validated);
+		});
+
+		it('accepts preselecting and pricing a candidate, which an ungrouped mandatory component cannot carry', () => {
+			const validated = createWith({
+				bundle_groups: [{ label_id: 41 }],
+				bundle_items: [
+					{
+						variant_id: 9,
+						group_label_id: 41,
+						is_default: true,
+						prices: [{ currency: 'RON', price_delta: -5 }],
+					},
+				],
+			});
+
+			withDebugValidated(() => {
+				expect(validated.success).toBe(true);
+			}, validated);
+
+			// The group decides how many candidates are taken, so the row itself is not optional
+			expect(validated.data?.bundle_items?.[0]).toMatchObject({
+				group_label_id: 41,
+				is_optional: false,
+			});
+		});
+
+		it('rejects a candidate that is also optional on its own terms', () => {
+			expect(
+				createWith({
+					bundle_groups: [{ label_id: 41 }],
+					bundle_items: [
+						{
+							variant_id: 9,
+							group_label_id: 41,
+							is_optional: true,
+						},
+					],
+				}).success,
+			).toBe(false);
+		});
+
+		/*
+		 * A choice means exactly one, and says so in its shape - a bound counting candidate rows
+		 * could not state the mixed pack that would want it, since a bundle is measured in units.
+		 */
+		it('ignores a cardinality bound, which a bundle choice does not carry', () => {
+			const validated = createWith({
+				bundle_groups: [{ label_id: 41, min_select: 2, max_select: 1 }],
+			});
+
+			withDebugValidated(() => {
+				expect(validated.success).toBe(true);
+			}, validated);
+
+			expect(validated.data?.bundle_groups?.[0]).toEqual({
+				label_id: 41,
+				position: undefined,
+			});
+		});
+
+		it('accepts a group carrying nothing but its prompt', () => {
+			const validated = createWith({
+				bundle_groups: [{ label_id: 41 }],
+				bundle_items: [{ variant_id: 9, group_label_id: 41 }],
+			});
+
+			withDebugValidated(() => {
+				expect(validated.success).toBe(true);
+			}, validated);
+		});
 	});
 
 	describe('availability window on the product', () => {

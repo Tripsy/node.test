@@ -3,7 +3,7 @@ import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/message.setup';
 import { CustomError } from '@/exceptions';
 import type { TermType } from '@/features/term/term.entity';
-import TermEntity from '@/features/term/term.entity';
+import TermEntity, { TermTypeEnum } from '@/features/term/term.entity';
 import { getTermRepository } from '@/features/term/term.repository';
 import {
 	paramsUpdateList,
@@ -24,8 +24,44 @@ const entryColumns: string[] = paramsUpdateList.filter(
 	(param) => param !== 'contents',
 );
 
+/**
+ * The types whose wording is stored as it was typed.
+ *
+ * The line is drawn at what the customer reads. `bundle_choice` and `text` are **sentences**
+ * shown on the storefront — the question a bundle asks, the question an order-time option asks
+ * and each of its answers — and lower-casing them would put "choose your crust" on the page.
+ * `attribute_label` is the heading a specification renders under, so it is written the same way.
+ *
+ * `tag` and `attribute_value` are folded, because they are picked from a shared vocabulary and
+ * "Summer" beside "summer" rendering as two tags is a defect.
+ *
+ * Folding is about how the value is *stored*; it never decided uniqueness. `assertNotDuplicate`
+ * compares `LOWER()` on both sides, so an exempt type still cannot hold two terms differing only
+ * in case.
+ */
+export const CASE_PRESERVING_TYPES: readonly TermType[] = [
+	TermTypeEnum.ATTRIBUTE_LABEL,
+	TermTypeEnum.TEXT,
+	TermTypeEnum.BUNDLE_CHOICE,
+];
+
 export class TermService {
 	constructor(private repository: ReturnType<typeof getTermRepository>) {}
+
+	/** Applies the folding rule above. Called before the duplicate check and before the write. */
+	private normalizeContents(
+		type: TermType,
+		contents: TermContentType[],
+	): TermContentType[] {
+		if (CASE_PRESERVING_TYPES.includes(type)) {
+			return contents;
+		}
+
+		return contents.map((content) => ({
+			...content,
+			value: content.value.toLowerCase(),
+		}));
+	}
 
 	/**
 	 * @description Used in `create` method from controller;
@@ -33,7 +69,9 @@ export class TermService {
 	public async create(
 		data: ValidatorOutput<TermValidator, 'create'>,
 	): Promise<TermEntity> {
-		await this.assertNotDuplicate(data.type, data.contents);
+		const contents = this.normalizeContents(data.type, data.contents);
+
+		await this.assertNotDuplicate(data.type, contents);
 
 		return dataSource.transaction(async (manager) => {
 			const repository = manager.getRepository(TermEntity);
@@ -42,7 +80,7 @@ export class TermService {
 
 			await TermContentRepository.saveContent(
 				manager,
-				data.contents,
+				contents,
 				entrySaved.id,
 			);
 
@@ -52,7 +90,7 @@ export class TermService {
 			 * response without them names nothing, and a caller that links the new term
 			 * straight away (the article form's tag picker) has nothing to label it with.
 			 */
-			entrySaved.contents = data.contents.map((content) =>
+			entrySaved.contents = contents.map((content) =>
 				Object.assign(new TermContentEntity(), {
 					term_id: entrySaved.id,
 					language: content.language,
@@ -84,10 +122,19 @@ export class TermService {
 		entry: TermEntity,
 		data: ValidatorOutput<TermValidator, 'update'>,
 	) {
-		if (data.contents?.length) {
+		/*
+		 * `data.type || entry.type` on both counts: an update may rename the wording, change the
+		 * type, or both, and the folding rule follows the type the term ends up with - a term
+		 * moved into `bundle_choice` keeps the case it was sent with from that write on.
+		 */
+		const contents = data.contents
+			? this.normalizeContents(data.type || entry.type, data.contents)
+			: undefined;
+
+		if (contents?.length) {
 			await this.assertNotDuplicate(
 				data.type || entry.type,
-				data.contents,
+				contents,
 				entry.id,
 			);
 		}
@@ -101,7 +148,7 @@ export class TermService {
 
 			await TermContentRepository.saveContent(
 				manager,
-				data.contents ?? [],
+				contents ?? [],
 				entry.id,
 			);
 

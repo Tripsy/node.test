@@ -36,7 +36,11 @@
 		"option_min_above_options": "The group asks for more choices than it offers",
 		"option_default_duplicate": "Only one answer per group can be preselected",
 		"invalid_bundle_item": "Invalid bundle component",
-		"bundle_composition_too_small": "A bundle must add up to at least two units — add another component or raise a component's quantity",
+		"bundle_group_too_few": "The choice \"{{group}}\" needs two candidates - with one there is nothing to choose between",
+		"bundle_optional_in_group": "A component inside a choice group is chosen through the group, not on its own",
+		"bundle_default_not_chosen": "Only a component the customer chooses can be preselected",
+		"bundle_delta_not_chosen": "Only a component the customer chooses can carry a price adjustment",
+		"bundle_composition_too_small": "A bundle needs one component with a quantity of 2, or two different components that are always included",
 		"available_until_before_from": "The availability end date must be after the start date",
 		"invalid_unit_for_type": "A {{type}} product cannot be sold per {{unit}}",
 		"invalid_scope": "Invalid attribute scope",
@@ -67,7 +71,8 @@
 		"attribute_value_not_admissible": "The value is not one this attribute admits",
 		"attribute_value_out_of_range": "The value falls outside the range this attribute admits",
 		"bundle_self_reference": "A bundle cannot contain one of its own variants",
-		"bundle_nested": "A bundle cannot contain another bundle"
+		"bundle_nested": "A bundle cannot contain another bundle",
+		"bundle_group_unknown": "A component names a choice group the bundle does not have"
 	},
 	"success": {
 		"create": "Product created successfully",

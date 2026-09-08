@@ -44,8 +44,10 @@ const availabilitiesFormat =
 const optionGroupsFormat =
 	'[{ label_id: number; min_select?: number; max_select?: number; position?: number; options: [{ label_id: number; position?: number; is_default?: boolean; prices: [{ currency: string; price_delta: number }] }] }]';
 
+const bundleGroupsFormat = '[{ label_id: number; position?: number }]';
+
 const bundleItemsFormat =
-	'[{ variant_id: number; quantity?: number; position?: number }]';
+	'[{ variant_id: number; quantity?: number; position?: number; group_label_id?: number; is_optional?: boolean; is_default?: boolean; prices: [{ currency: string; price_delta: number }] }]';
 
 /** Shared by `create` and `update`; only `required` differs between the two. */
 function manageBody(required: boolean) {
@@ -63,7 +65,8 @@ function manageBody(required: boolean) {
 			required: false,
 			values: Object.values(ProductCompositionEnum),
 			default: ProductCompositionEnum.SIMPLE,
-			condition: 'a bundle must add up to at least two units',
+			condition:
+				'a bundle needs two units that are always included - one component at quantity 2, or two components',
 		},
 		unit: {
 			type: 'enum' as const,
@@ -139,12 +142,19 @@ function manageBody(required: boolean) {
 			condition:
 				'cardinality is min_select / max_select alone; deltas are per currency and signed',
 		},
+		bundle_groups: {
+			type: 'array' as const,
+			required: false,
+			format: bundleGroupsFormat,
+			condition:
+				'the choices offered inside a bundle; exactly one candidate is taken, and the candidates are the components naming the group through group_label_id - at least two of them',
+		},
 		bundle_items: {
 			type: 'array' as const,
 			required: false,
 			format: bundleItemsFormat,
 			condition:
-				'the components of a bundle, every one of them always included',
+				'the components of a bundle; is_default and prices are refused on one the customer does not choose, is_optional is refused inside a group, and quantity is a ceiling rather than a count only on an optional one',
 		},
 	};
 }

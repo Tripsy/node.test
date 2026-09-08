@@ -2,7 +2,6 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type ProductCategoryAttributeEntity from '@/features/product/product-category-attribute.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 const ENTITY_TABLE_NAME = 'product_category_attribute_option';
 
@@ -27,16 +26,14 @@ const ENTITY_TABLE_NAME = 'product_category_attribute_option';
 	comment:
 		'One admissible value for a list-backed product category attribute',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
-// The only read: every option for a definition, in offer order. Leading on `attribute_id` also
-// serves the cascade the definition's delete triggers
-@Index(
-	'IDX_product_category_attribute_option_attribute_id',
-	['attribute_id', 'sort_order'],
-	{
-		where: 'deleted_at IS NULL',
-	},
-)
+// Every option for a definition, in offer order. Leading on `attribute_id` also serves the cascade
+// the definition's delete triggers, and `ProductCategoryAttributeRepository.syncOptions`, which
+// reads the same key with `withDeleted` — the reason it carries no `deleted_at IS NULL` predicate,
+// since a partial index answers neither
+@Index('IDX_product_category_attribute_option_attribute_id', [
+	'attribute_id',
+	'sort_order',
+])
 @Index(
 	'IDX_product_category_attribute_option_unique',
 	['attribute_id', 'term_id'],

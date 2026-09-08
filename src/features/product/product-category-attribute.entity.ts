@@ -11,7 +11,6 @@ import type CategoryEntity from '@/features/category/category.entity';
 import type ProductCategoryAttributeOptionEntity from '@/features/product/product-category-attribute-option.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 import type { MeasureUnit } from '@/shared/types/measure-unit.type';
 
@@ -91,7 +90,6 @@ const ENTITY_TABLE_NAME = 'product_category_attribute';
 	comment:
 		'Per-category definition of the attributes a product is expected to carry',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index(
 	'IDX_product_category_attribute_unique',
 	['category_id', 'attribute_label_id'],

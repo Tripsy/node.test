@@ -1,7 +1,6 @@
 import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type ProductEntity from '@/features/product/product.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 const ENTITY_TABLE_NAME = 'product_availability';
 
@@ -29,7 +28,6 @@ const ENTITY_TABLE_NAME = 'product_availability';
 	comment:
 		'Recurring ordering windows for a product; no row at all means unrestricted',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // Resolving "can this be ordered now" reads every window for one product and filters by weekday
 @Index('IDX_product_availability_product_id', ['product_id', 'day_of_week'])
 // ISO 8601 weekdays, the numbering `discount.conditions.day_range` is also written in — one

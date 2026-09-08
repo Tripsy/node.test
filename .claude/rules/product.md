@@ -226,34 +226,93 @@ on its default variant. What it adds is components.
 
 ### 8.1. Structure, and how it mirrors options
 
-A bundle is a **flat list** of `product_bundle_item` rows, every one of them always included:
-`product_id` names the bundle, `variant_id` names what is consumed, `quantity` how much of it.
+A bundle is a **flat list** of `product_bundle_item` rows: `product_id` names the bundle,
+`variant_id` names what is consumed, `quantity` how much of it. `product_bundle_group` sits beside
+that list, not around it — a component names its group through `group_id`, and most components
+name none.
+
+A component is therefore one of **three** things, and the two flags read against `group_id` rather
+than on their own:
+
+| | `group_id` | `is_optional` | What it is |
+|---|---|---|---|
+| 1 | NULL | `false` | Part of the kit. The bundle's headline price covers it. |
+| 2 | NULL | `true` | An independent tick box, bounded only by its own `quantity`. |
+| 3 | set | `false`, and refused otherwise | A **candidate**. The group decides how many are taken. |
+
+Taking a component under 2 or 3 adds `variant.sale_price + price_delta` to the total per unit,
+where the delta is the signed per-currency figure in `product_bundle_item_price`. It is usually
+**negative**: the discount for taking the component inside the kit rather than buying it alone.
+`is_default` preselects one, and inside a group at most one — a partial unique index on
+`(group_id) WHERE is_default AND group_id IS NOT NULL` holds it, scoped so ungrouped tick boxes are
+left alone, since they are not alternatives to each other.
+
+**`quantity` is a ceiling on 2 alone** — the most the customer may take of that tick box — and a
+plain count on 1 and 3. A candidate is not a ceiling: its group decides *which* candidate is taken,
+never how many of it, so the figure is what the bundle contains once that candidate is chosen.
+
+A group is what says **exactly one of these**, which no arrangement of tick boxes can: two optional
+components can both be taken or both left. That is the whole of what it means — it carries **no
+`min_select` / `max_select`**, and this is the one place it deliberately stops mirroring
+`product_option_group`.
+
+⚠️ **Do not add the pair back.** Such a bound counts candidate *rows*, while a bundle is measured
+in **units** — every row carries its own `quantity`. So the one case the pair would
+buy is exactly the case it cannot state: a mixed pack of six drawn from twelve is
+`max_select = 6` over rows whose quantity is 2, which permits twelve bottles. Two columns nothing
+could read correctly are worse than the limit they were meant to lift, and nothing enforces a
+bound at order time anyway. A mixed pack is a bundle product per configuration, or a promotion.
+
+A group needs **two** candidates. With one, "exactly one of these" is a component that is always
+included wearing a prompt — `ProductService.assertBundleGroupsAreUsable` refuses it. And a bundle
+offering "up to 2 desserts and up to 1 coffee" is two ungrouped tick boxes, not a group: those are
+independent limits, not one choice.
 
 | Bundle | Option equivalent | Difference |
 |---|---|---|
 | `product_bundle_item` | `product_option` | The answer is a **variant**, not a `term` |
-| — | `product_option_group` | A bundle asks no question, so it has no groups |
-| — | `product_option_price` | A component carries no delta; the bundle price is the price |
+| `product_bundle_group` | `product_option_group` | Its candidates are components, so the choice decides what leaves stock |
+| — | `product_option_group.min_select` / `max_select` | A bundle choice has no bounds: it takes exactly one, always |
+| `product_bundle_item.quantity` on an optional row | `product_option_group.max_select` | A per-component ceiling in units, where the option bound counts answers |
+| `product_bundle_item_price` | `product_option_price` | The delta adjusts the **component's own** price, not the product's |
 
 The first difference is the whole reason components and options are separate tables rather than one
 with a nullable column: an option's answer is a label with a delta and nothing behind it, while a
 component is a real sellable thing that consumes stock, carries its own VAT class and can be
 refunded on its own. The behaviour at checkout diverges completely.
 
-The other two are a deliberate omission. **A bundle is not customizable**: there is no "choose a
-side", no preselected candidate, no per-component price adjustment. `product_option_group` already
-expresses "ask a question and adjust the price" for any product, bundle included, so what is absent
-is specifically an answer that is itself *another product*.
+The last is what makes the two deltas read differently and must not be "unified". An option's
+delta is the whole of what the answer costs, because there is nothing behind the label. A
+component's delta is an *adjustment* to a price the component already has, so a bundle offering a
+120.00 accessory at −20.00 charges 100.00 for it, not −20.00. **This holds inside a group too**:
+making a candidate free means a delta of its whole standalone price, not a delta of zero.
 
-The intended route to customization, when it is wanted, is **optional components** — a component
-flagged as swappable for a named alternative, priced as the difference between the two. It is not
-built, and nothing here should be shaped to anticipate it.
+A component that is neither optional nor a candidate — case 1 — may carry neither `is_default` nor
+a delta, and a candidate may not carry `is_optional`. `ProductValidator` refuses all three: the
+bundle's own price already covers case 1, so its delta would have nothing to adjust and
+preselecting something the customer cannot untick says nothing, while a candidate claiming to be
+optional on its own terms is a second answer to a question the group already answers.
 
-A bundle must add up to **at least two units** — `SUM(quantity)` over its components — or it is a
-product wearing a bundle's clothes. Counted in units rather than components, so a two-pack (one
-component, `quantity: 2`) qualifies. `ProductService.assertBundleIsComposed` enforces it on write,
-reading the rows back after the sync because an update is partial and a payload that omits
-`bundle_items` leaves the existing ones in place.
+A bundle must add up to **at least two units** — `SUM(quantity)` over the components that are
+**always included**, meaning case 1 alone — or it is a product wearing a bundle's clothes. So one
+component at `quantity: 2` qualifies, and so do two components at one each; one component at one
+does not. Optional components are excluded because every one can be left unticked, and candidates
+because a group guarantees *a* candidate is taken rather than that one, and their quantities may
+differ: a bundle whose whole content is one choice is a single product with a decision attached.
+`ProductService.assertBundleIsComposed` enforces it on write, reading the rows back after the sync
+because an update is partial and a payload that omits `bundle_items` leaves the existing ones in
+place.
+
+One rule spans a group and its candidates, so neither level can hold it and
+`ProductService.assertBundleGroupsAreUsable` reads the pair back after the write: a group must have
+at least two candidates. Fewer and there is nothing to choose between, so the prompt asks a
+question the customer cannot answer.
+
+The payload keeps the same shape as the tables: `bundle_groups` beside `bundle_items`, with a
+component naming its group by `group_label_id` rather than by id, since the group may be created by
+the same request. `ProductService.resolveComponentGroups` turns that label into the row id after
+the groups are synced — which is also where a component naming a group the bundle does not have is
+refused, an update being partial in both directions.
 
 ### 8.2. Worked example — "Burger Menu"
 
@@ -267,6 +326,24 @@ Bundle price **55.00 RON**.
 
 The customer pays 55.00 for the three. A menu with a beer instead of the cola is a **different
 bundle product**, at its own price — not a variation of this one.
+
+Add a dessert as an **optional** component at `quantity: 1` and the menu asks one question.
+Standalone 12.00, delta −4.00: the customer pays 55.00 for the menu alone, or 63.00 with the
+dessert. Raise that row to `quantity: 2` and two desserts may be taken, at 8.00 each. The mandatory
+three still sum to 3 units, so the composition floor holds whether or not the dessert is taken.
+
+**Swapping the fries for a large portion** is a group, not a second tick box. Drop the Fries row
+into a `product_bundle_group` labelled "Choose your fries" and give it a second candidate:
+
+| candidate | standalone | delta | what the customer pays |
+|---|---|---|---|
+| Fries (medium), preselected | 18.00 | −18.00 | 55.00 |
+| Fries (large) | 21.00 | −18.00 | 58.00 |
+
+The delta adjusts the candidate's **own** price, so the preselected one is written at minus its
+whole standalone price to come out free, and the alternative keeps the 3.00 it costs beyond it. Two
+optional rows could not express this: the customer could tick both portions of fries, or neither.
+The mandatory pair — burger and cola — is what now carries the two-unit floor.
 
 A **fixed kit** (gift set) is the same table with more rows.
 
@@ -301,13 +378,19 @@ largest share so the parts sum to the charged total exactly.
 ### 8.4. Excluded on purpose
 
 - **Multi-buy** ("3 for 2", "6-pack") is a promotion, not a composition — use `discount`.
-- **Customer-chosen components** — see §8.1. Options cover "ask a question"; a swappable component
-  is the planned shape, and is not built.
+- **A choice whose answer is not a component.** "Rare or well done" changes nothing that leaves
+  stock, so it is a `product_option_group` on the bundle product, not a `product_bundle_group` —
+  the latter costs a real variant per answer, with a SKU and a VAT class, for something that has
+  neither.
+- **A choice of anything but one.** "Choose 2 sides from 4", "build your own 6-pack" — a bundle
+  choice takes exactly one candidate and carries no bounds; see the warning in §8.1 for why a
+  bound over rows cannot express a pack measured in units. Configure them as separate bundle
+  products.
 - **Nested bundles** are forbidden. A bundle item pointing at another bundle's variant creates a
   cycle no constraint can detect; the service must reject it.
 - **Bundle-level stock** does not exist. Availability is the `min` over the components, and a
   bundle's own variants carry `track_stock = false`. That flag is also what keeps the bundle header
-  out of shipment allocation (§10, invariant 9) — nothing was ever received against the bundle's
+  out of shipment allocation (§10, invariant 10) — nothing was ever received against the bundle's
   variant, so there are no lots to pick from.
 - **`vat_category` on a bundle product** is unused — the components carry their own.
 
@@ -354,27 +437,31 @@ These need the service layer. None of them can be pushed into a constraint.
 2. **A chosen option must belong to a group of the product being ordered.** Nothing stops a line
    citing a pizza crust on a bottle of wine — `options` is jsonb, and even a join table could not
    express the cross-table check.
-3. **`min_select` / `max_select` compliance at checkout.** The bounds are stored; only the service
-   can count what was submitted.
+3. **`min_select` / `max_select` compliance at checkout.** The bounds are stored on
+   `product_option_group`; only the service can count what was submitted. A bundle choice has no
+   bounds to check — exactly one candidate, which the order flow enforces by shape (§8.1).
 4. **The line total.** `price` plus the sum of the option deltas, then quantity, then discounts,
    then VAT — in that order, since discounts apply to prices excluding VAT.
-5. **A bundle adds up to at least two units.** `SUM(product_bundle_item.quantity)` over the bundle
-   has to reach two once `composition = bundle`; a check constraint sees one row at a time.
-6. **No nested bundles**, and no bundle that contains one of its own variants.
-7. **Bundle apportionment reconciles to the charged total**, remainder to the largest share (§8.3).
-8. **Shipment allocation must not exceed what was ordered.** The sum of
+5. **A bundle adds up to at least two units.** `SUM(product_bundle_item.quantity)` over the bundle's
+   components that are *not* `is_optional` and belong to no group has to reach two once
+   `composition = bundle`; a check constraint sees one row at a time.
+6. **A bundle choice offers at least two candidates.** It takes exactly one, so a group of one is a
+   component wearing a prompt; the count spans two tables, so only the service can take it.
+7. **No nested bundles**, and no bundle that contains one of its own variants.
+8. **Bundle apportionment reconciles to the charged total**, remainder to the largest share (§8.3).
+9. **Shipment allocation must not exceed what was ordered.** The sum of
    `order_shipping_product.quantity` across every shipment of one `order_product` has to stay
    within that line's `quantity`. Nothing stops shipping 15 of an ordered 14 — and with stock
    tracking on, the surplus consumes real lots.
-9. **A bundle is shipped by its children, never its header.** `order_shipping_product` points at
+10. **A bundle is shipped by its children, never its header.** `order_shipping_product` points at
    `order_product`, and for a bundle the header line carries no variant worth picking — the
    component lines hold the real, stockable variants. Allocating the header would leave the stock
    movement with nothing to consume.
 
-10. **A list-backed attribute definition has at least one option**, and a recorded `value_term_id`
+11. **A list-backed attribute definition has at least one option**, and a recorded `value_term_id`
     is one of them. `value_type = 'term'` implies rows in `product_category_attribute_option`, which
     a row-level check cannot count; the admissible-value check spans three tables (§12).
-11. **`value_base` agrees with `value_numeric` and the definition's `unit`.** The check ties the two
+12. **`value_base` agrees with `value_numeric` and the definition's `unit`.** The check ties the two
     columns' nullability together, but nothing verifies the arithmetic — only the service applying
     `toBaseUnit` on every write does. Changing a definition's `unit` therefore has to rewrite every
     value already recorded under it, or the stored base figures describe a quantity the form no
@@ -519,18 +606,27 @@ label, because a filter always names one, and both carry the owning id so the sc
 index alone. The pre-existing `IDX_product_attribute_attribute_value_id` cannot serve either — it
 leads on the value — and stays only for the cascade `term` triggers on delete.
 
-Combine facets with **one indexed subquery per facet, `INTERSECT`ed**. A single `OR`-of-`AND`s
-cannot use a composite index leading on the label and degrades to a sequential scan:
+Combine facets with **one indexed subquery per facet**, each narrowing the product set on its own.
+A single `OR`-of-`AND`s cannot use a composite index leading on the label and degrades to a
+sequential scan. `ProductService.applyFacets` emits one `IN` subquery per facet, `AND`ed by the
+query builder:
 
 ```sql
-SELECT product_id FROM product_attribute
- WHERE attribute_label_id = :volume AND value_numeric BETWEEN 300 AND 600
-   AND deleted_at IS NULL
-INTERSECT
-SELECT product_id FROM product_attribute
- WHERE attribute_label_id = :colour AND value_term_id = ANY(:colours)
-   AND deleted_at IS NULL;
+  product.id IN (
+    SELECT product_id FROM product_attribute
+     WHERE attribute_label_id = :volume AND value_base BETWEEN 300 AND 600
+       AND deleted_at IS NULL
+  )
+AND product.id IN (
+    SELECT product_id FROM product_attribute
+     WHERE attribute_label_id = :colour AND value_term_id = ANY(:colours)
+       AND deleted_at IS NULL
+  )
 ```
+
+**The range compares `value_base`, never `value_numeric`** — that is the column the facet index
+carries (§12.2), so a filter written against `value_numeric` matches no index and scans. The
+payload's figures are converted through the definition's unit before they reach the query.
 
 `is_filterable` governs which facets the storefront offers. The indexes cover every row regardless,
 so it is a product decision, not a performance one.
@@ -589,6 +685,9 @@ which the backend would refuse.
 - **Recipes / bill of materials** — a prepared item consumes ingredients, so depleting stock needs a
   `product_component` layer. Ingredients would be variants with `track_stock = true` that the dish
   consumes; the dish itself stays untracked. Only worth building once the `grn` behaviour exists.
-- **Full-text search** — `ProductQuery.filterByTerm` will ILIKE across `product_content.label` and
-  `description`, which no btree can serve. The GIN expression index belongs in a hand-written
-  migration and **must not** be added to the entity; see `1786415990000-search-indexes.ts`.
+
+Full-text search was on this list and has since shipped: `ProductQuery.filterByTerm` runs a
+`to_tsvector` match over `product_content`, backed by the GIN index in
+`1788300000000-product-content-search.ts`, with a `lower(sku) LIKE` prefix branch over the variant
+codes beside it. Both expressions must stay character-identical to their indexes — see that
+migration and the repository's own JSDoc.

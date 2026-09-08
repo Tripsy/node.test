@@ -18,6 +18,7 @@ import type { ProductValidator } from '@/features/product/product.validator';
 import { ProductAttributeRepository } from '@/features/product/product-attribute.repository';
 import { ProductAvailabilityRepository } from '@/features/product/product-availability.repository';
 import { ProductBundleRepository } from '@/features/product/product-bundle.repository';
+import ProductBundleGroupEntity from '@/features/product/product-bundle-group.entity';
 import ProductBundleItemEntity from '@/features/product/product-bundle-item.entity';
 import { ProductCategoryRepository } from '@/features/product/product-category.repository';
 import {
@@ -100,6 +101,9 @@ describe('ProductService', () => {
 			undefined,
 		);
 		jest.spyOn(ProductBundleRepository, 'syncItems').mockResolvedValue(
+			undefined,
+		);
+		jest.spyOn(ProductBundleRepository, 'syncGroups').mockResolvedValue(
 			undefined,
 		);
 		jest.spyOn(
@@ -561,6 +565,8 @@ describe('ProductService', () => {
 			const builder = {
 				select: jest.fn(() => builder),
 				where: jest.fn(() => builder),
+				// Typed with the clause it is called with, so a test can assert the narrowing
+				andWhere: jest.fn((_clause: string) => builder),
 				getRawOne: jest.fn(async () => ({ total: '2' })),
 			};
 
@@ -701,12 +707,15 @@ describe('ProductService', () => {
 	describe('composition', () => {
 		/**
 		 * A repository whose `createQueryBuilder` chain answers one `SUM`, which is how the
-		 * composition check reads a bundle's size.
+		 * composition check reads a bundle's size. `andWhere` is part of the chain because that
+		 * check narrows to the components that are always included.
 		 */
 		function sumRepository(total: number) {
 			const builder = {
 				select: jest.fn(() => builder),
 				where: jest.fn(() => builder),
+				// Typed with the clause it is called with, so a test can assert the narrowing
+				andWhere: jest.fn((_clause: string) => builder),
 				getRawOne: jest.fn(async () => ({ total: String(total) })),
 			};
 
@@ -716,15 +725,42 @@ describe('ProductService', () => {
 		/**
 		 * Arranges a bundle write. `componentProduct` is what the referenced variant belongs
 		 * to, which is what the nesting check reads; `includedUnits` is the figure the
-		 * composition check sums — the quantities of the components.
+		 * composition check sums — the quantities of the components that are always included.
 		 *
 		 * It defaults to a bundle that is already large enough, so a test about something else
 		 * does not trip the size rule.
 		 */
+		/**
+		 * The groups `assertBundleGroupsAreUsable` reads back, and `resolveComponentGroups`
+		 * resolves a component's label against. Each is given the candidate count the assertion
+		 * counts, since the rows themselves are only ever read for that.
+		 */
+		function groupRepository(
+			groups: {
+				id: number;
+				label_id: number;
+				candidates: number;
+			}[],
+		) {
+			return {
+				find: jest.fn(async () =>
+					groups.map((group) => ({
+						id: group.id,
+						label_id: group.label_id,
+						label: { contents: [{ value: 'Choose your fries' }] },
+						items: Array.from({ length: group.candidates }, () => ({
+							deleted_at: null,
+						})),
+					})),
+				),
+			};
+		}
+
 		function arrangeBundle(options: {
 			componentProduct?: Partial<ProductEntity>;
 			componentProductId?: number;
 			includedUnits?: number;
+			groups?: Parameters<typeof groupRepository>[0];
 		}) {
 			const entity = getProductEntityMock();
 
@@ -748,6 +784,10 @@ describe('ProductService', () => {
 				new Map<unknown, unknown>([
 					[ProductVariantEntity, variantRepository],
 					[ProductBundleItemEntity, bundleItemRepository],
+					[
+						ProductBundleGroupEntity,
+						groupRepository(options.groups ?? []),
+					],
 				]),
 			);
 
@@ -812,7 +852,8 @@ describe('ProductService', () => {
 		/*
 		 * A bundle has to be more than one thing, or it is a product wearing a bundle's
 		 * clothes. Counted in units the customer receives, which is what makes one component
-		 * taken twice a bundle and one taken once not.
+		 * taken twice a bundle and one taken once not — and counted over the components that
+		 * are always included, since every optional one can be left unticked.
 		 */
 		it.each([
 			['no components at all', 0],
@@ -843,6 +884,28 @@ describe('ProductService', () => {
 			expect(ProductBundleRepository.syncItems).toHaveBeenCalled();
 		});
 
+		it('rejects a bundle whose mandatory components fall short, however many it offers', async () => {
+			const { entity } = arrangeBundle({ includedUnits: 1 });
+
+			await expect(
+				service.updateDataWithContent(entity, {
+					id: entity.id,
+					...bundlePayload,
+				} as never),
+			).rejects.toMatchObject({ statusCode: 422 });
+		});
+
+		it('accepts optional components on top of a bundle that already stands alone', async () => {
+			const { entity } = arrangeBundle({ includedUnits: 2 });
+
+			await service.updateDataWithContent(entity, {
+				id: entity.id,
+				...bundlePayload,
+			} as never);
+
+			expect(ProductBundleRepository.syncItems).toHaveBeenCalled();
+		});
+
 		/*
 		 * Switching back is how a bundle is unmade. Rows nothing reads would still name
 		 * variants whose delete they then block through the RESTRICT foreign key.
@@ -860,6 +923,145 @@ describe('ProductService', () => {
 				entity.id,
 				[],
 			);
+			expect(ProductBundleRepository.syncGroups).toHaveBeenCalledWith(
+				expect.anything(),
+				entity.id,
+				[],
+			);
+		});
+
+		describe('choice groups', () => {
+			const groupPayload = {
+				composition: ProductCompositionEnum.BUNDLE,
+				bundle_groups: [{ label_id: 41, position: 0 }],
+				bundle_items: [{ variant_id: 3, group_label_id: 41 }],
+			};
+
+			/*
+			 * The payload names the group by its label because the group may be created by the
+			 * same request; the column holds a row id, and only the rows live after the group
+			 * sync can bridge the two.
+			 */
+			it('resolves a component label to the group row id', async () => {
+				const { entity } = arrangeBundle({
+					groups: [
+						{
+							id: 7,
+							label_id: 41,
+							candidates: 2,
+						},
+					],
+				});
+
+				await service.updateDataWithContent(entity, {
+					id: entity.id,
+					...groupPayload,
+				} as never);
+
+				expect(ProductBundleRepository.syncItems).toHaveBeenCalledWith(
+					expect.anything(),
+					entity.id,
+					[expect.objectContaining({ variant_id: 3, group_id: 7 })],
+				);
+			});
+
+			it('leaves a component outside every group as group_id null', async () => {
+				const { entity } = arrangeBundle({});
+
+				await service.updateDataWithContent(entity, {
+					id: entity.id,
+					...bundlePayload,
+				} as never);
+
+				expect(ProductBundleRepository.syncItems).toHaveBeenCalledWith(
+					expect.anything(),
+					entity.id,
+					[expect.objectContaining({ group_id: null })],
+				);
+			});
+
+			// The group it names may have been removed by this very request
+			it('rejects a component naming a group the bundle does not have', async () => {
+				const { entity } = arrangeBundle({ groups: [] });
+
+				await expect(
+					service.updateDataWithContent(entity, {
+						id: entity.id,
+						...groupPayload,
+					} as never),
+				).rejects.toMatchObject({ statusCode: 422 });
+			});
+
+			// A question with no answers; the bundle could not be ordered
+			it('rejects a group left with no candidates', async () => {
+				const { entity } = arrangeBundle({
+					groups: [
+						{
+							id: 7,
+							label_id: 41,
+							candidates: 0,
+						},
+					],
+				});
+
+				await expect(
+					service.updateDataWithContent(entity, {
+						id: entity.id,
+						...groupPayload,
+					} as never),
+				).rejects.toMatchObject({ statusCode: 422 });
+			});
+
+			/*
+			 * The floor has to hold for the least the customer can walk away with. A group
+			 * guarantees *a* candidate is taken, not that one, and their quantities may differ,
+			 * so a bundle whose whole content is one choice is a single product with a decision
+			 * attached.
+			 */
+			it('leaves candidates out of the two-unit floor', async () => {
+				const { entity, bundleItemRepository } = arrangeBundle({
+					groups: [
+						{
+							id: 7,
+							label_id: 41,
+							candidates: 2,
+						},
+					],
+				});
+
+				await service.updateDataWithContent(entity, {
+					id: entity.id,
+					...groupPayload,
+				} as never);
+
+				expect(
+					bundleItemRepository.builder.andWhere,
+				).toHaveBeenCalledWith('item.group_id IS NULL');
+			});
+
+			/*
+			 * A group takes exactly one of its candidates, so one candidate is not an
+			 * alternative to anything - it is a component that is always included wearing a
+			 * prompt.
+			 */
+			it('rejects a group left with a single candidate', async () => {
+				const { entity } = arrangeBundle({
+					groups: [
+						{
+							id: 7,
+							label_id: 41,
+							candidates: 1,
+						},
+					],
+				});
+
+				await expect(
+					service.updateDataWithContent(entity, {
+						id: entity.id,
+						...groupPayload,
+					} as never),
+				).rejects.toMatchObject({ statusCode: 422 });
+			});
 		});
 	});
 
