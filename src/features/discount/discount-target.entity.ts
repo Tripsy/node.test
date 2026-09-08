@@ -5,7 +5,6 @@ import type {
 	DiscountScopeEnum,
 } from '@/features/discount/discount.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 /**
  * What a target row points at — every discount scope except `order`, which applies to the
@@ -65,7 +64,6 @@ const ENTITY_TABLE_NAME = 'discount_target';
 	comment:
 		'What a discount applies to; polymorphic by target_type, the window and conditions stay on the discount',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index(
 	'IDX_discount_target_unique',
 	['discount_id', 'target_type', 'entity_id'],

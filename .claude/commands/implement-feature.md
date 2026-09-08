@@ -48,10 +48,12 @@ check the entity covers them:
 - **Public reads** — the target lookup (`entity_type, entity_id, …, created_at`).
 - **Moderation queues** — partial (`where: "status = 'pending'"`) when the table is dominated by
   rows that have left that state.
-- **Soft-deletable tables** — `@SoftDeleteIndex(ENTITY_TABLE_NAME)`, and every other partial index
-  on such a table repeats `AND deleted_at IS NULL` or it silently matches deleted rows.
+- **Soft-deletable tables** — never an index on `deleted_at` itself (see `rules/database.md` §2.3),
+  but every *other* partial index on such a table repeats `AND deleted_at IS NULL` or it silently
+  matches deleted rows.
 - **Foreign keys** — Postgres does not index the referencing side. An unindexed FK turns every
-  parent delete into a sequential scan of the child table.
+  parent delete into a sequential scan of the child table. Keep it **non-partial** when a `sync*`
+  reads that key with `withDeleted`, which a partial index cannot answer.
 - **Uniqueness that is really a business rule** — one review per user per product, one rating per
   address — belongs in a unique index, not only in a service check, which races.
 

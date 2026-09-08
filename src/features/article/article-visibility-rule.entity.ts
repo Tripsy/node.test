@@ -1,7 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import type ArticleEntity from '@/features/article/article.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 const ENTITY_TABLE_NAME = 'article_visibility_rule';
 
@@ -10,7 +9,6 @@ const ENTITY_TABLE_NAME = 'article_visibility_rule';
 	schema: 'public',
 	comment: 'Visibility rules for articles with restricted visibility',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // No partial unique index on article_id here: the OneToOne owner already emits a plain UNIQUE
 // constraint, which is not scoped to `deleted_at IS NULL`. A soft-deleted rule therefore keeps
 // its slot — the service restores and updates the existing row instead of inserting a second one

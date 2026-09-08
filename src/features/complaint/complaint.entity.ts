@@ -1,7 +1,6 @@
 import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type UserEntity from '@/features/user/user.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 export const ComplaintEntityTypeEnum = {
 	ARTICLE: 'article',
@@ -40,7 +39,6 @@ const ENTITY_TABLE_NAME = 'complaint';
 	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // One complaint per user per target. Scoped to live rows, so a withdrawn complaint can be filed again.
 @Index('UQ_complaint_user', ['entity_type', 'entity_id', 'user_id'], {
 	unique: true,

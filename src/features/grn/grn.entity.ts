@@ -10,7 +10,6 @@ import type GrnItemEntity from '@/features/grn/grn-item.entity';
 import type VendorEntity from '@/features/vendor/vendor.entity';
 import type WarehouseEntity from '@/features/warehouse/warehouse.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
@@ -57,7 +56,6 @@ const ENTITY_TABLE_NAME = 'grn';
 	comment:
 		'Goods received notes; the only way stock enters a warehouse, and the source of every FIFO lot',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_grn_ref', ['ref_code', 'ref_number'], {
 	unique: true,
 	where: 'deleted_at IS NULL',

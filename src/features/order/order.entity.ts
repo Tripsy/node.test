@@ -9,7 +9,6 @@ import {
 import type ClientEntity from '@/features/client/client.entity';
 import type OrderProductEntity from '@/features/order/order-product.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 export const OrderStatusEnum = {
 	DRAFT: 'draft',
@@ -36,7 +35,6 @@ const ENTITY_TABLE_NAME = 'order';
 	schema: 'public',
 	comment: 'Stores order information',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // Series plus sequential number, matching `invoice` and `grn` — one numbering scheme across every
 // document the business issues
 @Index('IDX_order_ref', ['ref_code', 'ref_number'], {

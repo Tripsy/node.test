@@ -2,7 +2,6 @@ import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type ProductEntity from '@/features/product/product.entity';
 import type UserEntity from '@/features/user/user.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
@@ -66,7 +65,6 @@ const ENTITY_TABLE_NAME = 'review';
 	schema: 'public',
 	comment: 'Stores product reviews',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_review_product', ['product_id', 'status', 'created_at'])
 // Product average and the "4 stars and up" filter, both of which read only public rows.
 @Index('IDX_review_product_rating', ['product_id', 'rating_avg'], {

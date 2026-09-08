@@ -16,7 +16,6 @@ import {
 import OperationalRecordEntity from '@/features/cash-flow/operational-record.entity';
 import { arrayHasValue } from '@/helpers/objects.helper';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
@@ -224,7 +223,6 @@ export const GROSS_AMOUNT_BASE_CURRENCY_EXPRESSION = (alias: string) => `
 	schema: 'public',
 	comment: 'Tracks cash flows.',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_cash_flow_created_at', ['created_at'])
 // No `category_type` equivalent: it is derived from `category` (see `getExpectedCategoryType`
 // and the direction/amount @Check), so an index on it would duplicate this one

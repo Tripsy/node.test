@@ -12,7 +12,6 @@ import type OrderEntity from '@/features/order/order.entity';
 import type { ProductOptionSnapshot } from '@/features/product/product-option.entity';
 import type ProductVariantEntity from '@/features/product/product-variant.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 const ENTITY_TABLE_NAME = 'order_product';
@@ -22,7 +21,6 @@ const ENTITY_TABLE_NAME = 'order_product';
 	schema: 'public',
 	comment: 'Stores ordered products (order line items)',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Check(`(quantity > 0)`)
 // Zero is legal: a bundle header line carries no money of its own, the component lines it explodes
 // into carry all of it

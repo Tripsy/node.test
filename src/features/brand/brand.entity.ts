@@ -1,7 +1,6 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import type BrandContentEntity from '@/features/brand/brand-content.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const BrandStatusEnum = {
@@ -30,7 +29,6 @@ const ENTITY_TABLE_NAME = 'brand';
 	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_brand_slug', ['slug', 'brand_type'], {
 	unique: true,
 	where: 'deleted_at IS NULL',

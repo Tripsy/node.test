@@ -4,7 +4,6 @@ import type { DiscountSnapshot } from '@/features/discount/discount.entity';
 import type OrderEntity from '@/features/order/order.entity';
 import type WarehouseEntity from '@/features/warehouse/warehouse.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 export const ShippingStatusEnum = {
@@ -26,7 +25,6 @@ const ENTITY_TABLE_NAME = 'order_shipping';
 	schema: 'public',
 	comment: 'Stores shipping details for orders',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 export default class OrderShippingEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;

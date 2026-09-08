@@ -2,7 +2,6 @@ import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type GrnEntity from '@/features/grn/grn.entity';
 import type ProductVariantEntity from '@/features/product/product-variant.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 const ENTITY_TABLE_NAME = 'grn_item';
@@ -32,7 +31,6 @@ const ENTITY_TABLE_NAME = 'grn_item';
 	comment:
 		'Received lines; each is a FIFO lot, and qty_remaining is the authoritative on-hand figure',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // One line per variant per receipt. A delivery that physically contains two lots of the same
 // variant — an old production run and a new one at a different cost, or two expiry dates — is
 // entered as two receipts, so the document and the lot stay one-to-one

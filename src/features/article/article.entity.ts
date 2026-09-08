@@ -13,7 +13,6 @@ import type ArticleTagEntity from '@/features/article/article-tag.entity';
 import type ArticleVisibilityRuleEntity from '@/features/article/article-visibility-rule.entity';
 import type UserEntity from '@/features/user/user.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const ArticleStatusEnum = {
@@ -189,7 +188,6 @@ const ENTITY_TABLE_NAME = 'article';
 	comment:
 		'Stores core article information; textual content is saved in article-content.entity',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // The public listing is "published, already released, newest first", and the scheduler asks the
 // same shape ("scheduled with publish_at due"). Leftmost on status, so a status-only filter is
 // covered too

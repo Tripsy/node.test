@@ -1,7 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type AddressEntity from '@/features/address/address.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const WarehouseStatusEnum = {
@@ -33,7 +32,6 @@ const ENTITY_TABLE_NAME = 'warehouse';
 	comment:
 		'Locations stock is held in, and the origin goods are shipped from — including for products that are not stock-tracked',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // At most one default. Partial rather than a check constraint, because the rule is about the set
 // of rows rather than any single one
 @Index('IDX_warehouse_default', ['is_default'], {

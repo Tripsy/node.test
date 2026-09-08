@@ -61,6 +61,31 @@ provides `id`, `created_at`, `updated_at` and `deleted_at`. Do not redeclare the
   code alone; `cash-flow.entity.ts` is the reference (`@Check('(amount > 0)')` plus a direction/amount
   consistency check).
 
+### 2.3. Don't index `deleted_at`
+
+**A soft-deletable table gets no index on `deleted_at`.** Every entity used to carry
+`(deleted_at) WHERE deleted_at IS NULL` via a `@SoftDeleteIndex` decorator, and
+`1789900000000-drop-soft-delete-indexes.ts` removed all 47 of them.
+
+The predicate keeps every live row, and a soft delete here is a person removing a record — so the
+index holds all but a rounding error of the table and gives the planner nothing to narrow with.
+Measured at 500k rows with 2% deleted, it was chosen by none of the shapes this codebase issues
+(selective equality + `deleted_at IS NULL`, skewed enum + the same, paginated `ORDER BY id DESC
+LIMIT`, and the `COUNT(*)` behind pagination) — `deleted_at` is applied as a filter over a plan
+picked for the other predicate. It cost one extra buffer touch per row inserted.
+
+Two things to know before reintroducing one:
+
+- **It looks used on a small database.** Under a few hundred rows the planner `BitmapAnd`s it
+  against the selective index because every estimate is a rounding error there. A high `idx_scan`
+  counter in dev is an artifact of the row count, not evidence.
+- **It earns its place only once soft-deleted rows dominate the table** — at 81% deleted it was
+  chosen outright, the predicate having turned selective. Reach for a purge before an index, and
+  if you do add one, add it to that one table on measurement rather than as a default.
+
+What *does* need an index is the parent key of any table whose `sync*` reads with `withDeleted`,
+and it must be **non-partial** — see §3.1 and `1789600000000-product-sync-read-indexes.ts`.
+
 ## 3. Repository & Query Layer
 
 This is Express + TypeORM with plain module singletons — there is no DI container, so no `@Injectable()`
