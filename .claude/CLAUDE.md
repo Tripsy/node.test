@@ -45,7 +45,6 @@ context yet. Read the relevant one *before* proposing an approach in that area, 
   implementing. If the approach has gaps, edge cases, or a better alternative exists, flag it.
 - When the user describes a fix or approach, cross-check it against the actual codebase before
   writing code.
-- Path alias `@/*` maps to `src/*` (see `tsconfig.json`). Use it consistently in imports.
 - Import helpers by file — `@/helpers/date.helper`, not `@/helpers`. There is no helpers barrel and
   none is planned; the one that existed was removed so the module graph stays explicit.
 - Follow existing code conventions used in the project. When creating or editing a file, check
@@ -90,11 +89,6 @@ writes `<project>/logs/dev.log` (gitignored, readable from the host). Use it ins
 Run inside the container (`docker exec $DOCKER_CONTAINER ...`):
 
 ```bash
-pnpm run dev                # nodemon -> tsx ./src/server.ts
-pnpm run build              # production build -> dist/src (tsc + tsc-alias + asset copy)
-pnpm run start              # run the build from dist/ (APP_ENV=production)
-pnpm run typecheck          # tsc --noEmit
-pnpm run biome              # biome check --write (lint + format + imports + import cycles)
 pnpm run messages:check     # fail on any lang() key with no locale entry
 pnpm run manifests:check    # fail on a broken feature manifest graph (missing/unsatisfiable
                             # depends_on, dependency cycles, stale required_by)
@@ -263,15 +257,6 @@ Protected routes require `Authorization: Bearer {accessToken}`.
 - **`src/shared/`** — `abstracts/` (base controller, repository, entity, service helpers, policy,
   subscriber, validator), shared `cron-jobs/`, `listeners/`, `decorators/`, `locales/`, `types/`
   (including `express.d.ts` augmenting `res.locals`).
-
-### Repository query builder
-
-`RepositoryAbstract` wraps TypeORM's `SelectQueryBuilder` with a fluent, safe API: `select`,
-`filterBy(column, value, operator)`, `filterById`, `filterByStatus`, `filterByRange`, `filterAny`,
-`filterRaw`, `join`/`joinAndSelect`, `orderBy`, `groupBy`, `pagination`, `withDeleted`, and
-terminals `first`/`firstOrFail`/`all`/`count`/`delete`/`restore`. `delete`/`restore` refuse to run
-without an `_id`/`id` filter unless `force: true` (guard against mass mutation); soft-delete is the
-default.
 
 ## Notes
 
