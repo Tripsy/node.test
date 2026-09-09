@@ -1,0 +1,29 @@
+{
+	"validation": {
+		"invalid_product_id": "Invalid product",
+		"invalid_variant_id": "Invalid product variant",
+		"invalid_rating": "Each score must be a whole number between 1 and 5",
+		"invalid_rating_empty": "Score at least one of quality, price, service or delivery",
+		"invalid_rating_from": "Invalid minimum rating",
+		"invalid_content": "The review must be between 10 and 5000 characters",
+		"invalid_moderation_reason": "The moderation reason must be at most 255 characters",
+		"invalid_is_pinned": "Invalid pinned value",
+		"invalid_is_verified": "Invalid verified buyer value",
+		"invalid_term": "Invalid search term"
+	},
+	"error": {
+		"not_found": "Review not found",
+		"already_reviewed": "You have already reviewed this product",
+		"invalid_variant": "The selected variant does not belong to this product",
+		"not_editable": "A review can no longer be edited once a moderator has acted on it",
+		"not_withdrawable": "A review can no longer be withdrawn once a moderator has acted on it",
+		"rating_empty": "A review must carry at least one score"
+	},
+	"success": {
+		"create": "Review submitted successfully and is awaiting moderation",
+		"update": "Review updated successfully",
+		"delete": "Review removed successfully",
+		"restore": "Review restored successfully",
+		"status_update": "Review status updated successfully"
+	}
+}

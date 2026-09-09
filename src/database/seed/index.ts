@@ -16,6 +16,7 @@ import { imageSeed } from '@/features/image/database/image.seed';
 import { placeSeed } from '@/features/place/database/place.seed';
 import { productSeed } from '@/features/product/database/product.seed';
 import { ratingSeed } from '@/features/rating/database/rating.seed';
+import { reviewSeed } from '@/features/review/database/review.seed';
 import { termSeed } from '@/features/term/database/term.seed';
 import { userSeed } from '@/features/user/database/user.seed';
 import { vendorSeed } from '@/features/vendor/database/vendor.seed';
@@ -54,6 +55,8 @@ const seeds: readonly SeedDefinition[] = [
 	imageSeed,
 	// Reads article and user ids
 	ratingSeed,
+	// Reads product, product variant and user ids
+	reviewSeed,
 	// Reads article and user ids; replies are inserted after the roots they hang from
 	commentSeed,
 	// Reads article, comment and user ids

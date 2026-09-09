@@ -13,8 +13,13 @@ import type UserEntity from '@/features/user/user.entity';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 /**
- * What a comment can hang from. A product is absent on purpose: what a buyer writes about a
- * product is a `review`, and a comment reaches it by targeting that review.
+ * What a comment can hang from. `article` is the only one in use: a product is not a target, and
+ * neither is a review - a review is one buyer's statement about a product, moderated and scored on
+ * its own, not a thread other readers reply to.
+ *
+ * `review` stays in the enum because dropping a value from a Postgres enum means recreating the
+ * type, and nothing writes it. Reading it as available is a mistake: the storefront renders no
+ * comment section on a review, and no feature registers a participation resolver for one.
  */
 export const CommentEntityTypeEnum = {
 	ARTICLE: 'article',
@@ -23,6 +28,19 @@ export const CommentEntityTypeEnum = {
 
 export type CommentEntityType =
 	(typeof CommentEntityTypeEnum)[keyof typeof CommentEntityTypeEnum];
+
+/**
+ * The targets a *new* comment may name. Narrower than the enum above, which stays as the column's
+ * full domain - reads, filters and any row already written keep working against it - while a write
+ * is refused for anything not listed here.
+ *
+ * Without this the public `create` would accept `review` and store a comment nobody can reach:
+ * `entity_type`/`entity_id` carries no foreign key, and no participation resolver answers for a
+ * review, so an unreachable id is not caught anywhere else either.
+ */
+export const CommentWritableEntityTypeEnum = {
+	ARTICLE: CommentEntityTypeEnum.ARTICLE,
+} as const;
 
 export const CommentStatusEnum = {
 	PENDING: 'pending', // Awaiting moderation
@@ -77,8 +95,8 @@ const ENTITY_TABLE_NAME = 'comment';
  * and clears them, along with the parent's `reply_count`, in the same transaction which performs
  * the `delete` operation.
  *
- * The target (`entity_type` + `entity_id`) has no foreign key either, so an article or review that
- * goes away leaves its comments behind for the same service call, or for the orphan sweep.
+ * The target (`entity_type` + `entity_id`) has no foreign key either, so an article that goes away
+ * leaves its comments behind for the same service call, or for the orphan sweep.
  */
 @Entity({
 	name: ENTITY_TABLE_NAME,

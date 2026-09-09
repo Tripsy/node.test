@@ -407,8 +407,8 @@ export class CommentService {
 
 	/**
 	 * Comments left behind by a target that no longer exists. `(entity_type, entity_id)` carries no
-	 * foreign key, so nothing removes them when an article or a review goes away - whoever deletes
-	 * the target calls this.
+	 * foreign key, so nothing removes them when the target goes away - whoever deletes it calls
+	 * this.
 	 *
 	 * Roots only: their descendants follow through the cascade, and deleting a reply whose parent is
 	 * in the same sweep would only move a counter that is about to be removed.

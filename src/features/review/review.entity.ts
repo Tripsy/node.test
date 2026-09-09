@@ -1,5 +1,7 @@
 import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import type OrderEntity from '@/features/order/order.entity';
 import type ProductEntity from '@/features/product/product.entity';
+import type ProductVariantEntity from '@/features/product/product-variant.entity';
 import type UserEntity from '@/features/user/user.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
@@ -76,7 +78,20 @@ const ENTITY_TABLE_NAME = 'review';
 	where: `status = 'pending' AND deleted_at IS NULL`,
 })
 @Index('IDX_review_user_status', ['user_id', 'status'])
-// One review per user per product; a withdrawn review leaves the slot free for a new one.
+// The referencing side of `order_id`, which Postgres does not index on its own - without it every
+// hard delete of an order scans this table. Partial because the column is null on most rows until
+// the wiring in TODO.md item 8 exists, and a lookup by order implies the predicate anyway.
+@Index('IDX_review_order', ['order_id'], {
+	where: 'order_id IS NOT NULL',
+})
+// Listing filtered to one variant - "reviews for the 32 cm", the size the storefront is showing.
+// Partial: rows with no variant named cannot answer that question, and only public rows are listed.
+@Index('IDX_review_variant', ['variant_id', 'created_at'], {
+	where: `variant_id IS NOT NULL AND status = 'approved' AND deleted_at IS NULL`,
+})
+// One review per user per *product*, not per variant: a shirt bought in two sizes is still one
+// opinion, and a per-variant slot would let the same person score the same product four times.
+// A withdrawn review leaves the slot free for a new one.
 @Index('UQ_review_user', ['product_id', 'user_id'], {
 	unique: true,
 	where: 'deleted_at IS NULL',
@@ -115,6 +130,43 @@ export default class ReviewEntity extends EntityAbstract {
 		nullable: false,
 	})
 	product_id!: number;
+
+	/**
+	 * The variant the review is *about* - the 32 cm Margherita, the black M shirt - kept because
+	 * that is what the reviewer actually received: a complaint about the fit belongs to a size, and
+	 * a storefront showing one variant can narrow the list to it.
+	 *
+	 * The review itself stays product-level - `UQ_review_user` and the product average both count
+	 * per product - so this only records which sibling was bought, it does not divide the reviews
+	 * into separate conversations.
+	 *
+	 * Nullable, and expected to be null often: a review written from a product page, an import, or
+	 * a purchase whose variant has since been replaced names none. Read it as "which one, if the
+	 * answer is known".
+	 */
+	@Column({
+		type: 'int',
+		nullable: true,
+	})
+	variant_id?: number | null;
+
+	/**
+	 * The order the reviewed purchase was made on, when it is known.
+	 *
+	 * Nothing writes it yet - `ReviewService.create` has no way to reach the buyer's orders, since
+	 * a review names a `user` and an order names a `client` with no column joining the two (see
+	 * TODO.md item 8, which covers this and `is_verified` together). The column is here so the
+	 * provenance has somewhere to land the day that link exists, and so a review written against
+	 * an order can be told from one written from the product page.
+	 *
+	 * Nullable permanently, not only until then: a review written from a product page, an import,
+	 * or a purchase made off-platform has no order to name.
+	 */
+	@Column({
+		type: 'int',
+		nullable: true,
+	})
+	order_id?: number | null;
 
 	@Column({
 		type: 'jsonb',
@@ -169,13 +221,6 @@ export default class ReviewEntity extends EntityAbstract {
 	})
 	user_id!: number;
 
-	// Replies are comments targeting this review; the count moves with them.
-	@Column({
-		type: 'int',
-		default: 0,
-	})
-	reply_count!: number;
-
 	// Flags
 	@Column({
 		type: 'boolean',
@@ -217,6 +262,55 @@ export default class ReviewEntity extends EntityAbstract {
 	})
 	@JoinColumn({ name: 'product_id' })
 	product?: ProductEntity;
+
+	/**
+	 * Composite over both columns at once, pointing at `product_variant (id, product_id)` - the
+	 * pair has to exist together on one variant row, so a review cannot name a variant belonging to
+	 * a different product. Postgres skips a MATCH SIMPLE composite key when any of its columns is
+	 * null, which is what leaves `variant_id` free to stay unset.
+	 *
+	 * CASCADE rather than the RESTRICT `order_product` carries: an order line is a financial record
+	 * that has to outlive the catalog, a review is not, and `product_id` above already cascades -
+	 * so a deleted product takes its reviews with it either way. RESTRICT here would additionally
+	 * deadlock that delete, since dropping a product cascades into its variants while the reviews
+	 * still cite them. Variants are soft-deleted in normal use, so this fires only on a real purge.
+	 */
+	@ManyToOne('ProductVariantEntity', {
+		onDelete: 'CASCADE',
+	})
+	@JoinColumn([
+		{ name: 'variant_id', referencedColumnName: 'id' },
+		{ name: 'product_id', referencedColumnName: 'product_id' },
+	])
+	variant?: ProductVariantEntity;
+
+	/**
+	 * SET NULL rather than the CASCADE the catalog keys carry: the review is the reader's, not the
+	 * order's, and a purged order should cost it its provenance rather than its existence. Orders
+	 * are soft-deleted in normal use, so this fires only on a real purge.
+	 */
+	@ManyToOne('OrderEntity', {
+		onDelete: 'SET NULL',
+	})
+	@JoinColumn({ name: 'order_id' })
+	order?: OrderEntity | null;
+
+	/**
+	 * Who took the last moderation decision, joined so a dashboard read can name them instead of
+	 * printing an id.
+	 *
+	 * **Declared without a foreign key** (`createForeignKeyConstraints: false`), unlike
+	 * `article.author_id` which carries one with `SET NULL`. This is an audit column: a null here
+	 * already means "nobody decided, a background sweep did", so letting a deleted account null it
+	 * would make a decision somebody took indistinguishable from one nobody did. The id therefore
+	 * outlives the account, and a moderator whose user row is gone renders as the bare id - which
+	 * is what the trail is for.
+	 */
+	@ManyToOne('UserEntity', {
+		createForeignKeyConstraints: false,
+	})
+	@JoinColumn({ name: 'moderated_by' })
+	moderator?: UserEntity | null;
 
 	// Cascade is forced by `user_id` being NOT NULL - there is no anonymous state to fall back to,
 	// so a closed account takes its reviews with it and every product average it fed has to be

@@ -154,8 +154,8 @@ export class CommentSubscriptionService {
 	 */
 	/**
 	 * The subscriptions to a discussion that no longer exists. `(entity_type, entity_id)` carries
-	 * no foreign key, so nothing removes them when the article or review they follow is hard
-	 * deleted - the comment listener does, off `entityRemoved`.
+	 * no foreign key, so nothing removes them when the article they follow is hard deleted - the
+	 * comment listener does, off `entityRemoved`.
 	 *
 	 * A hard delete here, not a state change: `unsubscribed` exists to stop a *future* comment
 	 * from re-subscribing somebody, and there is nothing left to comment on.

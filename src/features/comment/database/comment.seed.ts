@@ -68,9 +68,10 @@ function guestIpHash(index: number): string {
 }
 
 /**
- * Comments on articles only. `review` is the other target the enum allows, but reviews have no demo
- * data of their own - seeding against ids that are not there would produce rows pointing at
- * nothing, which is exactly what the missing foreign key on a polymorphic target cannot prevent.
+ * Comments on articles only, which is every target the application actually uses - `review` is a
+ * value the enum still carries and nothing writes. Seeding against ids from an unused target would
+ * produce rows pointing at nothing, which is exactly what the missing foreign key on a polymorphic
+ * target cannot prevent.
  */
 export const commentSeed: SeedDefinition = {
 	name: 'comment',

@@ -3,6 +3,7 @@ import {
 	CommentEntityTypeEnum,
 	CommentStatusEnum,
 	CommentTypeEnum,
+	CommentWritableEntityTypeEnum,
 } from '@/features/comment/comment.entity';
 import {
 	COMMENT_CONTENT_MAX,
@@ -70,9 +71,9 @@ export const docs: Record<
 				entity_type: {
 					type: 'enum',
 					required: true,
-					values: Object.values(CommentEntityTypeEnum),
+					values: Object.values(CommentWritableEntityTypeEnum),
 					condition:
-						'a product is not a target - what a buyer writes about one is a review, and a comment reaches it by targeting that review',
+						'articles only - neither a product nor a review takes comments',
 				},
 				entity_id: { type: 'number', required: true },
 				content: {

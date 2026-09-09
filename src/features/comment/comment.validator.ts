@@ -4,6 +4,7 @@ import {
 	CommentEntityTypeEnum,
 	CommentStatusEnum,
 	CommentTypeEnum,
+	CommentWritableEntityTypeEnum,
 } from '@/features/comment/comment.entity';
 import { hasAtLeastOneValue } from '@/helpers/objects.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
@@ -44,11 +45,30 @@ const validatorMessages = [
 ] as const;
 
 export class CommentValidator extends BaseValidator<typeof validatorMessages> {
-	/** The polymorphic target, shared by every schema that addresses one. */
+	/**
+	 * The polymorphic target, shared by the schemas that address one for *reading*: the full enum,
+	 * so a filter or a thread read can name any value the column holds.
+	 */
 	private targetSchema() {
 		return {
 			entity_type: this.validateEnum(
 				CommentEntityTypeEnum,
+				this.getMessage('invalid_entity_type'),
+			),
+			entity_id: this.validateId(this.getMessage('invalid_entity_id')),
+		};
+	}
+
+	/**
+	 * The same target for a write, narrowed to what actually takes comments - see
+	 * `CommentWritableEntityTypeEnum`. The refusal is the same `invalid_entity_type` message: from
+	 * the caller's side a target that accepts nothing and a value that is not a target are the
+	 * same answer.
+	 */
+	private writableTargetSchema() {
+		return {
+			entity_type: this.validateEnum(
+				CommentWritableEntityTypeEnum,
 				this.getMessage('invalid_entity_type'),
 			),
 			entity_id: this.validateId(this.getMessage('invalid_entity_id')),
@@ -80,7 +100,7 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	 * rule, mirroring `CHK_comment_author`.
 	 */
 	readonly create = z.object({
-		...this.targetSchema(),
+		...this.writableTargetSchema(),
 
 		type: this.validateEnum(
 			CommentTypeEnum,

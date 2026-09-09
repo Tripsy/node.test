@@ -4,5 +4,5 @@
 	"relativePath": "/order",
 	"entities": ["order", "order-product"],
 	"depends_on": ["client", "product", "discount", "document-series"],
-	"required_by": ["order-shipping", "invoice", "subscription"]
+	"required_by": ["order-shipping", "invoice", "subscription", "review"]
 }

@@ -12,8 +12,8 @@
  * registry rather than the feature. Nothing here imports a feature, and no feature imports
  * another.
  *
- * **A target with no resolver is open.** That is the state of every one of them today except
- * `article` - a comment on a review, a rating on a comment - and it is what keeps this
+ * **A target with no resolver is open.** `article` is the only one that registers today - a rating
+ * on a comment resolves open, and so would any target added later - and that is what keeps this
  * additive: registering nothing changes nothing.
  *
  * Resolvers are registered from `*.bootstrap.ts` files, which `bootstrap.setup.ts` runs before
