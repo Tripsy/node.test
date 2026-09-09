@@ -166,6 +166,33 @@ export class BrandValidator extends BaseValidator<typeof validatorMessages> {
 		},
 	});
 
+	readonly publicFind = this.validateFind({
+		orderByEnum: OrderByEnum,
+		defaultOrderBy: OrderByEnum.SORT_ORDER,
+
+		directionEnum: OrderDirectionEnum,
+		defaultDirection: OrderDirectionEnum.ASC,
+
+		defaultLimit: Configuration.get('filter.limit'),
+		defaultPage: 1,
+
+		filterSchema: {
+			language: this.validateLanguage(
+				this.getMessage('invalid_language'),
+				{ required: false },
+			),
+			brand_type: this.validateEnum(
+				BrandTypeEnum,
+				this.getMessage('invalid_brand_type'),
+				{ required: false },
+			).default(BrandTypeEnum.PRODUCT),
+			term: this.validateString(this.getMessage('invalid_string'), {
+				required: false,
+				minChars: Configuration.get('filter.termMinLength'),
+			}),
+		},
+	});
+
 	readonly statusUpdate = z.object({
 		id: this.validateId(this.getMessage('invalid_id', { name: 'id' })),
 		status: this.validateEnum(

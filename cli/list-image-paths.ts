@@ -40,3 +40,13 @@ try {
 } finally {
 	await dataSource.destroy();
 }
+
+/*
+ * Explicit, the way `seed.runner.ts` and the seed index end: closing the data source is not
+ * enough to end the process, because importing the entity graph opens handles this tool never
+ * asked for and only `server.ts` closes (the Redis client among them). Without this the paths
+ * are printed and the process then hangs - and the caller,
+ * `nready-ui/.claude/scripts/fetch-seed-images.sh`, reads them through a command substitution,
+ * which waits for EOF and so waits forever.
+ */
+process.exit(0);

@@ -273,6 +273,39 @@ export class BrandService {
 		return await query.firstOrFail();
 	}
 
+	public findByFilterPublic(
+		data: ValidatorOutput<BrandValidator, 'publicFind'>,
+	) {
+		return this.repository
+			.createQuery()
+			.join(
+				'brand.contents',
+				'content',
+				'LEFT',
+				'content.language = :language',
+				{
+					language: data.filter.language,
+				},
+			)
+			.select([
+				'brand.id',
+				'brand.brand_type',
+				'brand.name',
+				'brand.slug',
+				'brand.sort_order',
+
+				'content.language',
+				'content.description',
+				'content.meta',
+			])
+			.filterBy('brand.brand_type', data.filter.brand_type)
+			.filterBy('brand.status', BrandStatusEnum.ACTIVE)
+			.filterByTerm(data.filter.term)
+			.orderBy(data.order_by, data.direction)
+			.pagination(data.page, data.limit)
+			.all(true);
+	}
+
 	public findByFilter(
 		data: ValidatorOutput<BrandValidator, 'find'>,
 		withDeleted: boolean,

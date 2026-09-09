@@ -12,6 +12,7 @@ import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const ImageSectionEnum = {
 	PRODUCT: 'product',
+	PRODUCT_VARIANT: 'product_variant',
 	CATEGORY: 'category',
 	BRAND: 'brand',
 	ARTICLE: 'article',

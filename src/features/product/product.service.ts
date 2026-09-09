@@ -93,6 +93,14 @@ export type WithCoverImage<T> = T & {
 };
 
 /**
+ * Every live variant of a listed product, axis wording resolved and each carrying its own cover —
+ * see `attachVariants`.
+ */
+export type WithVariants<T> = T & {
+	variants: WithCoverImage<ProductVariantEntity>[];
+};
+
+/**
  * How many units a bundle has to add up to before it is a bundle rather than a product.
  *
  * Counted over the components that are always included, so the floor holds for the cheapest
@@ -1145,6 +1153,177 @@ export class ProductService {
 	}
 
 	/**
+	 * Attaches every live variant of each listed product, named.
+	 *
+	 * A variant has no label column — what tells one from its siblings is its axis values in
+	 * `product_variant_attribute`, so the wording has to be resolved through `term_content` before
+	 * a card can say "Small". Only the requested language is joined: the dashboard reads every
+	 * translation at once, a storefront reads exactly one.
+	 *
+	 * `language` is optional on the validator and filled in by the controller. Were it left unset
+	 * the term-content joins would match nothing and the axes would come back unnamed — the same
+	 * failure the listing's own `INNER` content join already has, not a quieter one.
+	 *
+	 * A second query rather than more joins on the listing itself. That statement already
+	 * multiplies its rows by the to-many `product_category` join; adding
+	 * `variants x prices x attributes x contents` on top turns a page of twelve into a cartesian
+	 * product. `attachBranches` splits the single read for the same reason.
+	 *
+	 * This is the listing's only variant source. The pinned `is_default` join it used to carry was
+	 * multiplying the listing's rows to produce a payload this then replaced wholesale; a card
+	 * reads the default off `is_default` in the set instead. `filterByTerm` never used that alias
+	 * either — it matches SKUs through its own `EXISTS` subquery, precisely so a product is found
+	 * by any of its codes rather than only its default one.
+	 */
+	private async attachVariants<
+		T extends { id: number; categories?: { category_id: number }[] },
+	>(entries: T[], language: string | undefined): Promise<WithVariants<T>[]> {
+		if (entries.length === 0) {
+			return [];
+		}
+
+		const variants = await dataSource
+			.getRepository(ProductVariantEntity)
+			.createQueryBuilder('variant')
+			.leftJoinAndSelect(
+				'variant.prices',
+				'price',
+				'price.deleted_at IS NULL',
+			)
+			.leftJoinAndSelect(
+				'variant.attributes',
+				'attribute',
+				'attribute.deleted_at IS NULL',
+			)
+			.leftJoinAndSelect('attribute.attribute_label', 'attribute_label')
+			.leftJoinAndSelect(
+				'attribute_label.contents',
+				'attribute_label_content',
+				'attribute_label_content.language = :language',
+			)
+			.leftJoinAndSelect('attribute.attribute_value', 'attribute_value')
+			.leftJoinAndSelect(
+				'attribute_value.contents',
+				'attribute_value_content',
+				'attribute_value_content.language = :language',
+			)
+			/*
+			 * Projected, never the whole entity. A variant row carries `cost_price`, and its prices
+			 * carry `min_price` — what the product costs to buy and the floor a discount may not
+			 * resolve below. Neither belongs on a route with no policy, and the stock knobs say more
+			 * about the warehouse than a card needs. The joined rows' primary keys are selected
+			 * because TypeORM cannot map a narrowed join without them.
+			 */
+			.select([
+				'variant.id',
+				'variant.product_id',
+				'variant.sku',
+				'variant.position',
+				'variant.is_default',
+
+				'price.id',
+				'price.currency',
+				'price.sale_price',
+				'price.reference_price',
+
+				'attribute.id',
+				'attribute.attribute_label_id',
+				'attribute.value_term_id',
+				'attribute.value_numeric',
+				'attribute.value_text',
+				'attribute.value_boolean',
+
+				'attribute_label.id',
+				'attribute_label_content.id',
+				'attribute_label_content.language',
+				'attribute_label_content.value',
+
+				'attribute_value.id',
+				'attribute_value_content.id',
+				'attribute_value_content.language',
+				'attribute_value_content.value',
+			])
+			.where('variant.product_id IN (:...productIds)', {
+				productIds: entries.map((entry) => entry.id),
+			})
+			.setParameter('language', language)
+			.orderBy('variant.position', 'ASC')
+			.addOrderBy('variant.id', 'ASC')
+			.getMany();
+
+		/*
+		 * The axes are ordered by their definition's `sort_order`, over the union of every category
+		 * on the page — one resolve, not one per product. Insertion order is not usable here: it
+		 * would read "Blue Large" on one row and "Large Blue" on the next, from the same two axes.
+		 */
+		const categoryIds = [
+			...new Set(
+				entries.flatMap(
+					(entry) =>
+						entry.categories?.map((link) => link.category_id) ?? [],
+				),
+			),
+		];
+
+		const definitions = categoryIds.length
+			? await productCategoryAttributeService.resolveDefinitionsByLabel(
+					categoryIds,
+					ProductCategoryAttributeScopeEnum.VARIANT,
+				)
+			: new Map<number, ProductCategoryAttributeEntity>();
+
+		const sortOrderOf = (label_id: number): number =>
+			definitions.get(label_id)?.sort_order ?? Number.MAX_SAFE_INTEGER;
+
+		/*
+		 * A variant's own photographs, filed under the `product_variant` section — the picture a
+		 * card shows when the catalog is listing variants rather than products. Resolved for the
+		 * whole page in one call, the way the products' own covers are.
+		 *
+		 * A variant with no gallery answers `null` and the caller falls back to its product's
+		 * cover; the fallback is the storefront's to make, not this method's, because which way
+		 * it runs depends on what the grid is listing.
+		 */
+		const variantCovers = await resolveTargetImages(
+			ProductVariantEntity.NAME,
+			TargetImageTypeEnum.GALLERY,
+			variants.map((variant) => variant.id),
+		);
+
+		const byProduct = new Map<
+			number,
+			WithCoverImage<ProductVariantEntity>[]
+		>();
+
+		for (const variant of variants) {
+			variant.attributes?.sort(
+				(left, right) =>
+					sortOrderOf(left.attribute_label_id) -
+						sortOrderOf(right.attribute_label_id) ||
+					left.attribute_label_id - right.attribute_label_id,
+			);
+
+			const withCover: WithCoverImage<ProductVariantEntity> = {
+				...variant,
+				cover_image: variantCovers.get(variant.id) ?? null,
+			};
+
+			const list = byProduct.get(variant.product_id);
+
+			if (list) {
+				list.push(withCover);
+			} else {
+				byProduct.set(variant.product_id, [withCover]);
+			}
+		}
+
+		return entries.map((entry) => ({
+			...entry,
+			variants: byProduct.get(entry.id) ?? [],
+		}));
+	}
+
+	/**
 	 * Attaches each product's cover image, when the deployment has something to answer with.
 	 *
 	 * Asked of the registry in `target-image.config.ts` rather than of the `image` feature,
@@ -1246,7 +1425,23 @@ export class ProductService {
 
 		await this.attachBranches(entry, { withDeleted: false });
 
-		const [entryWithCover] = await this.attachCoverImages([entry]);
+		/*
+		 * The variants `attachBranches` loaded are replaced by the projected, named set.
+		 *
+		 * Two reasons, both of which apply only here. A branch read for the dashboard carries
+		 * `cost_price` and `min_price` — what the product costs to buy and the floor a discount may
+		 * not resolve below — and neither belongs on a route with no policy. And a variant has no
+		 * label of its own, so a page offering a choice between them needs the axis values resolved
+		 * through `term_content`, which the dashboard's read has no use for and does not join.
+		 */
+		const [entryWithVariants] = await this.attachVariants(
+			[entry],
+			language,
+		);
+
+		const [entryWithCover] = await this.attachCoverImages([
+			entryWithVariants,
+		]);
 
 		return entryWithCover;
 	}
@@ -1358,17 +1553,6 @@ export class ProductService {
 				'LEFT',
 				'category_content.language = :language',
 			)
-			/*
-			 * The default variant and its price in the requested currency: a listing card
-			 * shows a price, and resolving it per row afterward would be one query each.
-			 */
-			.join(
-				'product.variants',
-				'variant',
-				'LEFT',
-				'variant.is_default = true AND variant.deleted_at IS NULL',
-			)
-			.join('variant.prices', 'price', 'LEFT', 'price.deleted_at IS NULL')
 			.select([
 				'product.id',
 				'product.type',
@@ -1384,6 +1568,8 @@ export class ProductService {
 
 				'brand.id',
 				'brand.name',
+				// The card links the brand; without the slug it cannot build the href
+				'brand.slug',
 
 				'product_category.id',
 				'product_category.category_id',
@@ -1392,13 +1578,6 @@ export class ProductService {
 				'category_content.language',
 				'category_content.label',
 				'category_content.slug',
-
-				'variant.id',
-				'variant.sku',
-				'price.id',
-				'price.currency',
-				'price.sale_price',
-				'price.reference_price',
 			])
 			.filterBy('product.id', data.filter.id)
 			.filterBy('product.brand_id', data.filter.brand_id)
@@ -1436,7 +1615,12 @@ export class ProductService {
 			.pagination(data.page, data.limit)
 			.all(true);
 
-		return [await this.attachCoverImages(entries), total] as const;
+		const withVariants = await this.attachVariants(
+			entries,
+			data.filter.language,
+		);
+
+		return [await this.attachCoverImages(withVariants), total] as const;
 	}
 
 	public async findByFilter(

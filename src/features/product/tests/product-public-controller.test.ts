@@ -31,9 +31,10 @@ const adminBasePath = (await productRoutes()).basePath;
 describe(controller, () => {
 	const entity = getProductEntityMock();
 
-	// Both public surfaces answer with the cover image attached (`attachCoverImages`), so the
-	// mocked service has to return that shape rather than the bare entity
-	const publicEntry = { ...entity, cover_image: null };
+	// Both public surfaces answer with the cover image attached (`attachCoverImages`), and the
+	// listing also attaches every variant (`attachVariants`), so the mocked service has to return
+	// that shape rather than the bare entity
+	const publicEntry = { ...entity, cover_image: null, variants: [] };
 
 	it('find should answer an unauthenticated caller', async () => {
 		jest.spyOn(productService, 'findByFilterPublic').mockResolvedValue([

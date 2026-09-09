@@ -201,11 +201,21 @@ export class ImageService {
 			.filterBy('image.image_type', imageType)
 			.filterBy('image.status', ImageStatusEnum.ACTIVE)
 			.filterBy('image.entity_id', entityIds, 'IN')
-			.orderBy('image.sort_order', 'ASC')
+			.orderBy('image.sort_order', 'DESC')
 			.all();
 
-		// Ordered ascending, so the first image seen for a target is the one that stands for it
-		// and later ones are ignored.
+		/*
+		 * Descending, because that is the direction the gallery is stamped in: the manager lists
+		 * `sort_order DESC` and renumbers the set as `length - index`, so the image an editor
+		 * dragged to the front carries the *highest* number. Read ascending, this returned the
+		 * card they had put last.
+		 *
+		 * `updateStatus` reads the same way round - it resets `sort_order` to 0 when an image is
+		 * deactivated, so a re-activated one rejoins at the back rather than silently becoming
+		 * the picture that stands for the whole target.
+		 *
+		 * The first image seen for a target wins; later ones are ignored.
+		 */
 		for (const image of images) {
 			if (!primary.has(image.entity_id)) {
 				primary.set(image.entity_id, {

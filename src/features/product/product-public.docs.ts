@@ -82,7 +82,7 @@ export const docs: Record<
 			},
 		},
 		request: {
-			notes: 'Deliberately narrower than the dashboard listing: there is no workflow, brand or deleted filter, because a visitor can only ever address the sellable window. Each row carries its default variant, that variant’s prices and a cover image',
+			notes: 'Deliberately narrower than the dashboard listing: there is no workflow, brand or deleted filter, because a visitor can only ever address the sellable window. Each row carries its brand (with the slug a storefront links), every live variant with its own prices, its axis values resolved to the requested language and its own cover image, and the product’s own cover image',
 			query: {
 				page: {
 					type: 'number',
