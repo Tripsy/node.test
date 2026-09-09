@@ -77,7 +77,7 @@ export async function loadEmailTemplate(
 		// is otherwise invisible because the email still arrives.
 		getSystemLogger().warn(
 			{ label, requested: language, used: resolvedLanguage },
-			'Email template missing for the requested language — fell back',
+			'Email template missing for the requested language - fell back',
 		);
 	}
 

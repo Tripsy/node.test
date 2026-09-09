@@ -12,7 +12,7 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 /**
  * The visitor-facing half of the brand feature, mounted under `/public/brands` by
  * `brand-public.routes.ts`. Documented separately from `brand.docs.ts` because it is a route
- * module of its own — a different base path, a different controller, and no bearer token —
+ * module of its own - a different base path, a different controller, and no bearer token -
  * even though both describe the same entity.
  */
 export const docs: Record<
@@ -60,7 +60,7 @@ export const docs: Record<
 		},
 		withErrors: [422],
 		request: {
-			notes: `Only ${BrandStatusEnum.ACTIVE} brands are addressable — status and deleted rows are pinned by the service, not filterable. Each row carries its name and slug on the row itself and its contents in one language at most`,
+			notes: `Only ${BrandStatusEnum.ACTIVE} brands are addressable - status and deleted rows are pinned by the service, not filterable. Each row carries its name and slug on the row itself and its contents in one language at most`,
 			query: {
 				page: {
 					type: 'number',

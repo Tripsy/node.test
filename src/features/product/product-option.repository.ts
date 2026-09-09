@@ -21,7 +21,7 @@ export class ProductOptionGroupQuery extends RepositoryAbstract<ProductOptionGro
  *
  * The label term is the natural key on both levels. Nothing in the schema forbids a product
  * asking the same question twice, but a payload that did could not be told apart from an edit of
- * the first — and a form showing "Crust" twice is a defect either way.
+ * the first - and a form showing "Crust" twice is a defect either way.
  */
 export const ProductOptionRepository = dataSource
 	.getRepository(ProductOptionGroupEntity)

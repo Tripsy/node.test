@@ -39,7 +39,7 @@ export const STATUS_TRANSITIONS: StatusTransitions<GrnStatus> = {
 const ENTITY_TABLE_NAME = 'grn';
 
 /**
- * Goods received note — the document that brings stock into a warehouse.
+ * Goods received note - the document that brings stock into a warehouse.
  *
  * **Everything inbound is a GRN**, including the stock already owned on the day the system starts.
  * There is no separate opening-balance concept, and that is deliberate: `grn_item.qty_remaining` is
@@ -61,7 +61,7 @@ const ENTITY_TABLE_NAME = 'grn';
 	where: 'deleted_at IS NULL',
 })
 // FIFO resolves open lots for a variant, then needs the confirmed receipts they belong to in
-// receipt order — this is the header side of that join
+// receipt order - this is the header side of that join
 @Index('IDX_grn_warehouse_status_received_at', [
 	'warehouse_id',
 	'status',
@@ -122,7 +122,7 @@ export default class GrnEntity extends EntityAbstract {
 	currency!: string;
 
 	// Frozen at the rate of the receiving day. Costs are converted into base currency once, here,
-	// and never again — converting at read time would make last month's margin move with today's
+	// and never again - converting at read time would make last month's margin move with today's
 	// rate
 	@Column('decimal', {
 		precision: 10,

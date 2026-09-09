@@ -15,8 +15,8 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 /**
  * The visitor-facing half of the category feature, mounted under `/public/categories` by
  * `category-public.routes.ts`. Documented separately from `category.docs.ts` because it is a
- * route module of its own — a different base path, a different controller, and no bearer
- * token — even though both describe the same entity.
+ * route module of its own - a different base path, a different controller, and no bearer
+ * token - even though both describe the same entity.
  */
 export const docs: Record<
 	keyof typeof categoryPublicController,
@@ -64,7 +64,7 @@ export const docs: Record<
 		},
 		withErrors: [422],
 		request: {
-			notes: `Only ${CategoryStatusEnum.ACTIVE} categories are addressable — status and deleted rows are pinned by the service, not filterable. Each row carries its contents in one language and its parent id alone, which is enough to nest the rows returned. There is no term filter here`,
+			notes: `Only ${CategoryStatusEnum.ACTIVE} categories are addressable - status and deleted rows are pinned by the service, not filterable. Each row carries its contents in one language and its parent id alone, which is enough to nest the rows returned. There is no term filter here`,
 			query: {
 				page: {
 					type: 'number',
@@ -113,7 +113,7 @@ export const docs: Record<
 						required: false,
 						default: false,
 						condition:
-							'the categories with no parent — a null parent cannot be expressed through parent_id',
+							'the categories with no parent - a null parent cannot be expressed through parent_id',
 					},
 				},
 			},

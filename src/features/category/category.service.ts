@@ -104,7 +104,7 @@ export class CategoryService {
 	/**
 	 * @description Used in `update` method from controller; `data` is filtered by `paramsUpdateList` - which is declared in validator
 	 *
-	 * `entry` must carry its `parent` relation — load it with `findByIdWithParent`. The relation
+	 * `entry` must carry its `parent` relation - load it with `findByIdWithParent`. The relation
 	 * is not eager, so an entry loaded without it reads as a root: a move would compare against
 	 * the wrong current parent and a detach would find nothing to clear.
 	 */
@@ -168,7 +168,7 @@ export class CategoryService {
 
 		/*
 		 * Loaded once for two uses: the cycle guard below, and the cache clean after the
-		 * commit — a move re-roots the whole subtree, so every descendant's `with_ancestors`
+		 * commit - a move re-roots the whole subtree, so every descendant's `with_ancestors`
 		 * read is stale. `findDescendants` includes `entry` itself.
 		 */
 		const descendants = hasMoved
@@ -190,7 +190,7 @@ export class CategoryService {
 		/*
 		 * Checked after the cycle guard, so moving a category under its own descendant is
 		 * still reported as that rather than as a depth failure. What has to fit is the whole
-		 * subtree, not the moved node — a two-level branch needs two levels of room.
+		 * subtree, not the moved node - a two-level branch needs two levels of room.
 		 */
 		if (data.parent_id) {
 			await this.assertDepthFits(
@@ -210,7 +210,7 @@ export class CategoryService {
 
 				/*
 				 * Position is meaningful only among siblings, and the move lands the
-				 * category in a group it was never ordered against — carrying the old
+				 * category in a group it was never ordered against - carrying the old
 				 * value over would place it arbitrarily. Zero puts it at the end until
 				 * the group is reordered.
 				 */
@@ -231,7 +231,7 @@ export class CategoryService {
 			return entry;
 		});
 
-		// One clean for the whole operation, after commit — the content rows written above
+		// One clean for the whole operation, after commit - the content rows written above
 		// have no subscriber invalidating the category's keys, and a contents-only update
 		// never saves the category row either. See `cleanEntityCache`
 		await cleanEntityCache(CategoryEntity, updatedEntry.id);
@@ -324,7 +324,7 @@ export class CategoryService {
 
 			/*
 			 * Only active categories are orderable, so a status change takes the row out of
-			 * its sibling group — or brings it back into one that has been reordered since.
+			 * its sibling group - or brings it back into one that has been reordered since.
 			 * Either way the stored position is stale; zero puts it at the end until the
 			 * group is reordered. Same rule as `brand`.
 			 */
@@ -339,7 +339,7 @@ export class CategoryService {
 
 		/*
 		 * The cascade above is a bulk `UPDATE ... WHERE id IN (...)`, which loads no entities and
-		 * so has never announced itself — those descendants changed status with nothing dropping
+		 * so has never announced itself - those descendants changed status with nothing dropping
 		 * their cached reads.
 		 */
 		await cleanEntityCacheMany(CategoryEntity, cascadedIds);
@@ -358,7 +358,7 @@ export class CategoryService {
 
 			/*
 			 * A position only means something among siblings, so the orderable set is one
-			 * group: same type, same parent — or the roots when no parent is given. `type`
+			 * group: same type, same parent - or the roots when no parent is given. `type`
 			 * is part of it because product and article roots both carry a null parent and
 			 * would otherwise be ordered against each other.
 			 */
@@ -461,7 +461,7 @@ export class CategoryService {
 	}
 
 	/**
-	 * How many levels a category sits under the root, itself included — a root is 1.
+	 * How many levels a category sits under the root, itself included - a root is 1.
 	 *
 	 * Read from the closure table through `findAncestors`, which returns the node plus every
 	 * ancestor, rather than by walking `parent` one query at a time.
@@ -476,7 +476,7 @@ export class CategoryService {
 	}
 
 	/**
-	 * How many levels the subtree rooted at `entry` spans — a leaf is 1.
+	 * How many levels the subtree rooted at `entry` spans - a leaf is 1.
 	 *
 	 * A move takes the whole subtree with it, so this is what has to fit under the new
 	 * parent, not just the moved node.
@@ -502,7 +502,7 @@ export class CategoryService {
 	/**
 	 * Refuses a placement that would push the tree past its type's ceiling.
 	 *
-	 * `height` is the depth of what is being placed — 1 for a new category, the subtree's
+	 * `height` is the depth of what is being placed - 1 for a new category, the subtree's
 	 * own height for a move.
 	 */
 	private async assertDepthFits(
@@ -549,7 +549,7 @@ export class CategoryService {
 
 	/**
 	 * Contents are joined the same way everywhere: narrowed to the requested language, or all
-	 * rows when none is given. The join type applies only to the language-narrowed case — a
+	 * rows when none is given. The join type applies only to the language-narrowed case - a
 	 * category with no content in that language is not a result (INNER), but the same absence
 	 * on a *related* category must not drop the relation itself (LEFT).
 	 */
@@ -678,7 +678,7 @@ export class CategoryService {
 	 * @description Used in `find` method from the public controller; the anonymous listing
 	 *
 	 * Status is pinned here rather than taken from the payload, and soft-deleted rows are
-	 * never included — the validator has no filter that could widen either.
+	 * never included - the validator has no filter that could widen either.
 	 */
 	public findByFilterPublic(
 		data: ValidatorOutput<CategoryValidator, 'publicFind'>,
@@ -736,7 +736,7 @@ export class CategoryService {
 	) {
 		/*
 		 * `orderBy` prefixes a bare column with the root alias, and `label` lives on the
-		 * joined content row — passed through unmapped it builds `category.label`, which
+		 * joined content row - passed through unmapped it builds `category.label`, which
 		 * is not a column and fails at the database.
 		 */
 		const orderBy =
@@ -788,7 +788,7 @@ export class CategoryService {
 
 		if (data.filter.can_parent) {
 			/*
-			 * Depth is the closure row count for the category as a descendant — the table
+			 * Depth is the closure row count for the category as a descendant - the table
 			 * carries a self-reference, so a root counts 1. A category may take a child
 			 * while that count is below its type's ceiling.
 			 */
@@ -797,7 +797,7 @@ export class CategoryService {
 			);
 		}
 
-		// Mirrors the grouping `updateOrder` enforces: same type, same parent — or the
+		// Mirrors the grouping `updateOrder` enforces: same type, same parent - or the
 		// roots, which `filterBy` cannot express because it drops null values.
 		if (data.filter.is_root) {
 			query.getQuery().andWhere('category.parent_id IS NULL');

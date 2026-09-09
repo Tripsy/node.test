@@ -78,7 +78,7 @@ export async function createApp() {
 	 * Configuration
 	 *
 	 * In production the app sits behind exactly one reverse proxy, so `req.ip` must come
-	 * from X-Forwarded-For rather than the socket — otherwise every request looks like it
+	 * from X-Forwarded-For rather than the socket - otherwise every request looks like it
 	 * originates from the proxy's address. That single shared address would collapse
 	 * `express-rate-limit` into one global bucket for all callers, and make every logged IP
 	 * identical.

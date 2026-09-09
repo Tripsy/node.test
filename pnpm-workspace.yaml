@@ -1,7 +1,7 @@
 packages:
   - '.'
 # pnpm 11 supersedes `onlyBuiltDependencies` with `allowBuilds`. All four compile or
-# fetch a native binary at install time and are unusable without it — bcrypt above all,
+# fetch a native binary at install time and are unusable without it - bcrypt above all,
 # since password hashing is on the auth path.
 allowBuilds:
   bcrypt: true
@@ -31,7 +31,7 @@ minimumReleaseAgeExclude:
   - '@biomejs/cli-win32-arm64@2.5.6'
   - '@biomejs/cli-win32-x64@2.5.6'
 # mailtrap 4.8.0 asks for nodemailer ^9 but still pins @types/nodemailer to ^6, which is
-# stale on their side — no published version pairs the two correctly. The runtime is
+# stale on their side - no published version pairs the two correctly. The runtime is
 # nodemailer 9, so 8 is the matching type package and mailtrap keeps working against it.
 peerDependencyRules:
   allowedVersions:

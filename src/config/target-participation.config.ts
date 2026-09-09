@@ -2,7 +2,7 @@
  * Whether a polymorphic target still accepts what a reader is about to add to it.
  *
  * `comment`, `rating` and `complaint` all write against `(entity_type, entity_id)` and know
- * nothing about the tables behind those ids — deliberately, so a new target costs them nothing.
+ * nothing about the tables behind those ids - deliberately, so a new target costs them nothing.
  * The switch that closes one of them, though, belongs to the target: an article carries
  * `allow_rating` / `allow_comments` / `allow_complaints`, and only the `article` feature knows
  * where they are stored or what they default to.
@@ -13,7 +13,7 @@
  * another.
  *
  * **A target with no resolver is open.** That is the state of every one of them today except
- * `article` — a comment on a review, a rating on a comment — and it is what keeps this
+ * `article` - a comment on a review, a rating on a comment - and it is what keeps this
  * additive: registering nothing changes nothing.
  *
  * Resolvers are registered from `*.bootstrap.ts` files, which `bootstrap.setup.ts` runs before
@@ -32,7 +32,7 @@ export type Participation =
 
 /**
  * Answers for one target row. `false` closes that kind of participation; a target that cannot be
- * resolved at all — deleted, or never there — is expected to answer `false` for everything,
+ * resolved at all - deleted, or never there - is expected to answer `false` for everything,
  * since nothing may be attached to a page no reader can open.
  */
 export type ParticipationResolver = (
@@ -44,7 +44,7 @@ const resolvers = new Map<string, ParticipationResolver>();
 
 /**
  * Called by the owning feature's listener at bootstrap. Registering twice for the same entity
- * type replaces the previous resolver rather than adding a second opinion — there is one owner
+ * type replaces the previous resolver rather than adding a second opinion - there is one owner
  * per table, and a duplicate registration is a reload, not a second rule.
  */
 export const registerParticipationResolver = (

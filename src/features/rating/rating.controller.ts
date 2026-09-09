@@ -13,7 +13,7 @@ import asyncHandler from '@/helpers/async.handler';
 import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
- * The dashboard side: read what was cast and remove it. There is no `create` and no `update` —
+ * The dashboard side: read what was cast and remove it. There is no `create` and no `update` -
  * a rating is cast by the reader who owns it, and the table is insert-only, so the only write a
  * moderator has is the removal of a row that should not stand.
  */

@@ -28,8 +28,8 @@ const entryColumns: string[] = paramsUpdateList.filter(
  * The types whose wording is stored as it was typed.
  *
  * The line is drawn at what the customer reads. `bundle_choice` and `text` are **sentences**
- * shown on the storefront — the question a bundle asks, the question an order-time option asks
- * and each of its answers — and lower-casing them would put "choose your crust" on the page.
+ * shown on the storefront - the question a bundle asks, the question an order-time option asks
+ * and each of its answers - and lower-casing them would put "choose your crust" on the page.
  * `attribute_label` is the heading a specification renders under, so it is written the same way.
  *
  * `tag` and `attribute_value` are folded, because they are picked from a shared vocabulary and
@@ -86,7 +86,7 @@ export class TermService {
 
 			/*
 			 * The translations are written through a query builder, so the saved term carries
-			 * none of them back on its own. A term has no wording outside `contents` — a
+			 * none of them back on its own. A term has no wording outside `contents` - a
 			 * response without them names nothing, and a caller that links the new term
 			 * straight away (the article form's tag picker) has nothing to label it with.
 			 */
@@ -155,7 +155,7 @@ export class TermService {
 			return saved;
 		});
 
-		// One clean for the whole operation, after commit — the content rows written above
+		// One clean for the whole operation, after commit - the content rows written above
 		// have no subscriber invalidating the term's keys. See `cleanEntityCache`
 		await cleanEntityCache(TermEntity, updatedEntity.id);
 
@@ -179,7 +179,7 @@ export class TermService {
 	}
 
 	/**
-	 * Two terms of the same type must not carry the same wording in the same language —
+	 * Two terms of the same type must not carry the same wording in the same language -
 	 * "Color" as an `attribute_label` twice is one vocabulary entry, not two.
 	 *
 	 * The database can no longer state this: the wording moved to `term_content`, whose unique
@@ -280,7 +280,7 @@ export class TermService {
 		withDeleted: boolean,
 	) {
 		/*
-		 * One wording per row, in the requested language — the controller always resolves one.
+		 * One wording per row, in the requested language - the controller always resolves one.
 		 *
 		 * LEFT rather than the INNER `place` uses: a term missing that language still belongs in
 		 * the list with an empty value, because this table is where those gaps get found and

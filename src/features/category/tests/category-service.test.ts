@@ -45,12 +45,12 @@ function buildCategory(
  *
  * - `findDescendants` guards reparenting (a category cannot move under its own descendant) and
  *   deletion. It includes the subject itself.
- * - `findAncestors` is how `getDepth` measures the prospective parent — the returned length *is*
+ * - `findAncestors` is how `getDepth` measures the prospective parent - the returned length *is*
  *   the depth, so one entry means a root.
  * - `findDescendantsTree` is how `getSubtreeHeight` measures what is being moved; height comes
  *   from `children`, so a node without any is a leaf of height 1.
  *
- * The defaults describe the ordinary case — placing a leaf under a root, which fits every
+ * The defaults describe the ordinary case - placing a leaf under a root, which fits every
  * `CATEGORY_MAX_DEPTH`. A test about the ceiling passes its own.
  */
 function mockTreeRepository(
@@ -142,7 +142,7 @@ describe('CategoryService', () => {
 			const repository = mockScopedRepository(parent, saved);
 
 			// A create is placed under the parent, so the depth ceiling is checked and the tree
-			// has to answer — the default puts the parent at the root, where a new leaf fits.
+			// has to answer - the default puts the parent at the root, where a new leaf fits.
 			mockTreeRepository([]);
 
 			const saveContent = jest
@@ -167,7 +167,7 @@ describe('CategoryService', () => {
 
 		/*
 		 * `ARTICLE` tops out at 2 levels (`CATEGORY_MAX_DEPTH`), so a parent that is already
-		 * two deep leaves no room for a child. This is the case the tree stub exists for — a
+		 * two deep leaves no room for a child. This is the case the tree stub exists for - a
 		 * placement is refused by measuring, not by anything on the row.
 		 */
 		it('should throw when the parent is already at the depth ceiling', async () => {
@@ -215,7 +215,7 @@ describe('CategoryService', () => {
 	});
 
 	/**
-	 * Reparenting is the operation that can corrupt the tree — every guard below exists to
+	 * Reparenting is the operation that can corrupt the tree - every guard below exists to
 	 * stop a cycle, a cross-type graft or a move under a row that is on its way out.
 	 */
 	describe('updateDataWithContent - reparenting guards', () => {
@@ -386,7 +386,7 @@ describe('CategoryService', () => {
 
 		/*
 		 * A client detaches by sending `parent_id: null`, which the validator folds to
-		 * `undefined` — so the payload reaching the service carries the key with a falsy
+		 * `undefined` - so the payload reaching the service carries the key with a falsy
 		 * value. Sent alongside `contents` because the `params_at_least_one` refine still
 		 * rejects a detach-only body.
 		 */
@@ -428,7 +428,7 @@ describe('CategoryService', () => {
 
 		/*
 		 * The mirror of the detach: a root has no `parent` to compare against, and the branch
-		 * used to be gated on that relation being present — which made adopting a root a
+		 * used to be gated on that relation being present - which made adopting a root a
 		 * silent no-op.
 		 */
 		it('should attach a parent to a category that has none', async () => {
@@ -584,7 +584,7 @@ describe('CategoryService', () => {
 				true,
 			);
 
-			// The subject's own id is filtered out — it is saved below, not bulk-updated.
+			// The subject's own id is filtered out - it is saved below, not bulk-updated.
 			expect(updateQueryBuilder.where).toHaveBeenCalledWith(
 				'id IN (:...ids)',
 				{ ids: [2, 3] },
@@ -629,7 +629,7 @@ describe('CategoryService', () => {
 
 	/**
 	 * A position is only meaningful among siblings, so a reorder addresses exactly one
-	 * group — same type, same parent, or the roots of that type.
+	 * group - same type, same parent, or the roots of that type.
 	 */
 	describe('updateOrder - sibling group', () => {
 		function mockSiblingGroup(siblings: CategoryEntity[]) {

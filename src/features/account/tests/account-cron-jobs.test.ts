@@ -7,7 +7,7 @@ import { createMockQuery } from '@/tests/jest-service.setup';
 /*
  * The cron jobs resolve their repository through `dataSource.getRepository(...)`, which is
  * never initialized under `test`. Both repository modules are therefore replaced before the
- * jobs are imported — under the ESM preset that means `unstable_mockModule` plus a dynamic
+ * jobs are imported - under the ESM preset that means `unstable_mockModule` plus a dynamic
  * import, the same shape as `account-email.service.test.ts`.
  */
 // Type-only imports above are erased at runtime, so they do not resurrect the mocked
@@ -49,7 +49,7 @@ describe('account cron jobs', () => {
 	/*
 	 * `cron.provider.ts` refuses to register a job whose default export is not a function,
 	 * whose SCHEDULE_EXPRESSION is not a valid cron string, or whose EXPECTED_RUN_TIME is
-	 * not a number — and it throws while doing it. A typo in any of these is a boot
+	 * not a number - and it throws while doing it. A typo in any of these is a boot
 	 * failure, so the contract is asserted here rather than discovered on deploy.
 	 */
 	describe.each([
@@ -90,7 +90,7 @@ describe('account cron jobs', () => {
 			expect((to as Date).getTime()).toBeGreaterThan(expected - 5000);
 			expect((to as Date).getTime()).toBeLessThan(expected + 5000);
 
-			// (isSoftDelete: false, multiple: true, force: true) — a bulk hard delete with
+			// (isSoftDelete: false, multiple: true, force: true) - a bulk hard delete with
 			// the repository's "no filter" guard bypassed, so the arguments matter.
 			expect(accountRecoveryQuery.delete).toHaveBeenCalledWith(
 				false,

@@ -22,7 +22,7 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 /**
  * The reader-facing half of the comment feature, mounted under `/public/comments` by
  * `comment-public.routes.ts`. Documented separately from `comment.docs.ts` because it is a route
- * module of its own — a different base path, a different controller, and no permission check —
+ * module of its own - a different base path, a different controller, and no permission check -
  * even though both describe the same entity.
  *
  * The bearer token is optional throughout rather than absent: commenting is open to guests, and
@@ -47,7 +47,7 @@ const publicSample: Record<string, unknown> = {
 };
 
 const authorNote =
-	"The author is resolved from the request, never from the body: the signed-in account when there is one, otherwise the guest fields plus a hash of the caller address. A request whose address cannot be resolved answers 400 — that hash is a guest's only handle on their own comment";
+	"The author is resolved from the request, never from the body: the signed-in account when there is one, otherwise the guest fields plus a hash of the caller address. A request whose address cannot be resolved answers 400 - that hash is a guest's only handle on their own comment";
 
 const ownershipNote =
 	"Scoped to the caller's own comment by the query that loads it, so somebody else's id answers 404 rather than 403";
@@ -72,7 +72,7 @@ export const docs: Record<
 					required: true,
 					values: Object.values(CommentEntityTypeEnum),
 					condition:
-						'a product is not a target — what a buyer writes about one is a review, and a comment reaches it by targeting that review',
+						'a product is not a target - what a buyer writes about one is a review, and a comment reaches it by targeting that review',
 				},
 				entity_id: { type: 'number', required: true },
 				content: {
@@ -105,7 +105,7 @@ export const docs: Record<
 				guest_website: {
 					type: 'string',
 					required: false,
-					condition: `free text, at most ${GUEST_WEBSITE_MAX} characters — it is displayed, never fetched`,
+					condition: `free text, at most ${GUEST_WEBSITE_MAX} characters - it is displayed, never fetched`,
 				},
 			},
 			sample: {
@@ -131,7 +131,7 @@ export const docs: Record<
 		},
 		withErrors: [404, 422],
 		request: {
-			notes: 'Deliberately thin — the target and the parent, which is what a link in an email needs to build the page address and the anchor inside it. A comment that is not approved is not found',
+			notes: 'Deliberately thin - the target and the parent, which is what a link in an email needs to build the page address and the anchor inside it. A comment that is not approved is not found',
 			params: {
 				id: {
 					type: 'number',
@@ -149,7 +149,7 @@ export const docs: Record<
 		},
 		withErrors: [400, 404, 422],
 		request: {
-			notes: `Only the text moves — the target, the parent and the type are what the comment is. Open while the comment is ${CommentStatusEnum.PENDING} or ${CommentStatusEnum.APPROVED} and refused once a moderator has acted on it. The edit stamps edited_at, which is what marks the comment as edited in the thread. ${ownershipNote}`,
+			notes: `Only the text moves - the target, the parent and the type are what the comment is. Open while the comment is ${CommentStatusEnum.PENDING} or ${CommentStatusEnum.APPROVED} and refused once a moderator has acted on it. The edit stamps edited_at, which is what marks the comment as edited in the thread. ${ownershipNote}`,
 			params: {
 				id: {
 					type: 'number',
@@ -202,7 +202,7 @@ export const docs: Record<
 		},
 		withErrors: [422],
 		request: {
-			notes: `Approved rows only — there is no status filter here, and one would expose the moderation queue. The target comes from the path and parent_id picks the level: omitted reads the roots, an id reads the replies under it. A roots read also carries first_replies, one reply per root that has any, so a thread renders without a request per root. Cached per target, page and ordering, and dropped whenever a write changes what a reader would see`,
+			notes: `Approved rows only - there is no status filter here, and one would expose the moderation queue. The target comes from the path and parent_id picks the level: omitted reads the roots, an id reads the replies under it. A roots read also carries first_replies, one reply per root that has any, so a thread renders without a request per root. Cached per target, page and ordering, and dropped whenever a write changes what a reader would see`,
 			params: {
 				entity_type: {
 					type: 'enum',

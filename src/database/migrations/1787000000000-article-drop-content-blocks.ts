@@ -12,8 +12,8 @@ export class ArticleDropContentBlocks1787000000000
 	}
 
 	/**
-	 * The column comes back empty. It only ever held the reserved-for-future-use placeholder —
-	 * nothing wrote to it — so there is no data to restore and the down path is the shape alone.
+	 * The column comes back empty. It only ever held the reserved-for-future-use placeholder -
+	 * nothing wrote to it - so there is no data to restore and the down path is the shape alone.
 	 */
 	public async down(queryRunner: QueryRunner): Promise<void> {
 		await queryRunner.query(

@@ -4,7 +4,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * Collapses the five per-kind link tables into one polymorphic `discount_target`.
  *
  * The typed tables had to live in the feature owning the other end, which made `client`,
- * `category`, `brand` and `product` all depend on `discount` — backwards, since discounts are
+ * `category`, `brand` and `product` all depend on `discount` - backwards, since discounts are
  * the optional part of a catalog. One table on the discount side reverses that, and turns the
  * resolver's five-query fan-out into a single indexed lookup.
  *

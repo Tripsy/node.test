@@ -36,20 +36,20 @@ Each package carries a `manifest.json`:
 `required_by` is what needs *it*, and exists so `remove` can refuse to delete something still in use.
 `is_core` is a separate boolean (omitted when false), not a magic entry inside a list.
 
-**Both are version-aware.** An entry is either a bare name (any version) or `name@range` —
+**Both are version-aware.** An entry is either a bare name (any version) or `name@range` -
 `vendor@^2.0.0`, `order@>=1.2.0`. Ranges are matched by `cli/helpers/version.ts`, a small subset of
 semver: one constraint per entry, operators `^ ~ >= <= > < =` (or none, meaning exact) over
-`major.minor.patch`, plus `*`. No pre-release tags, no unions — bump `version` on any change a
+`major.minor.patch`, plus `*`. No pre-release tags, no unions - bump `version` on any change a
 dependent could notice, majors for breaking ones.
 
 Three checks run per mode:
 
-- **install / upgrade** — every `depends_on` entry must be installed *and* inside its range.
-- **install / upgrade** — every already-installed feature that names this one must accept the
+- **install / upgrade** - every `depends_on` entry must be installed *and* inside its range.
+- **install / upgrade** - every already-installed feature that names this one must accept the
   incoming version, so an upgrade cannot silently break what sits on top of it.
-- **remove** — refused outright when `is_core`, otherwise blocked by any installed dependent.
+- **remove** - refused outright when `is_core`, otherwise blocked by any installed dependent.
   Reverse dependencies are found by scanning every installed manifest's `depends_on`, not by
   trusting `required_by`, which is hand-maintained and drifts; `required_by` still declares intent.
 
-`pnpm run manifests:check` validates the whole graph — unresolvable or unsatisfiable `depends_on`,
+`pnpm run manifests:check` validates the whole graph - unresolvable or unsatisfiable `depends_on`,
 dependency cycles, and `required_by` entries that have fallen out of step.

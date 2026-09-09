@@ -2,7 +2,7 @@
  * The units a numeric product attribute can be quoted in, and what it takes to compare two of them.
  *
  * A range filter is the whole reason this exists. `product_attribute` stores a bare number and the
- * definition fixes its unit, so *"between 300 and 600 ml"* is an indexed numeric comparison — but
+ * definition fixes its unit, so *"between 300 and 600 ml"* is an indexed numeric comparison - but
  * only while every row under a label is quoted in the same unit. Rather than forbid the mismatch,
  * each unit declares a `dimension` and a `factor` into that dimension's base, and the attribute row
  * carries the converted figure in `value_base` alongside the number as entered. 0.5 l and 500 ml
@@ -25,36 +25,36 @@ export type MeasureDimension =
 	(typeof MeasureDimensionEnum)[keyof typeof MeasureDimensionEnum];
 
 export const MeasureUnitEnum = {
-	// Volume — base `ml`
+	// Volume - base `ml`
 	MILLILITRE: 'ml',
 	CENTILITRE: 'cl',
 	DECILITRE: 'dl',
 	LITRE: 'l',
 	HECTOLITRE: 'hl',
 	CUBIC_METRE: 'm3',
-	// Mass — base `g`
+	// Mass - base `g`
 	MILLIGRAM: 'mg',
 	GRAM: 'g',
 	KILOGRAM: 'kg',
 	TONNE: 't',
-	// Length — base `mm`
+	// Length - base `mm`
 	MILLIMETRE: 'mm',
 	CENTIMETRE: 'cm',
 	METRE: 'm',
 	KILOMETRE: 'km',
-	// Area — base `mm2`
+	// Area - base `mm2`
 	SQUARE_MILLIMETRE: 'mm2',
 	SQUARE_CENTIMETRE: 'cm2',
 	SQUARE_METRE: 'm2',
-	// Time — base `s`
+	// Time - base `s`
 	SECOND: 's',
 	MINUTE: 'min',
 	HOUR: 'h',
 	DAY: 'day',
-	// Power — base `w`
+	// Power - base `w`
 	WATT: 'w',
 	KILOWATT: 'kw',
-	// Energy — base `j`
+	// Energy - base `j`
 	JOULE: 'j',
 	WATT_HOUR: 'wh',
 	KILOWATT_HOUR: 'kwh',
@@ -65,7 +65,7 @@ export type MeasureUnit =
 
 type MeasureUnitDefinition = {
 	dimension: MeasureDimension;
-	/** Multiplier into the dimension's base unit — the base unit's own is 1. */
+	/** Multiplier into the dimension's base unit - the base unit's own is 1. */
 	factor: number;
 	/** How the unit renders; the key is an ASCII slug, so `m2` is not printable as-is. */
 	symbol: string;
@@ -217,13 +217,13 @@ export const MEASURE_UNITS: Record<MeasureUnit, MeasureUnitDefinition> = {
 };
 
 /**
- * Converts a value quoted in `unit` into its dimension's base unit — what `value_base` stores.
+ * Converts a value quoted in `unit` into its dimension's base unit - what `value_base` stores.
  *
  * A unitless number passes through unchanged, so every numeric attribute has a `value_base` and the
  * facet index is the only path a range filter needs.
  *
  * Rounded to six decimals, the scale of the column it feeds. Binary floating point makes
- * `0.29 * 100` come out as `28.999999999999996`, so 0.29 dl and 29 ml — the same quantity — would
+ * `0.29 * 100` come out as `28.999999999999996`, so 0.29 dl and 29 ml - the same quantity - would
  * be stored as two different base figures and an equality filter would separate them.
  */
 export const toBaseUnit = (value: number, unit: MeasureUnit | null): number => {

@@ -13,7 +13,7 @@ import { BaseController } from '@/shared/abstracts/controller.abstract';
  *
  * No session and no permission: a guest subscriber has neither, and requiring an account to stop
  * unsolicited email would be requiring an account to withdraw consent. The token in the path is
- * the credential — 32 random bytes, unique, and delivered only in the email it came with.
+ * the credential - 32 random bytes, unique, and delivered only in the email it came with.
  *
  * A wrong token is a 404 from `firstOrFail`, which is the right answer: there is nothing to tell
  * the holder of a token about a row it does not open.
@@ -28,7 +28,7 @@ class CommentSubscriptionPublicController extends BaseController {
 
 	/**
 	 * What the reader is deciding about. The address is echoed back so they can see which of
-	 * their addresses is subscribed — it is one they already hold, having received the email at
+	 * their addresses is subscribed - it is one they already hold, having received the email at
 	 * it, so this tells the holder of the token nothing they did not have.
 	 */
 	public read = asyncHandler(async (req: Request, res: Response) => {

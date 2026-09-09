@@ -135,7 +135,7 @@ describe(`${controller} - workflowUpdate`, () => {
 	});
 
 	/*
-	 * The route-level guard, which runs ahead of the controller and its validator — hence a
+	 * The route-level guard, which runs ahead of the controller and its validator - hence a
 	 * 400 rather than the 422 a schema failure produces.
 	 */
 	it('should reject a workflow value outside the enum', async () => {

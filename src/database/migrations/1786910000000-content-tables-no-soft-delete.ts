@@ -11,7 +11,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * The unique indexes come back without that predicate, which makes them stricter: a
  * soft-deleted duplicate of a live row used to sit outside the index and would now collide.
- * There are none — this is verified as all-NULL before the migration is written — and a
+ * There are none - this is verified as all-NULL before the migration is written - and a
  * database that does hold one fails loudly on `CREATE UNIQUE INDEX` rather than losing a row.
  */
 export class ContentTablesNoSoftDelete1786910000000

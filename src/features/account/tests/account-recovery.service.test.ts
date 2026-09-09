@@ -99,7 +99,7 @@ describe('AccountRecoveryService', () => {
 			expect(saved.metadata).toEqual(metadata);
 			expect(saved.expire_at).toBe(expireAt);
 
-			// The returned ident is the uuid v4 written to the row — it is what ends up in
+			// The returned ident is the uuid v4 written to the row - it is what ends up in
 			// the recovery link, so its shape matters.
 			expect(ident).toMatch(
 				/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
@@ -147,7 +147,7 @@ describe('AccountRecoveryService', () => {
 				7,
 			);
 
-			// (isSoftDelete: false, multiple: true) — recovery rows are throwaway, and
+			// (isSoftDelete: false, multiple: true) - recovery rows are throwaway, and
 			// leaving soft-deleted ones behind would keep spent idents queryable.
 			expect(mockAccountRecovery.query.delete).toHaveBeenCalledWith(
 				false,

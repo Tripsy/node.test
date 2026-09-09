@@ -13,8 +13,8 @@ import {
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 /**
- * The mock's `contents` is empty — it stands in for the term row, which carries no wording of its
- * own — so the sample below fills it in, since a term without its translations names nothing.
+ * The mock's `contents` is empty - it stands in for the term row, which carries no wording of its
+ * own - so the sample below fills it in, since a term without its translations names nothing.
  */
 const entitySample: Record<string, unknown> = {
 	...(getTermEntityMock() as unknown as Record<string, unknown>),
@@ -25,7 +25,7 @@ const entitySample: Record<string, unknown> = {
 };
 
 const duplicateNote =
-	'two terms of the same type may not carry the same wording in the same language — the check is case-insensitive and answers 409';
+	'two terms of the same type may not carry the same wording in the same language - the check is case-insensitive and answers 409';
 
 const typeParam = {
 	type: 'enum' as const,
@@ -109,7 +109,7 @@ export const docs: Record<keyof typeof termController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [404, 409, 422],
 			request: {
-				notes: `Provide at least one of type or contents. ${duplicateNote}, so new wording is re-checked against the other terms of the same type. Translations are upserted by language — a language left out of \`contents\` keeps what it already had, and none is ever removed by an update`,
+				notes: `Provide at least one of type or contents. ${duplicateNote}, so new wording is re-checked against the other terms of the same type. Translations are upserted by language - a language left out of \`contents\` keeps what it already had, and none is ever removed by an update`,
 				params: {
 					id: {
 						type: 'number',
@@ -133,7 +133,7 @@ export const docs: Record<keyof typeof termController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [404],
 			request: {
-				notes: 'Soft delete, and nothing checks what points at the term — anything already referencing it keeps resolving. The duplicate rule ignores deleted rows, so the wording is free for reuse immediately',
+				notes: 'Soft delete, and nothing checks what points at the term - anything already referencing it keeps resolving. The duplicate rule ignores deleted rows, so the wording is free for reuse immediately',
 				params: {
 					id: {
 						type: 'number',
@@ -195,7 +195,7 @@ export const docs: Record<keyof typeof termController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [422],
 			request: {
-				notes: 'The listing joins the translation for `language` but keeps a term that has none, returning it with an empty wording — this list is where those gaps are found and filled, and dropping the rows would hide exactly the ones needing attention',
+				notes: 'The listing joins the translation for `language` but keeps a term that has none, returning it with an empty wording - this list is where those gaps are found and filled, and dropping the rows would hide exactly the ones needing attention',
 				query: {
 					page: {
 						type: 'number',
@@ -224,7 +224,7 @@ export const docs: Record<keyof typeof termController, ApiInputDocumentation> =
 						term: {
 							type: 'string',
 							required: false,
-							condition: `an all-digit term matches the id exactly; otherwise the wording in any language, from ${Configuration.get('filter.termMinLength')} characters — unlike the listing itself, the search is not limited to the filtered language`,
+							condition: `an all-digit term matches the id exactly; otherwise the wording in any language, from ${Configuration.get('filter.termMinLength')} characters - unlike the listing itself, the search is not limited to the filtered language`,
 						},
 						type: {
 							type: 'enum',

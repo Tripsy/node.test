@@ -41,7 +41,7 @@ export const paramsUpdateList: string[] = [
 ];
 
 /**
- * `label` is the translation's, not a column on `product` — `ProductService` maps it onto the
+ * `label` is the translation's, not a column on `product` - `ProductService` maps it onto the
  * `content` join alias before the query builder sees it. Stated bare here so a join alias never
  * becomes part of the API contract.
  */
@@ -107,7 +107,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 		.transform((value) => value.toUpperCase());
 
 	/**
-	 * A display slot or a threshold, where zero is a legitimate value — the first position, or a
+	 * A display slot or a threshold, where zero is a legitimate value - the first position, or a
 	 * variant that is low on stock as soon as it has none. `validateNumber` is positive-only by
 	 * default, which rejects it.
 	 */
@@ -142,7 +142,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * Excludes VAT, like the column it feeds. `min_price` is the floor a stacked discount may
 	 * not resolve below, so it is checked against `sale_price` here as well as by the table's own
-	 * `@Check` — a constraint violation would reach the client as a masked 500.
+	 * `@Check` - a constraint violation would reach the client as a masked 500.
 	 */
 	readonly priceSchema = z
 		.object({
@@ -212,7 +212,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 		/*
 		 * `.optional()` on top of `required: false`: the two say different things.
 		 * `validateBoolean`'s option decides whether `false` is accepted as a value, not
-		 * whether the key may be absent — without it, a payload naming any other value column
+		 * whether the key may be absent - without it, a payload naming any other value column
 		 * is rejected for the boolean it deliberately left out.
 		 */
 		value_boolean: this.validateBoolean(
@@ -245,7 +245,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * The variant's own axes. Same shape as a product attribute, but the table's unique key
-	 * stops at the label, so the payload may not name one label twice — a variant cannot be
+	 * stops at the label, so the payload may not name one label twice - a variant cannot be
 	 * both `large` and `small`.
 	 */
 	readonly variantAttributeSchema = z
@@ -277,7 +277,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			this.getMessage('invalid_boolean'),
 			{ required: false },
 		).default(false),
-		// Base currency only — `product_price` is the per-market side. Zero is a legitimate
+		// Base currency only - `product_price` is the per-market side. Zero is a legitimate
 		// cost (a sample, a giveaway), so the bound is the table's `>= 0` rather than `> 0`
 		cost_price: this.validateNumber(this.getMessage('invalid_price'), {
 			required: false,
@@ -294,14 +294,14 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 		 * Optional rather than defaulted, unlike `prices` above: `syncAttributes` reads an
 		 * empty array as "clear the axis values", so a default would make every payload that
 		 * omits the key destructive. Absent leaves the stored values alone and `[]` clears
-		 * them — the same split as the product-level `attributes`.
+		 * them - the same split as the product-level `attributes`.
 		 */
 		attributes: z.array(this.variantAttributeSchema).optional(),
 	});
 
 	readonly availabilitySchema = z
 		.object({
-			// ISO 8601 weekdays, 1 = Monday … 7 = Sunday — the numbering
+			// ISO 8601 weekdays, 1 = Monday … 7 = Sunday - the numbering
 			// `discount.conditions.day_range` is written in, so a stored weekday means the same
 			// thing wherever it is read. NULL means every day, which is why the field is
 			// optional rather than defaulted
@@ -350,7 +350,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	 *
 	 * One interval per day: a product is orderable on a given weekday between one pair of hours,
 	 * not several. A partial unique index on `(product_id, day_of_week) NULLS NOT DISTINCT` backs
-	 * the same-day half up at the database, which is what makes a concurrent write safe — but no
+	 * the same-day half up at the database, which is what makes a concurrent write safe - but no
 	 * index reaches the every-day half, because that compares rows holding *different* values.
 	 *
 	 * Each message lands on the offending row's own `day_of_week` rather than on the array, so it
@@ -406,7 +406,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	/**
-	 * Cardinality is the `min_select` / `max_select` pair and nothing else — there is no
+	 * Cardinality is the `min_select` / `max_select` pair and nothing else - there is no
 	 * `is_required` flag to keep in agreement with it.
 	 *
 	 * Three checks, because two of them the table cannot make: `max >= min` is its `@Check`
@@ -460,7 +460,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * A choice offered inside a bundle: a prompt, and nothing else. Exactly one of its candidates
-	 * is taken, which is the whole of what a bundle choice means — there is no `min_select` /
+	 * is taken, which is the whole of what a bundle choice means - there is no `min_select` /
 	 * `max_select` pair to carry, unlike `optionGroupSchema`. See the entity for why a bound
 	 * counting candidate rows could not state the one case that would want it.
 	 *
@@ -469,7 +469,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	 * one it is creating in the same request.
 	 *
 	 * Nothing is checked here. How many candidates the group has spans this array and
-	 * `bundle_items` — and on an update either may be absent, so only the rows read back after the
+	 * `bundle_items` - and on an update either may be absent, so only the rows read back after the
 	 * write know the answer. That rule lives in `assertBundleGroupsAreUsable`.
 	 */
 	readonly bundleGroupSchema = z.object({
@@ -484,7 +484,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	 * candidate for.
 	 *
 	 * The three refines guard one idea from three sides. `is_default` and `prices` describe a
-	 * choice, so a component that is always included — no group, not optional — may carry
+	 * choice, so a component that is always included - no group, not optional - may carry
 	 * neither: its delta would have nothing to adjust, since the bundle's own price already
 	 * covers it, and preselecting something the customer cannot untick says nothing at all.
 	 * `is_optional` is the mirror image, refused inside a group: a group already says exactly one
@@ -579,7 +579,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * Exactly one variant carries `is_default`, and no two share a SKU.
 	 *
-	 * The table holds a partial unique index for the first half, which enforces *at most* one —
+	 * The table holds a partial unique index for the first half, which enforces *at most* one -
 	 * nothing in the schema says a product must have one at all, and nothing can see the whole
 	 * payload to reject two SKUs that are equal to each other but free in the table.
 	 */
@@ -699,7 +699,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 				),
 			/*
 			 * A product's attribute form is resolved from its categories, so one filed under
-			 * nothing has no form to fill in. The public address does not depend on them —
+			 * nothing has no form to fill in. The public address does not depend on them -
 			 * it is `/products/<product-slug>`, the slug alone.
 			 */
 			categories: this.idListSchema(
@@ -797,8 +797,8 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 
 		filterSchema: {
 			/*
-			 * A list rather than a scalar, so a caller holding several ids — the discount view
-			 * naming its targets — resolves them all in one request. A single id still arrives
+			 * A list rather than a scalar, so a caller holding several ids - the discount view
+			 * naming its targets - resolves them all in one request. A single id still arrives
 			 * as one.
 			 */
 			id: this.validateIdFilter(
@@ -828,7 +828,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 			),
 			/*
 			 * Where the product sits in its selling window. Narrower than `is_sellable`, which
-			 * folds this together with `workflow` and the timestamps — this one answers the
+			 * folds this together with `workflow` and the timestamps - this one answers the
 			 * status column on its own, which is what the listing's badge shows.
 			 */
 			sale_status: this.validateEnum(
@@ -850,7 +850,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 				this.getMessage('invalid_language'),
 				{ required: false },
 			),
-			// The sellable window — see `ProductQuery.filterBySellable`
+			// The sellable window - see `ProductQuery.filterBySellable`
 			is_sellable: this.validateBoolean(
 				this.getMessage('invalid_boolean'),
 				{ required: false },
@@ -874,7 +874,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * One facet of a catalog filter: a label, and either a set of admissible terms or a range.
 	 *
-	 * Ranges are stated in the *definition's* unit and converted before they meet the column —
+	 * Ranges are stated in the *definition's* unit and converted before they meet the column -
 	 * `value_base` holds the figure in the dimension's base unit, so a range in litres and a
 	 * catalog quoted in millilitres agree. `ProductService` does that conversion; the schema
 	 * only takes the numbers as the form shows them.
@@ -969,7 +969,7 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 						.nonempty(),
 				)
 				.optional(),
-			// The product the listing must not contain — the box is rendered on its own page
+			// The product the listing must not contain - the box is rendered on its own page
 			exclude_id: this.validateNumber(this.getMessage('invalid_number'), {
 				required: false,
 			}),

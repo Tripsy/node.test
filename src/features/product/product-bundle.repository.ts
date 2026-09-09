@@ -28,13 +28,13 @@ export type ResolvedBundleItem = ProductBundleItemType & {
 /**
  * The composition side, and the closest thing in this feature to `product-option.repository.ts`:
  * groups, their candidates and the per-currency deltas are one aggregate. What differs is what a
- * choice is made of — an item names a `product_variant`, a real sellable thing that consumes stock
+ * choice is made of - an item names a `product_variant`, a real sellable thing that consumes stock
  * and carries its own VAT class, where an option names a term.
  *
  * Components are kept flat rather than nested under their group, unlike options: a bundle holds
  * components that belong to no group at all, and one list that some rows carry a `group_id` in
  * beats two lists a component could be read from. So the two syncs are separate, and the group's
- * runs first — an item cannot name a row that has not been written.
+ * runs first - an item cannot name a row that has not been written.
  *
  * The variant is the natural key of an item and the label term that of a group, so a component
  * that moved into or out of a group keeps its id, and the deltas hanging off it.
@@ -49,7 +49,7 @@ export const ProductBundleRepository = dataSource
 		/**
 		 * The choices one bundle offers, matched by label term.
 		 *
-		 * A group that goes away is soft-removed, which leaves its candidates pointing at it —
+		 * A group that goes away is soft-removed, which leaves its candidates pointing at it -
 		 * a soft delete cascades nowhere. `assertBundleGroupsAreUsable` is what catches that,
 		 * by reading the pair back rather than trusting either sync.
 		 */
@@ -98,7 +98,7 @@ export const ProductBundleRepository = dataSource
 
 		/**
 		 * The components of one bundle, groups and all. Rows are matched by variant, so a
-		 * component whose quantity, position or group changed is updated rather than replaced —
+		 * component whose quantity, position or group changed is updated rather than replaced -
 		 * which keeps the id an order line may already reference, and the deltas hanging off it.
 		 *
 		 * Saved one at a time rather than in a batch, because each row's id is what its deltas
@@ -160,8 +160,8 @@ export const ProductBundleRepository = dataSource
 		/**
 		 * One delta per currency, keyed the way the table's unique index is.
 		 *
-		 * A component the customer does not choose carries none — the validator refuses a delta
-		 * there — so this also clears whatever a row kept from before it was made mandatory
+		 * A component the customer does not choose carries none - the validator refuses a delta
+		 * there - so this also clears whatever a row kept from before it was made mandatory
 		 * again, or lifted out of a group.
 		 */
 		async syncPrices(

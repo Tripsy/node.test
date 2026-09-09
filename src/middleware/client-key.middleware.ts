@@ -19,7 +19,7 @@ const EXEMPT_PATHS: ReadonlySet<string> = new Set(['/health', '/ready']);
  * The gate that makes this API private to its configured clients.
  *
  * CORS cannot do this job: `corsHandler` allows any request that arrives without an `Origin`
- * header, which is every request that does not come from a browser — so `curl` reaches the
+ * header, which is every request that does not come from a browser - so `curl` reaches the
  * reader-facing `/public/...` modules unchallenged. That header is a browser-enforced policy,
  * not a server-side check, and treating it as one leaves the open half of the API open.
  *
@@ -70,7 +70,7 @@ export function clientKeyMiddleware(
  * Reports the gate's state once, at boot.
  *
  * An empty key list is a legitimate local/test configuration and a silent hole in production,
- * and the two are indistinguishable at request time — hence a single line at startup rather
+ * and the two are indistinguishable at request time - hence a single line at startup rather
  * than a per-request check.
  */
 export function reportClientKeyState(): void {
@@ -83,7 +83,7 @@ export function reportClientKeyState(): void {
 	}
 
 	const message =
-		'Client key gate disabled — CLIENT_API_KEYS is empty, every caller is accepted';
+		'Client key gate disabled - CLIENT_API_KEYS is empty, every caller is accepted';
 
 	if (Configuration.isEnvironment('production')) {
 		getSystemLogger().warn(message);

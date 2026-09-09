@@ -26,7 +26,7 @@ const currencyParam = {
 };
 
 const directionNote =
-	"A row records what one unit of `currency` was worth in `base_currency` on `rate_date` — EUR, 5.2575, RON means 1 EUR = 5.2575 RON. `base_currency` is the deployment's own currency (`app.currency`), filled in by the server, so it is never sent: an amount in `currency` multiplied by `rate` reaches the books.";
+	"A row records what one unit of `currency` was worth in `base_currency` on `rate_date` - EUR, 5.2575, RON means 1 EUR = 5.2575 RON. `base_currency` is the deployment's own currency (`app.currency`), filled in by the server, so it is never sent: an amount in `currency` multiplied by `rate` reaches the books.";
 
 const notesParam = {
 	type: 'string' as const,
@@ -48,7 +48,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 409, 422],
 		request: {
-			notes: `${directionNote} One rate per currency per day: a second one for the same day answers 409. rate_date cannot be later than today, and the base currency itself is refused — it needs no rate. ${sourceNote}`,
+			notes: `${directionNote} One rate per currency per day: a second one for the same day answers 409. rate_date cannot be later than today, and the base currency itself is refused - it needs no rate. ${sourceNote}`,
 			body: {
 				currency: { ...currencyParam, required: true },
 				rate: {
@@ -97,7 +97,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 404, 422],
 		request: {
-			notes: `Provide at least one body parameter. Editable only while rate_date is within the last ${UPDATE_WINDOW_DAYS} days — an older rate answers 400, because documents have been priced against it. The currency and the day are not updatable: together they identify the row, so a wrong one is deleted and entered again. An edited row becomes ${ExchangeRateSourceEnum.MANUAL} whatever it was, which is what stops a later import from writing over a correction`,
+			notes: `Provide at least one body parameter. Editable only while rate_date is within the last ${UPDATE_WINDOW_DAYS} days - an older rate answers 400, because documents have been priced against it. The currency and the day are not updatable: together they identify the row, so a wrong one is deleted and entered again. An edited row becomes ${ExchangeRateSourceEnum.MANUAL} whatever it was, which is what stops a later import from writing over a correction`,
 			params: {
 				id: {
 					type: 'number',
@@ -125,7 +125,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: 'Hard — the table has no deleted state and therefore no restore. Documents already priced against the rate keep their own frozen copy of it, so removing the row does not move their figures; conversions asking for that day afterwards fall back to the last publication before it',
+			notes: 'Hard - the table has no deleted state and therefore no restore. Documents already priced against the rate keep their own frozen copy of it, so removing the row does not move their figures; conversions asking for that day afterwards fall back to the last publication before it',
 			params: {
 				id: {
 					type: 'number',

@@ -16,13 +16,13 @@ export class ProductQuery extends RepositoryAbstract<ProductEntity> {
 	 *
 	 * The full-text branch requires the `content` alias to be joined by the caller, and the
 	 * expression must stay character-identical to the GIN index in
-	 * `1788300000000-product-content-search.ts` — Postgres only uses an expression index when
+	 * `1788300000000-product-content-search.ts` - Postgres only uses an expression index when
 	 * the query repeats it verbatim, and a mismatch degrades to a sequential scan with nothing
 	 * reported. The same holds for the code branch and
 	 * `IDX_product_variant_sku_prefix`: it is `lower(sku) LIKE lower(:term)` and not `ILIKE`,
 	 * because `ILIKE` cannot use that index at all.
 	 *
-	 * A code is looked up as often as a name, so the variant SKUs are checked alongside — as a
+	 * A code is looked up as often as a name, so the variant SKUs are checked alongside - as a
 	 * prefix match rather than part of the tsvector, since a SKU is one token with punctuation
 	 * in it that the `simple` configuration would split apart.
 	 *
@@ -72,7 +72,7 @@ export class ProductQuery extends RepositoryAbstract<ProductEntity> {
 	 * `recompute-product-sale-status.cron.ts` catches up on a schedule, so reading it here would
 	 * hide a product until the pass after its window opened and keep selling one until the pass
 	 * after it closed. All three deadlines are therefore compared directly, `discontinued_at`
-	 * included — a withdrawal scheduled for a future date is the one the other two clauses say
+	 * included - a withdrawal scheduled for a future date is the one the other two clauses say
 	 * nothing about.
 	 *
 	 * `workflow` is the one condition no timestamp implies. A product nobody ever published has no
@@ -80,13 +80,13 @@ export class ProductQuery extends RepositoryAbstract<ProductEntity> {
 	 * what keeps a draft out.
 	 *
 	 * `product_availability` is *not* consulted. Those are recurring windows within the product's
-	 * life and leave `sale_status` untouched — an out-of-hours dish is still listed, it just
+	 * life and leave `sale_status` untouched - an out-of-hours dish is still listed, it just
 	 * cannot be ordered right now. See `.claude/rules/product.md` §9.
 	 *
 	 * The filter is tri-state, so the guard tests for an absent value rather than a falsy one:
 	 * `false` is the dashboard's "Not sellable" and asks for the complement, which a falsy check
 	 * would answer with the whole catalog. The whole predicate is negated rather than each half,
-	 * and it is one `filterRaw` for that reason — every clause resolves to true or false (the
+	 * and it is one `filterRaw` for that reason - every clause resolves to true or false (the
 	 * `IS NULL` branches make sure of it, and `workflow` is not nullable), so `NOT` cannot lose a
 	 * row to three-valued logic.
 	 */

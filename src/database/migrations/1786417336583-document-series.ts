@@ -53,7 +53,7 @@ export class DocumentSeries1786417336583 implements MigrationInterface {
 		);
 
 		// Narrowing back fails loudly if a code longer than three characters was issued, which is
-		// the correct outcome — the alternative silently truncates a live reference
+		// the correct outcome - the alternative silently truncates a live reference
 		await queryRunner.query(
 			`COMMENT ON COLUMN "order"."ref_code" IS 'Document series, e.g. ORD'`,
 		);

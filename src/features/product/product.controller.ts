@@ -50,7 +50,7 @@ class ProductController extends BaseController {
 		);
 
 		/*
-		 * An omitted `language` means every translation, not the request's own — the dashboard
+		 * An omitted `language` means every translation, not the request's own - the dashboard
 		 * edits all of them at once and has no other way to ask.
 		 */
 		const language = data.language;
@@ -159,7 +159,7 @@ class ProductController extends BaseController {
 
 	/**
 	 * The editorial state, moved one hop at a time through `WORKFLOW_TRANSITIONS`. The other
-	 * status a product carries — `sale_status` — has no route: it is derived from the
+	 * status a product carries - `sale_status` - has no route: it is derived from the
 	 * availability timestamps, which `update` is where an editor changes.
 	 */
 	public workflowUpdate = asyncHandler(

@@ -91,7 +91,7 @@ const termKey = (type: string, value: string): string =>
  *
  * Three scopes are covered on purpose: *Color* asked once for the product and *Storage* asked
  * once per variant are different questions, and the split is what the form uses to place a
- * value. *Diameter* and *Volume* are the numeric case — the number goes in `value_numeric` bare
+ * value. *Diameter* and *Volume* are the numeric case - the number goes in `value_numeric` bare
  * and the unit comes from the definition, which is what makes "between 300 and 600 ml" an
  * indexed comparison.
  *
@@ -200,7 +200,7 @@ const DEFINITIONS: readonly {
 	},
 ];
 
-/** Sale price per market. Both currencies are quoted outright — no rate is applied to a price. */
+/** Sale price per market. Both currencies are quoted outright - no rate is applied to a price. */
 type Money = { RON: number; EUR: number };
 
 /** A value answering one definition, in whichever of the two forms that definition takes. */
@@ -239,7 +239,7 @@ type CuratedOptionGroup = {
  * What a bundle contains, named by the component SKUs seeded above it.
  *
  * `delta` adjusts the component's *own* price, so a component the bundle price already covers
- * carries its whole price back as a negative and adds nothing — which is how the two menus
+ * carries its whole price back as a negative and adds nothing - which is how the two menus
  * below are priced.
  */
 type CuratedBundle = {
@@ -907,7 +907,7 @@ export const productSeed: SeedDefinition = {
 
 		const brandIds = await loadIds(manager, BrandEntity);
 
-		// The term id behind each label and value, keyed by type plus wording — the seed states
+		// The term id behind each label and value, keyed by type plus wording - the seed states
 		// the vocabulary in words and the tables store ids
 		const termContents = await manager
 			.getRepository(TermContentEntity)
@@ -1016,7 +1016,7 @@ export const productSeed: SeedDefinition = {
 		}
 
 		/*
-		 * The slug lives on the content row, so that is where the natural key is read from — the
+		 * The slug lives on the content row, so that is where the natural key is read from - the
 		 * product itself carries no code of its own. Same shape as `article.seed.ts`.
 		 */
 		const existingContent = await contentRepository.find({
@@ -1055,7 +1055,7 @@ export const productSeed: SeedDefinition = {
 
 		/**
 		 * One attribute value, written to whichever table its scope belongs to. A numeric value
-		 * also carries `value_base`, the figure converted into its dimension's base unit — the
+		 * also carries `value_base`, the figure converted into its dimension's base unit - the
 		 * same conversion the service applies on write, and what a range filter compares.
 		 */
 		const saveAttribute = async (
@@ -1436,10 +1436,10 @@ export const productSeed: SeedDefinition = {
 					language: 'en',
 					slug,
 					label,
-					description: `${label} — demo catalog entry ${sequenceLabel(index)}.`,
+					description: `${label} - demo catalog entry ${sequenceLabel(index)}.`,
 					meta: {
 						title: label,
-						description: `${label} — specifications and price`,
+						description: `${label} - specifications and price`,
 					},
 				}),
 			);
@@ -1542,7 +1542,7 @@ export const productSeed: SeedDefinition = {
 			}
 
 			// Every fifth product carries a capacity, so the numeric facet has rows to answer
-			// with. `value_base` is the figure in the dimension's base unit — the same
+			// with. `value_base` is the figure in the dimension's base unit - the same
 			// conversion the service applies on write
 			const capacityLabelId = labelId('capacity');
 
@@ -1579,7 +1579,7 @@ export const productSeed: SeedDefinition = {
 			}
 
 			// Every fourth product asks a question at order time. `min_select` 0 and
-			// `max_select` 1 is the optional single choice — there is no `is_required` flag to
+			// `max_select` 1 is the optional single choice - there is no `is_required` flag to
 			// agree with
 			if (index % 4 === 0 && warrantyPromptId) {
 				const group = await optionGroupRepository.save(

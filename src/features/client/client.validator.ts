@@ -28,7 +28,7 @@ export const paramsUpdateList = [
 
 /*
  * `client_type` discriminates the update union, so the controller fills it in from the stored
- * row whenever the body omits it — by the time the schema runs it is always present, and
+ * row whenever the body omits it - by the time the schema runs it is always present, and
  * counting it would defeat the empty-update check exactly as `id` would. It stays in
  * `paramsUpdateList` because it is genuinely updatable and the message should say so.
  *
@@ -213,8 +213,8 @@ export class ClientValidator extends BaseValidator<typeof validatorMessages> {
 
 		filterSchema: {
 			/*
-			 * A list rather than a scalar, so a caller holding several ids — the discount view
-			 * naming its targets — resolves them all in one request. A single id still arrives
+			 * A list rather than a scalar, so a caller holding several ids - the discount view
+			 * naming its targets - resolves them all in one request. A single id still arrives
 			 * as one.
 			 */
 			id: this.validateIdFilter(

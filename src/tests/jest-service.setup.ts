@@ -129,7 +129,7 @@ export function createMockContentRepository<
  * Stubs `dataSource.transaction` so the callback runs against a fake `EntityManager`.
  *
  * Pass the repository from `createMockRepository()` when the service under test resolves
- * one inside the transaction (`manager.getRepository(Entity)`) — without it `getRepository`
+ * one inside the transaction (`manager.getRepository(Entity)`) - without it `getRepository`
  * returns `undefined` and the service dies on the first call against it.
  */
 export function setupTransactionMock(repository?: unknown) {
@@ -251,7 +251,7 @@ export function testServiceDelete<
 	query: jest.Mocked<Q>,
 	service: IDeleteService,
 	// Most services soft-delete via a bare `.delete()`. Pass the arguments when a feature
-	// deliberately differs — `image` hard-deletes with `.delete(false)`, since a
+	// deliberately differs - `image` hard-deletes with `.delete(false)`, since a
 	// soft-deleted row whose file is gone is useless.
 	expectedDeleteArgs: boolean[] = [],
 ) {
@@ -299,13 +299,13 @@ export function testServiceRestore<
 		/*
 		 * A restore is not always a bare `filterById().restore()`. Where a unique index is
 		 * partial on `deleted_at IS NULL`, deleting a row frees its key for someone else, so
-		 * the service reloads the row and refuses when the key was taken meanwhile — see
+		 * the service reloads the row and refuses when the key was taken meanwhile - see
 		 * `BrandService.restore`. Both halves of that are arranged here: the row exists, and
 		 * nothing else holds its key.
 		 *
 		 * Arranged in the helper rather than left to each caller because `clearMocks` resets
 		 * calls but not implementations, so otherwise this test passes or fails on whatever
-		 * earlier tests in the file happened to leave on `firstOrFail` and `first` — it read
+		 * earlier tests in the file happened to leave on `firstOrFail` and `first` - it read
 		 * as a brand bug while being an ordering artefact, and failed differently when run
 		 * alone. A service that checks nothing is unaffected by either line.
 		 */

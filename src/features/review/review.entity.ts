@@ -35,7 +35,7 @@ export const STATUS_TRANSITIONS: StatusTransitions<ReviewStatus> = {
 
 /**
  * The dimensions a reviewer may score, each out of 5. A review carries at least one of them and
- * nothing else — `CHK_review_rating_keys` holds both halves of that rule.
+ * nothing else - `CHK_review_rating_keys` holds both halves of that rule.
  *
  * The list is repeated as SQL literals in the checks below, since a decorator takes a fixed string.
  * Adding a dimension means a migration; dropping one leaves the older rows carrying it, so read
@@ -93,7 +93,7 @@ const ENTITY_TABLE_NAME = 'review';
  * at least one. Values are compared as jsonb rather than cast to numeric: a cast over a string
  * value raises `22P02` instead of failing the constraint, which reaches the client as a masked 500
  * rather than a validation error. jsonb ordering sorts strings above every number, so a
- * non-numeric value falls outside the range on its own — the `jsonb_typeof` guard states the rule
+ * non-numeric value falls outside the range on its own - the `jsonb_typeof` guard states the rule
  * regardless. It reads worse than a `jsonb_each` subquery would, which Postgres forbids here.
  */
 @Check(
@@ -125,14 +125,14 @@ export default class ReviewEntity extends EntityAbstract {
 
 	/**
 	 * The review's star score: the dimensions set in `rating` summed and divided by how many were
-	 * set — `(quality + price + service + delivery) / 4` when all four are given, `(quality +
+	 * set - `(quality + price + service + delivery) / 4` when all four are given, `(quality +
 	 * service) / 2` when only those two are. Never divided by the number of dimensions that exist,
 	 * which would score a partly-filled review as though the blanks were zeros. `CHK_review_rating`
 	 * guarantees at least one is present, so the divisor is never zero, and each is at least 1, so
 	 * the result stays inside the 1-5 that `CHK_review_rating_avg_range` holds.
 	 *
 	 * Written by `ReviewService` on every write, rounded to the column's 2 decimals there rather
-	 * than left to Postgres — (5 + 4 + 4) / 3 stores as 4.33.
+	 * than left to Postgres - (5 + 4 + 4) / 3 stores as 4.33.
 	 *
 	 * This is what a product average aggregates and what a star filter compares against:
 	 * `AVG(rating_avg)` over a plain column, instead of unpacking jsonb per row and deciding there
@@ -161,7 +161,7 @@ export default class ReviewEntity extends EntityAbstract {
 	})
 	status!: ReviewStatus;
 
-	// Author — always a registered user, which is what `UQ_review_user` counts on to hold one
+	// Author - always a registered user, which is what `UQ_review_user` counts on to hold one
 	// review per product.
 	@Column({
 		type: 'int',
@@ -218,7 +218,7 @@ export default class ReviewEntity extends EntityAbstract {
 	@JoinColumn({ name: 'product_id' })
 	product?: ProductEntity;
 
-	// Cascade is forced by `user_id` being NOT NULL — there is no anonymous state to fall back to,
+	// Cascade is forced by `user_id` being NOT NULL - there is no anonymous state to fall back to,
 	// so a closed account takes its reviews with it and every product average it fed has to be
 	// recomputed.
 	@ManyToOne('UserEntity', {

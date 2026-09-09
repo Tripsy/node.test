@@ -10,7 +10,7 @@ export const notFoundHandler = (
 	/*
 	 * Gated on `app.debug`, matching how `errorHandler` already treats a 404 (it excludes
 	 * [400, 401, 403, 404, 409] unless debug is on). This handler never routed through it,
-	 * so it kept logging at `error` level — which `levelDatabase` persists to `log_data`
+	 * so it kept logging at `error` level - which `levelDatabase` persists to `log_data`
 	 * and `levelCloudWatch` ships off-instance.
 	 *
 	 * That made an unauthenticated stranger the author of rows in our database: a public

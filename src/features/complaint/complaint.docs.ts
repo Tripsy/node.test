@@ -37,7 +37,7 @@ const entitySample: Record<string, unknown> = {
 };
 
 const resolutionNote =
-	'The flag and the timestamp are tied together by a check constraint, so resolving stamps resolved_at and the deciding moderator, and reopening clears both — a name against a complaint nobody has decided on reads as a decision';
+	'The flag and the timestamp are tied together by a check constraint, so resolving stamps resolved_at and the deciding moderator, and reopening clears both - a name against a complaint nobody has decided on reads as a decision';
 
 export const docs: Record<
 	keyof typeof complaintController,
@@ -171,7 +171,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404, 422],
 		request: {
-			notes: `One endpoint per direction rather than a boolean in the body — a required boolean validates as "must be true", so the reopening half could never pass. ${resolutionNote}`,
+			notes: `One endpoint per direction rather than a boolean in the body - a required boolean validates as "must be true", so the reopening half could never pass. ${resolutionNote}`,
 			params: {
 				id: {
 					type: 'number',
@@ -210,7 +210,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: "Soft — a dismissed complaint is still the record a disputed decision is answered from. It also releases the reporter's slot on that target, so the same reader may file again",
+			notes: "Soft - a dismissed complaint is still the record a disputed decision is answered from. It also releases the reporter's slot on that target, so the same reader may file again",
 			params: {
 				id: {
 					type: 'number',

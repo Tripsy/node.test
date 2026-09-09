@@ -35,7 +35,7 @@ const ENTITY_TABLE_NAME = 'order';
 	schema: 'public',
 	comment: 'Stores order information',
 })
-// Series plus sequential number, matching `invoice` and `grn` — one numbering scheme across every
+// Series plus sequential number, matching `invoice` and `grn` - one numbering scheme across every
 // document the business issues
 @Index('IDX_order_ref', ['ref_code', 'ref_number'], {
 	unique: true,

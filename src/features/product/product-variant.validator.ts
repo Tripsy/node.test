@@ -51,7 +51,7 @@ export class ProductVariantValidator extends BaseValidator<
 		defaultPage: 1,
 
 		/*
-		 * The product listing's filters, read across the join, plus `product_id` — which is how
+		 * The product listing's filters, read across the join, plus `product_id` - which is how
 		 * a picker asks for one product's variants rather than the whole catalog.
 		 */
 		filterSchema: {
@@ -102,7 +102,7 @@ export class ProductVariantValidator extends BaseValidator<
 				this.getMessage('invalid_language'),
 				{ required: false },
 			),
-			// The sellable window of the parent product — see `ProductVariantQuery`
+			// The sellable window of the parent product - see `ProductVariantQuery`
 			is_sellable: this.validateBoolean(
 				this.getMessage('invalid_boolean'),
 				{ required: false },

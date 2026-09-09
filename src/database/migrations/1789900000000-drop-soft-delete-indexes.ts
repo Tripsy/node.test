@@ -8,8 +8,8 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * A soft delete here is a person removing a record, so live rows are all but a rounding error of
  * the table, and an index that keeps every one of them tells the planner nothing it can narrow
  * with. Measured at 500k rows with 2% deleted, it was chosen by none of the four shapes the code
- * actually issues — a selective equality plus `deleted_at IS NULL`, a skewed enum plus the same, a
- * paginated `ORDER BY id DESC LIMIT`, and the `COUNT(*)` behind pagination — each of which
+ * actually issues - a selective equality plus `deleted_at IS NULL`, a skewed enum plus the same, a
+ * paginated `ORDER BY id DESC LIMIT`, and the `COUNT(*)` behind pagination - each of which
  * applies `deleted_at` as a filter over a plan chosen for the other predicate. What it did cost
  * was one extra buffer touch per row inserted, on every one of those tables.
  *
@@ -19,7 +19,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * artifact of the row count, not evidence the index earns its place.
  *
  * **When it would earn its place:** once soft-deleted rows come to dominate a table, the predicate
- * turns selective and the same index becomes the right plan — at 81% deleted it was chosen
+ * turns selective and the same index becomes the right plan - at 81% deleted it was chosen
  * outright. No table here is near that, and the way to keep it that way is to purge tombstones
  * rather than to index around them. Reinstate it per table, on measurement, never as a default.
  *

@@ -45,7 +45,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 409, 422],
 		request: {
-			notes: `One series per document type — a second one for the same type answers 409. The counter starts at start_number, so a series taking over from a legacy numbering is created with that set. ${counterNote}`,
+			notes: `One series per document type - a second one for the same type answers 409. The counter starts at start_number, so a series taking over from a legacy numbering is created with that set. ${counterNote}`,
 			body: {
 				document_type: {
 					type: 'enum',
@@ -94,7 +94,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 404, 422],
 		request: {
-			notes: `Provide at least one body parameter. document_type is not updatable — it is the key an allocation resolves on, and moving it would hand already-issued numbers to another series. ${counterNote}, so raising start_number on a series that has issued anything documents an intent without changing what comes next`,
+			notes: `Provide at least one body parameter. document_type is not updatable - it is the key an allocation resolves on, and moving it would hand already-issued numbers to another series. ${counterNote}, so raising start_number on a series that has issued anything documents an intent without changing what comes next`,
 			params: {
 				id: {
 					type: 'number',
@@ -123,7 +123,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: 'Hard — the table has no deleted state and therefore no restore. Nothing stops the removal of a series that has already issued numbers, and recreating it starts the counter again from start_number, which then collides with the references already carrying that code',
+			notes: 'Hard - the table has no deleted state and therefore no restore. Nothing stops the removal of a series that has already issued numbers, and recreating it starts the counter again from start_number, which then collides with the references already carrying that code',
 			params: {
 				id: {
 					type: 'number',

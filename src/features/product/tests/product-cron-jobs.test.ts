@@ -8,7 +8,7 @@ import { createMockQuery } from '@/tests/jest-service.setup';
 /*
  * Same shape as `log-data-cron-jobs.test.ts`: the job resolves its repository through
  * `dataSource.getRepository(...)`, which is never initialized under `test`, so the repository
- * and the service are both replaced before the job is imported — under the ESM preset that
+ * and the service are both replaced before the job is imported - under the ESM preset that
  * means `unstable_mockModule` plus a dynamic import.
  */
 const productQuery = createMockQuery() as unknown as jest.Mocked<ProductQuery>;
@@ -101,7 +101,7 @@ describe('product cron jobs', () => {
 
 		/*
 		 * The `CASE` mirrors `ProductService.resolveSaleStatus`, where the branch order *is* the
-		 * precedence — `discontinued_at` outranks both windows, and an unopened product reads as
+		 * precedence - `discontinued_at` outranks both windows, and an unopened product reads as
 		 * coming soon rather than unavailable. Reordering the SQL silently changes which status a
 		 * product carrying two elapsed timestamps lands on.
 		 */

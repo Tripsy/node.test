@@ -87,7 +87,7 @@ export class AccountValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	/**
-	 * `provider` arrives as a route param, `code`/`redirect_uri` in the body — the
+	 * `provider` arrives as a route param, `code`/`redirect_uri` in the body - the
 	 * controller merges both before validating.
 	 */
 	readonly oauthLogin = z.object({
@@ -230,7 +230,7 @@ export class AccountValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * `password_current` is optional at the schema level because a social sign-in account
 	 * has none to send. The controller still requires it whenever the account does have a
-	 * password — the check needs the user row, which is not available here.
+	 * password - the check needs the user row, which is not available here.
 	 */
 	readonly meDelete = z.object({
 		password_current: this.validateString(

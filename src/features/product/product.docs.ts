@@ -79,7 +79,7 @@ function manageBody(required: boolean) {
 			required: false,
 			values: Object.values(ProductVatCategoryEnum),
 			default: ProductVatCategoryEnum.STANDARD,
-			condition: 'unused on a bundle — its components carry their own',
+			condition: 'unused on a bundle - its components carry their own',
 		},
 		available_from: {
 			type: 'string' as const,

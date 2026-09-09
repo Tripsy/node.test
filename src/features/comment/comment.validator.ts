@@ -73,7 +73,7 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	}
 
 	/**
-	 * What a visitor posts. The author is never in the body — it is resolved from the request — so
+	 * What a visitor posts. The author is never in the body - it is resolved from the request - so
 	 * the only identity fields here are the ones a guest supplies about themselves, and they stay
 	 * optional at this level: whether they are required depends on whether the caller is signed in,
 	 * which is a fact about the request rather than about its shape. `CommentService` holds that
@@ -128,7 +128,7 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	 * are what the comment *is*, and changing any of them after the fact would relocate a row the
 	 * thread has already been rendered around.
 	 *
-	 * Addressed by id — unlike `rating`, where the target identifies the caller's single row, an
+	 * Addressed by id - unlike `rating`, where the target identifies the caller's single row, an
 	 * author may hold many comments on one target, so nothing shorter addresses one. Ownership is
 	 * enforced by `CommentQuery.filterByOwner` on the same query that loads it.
 	 */
@@ -148,7 +148,7 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * The thread as a visitor sees it. The target comes from the path, so it sits in `querySchema`
-	 * (top level) rather than in `filter`; `parent_id` picks the level being read — omitted means
+	 * (top level) rather than in `filter`; `parent_id` picks the level being read - omitted means
 	 * the roots.
 	 *
 	 * `status` is deliberately absent: a public read only ever returns approved rows, and letting
@@ -217,7 +217,7 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	/**
-	 * The moderation decision. `status` arrives in the path and the reason in the body — it is
+	 * The moderation decision. `status` arrives in the path and the reason in the body - it is
 	 * optional, and stored as written for the audit trail rather than shown to the author.
 	 */
 	readonly statusUpdate = z.object({

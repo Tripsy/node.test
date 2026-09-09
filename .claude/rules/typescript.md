@@ -5,7 +5,7 @@ paths:
 
 # TypeScript Conventions
 
-**Scope:** Language-level conventions, type design, and lint rules — the baseline for every `.ts`
+**Scope:** Language-level conventions, type design, and lint rules - the baseline for every `.ts`
 file in the repo. For the conventions of a specific subsystem, see the narrower sibling rules
 (`api.md`, `auth.md`, `database.md`, `error-handling.md`, `validation.md`, `testing.md`), which
 layer on top of this one.

@@ -12,7 +12,7 @@ import {
  * contract: one delete per operation, awaited inside the request, so a client reading straight back
  * after its own write cannot be served the entry it just replaced.
  *
- * The tests spy on `cacheProvider` rather than on an event, because there is no longer an event —
+ * The tests spy on `cacheProvider` rather than on an event, because there is no longer an event -
  * a TypeORM subscriber cannot do this job, firing per row and from inside the transaction.
  */
 
@@ -146,7 +146,7 @@ describe('cleanEntityCacheMany', () => {
 
 	/**
 	 * The whole point of `deleteByIdents`: `MATCH` takes one glob, so a loop here would be one
-	 * full pass over the keyspace per id — unusable for the bulk deletes the retention crons do.
+	 * full pass over the keyspace per id - unusable for the bulk deletes the retention crons do.
 	 */
 	it('makes one pass for many ids instead of one per id', async () => {
 		const deleteByPattern = jest
@@ -208,7 +208,7 @@ describe('CacheProvider.deleteByIdents', () => {
 
 	/**
 	 * The case the whole filter exists for. `4` and `40` share a prefix, so anything matching on
-	 * `startsWith` deletes a row nobody asked about — silently, and only for ids that happen to be
+	 * `startsWith` deletes a row nobody asked about - silently, and only for ids that happen to be
 	 * a prefix of another.
 	 */
 	it('matches the ident as a whole segment, not a prefix', async () => {

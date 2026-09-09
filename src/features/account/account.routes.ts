@@ -6,7 +6,7 @@ import type { FeatureRoutesModule } from '@/shared/types/routes.type';
  * What a signed-in user does with their own account: read the session, list and end sessions,
  * change the name, password or email, manage linked providers, delete the account.
  *
- * Every action requires a bearer token and none consults a permission entity — the token names
+ * Every action requires a bearer token and none consults a permission entity - the token names
  * the user and each write targets that user alone, so `account` never appears in a grant.
  *
  * The complement of `account-public.routes.ts`, derived rather than restated: an action added

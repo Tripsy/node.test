@@ -51,7 +51,7 @@ function ratingKey(
 
 /**
  * Ratings on articles only. `comment` is the other target the enum allows, but comments have no
- * demo data of their own — seeding against ids that are not there would produce rows pointing at
+ * demo data of their own - seeding against ids that are not there would produce rows pointing at
  * nothing, which is exactly what the missing foreign key on a polymorphic target cannot prevent.
  */
 export const ratingSeed: SeedDefinition = {
@@ -133,8 +133,8 @@ export const ratingSeed: SeedDefinition = {
 				return false;
 			}
 
-			// Two candidates for the same target, type and address can be drawn within one run —
-			// the same rater picked twice — and the second would fail the unique on insert.
+			// Two candidates for the same target, type and address can be drawn within one run -
+			// the same rater picked twice - and the second would fail the unique on insert.
 			existingKeys.add(key);
 
 			return true;

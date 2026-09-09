@@ -12,12 +12,12 @@ import { sharedValidatorMessages } from '../src/shared/abstracts/validator.abstr
  *
  * Two sources are checked:
  *
- *   1. `lang('namespace.key')` — static single-quoted keys only. Keys built at runtime
+ *   1. `lang('namespace.key')` - static single-quoted keys only. Keys built at runtime
  *      (template literals, variables) can't be resolved by reading source, so they are
  *      counted and reported as unchecked rather than guessed at.
  *   2. Every `validatorMessages` tuple in a `*.validator.ts`. `BaseValidator.getMessage()`
  *      builds its key at runtime from the entity the validator was constructed with, which
- *      puts it outside case 1 — but both halves are still static text: the tuple lists the
+ *      puts it outside case 1 - but both halves are still static text: the tuple lists the
  *      keys, and `new XValidator('<entity>')` supplies the namespace. Pairing the two
  *      reconstructs `<entity>.validation.<key>` (or `shared.validation.<key>` for a member
  *      of `sharedValidatorMessages`, matching how `getMessage` routes it).
@@ -27,7 +27,7 @@ import { sharedValidatorMessages } from '../src/shared/abstracts/validator.abstr
 
 const SRC_PATH = path.join(process.cwd(), 'src');
 
-/** `lang('some.key'` — the opening of a call whose first argument is a literal. */
+/** `lang('some.key'` - the opening of a call whose first argument is a literal. */
 const STATIC_KEY = /\blang\(\s*'([^']+)'/g;
 /** `lang(` not followed by a quote: a runtime-built key. */
 const DYNAMIC_CALL = /\blang\(\s*(?!['"])[^)\s]/g;
@@ -36,9 +36,9 @@ const DYNAMIC_CALL = /\blang\(\s*(?!['"])[^)\s]/g;
 const VALIDATOR_MESSAGES = /const validatorMessages\s*=\s*\[([\s\S]*?)\]/;
 /** A single-quoted entry inside that tuple; the `...sharedValidatorMessages` spread is unquoted and so skipped. */
 const QUOTED_ENTRY = /'([^']+)'/g;
-/** `export class XValidator extends BaseValidator` — the class whose tuple this is. */
+/** `export class XValidator extends BaseValidator` - the class whose tuple this is. */
 const VALIDATOR_CLASS = /class\s+(\w+)\s+extends\s+BaseValidator/g;
-/** `new XValidator('entity')` — the namespace half of the key. */
+/** `new XValidator('entity')` - the namespace half of the key. */
 const VALIDATOR_INSTANCE = /new\s+(\w+Validator)\s*\(\s*'([^']+)'/g;
 
 type Finding = {

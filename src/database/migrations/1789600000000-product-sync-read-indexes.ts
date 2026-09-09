@@ -11,7 +11,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * ```
  *
  * A partial index `WHERE deleted_at IS NULL` cannot answer a query that carries no such
- * predicate, and on these eight tables the parent key appeared in nothing else — so every save of
+ * predicate, and on these eight tables the parent key appeared in nothing else - so every save of
  * a product sequentially scanned each of them. The same index is what the foreign key needs when
  * a hard delete cascades, which looks the children up by that key with no regard for
  * `deleted_at` either.

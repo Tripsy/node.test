@@ -43,7 +43,7 @@ export default class ProductOptionPriceEntity extends EntityAbstract {
 	})
 	currency!: string;
 
-	// No positivity check, unlike `product_price.price` — a discount for leaving something out is
+	// No positivity check, unlike `product_price.price` - a discount for leaving something out is
 	// a normal answer, so the delta is signed
 	@Column('decimal', {
 		precision: 12,

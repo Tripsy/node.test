@@ -6,7 +6,7 @@ import type { LogHistoryDestination } from '@/shared/types/log-history.type';
 
 /**
  * Deliberately un-annotated so TypeScript infers the literal shape of the returned object.
- * That inferred shape is what gives `Configuration.get()` its key union and return types —
+ * That inferred shape is what gives `Configuration.get()` its key union and return types -
  * annotating this `: Settings` would widen everything to `ObjectValue` and lose both.
  */
 function loadSettings() {
@@ -60,7 +60,7 @@ function loadSettings() {
 				v.trim(),
 			) || ['http://localhost'],
 			/*
-			 * Keys the HMAC behind `hashClientIp` — the form every `user_ip_hash` column
+			 * Keys the HMAC behind `hashClientIp` - the form every `user_ip_hash` column
 			 * stores an address in. A separate secret from `user.authSecret` because the two
 			 * rotate on different schedules and the consequences differ: rotating this one
 			 * makes every stored hash stop matching the caller it belongs to, so anything
@@ -92,7 +92,7 @@ function loadSettings() {
 			 * every key is namespaced by app. Applied in `CacheProvider.buildKey` rather than
 			 * through ioredis's own `keyPrefix` option: that one does not reach the MATCH
 			 * argument of SCAN, so `deleteByPattern` would scan the *other* app's keys and
-			 * then delete against them — leaving the collision risk in place while appearing
+			 * then delete against them - leaving the collision risk in place while appearing
 			 * to solve it.
 			 */
 			keyPrefix: process.env.REDIS_KEY_PREFIX || 'nready-api',
@@ -114,7 +114,7 @@ function loadSettings() {
 				? ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 				: []) as LogDataLevel[],
 			// Production hosts are ephemeral, so rotating files on disk buy nothing and
-			// are lost with the instance — CloudWatch replaces them there.
+			// are lost with the instance - CloudWatch replaces them there.
 			levelFile: (isProduction
 				? []
 				: [
@@ -127,7 +127,7 @@ function loadSettings() {
 			/*
 			 * Only what is worth keeping in the application's own database. `info` and
 			 * `warn` are the bulk of the volume and belong in CloudWatch instead, which is
-			 * cheaper per byte and holds the longer tail — `log_data` sits on the instance's
+			 * cheaper per byte and holds the longer tail - `log_data` sits on the instance's
 			 * disk, and `clean-log-data.cron.ts` keeps only the last 30 days of it.
 			 *
 			 * `error` and `fatal` stay here on purpose: this table is queryable from the
@@ -138,7 +138,7 @@ function loadSettings() {
 			// Only `fatal` by default: this channel mails on every match, and error-level
 			// volume would make it noise. Widen it here for a deployment that wants more.
 			levelEmail: ['fatal'] as LogDataLevel[],
-			// Not gated on environment — the destination is skipped unless a log group is
+			// Not gated on environment - the destination is skipped unless a log group is
 			// configured, so setting AWS_CLOUDWATCH_LOG_GROUP is enough to try it in dev.
 			levelCloudWatch: [
 				'info',
@@ -154,7 +154,7 @@ function loadSettings() {
 			ses: {
 				/*
 				 * SES identities are verified per region, so the region that can send mail
-				 * is not necessarily the one the application runs in — a domain verified
+				 * is not necessarily the one the application runs in - a domain verified
 				 * years ago in one region stays there, while the instance lives wherever it
 				 * was deployed. Falling back to AWS_REGION keeps the common single-region
 				 * case configuration-free.
@@ -209,7 +209,7 @@ function loadSettings() {
 		 * backend, which is the whole point of not doing the exchange in the browser.
 		 *
 		 * A provider with an empty `clientId` is treated as not configured and its
-		 * endpoint answers 501 — so a deployment can enable Google without Facebook.
+		 * endpoint answers 501 - so a deployment can enable Google without Facebook.
 		 */
 		oauth: {
 			/*
@@ -245,7 +245,7 @@ type Settings = ReturnType<typeof loadSettings>;
 /**
  * Every valid dotted path into `Settings`, as a union of string literals.
  *
- * Arrays stop the recursion — `logging.levelFile` is a leaf, there is no
+ * Arrays stop the recursion - `logging.levelFile` is a leaf, there is no
  * `logging.levelFile.0`. `NonNullable` lets an optional branch (`mail.host` is
  * `string | undefined`) still be classified by its non-undefined type.
  */
@@ -272,8 +272,8 @@ export type SettingsValue<
 /**
  * Settings are derived once, on first read, and reused.
  *
- * `loadSettings()` is not cheap — it re-reads ~40 environment variables, runs `parseInt` and
- * `split` over them and calls `hostname()` — and `Configuration.get()` is called ~1000 times
+ * `loadSettings()` is not cheap - it re-reads ~40 environment variables, runs `parseInt` and
+ * `split` over them and calls `hostname()` - and `Configuration.get()` is called ~1000 times
  * during boot alone. Nothing here can change after the process starts (`dotenv/config` is
  * imported at the top of this module, before any reader), so a per-read rebuild would buy
  * nothing.
@@ -293,7 +293,7 @@ export const Configuration = {
 	/**
 	 * Reads a setting by dotted path. The path is checked against the shape of
 	 * `loadSettings()`, so a typo is a compile error rather than an `undefined` at runtime,
-	 * and the return type is inferred — no `as string` needed at the call site.
+	 * and the return type is inferred - no `as string` needed at the call site.
 	 */
 	get: <K extends SettingsKey>(key: K): SettingsValue<K> => {
 		const value = getObjectValue(
@@ -324,7 +324,7 @@ export const Configuration = {
 	// },
 
 	// These read the cached object directly rather than going through `get()`. They are
-	// the hottest paths — every `lang()` call hits `isEnvironment` — and this skips the
+	// the hottest paths - every `lang()` call hits `isEnvironment` - and this skips the
 	// dotted-path split, the lookup and the undefined check for a plain property read.
 	environment: () => {
 		return getSettings().app.environment;

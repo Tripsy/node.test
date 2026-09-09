@@ -10,7 +10,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * and no column is converted.
  *
  * Guarded on the label still being `cancelled`, because `1786415988228-init.ts` was rewritten
- * to create the enums as `canceled` — a database built from scratch therefore never has the
+ * to create the enums as `canceled` - a database built from scratch therefore never has the
  * old label, and an unguarded `RENAME VALUE` would fail on it. Both paths converge here: a
  * database created before this change is renamed, a fresh one is left alone.
  */

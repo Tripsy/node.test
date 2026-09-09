@@ -32,7 +32,7 @@ const REASONS: readonly ComplaintReason[] = Object.values(ComplaintReasonEnum);
 
 /**
  * The natural key, and the same triple `UQ_complaint_user` is built on: one complaint per reporter
- * per target. The table has no free column that is unique per seeded row — a complaint is
+ * per target. The table has no free column that is unique per seeded row - a complaint is
  * deliberately free to repeat every one of its other values.
  */
 function complaintKey(
@@ -79,7 +79,7 @@ export const complaintSeed: SeedDefinition = {
 
 		/*
 		 * `withDeleted` on purpose. The unique is scoped to live rows, so a withdrawn complaint
-		 * would let this insert a second one — and a re-run would then keep filing the same
+		 * would let this insert a second one - and a re-run would then keep filing the same
 		 * complaint again on every pass.
 		 */
 		const existingRows = await repository.find({

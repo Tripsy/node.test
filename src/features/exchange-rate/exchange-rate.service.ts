@@ -53,7 +53,7 @@ export type ImportedRate = {
 export type ImportSummary = {
 	inserted: number;
 	updated: number;
-	/** Already stored with the same rate — the ordinary result of re-reading a bulletin. */
+	/** Already stored with the same rate - the ordinary result of re-reading a bulletin. */
 	unchanged: number;
 	/** Left alone because a person had corrected that row. */
 	skipped_manual: number;
@@ -73,7 +73,7 @@ export class ExchangeRateService {
 	 * One rate per pair per day, enforced by a unique index. The lookup is what produces a
 	 * message the caller can act on; the catch below covers the insert that loses a race with
 	 * a concurrent one, where the index is the only thing left to stop it. Without either, a
-	 * duplicate surfaces as a driver error — a 500 whose message the error handler masks.
+	 * duplicate surfaces as a driver error - a 500 whose message the error handler masks.
 	 */
 	public async create(
 		data: ValidatorOutput<ExchangeRateValidator, 'create'>,
@@ -110,7 +110,7 @@ export class ExchangeRateService {
 				rate: data.rate,
 				rate_date: rateDate,
 				// Everything written through the API is a human's entry, whatever an earlier
-				// import had put there — see `updateData`
+				// import had put there - see `updateData`
 				source: ExchangeRateSourceEnum.MANUAL,
 				provider: null,
 				notes: data.notes ?? null,
@@ -179,7 +179,7 @@ export class ExchangeRateService {
 	/**
 	 * The window is measured from the day the rate applies to, not from when the row was
 	 * written: a rate backfilled today for a date three weeks ago is already outside it, which
-	 * is the point — what it would change has been reported on.
+	 * is the point - what it would change has been reported on.
 	 */
 	private assertWithinUpdateWindow(entry: ExchangeRateEntity): void {
 		const elapsedSeconds = dateDiff(
@@ -220,7 +220,7 @@ export class ExchangeRateService {
 	 * types, and does not apply here.
 	 *
 	 * A stored row is only ever replaced by a later import if it *came from* an import. A rate
-	 * someone corrected by hand is left exactly as it is and counted in `skipped_manual` —
+	 * someone corrected by hand is left exactly as it is and counted in `skipped_manual` -
 	 * without that, tonight's run would quietly undo this morning's correction.
 	 */
 	public async importRates(
@@ -297,14 +297,14 @@ export class ExchangeRateService {
 
 		// After the commit, never inside it: a reader that refills the cache between the clean
 		// and the COMMIT would leave it holding the superseded rate with nothing to correct it.
-		// Inserts need no clean — a new row has no cached key
+		// Inserts need no clean - a new row has no cached key
 		await cleanEntityCacheMany(ExchangeRateEntity, touchedIds);
 
 		return summary;
 	}
 
 	/**
-	 * @description What one unit of `currency` was worth on `date` — the newest publication on
+	 * @description What one unit of `currency` was worth on `date` - the newest publication on
 	 * or before it, so a weekend or a holiday carries the previous working day forward.
 	 *
 	 * Multiply an amount in `currency` by the answer to reach `baseCurrency`, which defaults to
@@ -312,7 +312,7 @@ export class ExchangeRateService {
 	 *
 	 * Returns `null` when the currency has never been published, which the caller has to answer
 	 * for: converting at a made-up rate is worse than refusing. The reverse direction is not
-	 * tried — a caller wanting it takes the reciprocal, rather than having this quietly invert a
+	 * tried - a caller wanting it takes the reciprocal, rather than having this quietly invert a
 	 * rate that was published the other way round.
 	 */
 	public async getRateAsOf(

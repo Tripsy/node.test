@@ -51,7 +51,7 @@ export type CreateValidator = {
 
 type CreateService<E, V extends CreateValidator> = {
 	/*
-	 * The rest parameter covers a service that is handed something the payload does not carry —
+	 * The rest parameter covers a service that is handed something the payload does not carry -
 	 * `ArticleService.create` takes the session account for `author_id`. The tests only ever
 	 * spy on this method, so the extra arguments need to be admitted, not described.
 	 */
@@ -177,7 +177,7 @@ export type UpdateValidator = {
 
 type UpdateService<E, V extends UpdateValidator> = {
 	// Update actions load the entity before mutating it, so the builder has to stub
-	// `findById` too — otherwise it reaches the real repository, and the data source is
+	// `findById` too - otherwise it reaches the real repository, and the data source is
 	// never initialized under `test` ("No metadata for <Entity> was found").
 	findById(id: number, withDeleted?: boolean): Promise<E>;
 	updateData(
@@ -265,7 +265,7 @@ type ControllerUpdateWithContentType<E, V extends UpdateValidator> = {
 	updateData: ValidatorInput<V, 'update'>;
 	/**
 	 * The controller loads the row before handing it to the service, and the loader differs
-	 * per feature — `category` needs one that joins the `parent` relation. Only the caller
+	 * per feature - `category` needs one that joins the `parent` relation. Only the caller
 	 * knows which, so it may replace the default `findById` mock; leaving the real method
 	 * behind reaches the repository, and the data source is not up in these tests.
 	 */

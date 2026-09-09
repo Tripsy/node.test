@@ -156,14 +156,14 @@ export class CashFlowService {
 	}
 
 	/**
-	 * The rate this entry converts to the books at, frozen onto the row — see the
+	 * The rate this entry converts to the books at, frozen onto the row - see the
 	 * `exchange_rate` column and `GROSS_AMOUNT_BASE_CURRENCY_EXPRESSION`, which is what sums a
 	 * mixed-currency set of rows.
 	 *
 	 * A refund inherits the rate its parent was captured at instead of taking today's.
 	 * `checkRefund` has already established that the two are the same currency, so converting
 	 * the way back at a rate that has since moved would leave a residue in base currency that
-	 * no payment ever produced — an FX gain is its own entry, not part of a refund.
+	 * no payment ever produced - an FX gain is its own entry, not part of a refund.
 	 *
 	 * There is no fallback when the currency has never been published. Converting at an invented
 	 * rate silently mis-states every base-currency total that sums this column, so the entry is
@@ -430,7 +430,7 @@ export class CashFlowService {
 
 		/*
 		 * The rate belongs to the currency it was quoted for, and `exchange_rate` is not in
-		 * `paramsUpdateList` — so a currency changed on its own would leave the row converting
+		 * `paramsUpdateList` - so a currency changed on its own would leave the row converting
 		 * at a rate nobody ever published for it. Re-read at the *current* day rather than the
 		 * day of the entry: the amount is being restated now, and the entry is still in a
 		 * mutable status, so it has not been reported on.

@@ -17,7 +17,7 @@ const entitySample = getAddressEntityMock() as unknown as Record<
 >;
 
 /**
- * `city_id` points at a `place`, whose name is translated — which is why the reads take a
+ * `city_id` points at a `place`, whose name is translated - which is why the reads take a
  * `language` the writes have no use for.
  */
 const languageParam = {
@@ -176,7 +176,7 @@ export const docs: Record<
 		},
 		withAuthErrors: true,
 		request: {
-			notes: 'Ordering is by id only — the entity exposes no other sortable column',
+			notes: 'Ordering is by id only - the entity exposes no other sortable column',
 			query: {
 				page: {
 					type: 'number',

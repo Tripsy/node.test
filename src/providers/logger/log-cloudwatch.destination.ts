@@ -42,7 +42,7 @@ const MAX_BUFFERED_EVENTS = 10_000;
  * Buffered and flushed on a timer rather than written per line: `PutLogEvents` is a network
  * round trip, and one call per log line would both throttle (5 req/s/stream) and dominate
  * request latency. The trade-off is that up to `FLUSH_INTERVAL` of logs can be lost on a
- * hard crash — `close()` covers graceful shutdown.
+ * hard crash - `close()` covers graceful shutdown.
  *
  * Credentials come from `defaultProvider()`, matching `email-ses.service.ts`, so instance
  * roles / SSO / env vars all work without app-level configuration.
@@ -68,7 +68,7 @@ export class LogCloudWatchDestination implements LogDestination {
 	}
 
 	/**
-	 * Creates the log stream once per process. The log group is assumed to exist — it
+	 * Creates the log stream once per process. The log group is assumed to exist - it
 	 * carries retention and encryption settings that belong in infrastructure, not here.
 	 */
 	private ensureStream(): Promise<void> {

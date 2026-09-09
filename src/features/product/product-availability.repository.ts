@@ -20,7 +20,7 @@ const normalizeTime = (value: string | null | undefined): string | null => {
 };
 
 /**
- * A window has no identifier of its own — what it *is* is the weekday and the two clock times,
+ * A window has no identifier of its own - what it *is* is the weekday and the two clock times,
  * so that is the key a re-save matches on. Anything the payload no longer states is removed.
  */
 const windowKey = (row: {

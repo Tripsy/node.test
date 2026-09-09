@@ -19,7 +19,7 @@ import {
 /**
  * `source_mode` is deliberately absent: it records whether the parser owns the article, so it
  * is set once on create and never accepted from an update payload. `author_id` is absent for a
- * different reason — it is the account that filed the article, stamped from the session on
+ * different reason - it is the account that filed the article, stamped from the session on
  * create, and a per-language by-line goes in `contents[].author` instead.
  */
 export const paramsUpdateList: string[] = [
@@ -142,7 +142,7 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 		.optional();
 
 	/**
-	 * Only the keys the payload names are touched — an absent key leaves the article on whatever
+	 * Only the keys the payload names are touched - an absent key leaves the article on whatever
 	 * it had, which for an article that never overrode anything is the deployment default. The
 	 * settings ride in `details`, so `applyArticleSettings` is what turns this into stored jsonb.
 	 */
@@ -186,7 +186,7 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 	 * is partial, and `saveRelations` only touches a link table when its key is in the
 	 * payload, so an absent list means "leave the links alone" while `[]` means "remove them
 	 * all". A list that may not be emptied therefore has to reject the empty array, and the
-	 * create schema — where nothing is stored yet to leave alone — adds its own presence
+	 * create schema - where nothing is stored yet to leave alone - adds its own presence
 	 * check on top.
 	 */
 	readonly idListSchema = (
@@ -213,7 +213,7 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * An article whose archive deadline falls on or before its release is never displayed at
 	 * all. Both dates are optional on their own, so this only bites when a payload carries the
-	 * pair — a partial update that moves one of them is checked against the stored row in
+	 * pair - a partial update that moves one of them is checked against the stored row in
 	 * `ArticleService.assertPublishWindow`.
 	 */
 	private readonly refinePublishWindow = (
@@ -236,7 +236,7 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 	};
 
 	/**
-	 * The expiry only means anything alongside a featured slot — it is what the
+	 * The expiry only means anything alongside a featured slot - it is what the
 	 * `expire-featured-article` cron clears the slot by. A payload carrying a date and no
 	 * status would schedule the removal of a placement the article does not hold.
 	 *
@@ -320,8 +320,8 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 			/*
 			 * Not optional here, unlike every other relation: the public site addresses an
 			 * article as `/articles/<category>/<slug>`, so one filed under nothing has no
-			 * canonical URL. `update` keeps the key optional — a partial payload that omits
-			 * it leaves the existing links alone — but cannot empty the list either.
+			 * canonical URL. `update` keeps the key optional - a partial payload that omits
+			 * it leaves the existing links alone - but cannot empty the list either.
 			 */
 			categories: this.idListSchema(
 				this.getMessage('invalid_categories'),
@@ -477,7 +477,7 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 					required: false,
 				},
 			),
-			// The display window (published, released, not archived) — see
+			// The display window (published, released, not archived) - see
 			// `ArticleQuery.filterPublished`
 			is_published: this.validateBoolean(
 				this.getMessage('invalid_boolean'),
@@ -494,7 +494,7 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * The anonymous surface. `password` is the shared access password from an article's
-	 * visibility rule, not a user credential — it arrives on the query string because the
+	 * visibility rule, not a user credential - it arrives on the query string because the
 	 * route is a GET.
 	 */
 	readonly publicRead = z.object({
@@ -527,7 +527,7 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 			/*
 			 * One article by id, which is how a permalink is resolved: a link that has to
 			 * survive a re-slug cannot carry the slug. It narrows the same display window as
-			 * every other filter here — an article that is not published, or restricted and
+			 * every other filter here - an article that is not published, or restricted and
 			 * not listed, is no more addressable by id than it is by anything else.
 			 */
 			id: this.validateId(this.getMessage('invalid_id', { name: 'id' }), {
@@ -589,7 +589,7 @@ export class ArticleValidator extends BaseValidator<typeof validatorMessages> {
 	 * The ordering group is a scope, not a single column: `section` is every article flagged for
 	 * the section slot, `category` is the articles under one category subtree. `category_id` is
 	 * therefore required for the second and meaningless for the first, which is what the refine
-	 * enforces — the service resolves the subtree and rejects a set that is not the whole group.
+	 * enforces - the service resolves the subtree and rejects a set that is not the whole group.
 	 */
 	readonly orderUpdate = z
 		.object({

@@ -19,8 +19,8 @@ const entitySample = getMailQueueEntityMock() as unknown as Record<
 
 /**
  * Read-only apart from the purge: a row is written by whatever asks for a mail to go out, and
- * moved by the worker that sends it. There is no create — queueing mail is not something a caller
- * does over HTTP — no update, and no resend.
+ * moved by the worker that sends it. There is no create - queueing mail is not something a caller
+ * does over HTTP - no update, and no resend.
  */
 const lifecycleNote = `A row lands as ${MailQueueStatusEnum.PENDING} and a job is pushed to the email queue as it is inserted; the worker sends it and writes back ${MailQueueStatusEnum.SENT}, or ${MailQueueStatusEnum.ERROR} with the message, retrying up to three times with an exponential backoff. sent_at is stamped on both outcomes, so it is when the last attempt finished rather than proof anything was delivered`;
 
@@ -39,7 +39,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: `${lifecycleNote}. \`content\` is the rendered subject, body and variables as they were queued — the template it came from can change afterwards without rewriting what was sent`,
+			notes: `${lifecycleNote}. \`content\` is the rendered subject, body and variables as they were queued - the template it came from can change afterwards without rewriting what was sent`,
 			params: {
 				id: {
 					type: 'number',
@@ -58,7 +58,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [409, 422],
 		request: {
-			notes: `Takes a list of ids in the body rather than one in the path — this is a purge, not the removal of a single record. Hard, since the table has no deleted state, and matching nothing answers 409 rather than reporting a success that removed no row. Nothing prunes this table on a schedule, and removing a ${MailQueueStatusEnum.PENDING} row does not cancel the job already queued for it`,
+			notes: `Takes a list of ids in the body rather than one in the path - this is a purge, not the removal of a single record. Hard, since the table has no deleted state, and matching nothing answers 409 rather than reporting a success that removed no row. Nothing prunes this table on a schedule, and removing a ${MailQueueStatusEnum.PENDING} row does not cancel the job already queued for it`,
 			body: {
 				ids: {
 					type: 'array',
@@ -97,7 +97,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [422],
 		request: {
-			notes: `sent_date_start must not be after sent_date_end, and both are matched against sent_at — which a ${MailQueueStatusEnum.PENDING} row has not got yet, so a date range excludes everything still waiting`,
+			notes: `sent_date_start must not be after sent_date_end, and both are matched against sent_at - which a ${MailQueueStatusEnum.PENDING} row has not got yet, so a date range excludes everything still waiting`,
 			query: {
 				page: {
 					type: 'number',
@@ -137,7 +137,7 @@ export const docs: Record<
 					content: {
 						type: 'string',
 						required: false,
-						condition: `matched against the whole rendered payload — subject, body and variables alike — from ${Configuration.get('filter.termMinLength')} characters`,
+						condition: `matched against the whole rendered payload - subject, body and variables alike - from ${Configuration.get('filter.termMinLength')} characters`,
 					},
 					to: {
 						type: 'string',

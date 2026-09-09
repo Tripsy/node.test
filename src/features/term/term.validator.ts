@@ -26,7 +26,7 @@ const VALUE_MAX_CHARS = 255;
 export class TermValidator extends BaseValidator<typeof validatorMessages> {
 	/*
 	 * Trimmed here and case-folded in `TermService.normalizeContents`, which is where the term's
-	 * `type` is in reach — most types are stored lower-cased, `bundle_choice` is not, and this
+	 * `type` is in reach - most types are stored lower-cased, `bundle_choice` is not, and this
 	 * schema cannot see which it is. On an update the payload may not carry `type` at all, so
 	 * only the service, holding the existing row, can decide.
 	 */

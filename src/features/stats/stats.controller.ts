@@ -11,7 +11,7 @@ import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 // Dashboard tiles are read on every page load and the underlying figures move slowly, so each
 // endpoint is cached; the TTL is the longest staleness the tile can show.
-// Seconds — `cacheProvider.set` passes this straight to Redis `EX`.
+// Seconds - `cacheProvider.set` passes this straight to Redis `EX`.
 const CACHE_TTL = 20 * 60;
 
 class StatsController extends BaseController {

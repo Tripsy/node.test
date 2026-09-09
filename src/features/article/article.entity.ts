@@ -86,7 +86,7 @@ export type ArticleSource = {
 
 /**
  * The reader-contributed features an article opts into: ratings, comments and complaints. They
- * are per-article switches kept in `details` rather than columns of their own — three booleans
+ * are per-article switches kept in `details` rather than columns of their own - three booleans
  * nothing filters or sorts by, on a table whose jsonb column exists for exactly this.
  *
  * A key absent from `details` means "whatever the deployment defaults to", which is what
@@ -109,7 +109,7 @@ export type ArticleDetails = Record<string, string | number | boolean>;
 
 /**
  * `article` is an additional feature, so its switches live with the code that governs them rather
- * than in `settings.config.ts`, which every project started from this boilerplate carries — the
+ * than in `settings.config.ts`, which every project started from this boilerplate carries - the
  * same reasoning as `isCommentAutoApproved()` in `comment.service.ts`.
  */
 const SETTING_ENVIRONMENT_VARIABLE: Record<ArticleSetting, string> = {
@@ -129,7 +129,7 @@ export const isArticleSettingEnabledByDefault = (
 ): boolean => process.env[SETTING_ENVIRONMENT_VARIABLE[setting]] !== 'false';
 
 /**
- * The effective switches for one article — the stored override where there is one, the
+ * The effective switches for one article - the stored override where there is one, the
  * deployment default everywhere else. A non-boolean under a known key is treated as absent:
  * `details` is free-form jsonb and nothing but this guards what lands in it.
  */
@@ -284,7 +284,7 @@ export default class ArticleEntity extends EntityAbstract {
 	})
 	public_at?: Date | null;
 
-	// Provenance, not presentation — it decides whether the parser owns the record, so it stays a
+	// Provenance, not presentation - it decides whether the parser owns the record, so it stays a
 	// real column the queries can filter on and is never accepted from an update payload
 	@Column({
 		type: 'enum',
@@ -306,7 +306,7 @@ export default class ArticleEntity extends EntityAbstract {
 	@Index('IDX_article_author_id')
 	author_id!: number | null;
 
-	// The author is attribution, not ownership — deleting the user must leave the article standing
+	// The author is attribution, not ownership - deleting the user must leave the article standing
 	@ManyToOne('UserEntity', {
 		onDelete: 'SET NULL',
 		nullable: true,

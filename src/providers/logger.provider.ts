@@ -147,7 +147,7 @@ export class LogStream extends Writable {
 				}
 
 				destination.write(record).catch((error: unknown) => {
-					// Never route this through the logger — it would recurse.
+					// Never route this through the logger - it would recurse.
 					console.error(
 						`Log destination "${destination.name}" failed:`,
 						error,

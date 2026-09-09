@@ -17,7 +17,7 @@ const entitySample = getCarrierEntityMock() as unknown as Record<
 >;
 
 const nameNote =
-	'name is unique among the rows that are not deleted — a soft-deleted carrier releases its name, and restoring it fails while another carrier holds it';
+	'name is unique among the rows that are not deleted - a soft-deleted carrier releases its name, and restoring it fails while another carrier holds it';
 
 const websiteParam = {
 	type: 'string' as const,

@@ -5,7 +5,7 @@ import ProductAttributeEntity from '@/features/product/product-attribute.entity'
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 /**
- * A payload value with its normalized form attached. `value_base` never comes from a request —
+ * A payload value with its normalized form attached. `value_base` never comes from a request -
  * `ProductService` looks the label's definition up, applies `toBaseUnit`, and hands the row
  * over already carrying the figure a range filter compares.
  */
@@ -18,7 +18,7 @@ export type ResolvedAttributeValue = ProductAttributeType & {
  *
  * It mirrors the table's two partial unique indexes rather than the label alone: a product may
  * carry three allergens under one label, so a term-backed row is identified by its value, while
- * a scalar one is identified by the label — a product has exactly one volume.
+ * a scalar one is identified by the label - a product has exactly one volume.
  */
 export const attributeKey = (value: {
 	attribute_label_id: number;

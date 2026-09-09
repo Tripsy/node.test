@@ -64,7 +64,7 @@ program
 		console.debug('Result: ', result);
 
 		/*
-		 * Listeners write through `runInBackground`, which is deliberately not awaited — a
+		 * Listeners write through `runInBackground`, which is deliberately not awaited - a
 		 * bare `process.exit` here outruns the insert. The server never faces this because it
 		 * keeps running; a one-shot process has to give the handlers a tick to land.
 		 */

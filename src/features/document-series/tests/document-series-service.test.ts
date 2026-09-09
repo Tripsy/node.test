@@ -133,7 +133,7 @@ describe('DocumentSeriesService', () => {
 		});
 
 		// The lookup above cannot see an insert still in flight, so the unique index is what
-		// stops the loser of that race — as a driver error the handler would mask as a 500.
+		// stops the loser of that race - as a driver error the handler would mask as a 500.
 		it('should turn a unique violation into a conflict', async () => {
 			mockDocumentSeries.query.first.mockResolvedValue(null);
 			mockDocumentSeries.repository.save.mockRejectedValue(

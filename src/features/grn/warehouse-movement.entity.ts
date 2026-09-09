@@ -35,7 +35,7 @@ const ENTITY_TABLE_NAME = 'warehouse_movement';
  *
  * **Rows are never updated and never deleted.** It extends `EntityAppendOnlyAbstract` rather than
  * `EntityAbstract` so there is no `deleted_at` to soft-delete into and no `updated_at` to invite an
- * edit — the guarantee is structural, not a comment. A mistake is corrected by posting an opposing
+ * edit - the guarantee is structural, not a comment. A mistake is corrected by posting an opposing
  * row with `reversal_of_id` set.
  *
  * It is the audit trail, not the balance: on-hand comes from `grn_item.qty_remaining`, and a
@@ -43,7 +43,7 @@ const ENTITY_TABLE_NAME = 'warehouse_movement';
  *
  * **Stock leaves on shipment, not on order confirmation.** The source of an outbound sale is an
  * `order_shipping_product`, because a lot cannot be picked before the warehouse shipping it is
- * known — and one order may ship from two. `order_product` carries no lot reference at all.
+ * known - and one order may ship from two. `order_product` carries no lot reference at all.
  *
  * Reservations are deliberately absent. Nothing physical moves when an order is placed, and a
  * ledger that mixes promises with facts stops being either.

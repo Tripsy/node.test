@@ -57,7 +57,7 @@ export class BrandValidator extends BaseValidator<typeof validatorMessages> {
 		/*
 		 * No minimum, unlike the entities whose content row carries their wording: a brand
 		 * keeps its `name` and `slug` on the row itself, and every column of `brand_content` is
-		 * nullable — so demanding one would only force an editor to invent a description to
+		 * nullable - so demanding one would only force an editor to invent a description to
 		 * satisfy a row that may legitimately hold nothing. `update` never asked for one
 		 * either, and `saveContent` already returns early on an empty list.
 		 */
@@ -131,8 +131,8 @@ export class BrandValidator extends BaseValidator<typeof validatorMessages> {
 
 		filterSchema: {
 			/*
-			 * A list rather than a scalar, so a caller holding several ids — the discount view
-			 * naming its targets — resolves them all in one request. A single id still arrives
+			 * A list rather than a scalar, so a caller holding several ids - the discount view
+			 * naming its targets - resolves them all in one request. A single id still arrives
 			 * as one.
 			 */
 			id: this.validateIdFilter(

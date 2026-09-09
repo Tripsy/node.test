@@ -21,7 +21,7 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 /**
  * Written out rather than taken from a `comment.mock.ts`, which this feature does not have. It is
  * the moderation view: the guest's email and the moderation trail are in it, `user_ip_hash` is
- * not — that one identifies a visitor across every comment they ever left and no decision is made
+ * not - that one identifies a visitor across every comment they ever left and no decision is made
  * from it, so it leaves the dashboard as little as it leaves the public read.
  */
 const entitySample: Record<string, unknown> = {
@@ -86,7 +86,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 404, 422],
 		request: {
-			notes: 'Provide at least one body parameter. The target, the parent and the author are what the comment is and cannot be moved; status has its own route. Changing the text stamps edited_at, which marks the comment as edited in the thread — the marker is about the text no longer being what was posted, not about who rewrote it; a pin or a type change leaves it alone',
+			notes: 'Provide at least one body parameter. The target, the parent and the author are what the comment is and cannot be moved; status has its own route. Changing the text stamps edited_at, which marks the comment as edited in the thread - the marker is about the text no longer being what was posted, not about who rewrote it; a pin or a type change leaves it alone',
 			params: {
 				id: {
 					type: 'number',
@@ -122,7 +122,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: "Hard, and final — the table has no deleted_at, so there is no restore. The replies go with it through the parent cascade, and the ratings and complaints pointing at that subtree are cleared in the same transaction, along with the parent's reply_count",
+			notes: "Hard, and final - the table has no deleted_at, so there is no restore. The replies go with it through the parent cascade, and the ratings and complaints pointing at that subtree are cleared in the same transaction, along with the parent's reply_count",
 			params: {
 				id: {
 					type: 'number',

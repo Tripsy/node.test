@@ -26,8 +26,8 @@ export class CommentSubscriptionService {
 	) {}
 
 	/**
-	 * The credential the unsubscribe link carries. 32 random bytes as hex — the column is sized
-	 * for exactly that — rather than the `uuid()` the recovery flow uses: this one is a bearer
+	 * The credential the unsubscribe link carries. 32 random bytes as hex - the column is sized
+	 * for exactly that - rather than the `uuid()` the recovery flow uses: this one is a bearer
 	 * secret with no expiry and no second factor behind it, so it is worth the wider keyspace.
 	 */
 	private static createToken(): string {
@@ -40,7 +40,7 @@ export class CommentSubscriptionService {
 	 * Insert-or-ignore against `UQ_comment_subscription_user`, which is the whole point:
 	 * `unsubscribed` is a state rather than an absent row, so somebody who opted out and then
 	 * commented again keeps their choice. A second comment on a discussion they already follow
-	 * likewise leaves the row — and its token — alone.
+	 * likewise leaves the row - and its token - alone.
 	 *
 	 * The address is lower-cased on write because that unique compares it byte-for-byte, and a
 	 * decorator cannot declare the `lower(user_email)` expression index that would hold the rule
@@ -67,11 +67,11 @@ export class CommentSubscriptionService {
 				unsubscribe_token: CommentSubscriptionService.createToken(),
 			})
 			/*
-			 * `language` alone on conflict — everything else about an existing row is the
+			 * `language` alone on conflict - everything else about an existing row is the
 			 * subscriber's own doing and must survive: their `notification_type` (opting out is
 			 * the whole reason this is not an insert-or-nothing), and their token, which is live
 			 * in every notification already sent. The language is the exception because it is
-			 * not a choice they made here — it is where they are reading, and following that is
+			 * not a choice they made here - it is where they are reading, and following that is
 			 * the point of storing it.
 			 */
 			.orUpdate(['language'], ['entity_type', 'entity_id', 'user_email'])
@@ -84,7 +84,7 @@ export class CommentSubscriptionService {
 	 * A member is looked up rather than trusted from the row: the comment carries only `user_id`,
 	 * and the address a notification goes to has to be the one the account holds *now*.
 	 *
-	 * Null for a comment that names neither — the table forbids it (`CHK_comment_author`), so this
+	 * Null for a comment that names neither - the table forbids it (`CHK_comment_author`), so this
 	 * is the deleted-account case rather than an expected one.
 	 */
 	public async resolveIdentity(
@@ -149,13 +149,13 @@ export class CommentSubscriptionService {
 	/**
 	 * @description Used in `update` method from the public controller
 	 *
-	 * Changes what a subscriber hears about — including opting out, which is `unsubscribed` and
+	 * Changes what a subscriber hears about - including opting out, which is `unsubscribed` and
 	 * not a delete: the row is what stops their next comment from re-subscribing them.
 	 */
 	/**
 	 * The subscriptions to a discussion that no longer exists. `(entity_type, entity_id)` carries
 	 * no foreign key, so nothing removes them when the article or review they follow is hard
-	 * deleted — the comment listener does, off `entityRemoved`.
+	 * deleted - the comment listener does, off `entityRemoved`.
 	 *
 	 * A hard delete here, not a state change: `unsubscribed` exists to stop a *future* comment
 	 * from re-subscribing somebody, and there is nothing left to comment on.

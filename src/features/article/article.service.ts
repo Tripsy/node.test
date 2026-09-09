@@ -51,7 +51,7 @@ import { LogHistoryActionEnum } from '@/shared/types/log-history.type';
 import type { ValidatorOutput } from '@/shared/types/mock.type';
 
 /**
- * Columns owned by the article row itself — the rest live in child tables
+ * Columns owned by the article row itself - the rest live in child tables
  * (`article_content`, `article_category`, `article_tag`, `article_visibility_rule`).
  */
 const entryColumns: string[] = [
@@ -71,7 +71,7 @@ const slugConflictError = (): CustomError =>
 /**
  * The one image a public surface shows for an article: the first of its gallery, by `sort_order`.
  *
- * "Cover" is this feature's word for the role, not a kind of image — the image feature knows only
+ * "Cover" is this feature's word for the role, not a kind of image - the image feature knows only
  * `logo` and `gallery`, and nothing marks a row as the cover. It is whichever gallery image comes
  * first, which is why the type is an alias rather than a shape of its own: the payload is the
  * registry's, the name for it is article's, and `cover_image` is what the frontend reads.
@@ -89,7 +89,7 @@ export class ArticleService {
 	 * The slug check reads outside the transaction that writes the content, so two
 	 * concurrent requests can both find the slug free and only the second one meets
 	 * the `(slug, language)` unique index. Postgres answers that with a bare unique
-	 * violation, which the error handler would mask as a 500 — mapped back onto the
+	 * violation, which the error handler would mask as a 500 - mapped back onto the
 	 * same 409 the pre-check raises so the race and the ordinary case read alike.
 	 *
 	 * The index is matched by name: the table carries a second unique index whose
@@ -116,7 +116,7 @@ export class ArticleService {
 	 * deployment defaults.
 	 *
 	 * Both read surfaces hand articles out this way. `settings` is a response field rather than
-	 * a column — the effective value of three keys, not the storage — so it is assembled here
+	 * a column - the effective value of three keys, not the storage - so it is assembled here
 	 * instead of being set on the entity, which has no such property and would carry it
 	 * undefined everywhere else.
 	 *
@@ -141,7 +141,7 @@ export class ArticleService {
 	 * `authorId` is the signed-in account, passed in rather than read from the payload: it
 	 * records who filed the article and is not an editorial choice. The by-line a reader sees
 	 * is `contents[].author`, which is per-language and overrides this field by field.
-	 * `null` is allowed — the column is nullable so an article survives its author's deletion.
+	 * `null` is allowed - the column is nullable so an article survives its author's deletion.
 	 */
 	public async create(
 		data: ValidatorOutput<ArticleValidator, 'create'>,
@@ -324,7 +324,7 @@ export class ArticleService {
 
 	/**
 	 * Contents, links and the visibility rule are all optional on update and absent means
-	 * "leave alone" — an empty array, on the other hand, clears the links.
+	 * "leave alone" - an empty array, on the other hand, clears the links.
 	 */
 	private async saveRelations(
 		manager: EntityManager,
@@ -360,7 +360,7 @@ export class ArticleService {
 
 	/**
 	 * Public visibility owns no restriction state, so an article moved back to `public` drops
-	 * its deadline and its rule row — the same end state the release cron produces.
+	 * its deadline and its rule row - the same end state the release cron produces.
 	 *
 	 * This lives here rather than in the payload because a form cannot express it: an optional
 	 * date parsed from an absent value comes through as `undefined`, which TypeORM reads as "no
@@ -388,7 +388,7 @@ export class ArticleService {
 
 	/**
 	 * The rule row carries a plain UNIQUE on `article_id`, so a soft-deleted rule keeps its
-	 * slot — the existing row is restored and overwritten rather than replaced by a new one.
+	 * slot - the existing row is restored and overwritten rather than replaced by a new one.
 	 */
 	private async saveVisibilityRule(
 		manager: EntityManager,
@@ -446,7 +446,7 @@ export class ArticleService {
 
 		/*
 		 * Both the article and its visibility rule are cached under `article:<id>*`, and this
-		 * runs from a cron with nobody watching — a stale rule leaves a released article still
+		 * runs from a cron with nobody watching - a stale rule leaves a released article still
 		 * reading as gated (or the reverse) for a whole TTL, which is an access-control answer
 		 * rather than a cosmetic one.
 		 */
@@ -478,14 +478,14 @@ export class ArticleService {
 	 * Reorders one featured group. `featured_order` is a plain int on the article, so the group
 	 * the positions belong to is decided here, not by the column: `section` is every article
 	 * carrying that flag, `category` is the articles flagged for a category slot and linked to
-	 * the given category **or any of its descendants** — the order page lists a subtree, so the
+	 * the given category **or any of its descendants** - the order page lists a subtree, so the
 	 * write has to accept the same set the page showed.
 	 *
 	 * The submitted ids must be a complete reordering of that set. A subset would silently leave
 	 * the untouched rows sharing positions with the moved ones, which reads as a random order.
 	 *
 	 * Saved row by row through the repository rather than a bulk UPDATE so each write is
-	 * audited — same reason as the cron jobs. The cache is dropped for the whole group once,
+	 * audited - same reason as the cron jobs. The cache is dropped for the whole group once,
 	 * after the transaction commits.
 	 */
 	public async updateOrder(
@@ -529,7 +529,7 @@ export class ArticleService {
 				);
 			}
 
-			// Descending, so the first article in the list carries the highest weight — the
+			// Descending, so the first article in the list carries the highest weight - the
 			// same convention `brand.updateOrder` writes and the public listing reads.
 			const ordered = entries.map((entry) => {
 				entry.featured_order =
@@ -592,7 +592,7 @@ export class ArticleService {
 	 * the account without having to restate the parts it agrees with.
 	 *
 	 * Applied on the public read only. The dashboard read returns the stored override
-	 * untouched, because that is what the editor edits — see `getEntryData`.
+	 * untouched, because that is what the editor edits - see `getEntryData`.
 	 */
 	private resolveAuthor(
 		entry: ArticleEntity,
@@ -698,7 +698,7 @@ export class ArticleService {
 		/*
 		 * The link wording follows the article's own: asking for one language returns one
 		 * label per link, and asking for all returns every translation the caller then picks
-		 * from. Both are LEFT joins — a link whose term lost its translation still has to come
+		 * from. Both are LEFT joins - a link whose term lost its translation still has to come
 		 * back, or the article would silently drop the tag from the form.
 		 */
 		if (data.language) {
@@ -737,7 +737,7 @@ export class ArticleService {
 		/*
 		 * The by-line is returned exactly as stored, unmerged. This is the editing surface: an
 		 * editor has to see which fields the translation actually overrides, and a resolved
-		 * value handed to a form comes straight back on the next save — which would bake the
+		 * value handed to a form comes straight back on the next save - which would bake the
 		 * account's name and email into `article_content.author` and turn the fallback into
 		 * a frozen copy. `article.author` is selected alongside for anything that wants to
 		 * show the filing account.
@@ -765,12 +765,12 @@ export class ArticleService {
 
 	/**
 	 * The switches a reader-facing write is checked against, `null` when there is no article to
-	 * write to — soft-deleted, or never there. `article.listener.ts` turns that `null` into a
+	 * write to - soft-deleted, or never there. `article.listener.ts` turns that `null` into a
 	 * refusal: nothing may be attached to a page nobody can open.
 	 *
 	 * Cached as a sibling of the public payload (`article:<id>:settings`), so the prefix clean an
 	 * edit already runs drops it along with everything else about the row. A `null` is not
-	 * cached — `CacheProvider.set` skips it — so a missing article costs one lookup per attempt.
+	 * cached - `CacheProvider.set` skips it - so a missing article costs one lookup per attempt.
 	 */
 	public async getSettings(id: number): Promise<ArticleSettings | null> {
 		const results = await cacheProvider.get(
@@ -794,7 +794,7 @@ export class ArticleService {
 	}
 
 	/**
-	 * @description Used in `publicRead` from controller — the anonymous surface.
+	 * @description Used in `publicRead` from controller - the anonymous surface.
 	 *
 	 * Keyed on the content slug rather than the id: a public URL is `/blog/<slug>`, and the
 	 * slug is unique per language. Only the display window is reachable, so a draft or an
@@ -827,8 +827,8 @@ export class ArticleService {
 	 * `gallery` image of an article and calls what comes back a cover; picking which one comes
 	 * first is the storing feature's rule.
 	 *
-	 * With no provider registered — a deployment without `image`, or the `test` environment, where
-	 * bootstrap does not run — every article answers `null`. The key stays present either way: a
+	 * With no provider registered - a deployment without `image`, or the `test` environment, where
+	 * bootstrap does not run - every article answers `null`. The key stays present either way: a
 	 * client must not have to tell "no image" apart from "no image feature".
 	 */
 	private async attachCoverImages<T extends { id: number }>(
@@ -856,7 +856,7 @@ export class ArticleService {
 	 * Keyed by id rather than slug on purpose: `cleanEntityCache` invalidates by the
 	 * `<entity>:<id>*` prefix, so a slug-keyed entry would survive an edit until its TTL.
 	 * Resolving the slug first (`resolvePublicRef`) also keeps the publish window and the
-	 * visibility out of the cached value — both decide access and both move without the
+	 * visibility out of the cached value - both decide access and both move without the
 	 * payload changing.
 	 */
 	public async getPublicEntryById(id: number, language: string) {
@@ -938,7 +938,7 @@ export class ArticleService {
 	}
 
 	/**
-	 * @description Used in `publicFind` from controller — the anonymous listing.
+	 * @description Used in `publicFind` from controller - the anonymous listing.
 	 *
 	 * A restricted article is listed only while its rule says `is_listed`; a public one is
 	 * always listed. The rule is LEFT-joined so a public article with no rule row survives
@@ -967,7 +967,7 @@ export class ArticleService {
 			 * The link is to-many, so these joins multiply the raw rows; pagination
 			 * survives it because `getManyAndCount` with skip/take resolves the page as a
 			 * distinct-id subquery first. The primary keys are selected for the same
-			 * reason — without them TypeORM cannot tell the duplicated rows apart when it
+			 * reason - without them TypeORM cannot tell the duplicated rows apart when it
 			 * rebuilds the entities.
 			 */
 			.join(
@@ -978,7 +978,7 @@ export class ArticleService {
 			)
 			/*
 			 * Article categories only. The link table accepts any category, and demo data
-			 * has filed articles under product ones — a category the article site has no
+			 * has filed articles under product ones - a category the article site has no
 			 * page for. Filtered in the join rather than after it, so such a link comes
 			 * back as a link with no category and the article simply shows none.
 			 */
@@ -1043,7 +1043,7 @@ export class ArticleService {
 
 		if (data.filter.tag_id?.length) {
 			/*
-			 * Any of the tags, not all of them — the box asks for articles that share
+			 * Any of the tags, not all of them - the box asks for articles that share
 			 * something with this one. The INNER join multiplies an article that matches
 			 * several, which pagination absorbs the same way the category filter's does
 			 * (see above).
@@ -1088,7 +1088,7 @@ export class ArticleService {
 			 *
 			 * The link is to-many, so these joins multiply the raw rows; pagination survives it
 			 * because `getManyAndCount` with skip/take resolves the page as a distinct-id
-			 * subquery first. The primary keys are selected for the same reason — without them
+			 * subquery first. The primary keys are selected for the same reason - without them
 			 * TypeORM cannot tell the duplicated rows apart when it rebuilds the entities.
 			 */
 			// Pinned to live links for the same reason as `getEntryData`: `withDeleted` is
@@ -1102,7 +1102,7 @@ export class ArticleService {
 			)
 			/*
 			 * Article categories only. The link table accepts any category, and demo data
-			 * has filed articles under product ones — a category the article site has no
+			 * has filed articles under product ones - a category the article site has no
 			 * page for. Filtered in the join rather than after it, so such a link comes
 			 * back as a link with no category and the article simply shows none.
 			 */

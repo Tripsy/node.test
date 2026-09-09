@@ -13,8 +13,8 @@ import { BaseController } from '@/shared/abstracts/controller.abstract';
 /**
  * Where the documented API answers, spelled as a caller would type it.
  *
- * `APP_URL` carries the host alone in this project — `server.ts` prints its own address as
- * `${app.url}:${app.port}` and the frontend's `REMOTE_API_URL` names the port too — so the
+ * `APP_URL` carries the host alone in this project - `server.ts` prints its own address as
+ * `${app.url}:${app.port}` and the frontend's `REMOTE_API_URL` names the port too - so the
  * port is joined back on here or every printed example would be aimed at port 80 and 404.
  * A URL that already names its own port is left as it is.
  */
@@ -29,7 +29,7 @@ function documentationBaseUrl(): string {
  * How much of a module a caller needs a token for.
  *
  * Read off each action's `authorization` rather than off the `/public/...` base path: that
- * prefix is a naming convention, while `authorization` is what the route enforces — and the
+ * prefix is a naming convention, while `authorization` is what the route enforces - and the
  * two disagree, since `complaint-public` is mounted under `/public` and asks for a bearer
  * token on every action. `partial` has no module today but is reachable the moment one gains
  * an open action beside a gated one, and a two-state flag would badge that wrong.
@@ -52,8 +52,8 @@ function authorizationScope(
  *
  * Open to anyone, and mounted under `/public` with the other open modules: this is the
  * published API reference the frontend's `/api-docs` pages render, so the bearer-gated modules
- * are described here too. Nothing it returns is data — only the shape of a request and the
- * sample payloads the docs files declare — and every documented endpoint still enforces its own
+ * are described here too. Nothing it returns is data - only the shape of a request and the
+ * sample payloads the docs files declare - and every documented endpoint still enforces its own
  * permission when called.
  */
 class ApiDocsController extends BaseController {
@@ -64,7 +64,7 @@ class ApiDocsController extends BaseController {
 	/**
 	 * The reference is opt-in per environment. Off answers 404 rather than 403, so an
 	 * environment that does not publish its API says nothing about whether there is
-	 * anything to publish — and it reads exactly like an undocumented feature does.
+	 * anything to publish - and it reads exactly like an undocumented feature does.
 	 *
 	 * Gated here rather than at route registration: the registry is still filled at boot,
 	 * because the development-only `meta.documentation` echo on a failing request reads
@@ -118,7 +118,7 @@ class ApiDocsController extends BaseController {
 
 		/*
 		 * `baseUrl` rides along because the documented `path` is relative and a consumer
-		 * rendering a runnable example has no other way to learn where this API answers —
+		 * rendering a runnable example has no other way to learn where this API answers -
 		 * the frontend reaches it through its own proxy and never sees `REMOTE_API_URL`.
 		 */
 		res.locals.output.data({

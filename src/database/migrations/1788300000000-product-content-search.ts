@@ -8,7 +8,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * expression. It must therefore not be added to the entity, or every future generated migration
  * would try to drop it.
  *
- * The expression is duplicated from the repository on purpose — Postgres only uses an expression
+ * The expression is duplicated from the repository on purpose - Postgres only uses an expression
  * index when the query repeats it verbatim, down to the `COALESCE` and the `'simple'`
  * configuration. Change one side and the catalog search silently reverts to a sequential scan.
  *

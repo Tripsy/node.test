@@ -69,7 +69,7 @@ describe(controller, () => {
 
 	/*
 	 * The slug resolves to an id first, so the cached payload is keyed the way
-	 * `cleanEntityCache` invalidates — by `product:<id>*`. A slug-keyed entry would outlive an
+	 * `cleanEntityCache` invalidates - by `product:<id>*`. A slug-keyed entry would outlive an
 	 * edit until its TTL, and the sellable window would be baked into it.
 	 */
 	it('read should resolve the slug before loading the payload', async () => {
@@ -105,7 +105,7 @@ describe(controller, () => {
 	});
 
 	/*
-	 * A product outside the sellable window is not addressable here at all — the repository
+	 * A product outside the sellable window is not addressable here at all - the repository
 	 * filter is what decides that, and it answers 404 rather than leaking the product's
 	 * existence through a different status code.
 	 */

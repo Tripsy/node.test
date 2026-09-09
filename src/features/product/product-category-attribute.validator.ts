@@ -296,7 +296,7 @@ export class ProductCategoryAttributeValidator extends BaseValidator<
 	});
 
 	/**
-	 * The form a product in these categories renders from — a union across the categories and
+	 * The form a product in these categories renders from - a union across the categories and
 	 * their ancestors, so it takes a list rather than one id.
 	 */
 	readonly resolve = z.object({
@@ -319,7 +319,7 @@ export class ProductCategoryAttributeValidator extends BaseValidator<
 
 	/**
 	 * A reorder of one category's definitions. `positions` is that category's ids in the order
-	 * they should be offered — the whole set, not a slice: a position only means anything
+	 * they should be offered - the whole set, not a slice: a position only means anything
 	 * relative to its siblings, so a partial list cannot describe one.
 	 */
 	readonly orderUpdate = z.object({

@@ -1,8 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Moves `product_availability.day_of_week` onto ISO 8601 weekdays — 1 = Monday through
- * 7 = Sunday — where `discount.conditions.day_range` already was.
+ * Moves `product_availability.day_of_week` onto ISO 8601 weekdays - 1 = Monday through
+ * 7 = Sunday - where `discount.conditions.day_range` already was.
  *
  * Two numberings for one concept is a bug waiting for its first reader: nothing yet evaluates an
  * availability window, but the moment something does it will sit beside the discount resolver,
@@ -17,7 +17,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * old bound, so no product can already hold both a 0 and a 7 for the unique index to catch.
  *
  * The old constraint carried a generated name, which is why it is spelled out here and restored
- * verbatim in `down()` — the entity now names its replacement, matching its two siblings.
+ * verbatim in `down()` - the entity now names its replacement, matching its two siblings.
  */
 export class ProductAvailabilityIsoWeekday1789000000000
 	implements MigrationInterface

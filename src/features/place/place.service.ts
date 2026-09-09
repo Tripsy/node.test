@@ -153,7 +153,7 @@ export class PlaceService {
 			return saved;
 		});
 
-		// One clean for the whole operation, after commit — the content rows written above
+		// One clean for the whole operation, after commit - the content rows written above
 		// have no subscriber invalidating the place's keys. See `cleanEntityCache`
 		await cleanEntityCache(PlaceEntity, updatedEntity.id);
 

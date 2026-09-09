@@ -106,7 +106,7 @@ export const clientSeed: SeedDefinition = {
 						company_cui: null,
 						company_reg_com: null,
 						person_name: personName,
-						// Not a real CNP format on purpose — it is demo data, and the column
+						// Not a real CNP format on purpose - it is demo data, and the column
 						// is `select: false` precisely because it is sensitive.
 						person_identification_number: `19000${label}00${index}`,
 						iban,

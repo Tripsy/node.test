@@ -420,7 +420,7 @@ describe(`${controller} - passwordRecoverChange`, () => {
 		}, response);
 
 		/*
-		 * The redeemed row has to survive `updatePassword` for `markAsUsed` to land on it —
+		 * The redeemed row has to survive `updatePassword` for `markAsUsed` to land on it -
 		 * hence the third argument. Without it the row is deleted first and the follow-up
 		 * write re-inserts it with a null `user_id`, turning a successful recovery into a
 		 * 500.
@@ -819,7 +819,7 @@ describe(`${controller} - meDelete`, () => {
 });
 
 /*
- * The blocks below target guard clauses that the happy-path tests above never reach —
+ * The blocks below target guard clauses that the happy-path tests above never reach -
  * "user gone", "wrong status", "token spent". They are the branches that decide whether a
  * request is refused, so an inverted condition here is an authorization hole rather than a
  * cosmetic bug.
@@ -1023,7 +1023,7 @@ describe(`${controller} - passwordRecoverChange (rejection branches)`, () => {
 
 		mockConfig('user.recoveryEnableMetadataCheck', true);
 
-		// Recovery row captured a different user-agent than the one replaying the link —
+		// Recovery row captured a different user-agent than the one replaying the link -
 		// this is the guard that stops a leaked recovery URL being used from elsewhere.
 		jest.spyOn(accountRecoveryService, 'findByIdent').mockResolvedValue({
 			...getAccountTokenMock(),
@@ -1055,7 +1055,7 @@ describe(`${controller} - passwordRecoverChange (rejection branches)`, () => {
 		} as never);
 
 		// `userService.findById` resolves through `firstOrFail()`, so a missing row
-		// arrives as a thrown NotFoundError rather than a null return — the controller's
+		// arrives as a thrown NotFoundError rather than a null return - the controller's
 		// own `if (!user)` guard below it is unreachable.
 		jest.spyOn(userService, 'findById').mockRejectedValue(
 			new NotFoundError('user.error.not_found'),
@@ -1118,7 +1118,7 @@ describe(`${controller} - emailConfirmSend (rejection branches)`, () => {
 });
 
 describe(`${controller} - authenticated actions without a resolvable id`, () => {
-	// `requiredAuth` passes but `getId` yields nothing — a malformed auth context. Each
+	// `requiredAuth` passes but `getId` yields nothing - a malformed auth context. Each
 	// action guards this independently, and all of them must answer 401 rather than
 	// continue with an undefined user id.
 	const cases: [string, 'get' | 'post', string][] = [

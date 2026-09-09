@@ -13,7 +13,7 @@ export const EXPECTED_RUN_TIME = 5; // seconds
  * the deadline and the flip are invisible to a reader.
  *
  * Saved row by row through the service so the status transition is validated and the cache /
- * audit subscribers fire — see `publish-scheduled-article.cron.ts`.
+ * audit subscribers fire - see `publish-scheduled-article.cron.ts`.
  */
 const archiveArticle = async () => {
 	const entries = await getArticleRepository()

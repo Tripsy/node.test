@@ -16,7 +16,7 @@ export const EXPECTED_RUN_TIME = 5; // seconds
  * Daily is enough because `status` is not what gates visibility: `ArticleQuery.filterPublished`
  * evaluates the publish window on every read, so an article released at 09:00 is served from
  * 09:00 whether this job has run. The flip only has to happen for `status` to agree with
- * what readers already see — and for the listing index on (status, publish_at) to stay useful.
+ * what readers already see - and for the listing index on (status, publish_at) to stay useful.
  */
 const publishScheduledArticle = async () => {
 	const entries = await getArticleRepository()

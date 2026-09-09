@@ -218,7 +218,7 @@ describe('evaluateConditions', () => {
 			),
 		).toBe(false);
 
-		// Sunday must be reachable at all — it is 7, and a naive getDay() would call it 0
+		// Sunday must be reachable at all - it is 7, and a naive getDay() would call it 0
 		expect(
 			evaluateConditions(
 				{ day_range: [6, 7] },

@@ -7,7 +7,7 @@ import { getClientIp } from '@/helpers/system.helper';
 /**
  * An address in the only form the database stores it: keyed, one-way, fixed length.
  *
- * Keyed rather than a bare digest, because IPv4 is 2^32 values — an unkeyed SHA-256 of an address
+ * Keyed rather than a bare digest, because IPv4 is 2^32 values - an unkeyed SHA-256 of an address
  * is reversible by enumerating the space, which makes the stored column personal data in a thin
  * disguise. The key comes from `security.ipHashSecret`.
  *
@@ -67,8 +67,8 @@ export async function comparePassword(
  * Whether `provided` equals any entry of `accepted`, in time independent of where the
  * first difference falls.
  *
- * Both sides are SHA-256'd before the comparison. That is not for secrecy — the digests
- * are of values this process already holds — but because `timingSafeEqual` throws on
+ * Both sides are SHA-256'd before the comparison. That is not for secrecy - the digests
+ * are of values this process already holds - but because `timingSafeEqual` throws on
  * operands of different lengths, and a bare length check would leak the key's length
  * through the fast path. Digesting makes every operand 32 bytes, so the comparison itself
  * is the only thing that runs.

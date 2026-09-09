@@ -3,7 +3,7 @@ import 'dotenv/config';
 import dataSource from '@/config/data-source.config';
 
 /**
- * Runs pending migrations. This is the production entry point — `pnpm run migration:run`
+ * Runs pending migrations. This is the production entry point - `pnpm run migration:run`
  * drives the TypeORM CLI through `tsx`, and neither is present in the production image.
  *
  * Compiled to `dist/src/database/migrate.js` and invoked as a one-shot container before the
@@ -13,8 +13,8 @@ import dataSource from '@/config/data-source.config';
 /**
  * Creates the non-public schemas the entities and the migrations table live in.
  *
- * This cannot be done inside a migration. TypeORM creates its bookkeeping table — here
- * `system.migrations` — *before* it runs anything, so on an empty database it fails with
+ * This cannot be done inside a migration. TypeORM creates its bookkeeping table - here
+ * `system.migrations` - *before* it runs anything, so on an empty database it fails with
  * `schema "system" does not exist` and no migration ever executes.
  *
  * The schema list is derived from entity metadata rather than hard-coded, so adding a
@@ -49,7 +49,7 @@ async function ensureSchemas(): Promise<void> {
 }
 
 async function run(): Promise<void> {
-	// `migrations` are read from the configured glob, so an empty run is a valid outcome —
+	// `migrations` are read from the configured glob, so an empty run is a valid outcome -
 	// it means the database is already current.
 	await dataSource.initialize();
 
@@ -80,7 +80,7 @@ run()
 		 * Exits explicitly rather than letting the event loop drain.
 		 *
 		 * Initialising the data source loads every entity and subscriber through its globs,
-		 * and the subscribers pull in the cache provider — which opens a Redis connection
+		 * and the subscribers pull in the cache provider - which opens a Redis connection
 		 * that ioredis keeps alive with automatic reconnection. Closing the database pool
 		 * is not enough: the process would sit there until the deploy timed out, with the
 		 * migrations already applied and no indication of what it was waiting for.

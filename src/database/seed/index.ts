@@ -25,7 +25,7 @@ import { vendorSeed } from '@/features/vendor/database/vendor.seed';
  * a seed reads the ids of its parents, so moving one earlier makes it find nothing.
  *
  * The `permission` and `template` seeds are not listed. They are reference data with
- * wipe-and-insert semantics, not demo volume, and are run on their own — as is
+ * wipe-and-insert semantics, not demo volume, and are run on their own - as is
  * `account/database/admin.seed.ts`, which is keyed to `ADMIN_EMAIL`/`ADMIN_PASSWORD` and
  * would make `pnpm run seed` require an environment to be configured.
  */
@@ -89,7 +89,7 @@ try {
 	);
 
 	console.info(
-		`Seeding finished — ${inserted} row(s) inserted across ${summaries.length} entit${summaries.length === 1 ? 'y' : 'ies'} ✅`,
+		`Seeding finished - ${inserted} row(s) inserted across ${summaries.length} entit${summaries.length === 1 ? 'y' : 'ies'} ✅`,
 	);
 
 	process.exit(0);

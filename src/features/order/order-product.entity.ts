@@ -38,8 +38,8 @@ export default class OrderProductEntity extends EntityAbstract {
 	 * Set on the component lines a bundle explodes into; NULL on an ordinary line and on the
 	 * bundle header itself.
 	 *
-	 * A bundle cannot be one line: its components may sit in different VAT categories — food at
-	 * 11% next to beer at 21% — and a single `vat_rate` cannot represent that. So the header line
+	 * A bundle cannot be one line: its components may sit in different VAT categories - food at
+	 * 11% next to beer at 21% - and a single `vat_rate` cannot represent that. So the header line
 	 * records what was sold at `price = 0`, and the children carry the money, each with the
 	 * apportioned share of the bundle price and its own rate. `SUM(price)` over the order stays
 	 * correct with no special-casing, and stock, refunds and reporting all land on real variants.
@@ -116,7 +116,7 @@ export default class OrderProductEntity extends EntityAbstract {
 	discount?: DiscountSnapshot[];
 
 	// `price` is the variant price alone; the deltas recorded here are what reconciles it with the
-	// line total. Snapshot rather than a join table for the same reason `discount` is one — the
+	// line total. Snapshot rather than a join table for the same reason `discount` is one - the
 	// option may be renamed, repriced or withdrawn, and the charged figure must not move with it
 	@Column('jsonb', {
 		nullable: true,
@@ -150,8 +150,8 @@ export default class OrderProductEntity extends EntityAbstract {
 	children?: OrderProductEntity[];
 
 	// Composite: both columns are the key, so the pair has to exist together on one variant row.
-	// It also carries the RESTRICT that keeps a sold variant — and through it its product, since
-	// deleting a product cascades to its variants — from being deleted out from under an order
+	// It also carries the RESTRICT that keeps a sold variant - and through it its product, since
+	// deleting a product cascades to its variants - from being deleted out from under an order
 	@ManyToOne('ProductVariantEntity', {
 		onDelete: 'RESTRICT',
 	})

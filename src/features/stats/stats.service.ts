@@ -2,7 +2,7 @@
  * **This feature is expected to be rewritten per project.** Unlike the rest of the boilerplate it
  * is deliberately coupled: it imports `article`, `cash-flow`, `client`, `comment`, `complaint`,
  * `log-history` and `user` directly, because a dashboard is a statement about which features a
- * particular product cares about. Removing one of those features means editing this file — that is
+ * particular product cares about. Removing one of those features means editing this file - that is
  * the intended cost, not an oversight, and it is why no registry indirection was added.
  *
  * A project started from this boilerplate should treat `stats` as a template: keep the shape
@@ -36,7 +36,7 @@ import type RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 /** Rows the dashboard's recent-activity panel shows. It renders the list whole, without paging. */
 const RECENT_ACTIVITY_LIMIT = 10;
 
-/** Window the "created recently" counts cover — a rolling day, not since midnight. */
+/** Window the "created recently" counts cover - a rolling day, not since midnight. */
 const RECENT_WINDOW_SECONDS = 24 * 60 * 60;
 
 /** Size of the combined moderation queue the dashboard shows. */
@@ -62,7 +62,7 @@ export type PendingReviewEntry = {
 };
 
 /**
- * A feature's slice of the queue. `total` is the real backlog, not `entries.length` — the list is
+ * A feature's slice of the queue. `total` is the real backlog, not `entries.length` - the list is
  * capped at `PENDING_REVIEW_LIMIT`, and a queue that reports "10" when 40 are waiting is worse
  * than useless.
  */
@@ -159,7 +159,7 @@ export class StatsService {
 	 * "Waiting" is defined per feature, because the features disagree about how they say it:
 	 * `user`/`client`/`article` use `status = pending`, `comment` uses `pending` *or* `flagged`
 	 * (three distinct reporters flag a comment automatically, and that needs a decision just as
-	 * much as a new one does), and `complaint` has no status at all — its queue flag is
+	 * much as a new one does), and `complaint` has no status at all - its queue flag is
 	 * `is_resolved`, which `IDX_complaint_open` is built around.
 	 *
 	 * `article` returns no label: its title lives per-language in `article_content`, and a join
@@ -241,7 +241,7 @@ export class StatsService {
 
 	/**
 	 * Month-to-date total for one cash-flow direction, against the same span of the previous
-	 * month. Only COMPLETED entries count — pending money is not money yet.
+	 * month. Only COMPLETED entries count - pending money is not money yet.
 	 */
 	public async getSumAmount(direction: CashFlowDirection) {
 		const thisMonth = getMonthIntervalBasedOnCurrentDate(0);
@@ -267,7 +267,7 @@ export class StatsService {
 		]);
 
 		// `out` rows sum to a negative gross amount, so normalize to the
-		// displayed (positive) magnitude *before* computing the trend —
+		// displayed (positive) magnitude *before* computing the trend -
 		// otherwise the "no previous month" branch sees a negative value.
 		const sign = direction === CashFlowDirectionEnum.IN ? 1 : -1;
 		const currentValue = Number(currentResult?.total_amount ?? 0) * sign;

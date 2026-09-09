@@ -9,7 +9,7 @@
 		// TypeScript 6 no longer pulls in every package under `node_modules/@types`
 		// automatically, so the two that contribute *globals* have to be named. The rest
 		// (@types/express, @types/pg, ...) describe modules and still resolve through the
-		// imports that use them — they do not belong here.
+		// imports that use them - they do not belong here.
 		"types": ["node", "jest"],
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,

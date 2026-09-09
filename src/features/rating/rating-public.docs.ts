@@ -13,7 +13,7 @@ import {
 /**
  * The reader-facing half of the rating feature, mounted under `/public/ratings` by
  * `rating-public.routes.ts`. Documented separately from `rating.docs.ts` because it is a route
- * module of its own — a different base path, a different controller, and no bearer token — even
+ * module of its own - a different base path, a different controller, and no bearer token - even
  * though both describe the same entity.
  *
  * Every action is open to guests, so authorization here is an identity rather than a permission:
@@ -87,7 +87,7 @@ export const docs: Record<
 		},
 		withErrors: [400, 403, 409, 422],
 		request: {
-			notes: `Strictly an insert — a caller who already rated this target with this type changes it through the update route instead. 409 says which rule was hit: the caller's own earlier rating, or a rating already cast from the same address by somebody else. 403 means the target has ratings turned off or is gone, and 400 that the origin address could not be resolved. ${valueNote}`,
+			notes: `Strictly an insert - a caller who already rated this target with this type changes it through the update route instead. 409 says which rule was hit: the caller's own earlier rating, or a rating already cast from the same address by somebody else. 403 means the target has ratings turned off or is gone, and 400 that the origin address could not be resolved. ${valueNote}`,
 			body: {
 				...targetParams,
 				type: typeParam,
@@ -121,7 +121,7 @@ export const docs: Record<
 		},
 		withErrors: [400, 404, 422],
 		request: {
-			notes: `The row is addressed by what was rated, never by id: an id would have to be checked against the caller afterwards, while the target plus the identity resolved from the request names exactly one row to begin with. A target in the body cannot redirect the write — the path wins. 404 means this caller holds no rating of that type on that target. ${valueNote}`,
+			notes: `The row is addressed by what was rated, never by id: an id would have to be checked against the caller afterwards, while the target plus the identity resolved from the request names exactly one row to begin with. A target in the body cannot redirect the write - the path wins. 404 means this caller holds no rating of that type on that target. ${valueNote}`,
 			params: {
 				...targetParams,
 				type: typeParam,
@@ -153,7 +153,7 @@ export const docs: Record<
 		},
 		withErrors: [400, 404, 422],
 		request: {
-			notes: "Addressed by target for the same reason as the update. This takes the rating back entirely — changing one's mind about the score goes through the update route and keeps the row. The removal is permanent: the table has no deleted state",
+			notes: "Addressed by target for the same reason as the update. This takes the rating back entirely - changing one's mind about the score goes through the update route and keeps the row. The removal is permanent: the table has no deleted state",
 			params: {
 				...targetParams,
 				type: typeParam,
@@ -202,7 +202,7 @@ export const docs: Record<
 		},
 		withErrors: [400, 422],
 		request: {
-			notes: 'The two halves a rating widget renders at once, resolved together rather than over two round trips. Never cached — a stale count is the one thing a reader notices immediately after voting. `own` is empty for a visitor who has not rated this target',
+			notes: 'The two halves a rating widget renders at once, resolved together rather than over two round trips. Never cached - a stale count is the one thing a reader notices immediately after voting. `own` is empty for a visitor who has not rated this target',
 			params: targetParams,
 		},
 	}),

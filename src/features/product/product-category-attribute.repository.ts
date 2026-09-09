@@ -8,7 +8,7 @@ import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 /**
  * A definition and the depth of the category it came from, which is what decides an override.
  *
- * Depth is the ancestor count of the owning category — a root is 0 — read from the closure table
+ * Depth is the ancestor count of the owning category - a root is 0 - read from the closure table
  * rather than walked in the application: the resolution set spans every ancestor of every category
  * a product sits in, and one query answers for all of them.
  */
@@ -77,8 +77,8 @@ export const ProductCategoryAttributeRepository = dataSource
 			}
 
 			/*
-			 * The wording comes with them. This set *is* the form a product renders — the label
-			 * names the field and the options are the choices in it — so the ids alone would
+			 * The wording comes with them. This set *is* the form a product renders - the label
+			 * names the field and the options are the choices in it - so the ids alone would
 			 * leave the caller with a control it cannot draw, and no way to resolve them but one
 			 * request per row.
 			 */

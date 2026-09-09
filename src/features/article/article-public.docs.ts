@@ -15,8 +15,8 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 /**
  * The visitor-facing half of the article feature, mounted under `/public/articles` by
  * `article-public.routes.ts`. Documented separately from `article.docs.ts` because it is a
- * route module of its own — a different base path, a different controller, and no bearer
- * token — even though both describe the same entity.
+ * route module of its own - a different base path, a different controller, and no bearer
+ * token - even though both describe the same entity.
  */
 const entitySample = getArticleEntityMock() as unknown as Record<
 	string,
@@ -90,7 +90,7 @@ export const docs: Record<
 		},
 		withErrors: [422],
 		request: {
-			notes: `${displayWindowNote}. The filter set is deliberately narrower than the dashboard listing — no status, visibility, author or is_deleted — so nothing here can widen that window`,
+			notes: `${displayWindowNote}. The filter set is deliberately narrower than the dashboard listing - no status, visibility, author or is_deleted - so nothing here can widen that window`,
 			query: {
 				page: {
 					type: 'number',

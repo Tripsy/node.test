@@ -54,7 +54,7 @@ const emailWorker = new Worker(
 		 * length of the block and would stall every other command sharing it.
 		 *
 		 * The password is not optional. Without it this silently works anywhere Redis is
-		 * unauthenticated — every development machine — and fails in production with
+		 * unauthenticated - every development machine - and fails in production with
 		 * "NOAUTH Authentication required", surfacing as emails that never arrive while the
 		 * API keeps reporting success.
 		 */

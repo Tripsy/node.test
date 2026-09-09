@@ -47,7 +47,7 @@ class BrandController extends BaseController {
 		);
 
 		/*
-		 * An omitted `language` means every translation, not the request's own — the dashboard
+		 * An omitted `language` means every translation, not the request's own - the dashboard
 		 * edits all of them at once and has no other way to ask. Falling back to
 		 * `res.locals.language` here is what made `getEntryData`'s no-language branch
 		 * unreachable, and left an editor unable to see a translation they had written.

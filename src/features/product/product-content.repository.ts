@@ -62,7 +62,7 @@ export const ProductContentRepository = dataSource
 			// Filtered on slug alone and paired up in memory: the slug carries the
 			// selectivity, and one index scan beats a per-language OR chain.
 			// Columns are left unprefixed so the query builder resolves them against its
-			// own alias — `product_content`, not the `content` join alias the product
+			// own alias - `product_content`, not the `content` join alias the product
 			// queries use
 			const query = this.createQuery()
 				.select(['id', 'slug', 'language'])

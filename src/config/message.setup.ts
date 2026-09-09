@@ -10,7 +10,7 @@ import {
 } from '@/helpers/system.helper';
 
 /**
- * API-facing text — response messages and validation errors — is English-only by design.
+ * API-facing text - response messages and validation errors - is English-only by design.
  *
  * The app is still multi-language, but at the *content* level: `res.locals.language`
  * (set by `language.middleware.ts`) drives brand/address/place/template content and the
@@ -19,10 +19,10 @@ import {
  * Because this module therefore only ever reads `en.json`, i18next earned nothing: no
  * language detection, no per-language backend loading, no fallback chain. What remains is
  * a dotted-key lookup plus `{{var}}` interpolation, which `getObjectValue`/`replaceVars`
- * already provide — so the i18next/​fs-backend/​http-middleware trio was dropped.
+ * already provide - so the i18next/​fs-backend/​http-middleware trio was dropped.
  *
  * Diagnostics here go to `console`, not `getSystemLogger()`, on purpose. The logger's email
- * destination resolves an email transport, and those transports call `lang()` — routing
+ * destination resolves an email transport, and those transports call `lang()` - routing
  * this module's own warnings back through the logger closes that loop. This module sits
  * below the logger in the dependency order and must stay there.
  */
@@ -39,7 +39,7 @@ const messages: Record<string, MessageResource> = {};
 /**
  * Reads one namespace file.
  *
- * A missing file is the normal case — most features ship no locale file — so it resolves
+ * A missing file is the normal case - most features ship no locale file - so it resolves
  * to `null`. Malformed JSON is not: it would silently degrade every message in that
  * feature to a raw key, so it throws and fails the boot instead.
  */

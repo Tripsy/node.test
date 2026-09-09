@@ -6,7 +6,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * The two columns bounded the *recurrence* rather than the product: a window that repeats daily
  * but only between May and September. That is a season, and a season is the product's own life in
- * the catalog — which `product.available_from` / `available_until` already describe, and which
+ * the catalog - which `product.available_from` / `available_until` already describe, and which
  * `sale_status` is derived from. Keeping a second, weaker pair one level down meant two places to
  * express "not this month" with only one of them affecting whether the product is listed.
  *
@@ -15,7 +15,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * that key leaves it shorter without making it ambiguous.
  *
  * **`down()` cannot restore the values.** It rebuilds both columns and the constraint, so the
- * schema round-trips, but every window comes back unbounded — the dates live only in whatever
+ * schema round-trips, but every window comes back unbounded - the dates live only in whatever
  * backup predates this migration.
  */
 export class ProductAvailabilityDropSeason1788600000000

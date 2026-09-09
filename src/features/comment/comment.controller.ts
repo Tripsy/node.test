@@ -13,8 +13,8 @@ import asyncHandler from '@/helpers/async.handler';
 import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
- * The moderation side. There is no `create` — a comment is written by whoever is reading, through
- * the public controller — and no `restore`, since the table has no `deleted_at` and a removed
+ * The moderation side. There is no `create` - a comment is written by whoever is reading, through
+ * the public controller - and no `restore`, since the table has no `deleted_at` and a removed
  * comment is gone.
  */
 class CommentController extends BaseController {
@@ -98,7 +98,7 @@ class CommentController extends BaseController {
 
 	/**
 	 * The moderation decision. `moderated_by` is taken from the authenticated caller, never from
-	 * the request — `canUpdate` has already established there is one.
+	 * the request - `canUpdate` has already established there is one.
 	 */
 	public statusUpdate = asyncHandler(async (req: Request, res: Response) => {
 		this.policy.canUpdate(res.locals.auth);

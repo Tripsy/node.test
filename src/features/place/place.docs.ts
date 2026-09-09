@@ -13,8 +13,8 @@ import {
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 /**
- * The mock's `contents` is empty — it stands in for the row, and the translations live in their
- * own table — so the sample below carries one, which is what a caller actually reads back.
+ * The mock's `contents` is empty - it stands in for the row, and the translations live in their
+ * own table - so the sample below carries one, which is what a caller actually reads back.
  */
 const entitySample: Record<string, unknown> = {
 	...(getPlaceEntityMock() as unknown as Record<string, unknown>),
@@ -120,7 +120,7 @@ export const docs: Record<keyof typeof placeController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [400, 404, 409, 422],
 			request: {
-				notes: `Provide at least one body parameter. ${parentNote}, and changing the type is refused with 400 while the place still has children. Translations are upserted by language — a language left out of \`contents\` keeps what it already had`,
+				notes: `Provide at least one body parameter. ${parentNote}, and changing the type is refused with 400 while the place still has children. Translations are upserted by language - a language left out of \`contents\` keeps what it already had`,
 				params: {
 					id: {
 						type: 'number',
@@ -150,7 +150,7 @@ export const docs: Record<keyof typeof placeController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [400, 404],
 			request: {
-				notes: 'Soft delete, and refused with 400 while the place still has a child that is not deleted — a branch comes down from the leaves up',
+				notes: 'Soft delete, and refused with 400 while the place still has a child that is not deleted - a branch comes down from the leaves up',
 				params: {
 					id: {
 						type: 'number',

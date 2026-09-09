@@ -293,8 +293,8 @@ export function addApiDocumentationMiddleware<C>(
 export type FeatureDocumentation = {
 	/**
 	 * The entity these routes belong to, taken from the folder they live in rather than the
-	 * route file's own name. A feature directory can hold more than one route module — the
-	 * article folder ships both `article.routes.ts` and `article-public.routes.ts` — and only
+	 * route file's own name. A feature directory can hold more than one route module - the
+	 * article folder ships both `article.routes.ts` and `article-public.routes.ts` - and only
 	 * the folder names a real permission entity, so this is what groups the catalog.
 	 */
 	entity: string;
@@ -307,7 +307,7 @@ export type FeatureDocumentation = {
 	actions: Record<string, ApiOutputDocumentation>;
 };
 
-/** A registry entry with the key it is stored under — the route module's own name. */
+/** A registry entry with the key it is stored under - the route module's own name. */
 export type FeatureDocumentationEntry = FeatureDocumentation & {
 	feature: string;
 };
@@ -327,7 +327,7 @@ export function getFeatureDocumentation(
 
 /**
  * Every documented route module, sorted by name so the catalog has a stable order across
- * boots — the registry is filled in whatever order `findRouteFiles` walks the directory.
+ * boots - the registry is filled in whatever order `findRouteFiles` walks the directory.
  */
 export function listFeatureDocumentation(): FeatureDocumentationEntry[] {
 	return Array.from(featureDocumentation, ([feature, documentation]) => ({
@@ -338,7 +338,7 @@ export function listFeatureDocumentation(): FeatureDocumentationEntry[] {
 
 /**
  * Loads the `<module>.docs.ts` sitting beside a route file and registers the generated output,
- * then — in development only — also attaches it to each route so a failing request echoes it
+ * then - in development only - also attaches it to each route so a failing request echoes it
  * back under `meta.documentation` (`output-handler.middleware.ts` writes that on non-2xx only).
  *
  * Resolved from the route file's own directory rather than from `features/<name>/<name>.docs`:
@@ -351,7 +351,7 @@ export function listFeatureDocumentation(): FeatureDocumentationEntry[] {
  * per documented module at boot; the docs modules pull in `<feature>.mock.ts` for their
  * samples, which carry no test-only dependencies.
  *
- * A module without the file throws on import and is skipped — the common case, since most
+ * A module without the file throws on import and is skipped - the common case, since most
  * features are undocumented.
  */
 export async function setupFeatureDocumentation<C>(
@@ -387,13 +387,13 @@ export async function setupFeatureDocumentation<C>(
 		};
 	} catch (error) {
 		/*
-		 * A missing file is the ordinary case — most features are undocumented — so only that
+		 * A missing file is the ordinary case - most features are undocumented - so only that
 		 * one is silent. Anything else means a docs file exists and did not load, which is
 		 * otherwise indistinguishable from having none: the feature serves its routes as
 		 * usual and `GET /public/api-docs/:feature` simply answers 404.
 		 *
 		 * `generateDocumentation` is the likely thrower, and it throws for reasons worth
-		 * hearing about — a documented action with no matching route, or a status code
+		 * hearing about - a documented action with no matching route, or a status code
 		 * `convertToEntryResponseInput` has no case for.
 		 */
 		if (!isModuleNotFound(error)) {

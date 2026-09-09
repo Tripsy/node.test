@@ -33,7 +33,7 @@ const statusTransitionNote = Object.entries(STATUS_TRANSITIONS)
 const branchNote = `client_type picks the branch: ${ClientTypeEnum.COMPANY} takes company_name, company_cui and company_reg_com, ${ClientTypeEnum.PERSON} takes person_name and person_identification_number. A field from the other branch is refused`;
 
 const duplicateNote =
-	'A company sharing a name, CUI or registration number with another, or a person sharing an identification number, answers 409 — and the check counts soft-deleted rows, so deleting a client does not free its identity';
+	'A company sharing a name, CUI or registration number with another, or a person sharing an identification number, answers 409 - and the check counts soft-deleted rows, so deleting a client does not free its identity';
 
 /** The contact and banking half, identical in both branches and in both writes. */
 const sharedBody = {
@@ -116,7 +116,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: "Only the branch the client belongs to is returned — the other branch's fields are stripped, and person_identification_number is never selected",
+			notes: "Only the branch the client belongs to is returned - the other branch's fields are stripped, and person_identification_number is never selected",
 			params: {
 				id: {
 					type: 'number',
@@ -136,7 +136,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 404, 409, 422],
 		request: {
-			notes: `Provide at least one body parameter besides client_type, which falls back to the stored value when omitted — so switching a client between the two branches means sending the target branch's fields with it. ${branchNote}. ${duplicateNote}. status has its own route`,
+			notes: `Provide at least one body parameter besides client_type, which falls back to the stored value when omitted - so switching a client between the two branches means sending the target branch's fields with it. ${branchNote}. ${duplicateNote}. status has its own route`,
 			params: {
 				id: {
 					type: 'number',

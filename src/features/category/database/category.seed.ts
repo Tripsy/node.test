@@ -14,7 +14,7 @@ import CategoryContentEntity from '@/features/category/category-content.entity';
 /**
  * A readable two-level tree rather than generated strings: categories are what the product
  * catalog hangs off, and the names show up all over the UI. `category` itself holds no
- * name — labels and slugs live in `category_content`, so the slug is the natural key here,
+ * name - labels and slugs live in `category_content`, so the slug is the natural key here,
  * scoped by `type` exactly as the `(type, slug, language)` unique index scopes it.
  */
 type CategorySeedRow = {
@@ -26,7 +26,7 @@ type CategorySeedRow = {
 };
 
 const categoryData: readonly CategorySeedRow[] = [
-	// Product — roots
+	// Product - roots
 	{
 		slug: 'electronics',
 		label: 'Electronics',
@@ -68,7 +68,7 @@ const categoryData: readonly CategorySeedRow[] = [
 		description: 'Kitchen menu - pizza, drinks and what goes beside them.',
 	},
 
-	// Product — children
+	// Product - children
 	{
 		slug: 'laptops',
 		label: 'Laptops',
@@ -162,7 +162,7 @@ const categoryData: readonly CategorySeedRow[] = [
 	},
 
 	/*
-	 * Article — a second tree under the same table, so the `type` discriminator and the
+	 * Article - a second tree under the same table, so the `type` discriminator and the
 	 * `IDX_category_type` index are exercised by the demo data rather than only by tests.
 	 */
 	{
@@ -200,7 +200,7 @@ export const categorySeed: SeedDefinition = {
 		const contentRepository = manager.getRepository(CategoryContentEntity);
 
 		// `type` is `select: false` on the content entity, so it has to be asked for
-		// explicitly — without it every existing row would key as `undefined:<slug>`.
+		// explicitly - without it every existing row would key as `undefined:<slug>`.
 		const existingContent = await contentRepository.find({
 			select: {
 				category_id: true,
@@ -230,7 +230,7 @@ export const categorySeed: SeedDefinition = {
 
 		/*
 		 * Sequential rather than batched: a child needs its parent's generated id, and the
-		 * closure table is written by TypeORM's persistence executor on save — which is why
+		 * closure table is written by TypeORM's persistence executor on save - which is why
 		 * the parent is assigned as an entity (`@TreeParent`) and not as a `parent_id`.
 		 */
 		for (const category of categoryData) {

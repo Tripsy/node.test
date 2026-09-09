@@ -14,7 +14,7 @@ import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 const ENTITY_TABLE_NAME = 'product_bundle_group';
 
 /**
- * A choice offered inside a bundle — "choose your fries" — whose candidates are the
+ * A choice offered inside a bundle - "choose your fries" - whose candidates are the
  * `product_bundle_item` rows carrying its `group_id`. Exactly one of them is taken.
  *
  * This is the only thing in the schema that says **exactly one of these**. An optional component
@@ -23,17 +23,17 @@ const ENTITY_TABLE_NAME = 'product_bundle_group';
  *
  * **No `min_select` / `max_select`, unlike `product_option_group`**, and this is the one place the
  * two shapes deliberately diverge. Such a bound would count candidate *rows*, while what a bundle
- * is measured in is units — every candidate carries its own `quantity` ceiling. So the one case
+ * is measured in is units - every candidate carries its own `quantity` ceiling. So the one case
  * the pair would buy, a mixed pack of *n* units drawn from a list, is exactly the case it cannot
  * state: `max_select = 6` over rows whose ceiling is 2 permits twelve. Rather than keep two
  * columns nothing could read correctly, a bundle choice means one thing and says it in its shape.
  *
- * A group therefore needs **two** candidates to be a choice at all —
+ * A group therefore needs **two** candidates to be a choice at all -
  * `ProductService.assertBundleGroupsAreUsable` refuses fewer. With one, "exactly one of these" is
  * just a component that is always included, wearing a prompt.
  *
- * Distinct from `product_option_group` in what a candidate is, too: an option's answer is a term —
- * a label with a delta and nothing behind it — where a candidate here is a variant, so the choice
+ * Distinct from `product_option_group` in what a candidate is, too: an option's answer is a term -
+ * a label with a delta and nothing behind it - where a candidate here is a variant, so the choice
  * decides what leaves stock and at which VAT rate. See `.claude/rules/product.md` §8.
  */
 @Entity({

@@ -10,7 +10,7 @@ export class ExchangeRateQuery extends RepositoryAbstract<ExchangeRateEntity> {
 	}
 
 	/**
-	 * The priced currency and what it is priced in. Directional — a row saying what one EUR is
+	 * The priced currency and what it is priced in. Directional - a row saying what one EUR is
 	 * worth in RON is not matched by asking what one RON is worth in EUR.
 	 */
 	filterByCurrency(currency?: string, baseCurrency?: string): this {
@@ -22,7 +22,7 @@ export class ExchangeRateQuery extends RepositoryAbstract<ExchangeRateEntity> {
 
 	/**
 	 * Rows published on or before `date`. Ordered by `rate_date` descending, the first is the
-	 * rate that was in force then — a day with no publication (a weekend, a holiday) carries
+	 * rate that was in force then - a day with no publication (a weekend, a holiday) carries
 	 * the previous one forward rather than having no rate at all.
 	 */
 	filterAsOf(date?: string): this {

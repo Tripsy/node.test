@@ -7,7 +7,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * `quantity` changes meaning on such a row: on a component that is always included it is how many
  * the bundle contains, and on an optional one it is the most the customer may take. No column
- * bounds the optional set as a whole — each component carries its own ceiling.
+ * bounds the optional set as a whole - each component carries its own ceiling.
  *
  * The delta means something narrower than the column of the same name that
  * `ProductDropBundleCustomization1789200000000` removed: that one was added to the *bundle* price
@@ -59,7 +59,7 @@ export class ProductBundleOptionalComponents1789300000000
 
 	/**
 	 * Rebuilds the schema, not the data. Every delta and every optional flag is gone once this has
-	 * run — a bundle that offered a choice comes back as the flat list of all its components, with
+	 * run - a bundle that offered a choice comes back as the flat list of all its components, with
 	 * the optional ones now always included and priced at the bundle's own figure.
 	 */
 	public async down(queryRunner: QueryRunner): Promise<void> {

@@ -42,7 +42,7 @@ export function getProductCategoryAttributeEntityMock(): ProductCategoryAttribut
 		/*
 		 * `category` and `attribute_label` are declared non-optional on the entity but are only
 		 * populated when a read joins them, and the definition is addressed by its own columns
-		 * everywhere. Cast rather than invented — a fabricated category row here would be a
+		 * everywhere. Cast rather than invented - a fabricated category row here would be a
 		 * shape no response ever carries.
 		 */
 	} as unknown as ProductCategoryAttributeEntity;

@@ -6,7 +6,7 @@ export class ArticleRuleSubscriptionBoolean1787100000000
 	name = 'ArticleRuleSubscriptionBoolean1787100000000';
 
 	/**
-	 * The column held plan identifiers, but nothing ever matched against them — the access
+	 * The column held plan identifiers, but nothing ever matched against them - the access
 	 * policy only proved the reader had *an* active subscription. A populated array therefore
 	 * meant exactly "a subscription is required", which is what the boolean now says.
 	 */
@@ -29,7 +29,7 @@ export class ArticleRuleSubscriptionBoolean1787100000000
 	}
 
 	/**
-	 * The plan identifiers are gone for good — they were never read, and `true` carries no
+	 * The plan identifiers are gone for good - they were never read, and `true` carries no
 	 * record of which plans were listed. The down path restores the shape with an empty array
 	 * where the flag was set, which is the closest honest reconstruction.
 	 */

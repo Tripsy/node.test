@@ -38,8 +38,8 @@ const identParam = {
 };
 
 /**
- * Rate-limited endpoints answer 429 with the limiter's own body — `{ status, error, message }`
- * — instead of the wrapper every other response uses, because the limiter replies before the
+ * Rate-limited endpoints answer 429 with the limiter's own body - `{ status, error, message }`
+ * - instead of the wrapper every other response uses, because the limiter replies before the
  * route runs. Stated in the notes rather than listed as a response for that reason.
  */
 function rateLimitNote(type: 'authLogin' | 'authDefault'): string {
@@ -68,7 +68,7 @@ export const docs: Record<AccountPublicAction, ApiInputDocumentation> = {
 		},
 		withErrors: [400, 403, 409, 422],
 		request: {
-			notes: `The account is created pending and cannot sign in until the emailed confirmation link is redeemed. An email already registered answers 409 while that account is still pending — it can be resent through \`POST /account/email-confirm-send\` — and 400 once it is active. \`language\` falls back to the language the request was resolved in. ${rateLimitNote('authDefault')}`,
+			notes: `The account is created pending and cannot sign in until the emailed confirmation link is redeemed. An email already registered answers 409 while that account is still pending - it can be resent through \`POST /account/email-confirm-send\` - and 400 once it is active. \`language\` falls back to the language the request was resolved in. ${rateLimitNote('authDefault')}`,
 			body: {
 				name: {
 					type: 'string',
@@ -106,7 +106,7 @@ export const docs: Record<AccountPublicAction, ApiInputDocumentation> = {
 		},
 		withErrors: [400, 401, 403, 404, 409, 422],
 		request: {
-			notes: `The token is returned in the body — nothing is set as a cookie, and the caller decides where to keep it. An unknown, deleted or inactive account answers 404 and a pending one 409, so the response never distinguishes a wrong password (401) from an address that was never registered. An account created through social sign-in has no password and answers 400. ${maxSessionsNote}. ${rateLimitNote('authLogin')}`,
+			notes: `The token is returned in the body - nothing is set as a cookie, and the caller decides where to keep it. An unknown, deleted or inactive account answers 404 and a pending one 409, so the response never distinguishes a wrong password (401) from an address that was never registered. An account created through social sign-in has no password and answers 400. ${maxSessionsNote}. ${rateLimitNote('authLogin')}`,
 			body: {
 				email: { type: 'string', format: 'email', required: true },
 				password: { type: 'string', required: true },
@@ -155,7 +155,7 @@ export const docs: Record<AccountPublicAction, ApiInputDocumentation> = {
 		},
 		withErrors: [422],
 		request: {
-			notes: 'Takes no bearer token, because the case it exists for is a sign-in that was refused: the 403 from `login` hands back the idents this account can revoke, and none of them can be presented as auth. Knowing an ident is the whole credential, which is why it is an unguessable uuid and never leaves the account it belongs to. An ident that matches nothing is a success — the session is gone either way',
+			notes: 'Takes no bearer token, because the case it exists for is a sign-in that was refused: the 403 from `login` hands back the idents this account can revoke, and none of them can be presented as auth. Knowing an ident is the whole credential, which is why it is an unguessable uuid and never leaves the account it belongs to. An ident that matches nothing is a success - the session is gone either way',
 			body: {
 				ident: identParam,
 			},
@@ -212,7 +212,7 @@ export const docs: Record<AccountPublicAction, ApiInputDocumentation> = {
 		},
 		withErrors: [400, 403, 404, 422],
 		request: {
-			notes: 'Serves both flows the confirmation email is sent for, told apart by what the token carries: a registration confirmation activates the pending account, while an email-update confirmation writes the new address. Takes no bearer token — a user may well be signed in when they click it, and it is the signed token that authorizes the change. An expired or tampered token, and a token whose address no longer matches the account, answer 400; an already active account answers 400 and a disabled one 403',
+			notes: 'Serves both flows the confirmation email is sent for, told apart by what the token carries: a registration confirmation activates the pending account, while an email-update confirmation writes the new address. Takes no bearer token - a user may well be signed in when they click it, and it is the signed token that authorizes the change. An expired or tampered token, and a token whose address no longer matches the account, answer 400; an already active account answers 400 and a disabled one 403',
 			params: {
 				token: {
 					type: 'string',

@@ -155,7 +155,7 @@ export class UserService {
 	/**
 	 * @description Same as `findById`, but with the `password` column loaded.
 	 *
-	 * `password` is declared `select: false`, so the default query never returns it — a
+	 * `password` is declared `select: false`, so the default query never returns it - a
 	 * caller that has to verify a password (or find out whether the account has one at all,
 	 * now that social sign-in accounts may not) must ask for the column explicitly.
 	 */

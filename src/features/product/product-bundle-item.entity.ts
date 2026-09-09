@@ -22,11 +22,11 @@ const ENTITY_TABLE_NAME = 'product_bundle_item';
  * A row is one of three things, and the two flags read against `group_id` rather than on their
  * own:
  *
- * 1. **Always included** — no group, `is_optional = false`. Part of the kit, covered by the
+ * 1. **Always included** - no group, `is_optional = false`. Part of the kit, covered by the
  *    bundle's own price.
- * 2. **An independent tick box** — no group, `is_optional = true`. The customer takes none to
+ * 2. **An independent tick box** - no group, `is_optional = true`. The customer takes none to
  *    `quantity` of it, bounded by nothing else.
- * 3. **A candidate** — `group_id` set. The group decides how many of its candidates are taken,
+ * 3. **A candidate** - `group_id` set. The group decides how many of its candidates are taken,
  *    so `is_optional` is meaningless here and refused: the row is neither always included nor
  *    free to be taken on its own terms.
  *
@@ -35,7 +35,7 @@ const ENTITY_TABLE_NAME = 'product_bundle_item';
  * adjusts the component's own price, never the bundle's. Making a candidate free therefore means
  * a delta of its whole price, not zero.
  *
- * `quantity` is a **ceiling** on 2 alone — the most the customer may take of that tick box — and a
+ * `quantity` is a **ceiling** on 2 alone - the most the customer may take of that tick box - and a
  * plain count on 1 and 3. A candidate is not a ceiling: its group decides *which* candidate is
  * taken, never how many of it, so the figure is what the bundle contains once that candidate is
  * the one chosen. See `.claude/rules/product.md` §8.
@@ -136,7 +136,7 @@ export default class ProductBundleItemEntity extends EntityAbstract {
 	product!: ProductEntity;
 
 	// RESTRICT: a bundle whose component vanished is silently incomplete, and nothing would report
-	// it — better to block the delete and force the bundle to be edited first
+	// it - better to block the delete and force the bundle to be edited first
 	@ManyToOne('ProductVariantEntity', {
 		onDelete: 'RESTRICT',
 	})

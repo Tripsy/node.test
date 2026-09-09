@@ -20,7 +20,7 @@ const DAY_IN_MILLISECONDS = 86400 * 1000;
 /**
  * Offsets, in days from now, for the discount window. `null` on either end means open-ended.
  * The set deliberately covers all four states the `IDX_discount_active` lookup has to tell
- * apart — running, scheduled, expired and always-on — so a demo list is not uniformly valid.
+ * apart - running, scheduled, expired and always-on - so a demo list is not uniformly valid.
  */
 type Window = readonly [startDays: number | null, endDays: number | null];
 
@@ -40,7 +40,7 @@ type DiscountBlueprint = {
 	window: Window;
 	/**
 	 * Built per row rather than stored flat, because the meaningful rule keys follow the
-	 * scope — an order-wide discount is bounded by `applicable_countries` or
+	 * scope - an order-wide discount is bounded by `applicable_countries` or
 	 * `min_order_value`.
 	 *
 	 * Conditions gate *when* a discount applies. What it attaches to lives in `discount_target`,

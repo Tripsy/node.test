@@ -14,7 +14,7 @@ server.registerTool(
 	{
 		title: 'Run a read-only query',
 		description:
-			'Execute a read-only SQL query (SELECT / EXPLAIN / WITH). Runs inside a READ ONLY transaction — writes are rejected by Postgres. Use $1, $2… placeholders with `params` for any user-supplied values; never string-concatenate them.',
+			'Execute a read-only SQL query (SELECT / EXPLAIN / WITH). Runs inside a READ ONLY transaction - writes are rejected by Postgres. Use $1, $2… placeholders with `params` for any user-supplied values; never string-concatenate them.',
 		inputSchema: {
 			sql: z
 				.string()

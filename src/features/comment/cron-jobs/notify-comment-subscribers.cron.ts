@@ -10,7 +10,7 @@ export const SCHEDULE_EXPRESSION = '0 */4 * * *';
 export const EXPECTED_RUN_TIME = 30; // seconds
 
 /**
- * How many comments one run answers for. The rest wait for the next one — the queue only grows
+ * How many comments one run answers for. The rest wait for the next one - the queue only grows
  * this far behind if a discussion outran four hours of moderation, and a run that fans out an
  * unbounded batch is one that holds a connection for as long as the backlog takes.
  */
@@ -52,7 +52,7 @@ function targetKey(entry: CommentEntity): string {
  *
  * Notification follows **approval**, unlike the subscription itself: a pending comment is not
  * public, and announcing it would leak what a moderator has not passed. `notified_at` is what
- * separates the two — a comment enters this queue when it is approved and leaves it when the run
+ * separates the two - a comment enters this queue when it is approved and leaves it when the run
  * has answered for it, whether or not anybody was actually written to.
  */
 const notifyCommentSubscribers = async () => {

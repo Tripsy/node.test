@@ -19,7 +19,7 @@ import { MeasureUnitEnum } from '@/shared/types/measure-unit.type';
 
 /**
  * Served as `/docs/product-category-attribute`, since documentation is registered under its route
- * file's own name. The permission gate is still `product` — the folder it sits in — which is right:
+ * file's own name. The permission gate is still `product` - the folder it sits in - which is right:
  * a definition is the schema of the product form.
  */
 const entitySample =
@@ -38,7 +38,7 @@ function manageBody(required: boolean) {
 			values: Object.values(ProductCategoryAttributeScopeEnum),
 			default: ProductCategoryAttributeScopeEnum.PRODUCT,
 			condition:
-				'decides which table a value lands in — product_attribute or product_variant_attribute',
+				'decides which table a value lands in - product_attribute or product_variant_attribute',
 		},
 		value_type: {
 			type: 'enum' as const,
@@ -66,7 +66,7 @@ function manageBody(required: boolean) {
 		suffix: {
 			type: 'string' as const,
 			required: false,
-			condition: 'decoration a measure does not cover — pcs, %',
+			condition: 'decoration a measure does not cover - pcs, %',
 		},
 		min_value: {
 			type: 'number' as const,
@@ -133,7 +133,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 409, 422],
 		request: {
-			notes: 'A category declares each label once. The definition holds no product data — it is the schema the product form renders from and the validator checks against',
+			notes: 'A category declares each label once. The definition holds no product data - it is the schema the product form renders from and the validator checks against',
 			body: manageBody(true),
 			sample: productCategoryAttributeInputPayloads.create,
 		},
@@ -249,7 +249,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 422],
 		request: {
-			notes: "Positions are the category's definition ids in the order they should be offered — the whole set, since a position only means anything relative to its siblings. Applied ascending, which is how the table is read everywhere",
+			notes: "Positions are the category's definition ids in the order they should be offered - the whole set, since a position only means anything relative to its siblings. Applied ascending, which is how the table is read everywhere",
 			body: {
 				category_id: { type: 'number', required: true },
 				positions: {
@@ -286,7 +286,7 @@ export const docs: Record<
 		},
 		withAuthErrors: true,
 		request: {
-			notes: 'Definitions exactly as stored, one category at a time — the inheritance walk is what the resolve route is for',
+			notes: 'Definitions exactly as stored, one category at a time - the inheritance walk is what the resolve route is for',
 			query: {
 				page: {
 					type: 'number',

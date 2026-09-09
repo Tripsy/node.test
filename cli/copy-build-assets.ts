@@ -17,7 +17,7 @@ import path from 'node:path';
 const SOURCE_DIR = path.join(process.cwd(), 'src');
 const TARGET_DIR = path.join(process.cwd(), 'dist', 'src');
 
-// Mirrors the `exclude` in tsconfig.build.json — test fixtures are not shipped.
+// Mirrors the `exclude` in tsconfig.build.json - test fixtures are not shipped.
 const EXCLUDED_DIRS = new Set(['tests']);
 
 let copiedCount = 0;

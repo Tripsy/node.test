@@ -4,7 +4,7 @@
  *
  * `image` writes against `(section, entity_id)` with no foreign key to anything, so a target has
  * no relation to walk and would otherwise have to reach into the image repository to find its own
- * picture — which is what `article` did, and what made optional decoration a hard install-time
+ * picture - which is what `article` did, and what made optional decoration a hard install-time
  * dependency. A project should be able to take `article`, `brand` or `category` and leave the
  * image library behind.
  *
@@ -23,7 +23,7 @@
  * client must not have to tell "this row has no image" apart from "this deployment has no image
  * feature".
  *
- * The vocabulary here is deliberately the *storing* feature's — an image and its type — not the
+ * The vocabulary here is deliberately the *storing* feature's - an image and its type - not the
  * role a page casts it in. What an article calls its `cover_image` is article's word for the first
  * gallery image; a brand asking the same registry for its `logo` is not asking for a cover.
  */
@@ -33,7 +33,7 @@
  * the first of its `gallery`.
  *
  * Declared here rather than imported from the image feature even though it duplicates
- * `ImageTypeEnum` — that import is the dependency this file exists to remove. The duplication is
+ * `ImageTypeEnum` - that import is the dependency this file exists to remove. The duplication is
  * the tripwire: a provider whose own enum grows past this one stops compiling in its bootstrap,
  * which is where somebody should notice that consumers gained an option.
  */
@@ -46,7 +46,7 @@ export type TargetImageType =
 	(typeof TargetImageTypeEnum)[keyof typeof TargetImageTypeEnum];
 
 /**
- * How the file is reached — the vocabulary the API promises its clients, owned here for the same
+ * How the file is reached - the vocabulary the API promises its clients, owned here for the same
  * reason as the type above, and mirroring `ImageStorageEnum`.
  */
 export const TargetImageStorageEnum = {
@@ -59,7 +59,7 @@ export type TargetImageStorage =
 
 /**
  * Whatever the provider knows about the file; an older row may know none of it. `mime` stays a
- * plain string — no consumer branches on it, so restating the five literals buys nothing.
+ * plain string - no consumer branches on it, so restating the five literals buys nothing.
  */
 export type TargetImageProperties = {
 	width?: number;
@@ -81,7 +81,7 @@ export type TargetImage = {
  *
  * `section` is the target's table name (`ArticleEntity.NAME`), the way a polymorphic target is
  * named everywhere here. A provider that does not serve that section answers with an empty map
- * rather than failing — an unknown section is a deployment fact, not an error.
+ * rather than failing - an unknown section is a deployment fact, not an error.
  *
  * Which of several images wins is the provider's rule, not the caller's: it returns the first by
  * whatever order it keeps them in.
@@ -96,7 +96,7 @@ let targetImageProvider: TargetImageProvider | null = null;
 
 /**
  * Called from the providing feature's `*.bootstrap.ts`. Registering twice replaces the previous
- * provider rather than adding a second opinion — a reload, not a second source of images.
+ * provider rather than adding a second opinion - a reload, not a second source of images.
  */
 export const registerTargetImageProvider = (
 	provider: TargetImageProvider,

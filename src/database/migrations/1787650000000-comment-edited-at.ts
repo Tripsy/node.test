@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * When a comment's text was last rewritten — by its author from the public endpoint, or by a
+ * When a comment's text was last rewritten - by its author from the public endpoint, or by a
  * moderator from the dashboard. Null for a comment nobody has touched since posting.
  *
  * Separate from `updated_at`, which moves for every save on the row (a status decision, a pin) and
@@ -9,7 +9,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * Numbered to land after `1787600000000-comment.ts`, which creates the table. Its original
  * generated timestamp sorted *before* that hand-numbered migration, so the chain only ever
- * worked on a database where `comment` already existed — a build from zero failed here with
+ * worked on a database where `comment` already existed - a build from zero failed here with
  * `relation "comment" does not exist`.
  *
  * `IF NOT EXISTS` covers the databases that ran this under its old name: the renumber makes it

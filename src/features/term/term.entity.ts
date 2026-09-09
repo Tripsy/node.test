@@ -44,7 +44,7 @@ export default class TermEntity extends EntityAbstract {
 
 	// RELATIONS
 	/*
-	 * The term carries no text of its own — every string lives in `term_content`, one row per
+	 * The term carries no text of its own - every string lives in `term_content`, one row per
 	 * language. Consumers (`product_attribute`, `product_tag`, `product_variant_attribute`) point
 	 * at this id, which is language-neutral, and resolve the wording at read time.
 	 */

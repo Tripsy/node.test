@@ -79,7 +79,7 @@ export class ImageService {
 			);
 		});
 
-		// One clean for the whole operation, after commit — the content rows written above
+		// One clean for the whole operation, after commit - the content rows written above
 		// have no subscriber invalidating the image's keys, and the image row itself was not
 		// touched, so nothing else would. See `cleanEntityCache`
 		await cleanEntityCache(ImageEntity, entry.id);
@@ -168,8 +168,8 @@ export class ImageService {
 	 * type, by `sort_order`. A target with none is absent from the map, and the caller renders
 	 * that as `null`.
 	 *
-	 * The type is the caller's to choose — a brand wants its `logo`, an article the first of its
-	 * `gallery` — while "first active, by `sort_order`" is this table's rule and stays here.
+	 * The type is the caller's to choose - a brand wants its `logo`, an article the first of its
+	 * `gallery` - while "first active, by `sort_order`" is this table's rule and stays here.
 	 *
 	 * One statement for the whole page, and a separate statement rather than a join: `image` is
 	 * polymorphic (`section` + `entity_id`, no foreign key to anything), so there is no relation
@@ -238,7 +238,7 @@ export class ImageService {
 	 * @description Used by `ImageListener`, on `entityRemoved`
 	 *
 	 * Images left pointing at targets that no longer exist. `(section, entity_id)` carries no
-	 * foreign key, so nothing removes them when the target goes — the feature that owned it
+	 * foreign key, so nothing removes them when the target goes - the feature that owned it
 	 * announces the removal and this clears what was filed against it. The translations follow
 	 * through `image_content.image_id`'s `ON DELETE CASCADE`.
 	 *
@@ -247,7 +247,7 @@ export class ImageService {
 	 * reuse.
 	 *
 	 * Clears the rows only. The stored file behind `path` stays on disk or in S3, exactly as the
-	 * dashboard `delete` above leaves it — reaping storage is a separate job neither of them does.
+	 * dashboard `delete` above leaves it - reaping storage is a separate job neither of them does.
 	 */
 	public async deleteByTargets(
 		section: ImageSection,
@@ -266,7 +266,7 @@ export class ImageService {
 		} catch (error) {
 			/*
 			 * A target with no images is the ordinary case, and `RepositoryAbstract.delete`
-			 * reports "nothing matched" as a 404 — meaningful when a caller named one row, noise
+			 * reports "nothing matched" as a 404 - meaningful when a caller named one row, noise
 			 * when the caller is a cleanup sweeping ids it has no expectations about.
 			 */
 			if (!(error instanceof NotFoundError)) {

@@ -10,7 +10,7 @@ export class ComplaintQuery extends RepositoryAbstract<ComplaintEntity> {
 	}
 
 	/**
-	 * The two columns that name what was reported, in the order `UQ_complaint_user` holds them —
+	 * The two columns that name what was reported, in the order `UQ_complaint_user` holds them -
 	 * the unique doubles as the target lookup, so a dashboard listing filtered by target is served
 	 * by it without an index of its own.
 	 */
@@ -45,7 +45,7 @@ export class ComplaintQuery extends RepositoryAbstract<ComplaintEntity> {
 	 * person, and one person is one complaint however many ways they file it. `LOWER` because an
 	 * address is case-insensitive in its domain part and, in practice, in its local part too.
 	 *
-	 * An `INNER` join, so a complaint whose reporter cannot be identified does not count — one
+	 * An `INNER` join, so a complaint whose reporter cannot be identified does not count - one
 	 * whose account has since been soft-deleted among them. Withdrawn complaints are already out:
 	 * the builder excludes soft-deleted rows unless `withDeleted` asks for them.
 	 */
@@ -65,7 +65,7 @@ export class ComplaintQuery extends RepositoryAbstract<ComplaintEntity> {
 
 	/**
 	 * The moderation search box, over the only free text a complaint carries. `ILIKE` rather than
-	 * a full-text index: a moderator searches for a fragment — a URL, half a word, a name — which
+	 * a full-text index: a moderator searches for a fragment - a URL, half a word, a name - which
 	 * `to_tsquery` cannot express and stemming would defeat.
 	 */
 	filterByTerm(term?: string | null): this {

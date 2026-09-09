@@ -32,7 +32,7 @@ export const ArticleVisibilityRuleRepository = dataSource
 		},
 
 		/**
-		 * Cacheable half of the rule. Returns null when the article has no rule row — which the
+		 * Cacheable half of the rule. Returns null when the article has no rule row - which the
 		 * gate must read as "restricted", not as "unrestricted".
 		 */
 		async findFields(
@@ -58,7 +58,7 @@ export const ArticleVisibilityRuleRepository = dataSource
 				requires_subscription: entry.requires_subscription,
 				allowed_countries: entry.allowed_countries,
 				is_listed: entry.is_listed,
-				// The hash itself is dropped here — only its presence travels
+				// The hash itself is dropped here - only its presence travels
 				has_password: entry.password !== null,
 			};
 		},

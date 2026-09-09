@@ -105,7 +105,7 @@ export const docs: Record<keyof typeof imageController, ApiInputDocumentation> =
 						required: true,
 						format: contentsFormat,
 						condition:
-							'at least one entry, and one per language — a repeated language is rejected; title and description are optional within an entry',
+							'at least one entry, and one per language - a repeated language is rejected; title and description are optional within an entry',
 					},
 				},
 				sample: imageInputPayloads.create,
@@ -144,7 +144,7 @@ export const docs: Record<keyof typeof imageController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [400, 404, 422],
 			request: {
-				notes: 'Only contents can be changed. The file, its target, its type and its storage are what the row records — replacing an image means registering the new file and removing this row. Status and order have their own routes',
+				notes: 'Only contents can be changed. The file, its target, its type and its storage are what the row records - replacing an image means registering the new file and removing this row. Status and order have their own routes',
 				params: {
 					id: {
 						type: 'number',
@@ -173,7 +173,7 @@ export const docs: Record<keyof typeof imageController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [404],
 			request: {
-				notes: 'Hard — the table has no deleted state and therefore no restore. The translations follow through the cascade, but the stored file does not: removing it belongs to whoever put it there. The same is true of the sweep that clears images when their target is removed',
+				notes: 'Hard - the table has no deleted state and therefore no restore. The translations follow through the cascade, but the stored file does not: removing it belongs to whoever put it there. The same is true of the sweep that clears images when their target is removed',
 				params: {
 					id: {
 						type: 'number',
@@ -209,7 +209,7 @@ export const docs: Record<keyof typeof imageController, ApiInputDocumentation> =
 			},
 			withAuthErrors: true,
 			request: {
-				notes: 'Every row carries its contents in every language, unless the language filter narrows them. There is no search term here — an image is found through its target',
+				notes: 'Every row carries its contents in every language, unless the language filter narrows them. There is no search term here - an image is found through its target',
 				query: {
 					page: {
 						type: 'number',
@@ -267,7 +267,7 @@ export const docs: Record<keyof typeof imageController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [400, 404, 409, 422],
 			request: {
-				notes: `Only these transitions are allowed: ${statusTransitionNote}. An inactive image is skipped by the lookup that picks the one standing for a target, and the move resets sort_order — the image leaves its ordered group either way`,
+				notes: `Only these transitions are allowed: ${statusTransitionNote}. An inactive image is skipped by the lookup that picks the one standing for a target, and the move resets sort_order - the image leaves its ordered group either way`,
 				params: {
 					id: {
 						type: 'number',
@@ -291,7 +291,7 @@ export const docs: Record<keyof typeof imageController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [400, 422],
 			request: {
-				notes: `Gallery images only, and only those belonging to the section and entity in the path — an id outside that set is refused by name rather than skipped. Unlike the category reorder, each entry carries its own sort_order rather than taking it from its position in the array`,
+				notes: `Gallery images only, and only those belonging to the section and entity in the path - an id outside that set is refused by name rather than skipped. Unlike the category reorder, each entry carries its own sort_order rather than taking it from its position in the array`,
 				params: targetParams,
 				body: {
 					positions: {

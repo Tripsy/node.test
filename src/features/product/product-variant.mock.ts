@@ -8,7 +8,7 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
  * product the listing shows and the prices it is quoted at.
  *
  * `product` and `prices` are declared optional-or-joined on the entity and only populated when a
- * read asks for them, so the shape is cast rather than assembled from full entities — a
+ * read asks for them, so the shape is cast rather than assembled from full entities - a
  * fabricated product row here would be a shape no response ever carries.
  */
 export function getProductVariantEntityMock(): ProductVariantEntity {

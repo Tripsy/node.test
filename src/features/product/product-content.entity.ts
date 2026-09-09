@@ -15,14 +15,14 @@ const ENTITY_TABLE_NAME = 'product_content';
 
 /**
  * Named because the service maps this index's violation back to the 409 its slug pre-check
- * raises — Postgres reports the constraint by name and nothing else distinguishes it from the
+ * raises - Postgres reports the constraint by name and nothing else distinguishes it from the
  * `(product_id, language)` one.
  */
 export const SLUG_UNIQUE_INDEX = 'IDX_product_content_slug_lang';
 
 /**
  * Deliberately not `EntityAbstract`: this table has no `deleted_at`.
- * A translation is never deleted on its own — the only write is `saveContent`'s upsert — and
+ * A translation is never deleted on its own - the only write is `saveContent`'s upsert - and
  * the row dies with its product through the FK cascade.
  */
 @Entity({

@@ -20,17 +20,17 @@ const entitySample = getLogHistoryEntityMock() as unknown as Record<
 
 /**
  * Read-only apart from the purge: rows are written by the history listener as entities change,
- * never by a caller, so there is no create and no update — and no soft delete either, the table
+ * never by a caller, so there is no create and no update - and no soft delete either, the table
  * carrying no `deleted_at`.
  */
 const writeNote =
-	'Rows are written as entities change, one per affected id, and only while LOGGING_HISTORY routes history to the database — pointed at the logger instead, the same events go out as log lines and this table stays empty';
+	'Rows are written as entities change, one per affected id, and only while LOGGING_HISTORY routes history to the database - pointed at the logger instead, the same events go out as log lines and this table stays empty';
 
 const entityParam = {
 	type: 'string' as const,
 	required: false,
 	condition:
-		'the table name, matched exactly — this is free text rather than an enum, so an unknown name returns nothing rather than failing',
+		'the table name, matched exactly - this is free text rather than an enum, so an unknown name returns nothing rather than failing',
 };
 
 export const docs: Record<
@@ -48,7 +48,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: `${writeNote}. The acting account is joined in, and \`performed_by\` keeps the name as it was at the time — a renamed or deleted account does not rewrite what the entry says`,
+			notes: `${writeNote}. The acting account is joined in, and \`performed_by\` keeps the name as it was at the time - a renamed or deleted account does not rewrite what the entry says`,
 			params: {
 				id: {
 					type: 'number',
@@ -67,7 +67,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [409, 422],
 		request: {
-			notes: 'Takes a list of ids in the body rather than one in the path — this is a purge, not the removal of a single record. Hard, since the table has no deleted state, and matching nothing answers 409 rather than reporting a success that removed no row. Nothing prunes this table on a schedule',
+			notes: 'Takes a list of ids in the body rather than one in the path - this is a purge, not the removal of a single record. Hard, since the table has no deleted state, and matching nothing answers 409 rather than reporting a success that removed no row. Nothing prunes this table on a schedule',
 			body: {
 				ids: {
 					type: 'array',
@@ -107,7 +107,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [422],
 		request: {
-			notes: 'Every filter here matches exactly — there is no search term. recorded_at_start must not be after recorded_at_end, and both are matched against recorded_at, which is stamped once per operation, so the rows of one bulk delete share it',
+			notes: 'Every filter here matches exactly - there is no search term. recorded_at_start must not be after recorded_at_end, and both are matched against recorded_at, which is stamped once per operation, so the rows of one bulk delete share it',
 			query: {
 				page: {
 					type: 'number',
@@ -137,7 +137,7 @@ export const docs: Record<
 						type: 'number',
 						required: false,
 						condition:
-							'only meaningful together with entity — the same id exists in every table',
+							'only meaningful together with entity - the same id exists in every table',
 					},
 					action: {
 						type: 'string',

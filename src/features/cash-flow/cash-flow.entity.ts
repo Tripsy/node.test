@@ -30,7 +30,7 @@ export type Currency = (typeof CurrencyEnum)[keyof typeof CurrencyEnum];
 /**
  * Falls back to the deployment's configured currency when the request omits one.
  * `app.currency` is a free-form env string, so it is checked against the enum rather than
- * trusted — a typo in `APP_CURRENCY` must not reach a column the database constrains.
+ * trusted - a typo in `APP_CURRENCY` must not reach a column the database constrains.
  */
 export const resolveCurrency = (currency?: Currency): Currency => {
 	if (currency) {

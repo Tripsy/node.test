@@ -46,7 +46,7 @@ const accountValidator = new AccountValidator('account');
  * Asserts the payload is rejected with a specific issue.
  *
  * Under `APP_ENV=test` `lang()` returns the key rather than the sentence, so `messageKey`
- * is the full dotted key — which also pins down that the schema is wired to the intended
+ * is the full dotted key - which also pins down that the schema is wired to the intended
  * message, not merely that it rejected something.
  */
 function expectIssue(
@@ -84,7 +84,7 @@ describe(validator, () => {
 
 	describe('password confirmation', () => {
 		// The three `superRefine` blocks are the only cross-field rules in this validator
-		// and were entirely uncovered — a broken one silently lets a mistyped confirmation
+		// and were entirely uncovered - a broken one silently lets a mistyped confirmation
 		// through and locks the user out of the account they just changed.
 		it('register() rejects a mismatched confirmation', () => {
 			expectIssue(

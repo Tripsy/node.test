@@ -8,14 +8,14 @@ const RETENTION_DAYS = 90;
 
 /*
  * `cron_history` gains a row per job per run and never loses one, so it grows with the
- * number of scheduled jobs times their frequency — the hourly jobs alone outpace every
+ * number of scheduled jobs times their frequency - the hourly jobs alone outpace every
  * other table this project cleans up.
  *
  * 90 days is longer than the 30 the other cleanup crons keep, because this table is what
  * `cron-error-count` and `cron-warning-count` report from: a schedule that only misbehaves
  * monthly needs a few occurrences on record before the pattern is visible.
  *
- * Filters on `start_at` — the entity has no `created_at`, and no `deleted_at` either, so
+ * Filters on `start_at` - the entity has no `created_at`, and no `deleted_at` either, so
  * the delete is a hard one.
  *
  * `delete` loads the matching rows and removes them one by one inside a transaction, so
@@ -24,7 +24,7 @@ const RETENTION_DAYS = 90;
  * 90 days, which is why the expected run time is generous.
  *
  * Runs Sundays at 04:47, alongside the other weekly cleanups. Day-of-week is what gives
- * a true seven-day gap — a `day-of-month` step restarts each month, leaving an interval
+ * a true seven-day gap - a `day-of-month` step restarts each month, leaving an interval
  * of two days in February and three in a 31-day month. The minute is offset from the
  * rest of the 04:00 block (`clean-account-recovery` :02, `clean-log-data` :17,
  * `clean-comment-subscription` :37) because `cron-time-check` reports jobs starting in

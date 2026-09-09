@@ -78,8 +78,8 @@ export function listDirectories(originPath: string): string[] {
 
 export function listFiles(originPath: string): string[] {
 	/*
-	 * A convention-scanned folder is allowed not to exist: these are optional slots — a project
-	 * started from this boilerplate may have no shared listeners, no shared cron jobs — and
+	 * A convention-scanned folder is allowed not to exist: these are optional slots - a project
+	 * started from this boilerplate may have no shared listeners, no shared cron jobs - and
 	 * "nothing to discover" is the honest answer, not a fatal error. `statSync` throws on a
 	 * missing path, which took the whole bootstrap down the first time such a folder emptied.
 	 */

@@ -6,7 +6,7 @@ export const EXPECTED_RUN_TIME = 10; // seconds
 
 /*
  * `log_data` sits on the instance's own volume and unauthenticated traffic can cause writes
- * to it, so this job is the only thing bounding it — the other log destinations expire under
+ * to it, so this job is the only thing bounding it - the other log destinations expire under
  * a retention policy their host owns, this one has nothing of the sort.
  *
  * 30 days matches the other cleanup crons. An `error` or `fatal` older than that has either

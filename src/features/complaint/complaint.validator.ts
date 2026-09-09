@@ -67,7 +67,7 @@ export class ComplaintValidator extends BaseValidator<
 	}
 
 	/**
-	 * What a reader files. The reporter is never in the body — it is the authenticated caller — and
+	 * What a reader files. The reporter is never in the body - it is the authenticated caller - and
 	 * `description` stays optional: the reason alone is a complete report, and a required free-text
 	 * field is one people fill with a full stop.
 	 */
@@ -125,7 +125,7 @@ export class ComplaintValidator extends BaseValidator<
 
 	/**
 	 * The moderation decision. Which way it goes is the endpoint, not a field: `validateBoolean`
-	 * treats a required boolean as "must be true" — it refines `val === true` — so a body carrying
+	 * treats a required boolean as "must be true" - it refines `val === true` - so a body carrying
 	 * `is_resolved: false` could never validate, and reopening would answer 422 forever.
 	 */
 	readonly resolveUpdate = z.object({
@@ -173,7 +173,7 @@ export class ComplaintValidator extends BaseValidator<
 			}),
 			/*
 			 * The dashboard's show-deleted toggle. Defaulted rather than left optional, so the
-			 * service always has a boolean to combine with the caller's `allowDeleted` — an
+			 * service always has a boolean to combine with the caller's `allowDeleted` - an
 			 * undefined here would reach `withDeleted()` and fall back to its `true` default,
 			 * showing withdrawn complaints to a listing that never asked for them.
 			 */

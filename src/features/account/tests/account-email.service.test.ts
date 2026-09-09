@@ -6,7 +6,7 @@ import { formatDate } from '@/helpers/date.helper';
  * `AccountEmailService` collaborates with two module-level functions rather than injected
  * dependencies, so they are replaced at the module level. Under the ESM preset a plain
  * `jest.mock()` does not hoist, hence `unstable_mockModule` plus a dynamic import of the
- * service afterwards — the mock has to be registered before the module is evaluated.
+ * service afterwards - the mock has to be registered before the module is evaluated.
  */
 const loadEmailTemplate =
 	jest.fn<(label: string, language: string) => Promise<EmailTemplate>>();
@@ -48,7 +48,7 @@ function getUserMock() {
 }
 
 /**
- * Asserts the queued mail without passing `EmailTemplate` through a jest matcher —
+ * Asserts the queued mail without passing `EmailTemplate` through a jest matcher -
  * `toHaveBeenCalledWith` on that type trips TS2589 ("type instantiation is excessively
  * deep"), so the call is destructured and each half checked separately.
  */
@@ -105,7 +105,7 @@ describe('AccountEmailService', () => {
 				'new@example.com',
 			);
 
-			// The whole point of this mail is to prove control of the new address —
+			// The whole point of this mail is to prove control of the new address -
 			// delivering it to the existing one would let an attacker confirm a change
 			// the account owner never sees.
 			expectQueuedTo(template, {
@@ -193,7 +193,7 @@ describe('AccountEmailService', () => {
 				'en',
 			);
 
-			// `ident` is deliberately NOT encoded here — unlike the confirmation token it
+			// `ident` is deliberately NOT encoded here - unlike the confirmation token it
 			// is a bare uuid, so a change to that would show up as a diff.
 			expect(template.content.vars).toEqual({
 				name: user.name,

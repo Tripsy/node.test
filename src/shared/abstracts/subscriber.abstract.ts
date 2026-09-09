@@ -86,7 +86,7 @@ abstract class SubscriberAbstract<T extends BaseEntity>
 	 * Both sides can be absent at once: TypeORM schedules a removal for a relation row it never
 	 * loaded when `save()` is handed a populated relation the entity was not loaded with, and
 	 * such a subject has no `entity.id` and no `databaseEntity` at all. Reading through it threw
-	 * and took the whole save down, so the handlers below skip rather than guess an id — an
+	 * and took the whole save down, so the handlers below skip rather than guess an id - an
 	 * unidentifiable row has no cache key to clear and nothing meaningful to log.
 	 */
 	private resolveEventId(event: {

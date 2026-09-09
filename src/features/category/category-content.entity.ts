@@ -16,7 +16,7 @@ const ENTITY_TABLE_NAME = 'category_content';
 
 /**
  * Deliberately not `EntityAbstract`: this table has no `deleted_at`.
- * A translation is never deleted on its own — the only write is `saveContent`'s upsert — and
+ * A translation is never deleted on its own - the only write is `saveContent`'s upsert - and
  * the row dies with its category through the FK cascade.
  */
 @Entity({

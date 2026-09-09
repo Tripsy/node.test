@@ -2,13 +2,13 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
  * Makes `product_availability.starts_at` / `ends_at` nullable, so a whole-day window can be
- * stated as a weekday with no hours — "available on Sundays" rather than "available on Sundays
+ * stated as a weekday with no hours - "available on Sundays" rather than "available on Sundays
  * from 00:00 to 23:59", which is the same rule spelled as a workaround.
  *
  * **Both or neither.** A row with one time set has no reading anything could agree on: is
  * `starts_at = 18:00, ends_at = NULL` open until midnight, until close, or malformed? The old
- * `ends_at > starts_at` check is therefore replaced by two — one pairing the columns, one keeping
- * the ordering when they are present — rather than merely relaxed to tolerate nulls.
+ * `ends_at > starts_at` check is therefore replaced by two - one pairing the columns, one keeping
+ * the ordering when they are present - rather than merely relaxed to tolerate nulls.
  *
  * Note that a whole-day window on **every** day (`day_of_week` null too) restricts nothing, which
  * is what an empty set already means. Nothing rejects it: the row is redundant rather than wrong,

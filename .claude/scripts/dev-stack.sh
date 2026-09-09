@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# dev-stack — start/stop/inspect the nready dev stack (API + UI) from the host.
+# dev-stack - start/stop/inspect the nready dev stack (API + UI) from the host.
 #
 # Both containers idle on a tty (their dockerfile CMD is commented out), so "running
 # container" and "running dev server" are two separate states. Every command here treats
@@ -26,7 +26,7 @@ UI_PORT=80
 
 # ERE matched against the container's full process list (`pgrep -f`) to decide whether a dev
 # server is up, and to kill it again. `pnpm run dev` is part of every pattern because it is the
-# first process to appear — matching only the child would read the seconds before it spawns as
+# first process to appear - matching only the child would read the seconds before it spawns as
 # a crash.
 #
 # The pattern must also reach the process that *binds the port*, not just the runner that
@@ -34,7 +34,7 @@ UI_PORT=80
 # `sh -c tsx ./src/server.ts` → `tsx` → `node … ./src/server.ts`, and only the last of those
 # holds :3000. A pattern covering the runner alone kills nodemon, leaves the server orphaned
 # and still listening, and the next `start` then reports ready against the process it was
-# supposed to replace — so every source change after that point is silently not live.
+# supposed to replace - so every source change after that point is silently not live.
 # `next` already matches the whole UI chain, `next-server` and the build workers under
 # `.next/dev/build/` included.
 API_PROC="nodemon|pnpm run dev|src/server\.ts"
@@ -86,7 +86,7 @@ dev_running() {
     docker exec "$(container_of "$target")" pgrep -f "$(proc_of "$target")" >/dev/null 2>&1
 }
 
-# "Responding at all" is the signal, not "returned 200" — the UI root answers with a redirect
+# "Responding at all" is the signal, not "returned 200" - the UI root answers with a redirect
 # to the login page, which is a perfectly healthy dev server. Only a 5xx or no answer counts
 # as down.
 http_ok() {
@@ -112,18 +112,18 @@ wait_port_released() {
 }
 
 preflight() {
-    docker info >/dev/null 2>&1 || { err "Docker is not running — start Docker Desktop first."; exit 1; }
+    docker info >/dev/null 2>&1 || { err "Docker is not running - start Docker Desktop first."; exit 1; }
 
     # The compose files declare `development` as external; without it `compose up` fails
     # with a network-not-found error that reads like a config bug.
     docker network inspect "$NETWORK" >/dev/null 2>&1 || {
-        warn "network '$NETWORK' missing — creating it"
+        warn "network '$NETWORK' missing - creating it"
         docker network create "$NETWORK" >/dev/null
     }
 
     local dep
     for dep in "${DEPENDENCIES[@]}"; do
-        container_running "$dep" || warn "'$dep' is not running — the API will fail to boot without it"
+        container_running "$dep" || warn "'$dep' is not running - the API will fail to boot without it"
     done
 }
 
@@ -145,14 +145,14 @@ cmd_up() {
         if ! container_running "$(container_of "$target")"; then
             log "${DIM}starting $target container…${OFF}"
             (cd "$(dir_of "$target")" && docker compose up -d) >/dev/null 2>&1 \
-                || { err "$target container failed to start — see: docker compose -f $(dir_of "$target")/docker-compose.yml up"; return 1; }
+                || { err "$target container failed to start - see: docker compose -f $(dir_of "$target")/docker-compose.yml up"; return 1; }
         fi
 
         if ! port_published "$target"; then
-            warn "$target host port $(port_of "$target") is not published — recreating the container"
+            warn "$target host port $(port_of "$target") is not published - recreating the container"
             (cd "$(dir_of "$target")" && docker compose up -d --force-recreate) >/dev/null 2>&1
             port_published "$target" \
-                || { err "$target port $(port_of "$target") still unpublished — check for a host process holding it: lsof -nP -iTCP:$(port_of "$target") -sTCP:LISTEN"; return 1; }
+                || { err "$target port $(port_of "$target") still unpublished - check for a host process holding it: lsof -nP -iTCP:$(port_of "$target") -sTCP:LISTEN"; return 1; }
         fi
 
         ok "$target container up (port $(port_of "$target") published)"
@@ -186,7 +186,7 @@ cmd_start() {
     wait_ready "${1:-all}"
 }
 
-# Polls the health endpoint rather than the process list — a live process that never binds
+# Polls the health endpoint rather than the process list - a live process that never binds
 # a port (a compile error, a port clash) is the exact failure this is meant to catch.
 wait_ready() {
     local timeout=${DEV_STACK_TIMEOUT:-90}
@@ -205,7 +205,7 @@ wait_ready() {
             fi
 
             # Process gone and nothing on the port: it died on startup rather than being slow.
-            # Two consecutive misses are required — the process list is briefly empty while
+            # Two consecutive misses are required - the process list is briefly empty while
             # the runner hands off to the dev server, and one sample there is not a crash.
             if dev_running "$target"; then
                 misses=0
@@ -264,7 +264,7 @@ cmd_stop() {
 
         # Reported rather than papered over: the caller has to know the port is still held,
         # because a `start` on top of this looks healthy and serves stale code.
-        err "$target still answering on :$(port_of "$target") after stop — a process outside" \
+        err "$target still answering on :$(port_of "$target") after stop - a process outside" \
             "the kill pattern is holding the port"
         docker exec "$(container_of "$target")" ps -eo pid,args 2>/dev/null \
             | grep -viE 'defunct|grep|ps -eo' | sed 's/^/    /'
@@ -286,12 +286,12 @@ cmd_down() {
 cmd_restart() {
     # Starting on top of a failed stop is the silent-stale-server case: the new server cannot
     # bind, the old one keeps answering, and `wait_ready` calls it a success.
-    cmd_stop "${1:-all}" || { err "restart aborted — stop did not free the port"; return 1; }
+    cmd_stop "${1:-all}" || { err "restart aborted - stop did not free the port"; return 1; }
     cmd_start "${1:-all}"
 }
 
 # Drops .next, Turbopack's on-disk dev cache, which grows across a long session (1.1 GB in a
-# day's work). Worth doing when the cache goes stale or the disk matters — but it is *not* the
+# day's work). Worth doing when the cache goes stale or the disk matters - but it is *not* the
 # cure for the container's memory pressure: that lives in the Turbopack heap, which returns to
 # its resting size as soon as the dev server restarts. The first page load afterwards is slow
 # because everything recompiles.
@@ -299,12 +299,12 @@ cmd_restart() {
 # UI-only on purpose: the API has no build cache and no `clean` script.
 cmd_clean() {
     if [ "${1:-ui}" != ui ] && [ "${1:-ui}" != all ]; then
-        warn "nothing to clean for '$1' — only the UI carries a build cache"
+        warn "nothing to clean for '$1' - only the UI carries a build cache"
         return 0
     fi
 
     if ! container_running "$UI_CONTAINER"; then
-        err "ui container is not running — start it first"
+        err "ui container is not running - start it first"
         return 1
     fi
 
@@ -318,7 +318,7 @@ cmd_clean() {
 
     docker exec "$UI_CONTAINER" /bin/bash -c "cd /var/www/html && pnpm run clean" >/dev/null 2>&1 \
         && ok "ui build cache cleared${before:+ (was $before)}" \
-        || { err "ui clean failed — try: docker exec $UI_CONTAINER bash -c 'cd /var/www/html && pnpm run clean'"; return 1; }
+        || { err "ui clean failed - try: docker exec $UI_CONTAINER bash -c 'cd /var/www/html && pnpm run clean'"; return 1; }
 
     [ "$was_running" = 1 ] && cmd_start ui
     return 0
@@ -343,20 +343,20 @@ cmd_status() {
         printf '  container   %srunning%s (%s)\n' "$GREEN" "$OFF" \
             "$(docker stats --no-stream --format '{{.MemUsage}} / cpu {{.CPUPerc}}' "$container" 2>/dev/null)"
 
-        # Warn before the OOM killer does — past ~75% of the mem_limit a spike lands as exit 137.
+        # Warn before the OOM killer does - past ~75% of the mem_limit a spike lands as exit 137.
         #
         # For the UI a high reading is close to its resting state, not a leak: the Turbopack
         # arena (`turbopackMemoryLimit` in next.config.ts) sits under the container's
         # `mem_limit`, so the dev server is licensed to hold most of the container. `clean`
-        # reclaims disk, not this — measured at 87% before a clean and 85% after it, idle.
+        # reclaims disk, not this - measured at 87% before a clean and 85% after it, idle.
         # The lever is that pair of limits, not the cache.
         local mem_pct
         mem_pct="$(docker stats --no-stream --format '{{.MemPerc}}' "$container" 2>/dev/null | tr -d ' %')"
         if [ -n "$mem_pct" ] && [ "${mem_pct%%.*}" -ge 75 ] 2>/dev/null; then
             if [ "$target" = ui ]; then
-                warn "memory at ${mem_pct}% of the limit — near the UI's resting level; compare turbopackMemoryLimit (next.config.ts) against mem_limit (docker-compose.yml) before treating it as a leak"
+                warn "memory at ${mem_pct}% of the limit - near the UI's resting level; compare turbopackMemoryLimit (next.config.ts) against mem_limit (docker-compose.yml) before treating it as a leak"
             else
-                warn "memory at ${mem_pct}% of the limit — an OOM kill (exit 137) is close"
+                warn "memory at ${mem_pct}% of the limit - an OOM kill (exit 137) is close"
             fi
         fi
 
@@ -381,7 +381,7 @@ cmd_logs() {
     local target=${1:-all} lines=${2:-60}
     local t
     for t in $(targets "$target"); do
-        head_ "$t — last $lines lines of $(log_of "$t")"
+        head_ "$t - last $lines lines of $(log_of "$t")"
         tail -n "$lines" "$(log_of "$t")" 2>/dev/null || warn "no log yet"
     done
 }
@@ -411,20 +411,20 @@ cmd_doctor() {
             docker exec "$container" sh -c "ps -eo pid,rss,args --sort=-rss | head -5 | cut -c1-100" 2>/dev/null | sed 's/^/    /'
         fi
 
-        # 137 is SIGKILL — nearly always the cgroup OOM killer hitting the 4g mem_limit.
+        # 137 is SIGKILL - nearly always the cgroup OOM killer hitting the 4g mem_limit.
         local exitcode oom
         exitcode="$(docker inspect -f '{{.State.ExitCode}}' "$container" 2>/dev/null)"
         oom="$(docker inspect -f '{{.State.OOMKilled}}' "$container" 2>/dev/null)"
         if [ "$oom" = true ] || [ "$exitcode" = 137 ]; then
-            warn "exit 137 / OOMKilled — the container hit its 4g mem_limit in docker-compose.yml"
+            warn "exit 137 / OOMKilled - the container hit its 4g mem_limit in docker-compose.yml"
         fi
 
         local logfile
         logfile="$(log_of "$target")"
         if [ -f "$logfile" ]; then
             printf '  log size    %s\n' "$(du -h "$logfile" | cut -f1)"
-            head_ "  $target — recent errors"
-            # The leading class keeps `cron-error-count` and friends out — a job *name*
+            head_ "  $target - recent errors"
+            # The leading class keeps `cron-error-count` and friends out - a job *name*
             # containing "error" is not an error line.
             grep -inE '(^|[^-a-z])(error|fatal|killed)|EADDRINUSE|ECONNREFUSED|heap out of memory' "$logfile" \
                 | tail -n 15 | sed 's/^/    /' || log "    none"

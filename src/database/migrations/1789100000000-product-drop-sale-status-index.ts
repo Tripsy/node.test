@@ -5,7 +5,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * The index existed for the sellable filter, which named `sale_status` alongside the availability
  * timestamps. That clause is gone: the column is caught up by a cron and so trails the deadlines
- * it describes between passes, and the filter now compares all three timestamps directly —
+ * it describes between passes, and the filter now compares all three timestamps directly -
  * `discontinued_at` included, which is what a scheduled withdrawal turns on.
  *
  * What is left reading the column is the dashboard's status facet: admin traffic, paginated, over

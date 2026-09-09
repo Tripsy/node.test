@@ -201,7 +201,7 @@ export class DiscountValidator extends BaseValidator<typeof validatorMessages> {
 			/*
 			 * No `maxPastSeconds` here, unlike `create`. An update carries the whole entity,
 			 * so once a discount has started, re-sending its own stored `start_at` would fail
-			 * the past-date bound and the record would become permanently uneditable — the
+			 * the past-date bound and the record would become permanently uneditable - the
 			 * label, value or notes could never be corrected again.
 			 */
 			start_at: this.validateDate(
@@ -256,7 +256,7 @@ export class DiscountValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * Reconcile payload for `PUT /discounts/:id/targets`. Every scope is optional and a scope
 	 * that is absent is left untouched, so a caller editing one scope cannot clear the others
-	 * by omission — an empty array is the way to say "no targets here".
+	 * by omission - an empty array is the way to say "no targets here".
 	 */
 	readonly targets = z.object({
 		id: this.validateId(this.getMessage('invalid_id', { name: 'id' })),

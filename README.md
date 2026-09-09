@@ -18,10 +18,10 @@ This boilerplate can serve as a foundation to quickly build MVPs, CMS platforms,
 
 It comes with a [solid structure](#-structure), it is fully modular and feature-based, and already contains a lot of useful [features](#-features),
 and many [goodies](#-characteristics) including:
-- **Complete authentication system** — JWT access / refresh tokens, email confirmation, password recovery, session limits;
-- Convention-based auto-discovery — drop in a `*.routes.ts`, `*.cron.ts`, `*.listener.ts` or `*.bootstrap.ts` and it is wired at startup;
+- **Complete authentication system** - JWT access / refresh tokens, email confirmation, password recovery, session limits;
+- Convention-based auto-discovery - drop in a `*.routes.ts`, `*.cron.ts`, `*.listener.ts` or `*.bootstrap.ts` and it is wired at startup;
 - A feature installer (`cli/feature.ts`) with version-aware dependency resolution, so a slice can be packaged and moved between projects;
-- Background processing — BullMQ queues, an email worker, and a cron provider that records every run;
+- Background processing - BullMQ queues, an email worker, and a cron provider that records every run;
 - Advanced logging and error handling, with a destination per level (console, file, database, email, CloudWatch);
 - Custom middlewares;
 - Multi-language support for content and outgoing email;
@@ -38,7 +38,7 @@ The database is **PostgreSQL**, using **TypeORM** as the ORM layer.
 A ready-to-use Docker environment is provided for quick [setup](#-setup).
 
 This project is still a work in progress, and the next goals are:
-   - Finish the commerce [features](#-features) — products, orders, invoices, stock and subscriptions are entity-only so far
+   - Finish the commerce [features](#-features) - products, orders, invoices, stock and subscriptions are entity-only so far
    - Create documentation
 
 Meanwhile, we're open to suggestions / feedback, and if you find this project useful, please consider giving it a star ⭐
@@ -201,7 +201,7 @@ works against an empty database. It is also the production entry point.
 
 > **⚠ Warning**
 > `pnpm run migration:run` drives the TypeORM CLI, which writes its `system.migrations`
-> bookkeeping table *before* running any migration — on an empty database it fails with
+> bookkeeping table *before* running any migration - on an empty database it fails with
 > `schema "system" does not exist`. Use it only once the schemas exist, or create them by hand
 > first:
 >
@@ -230,7 +230,7 @@ $ pnpx tsx cli/feature.ts [feature] upgrade
 > Always check the migrations before run it, sometimes columns are dropped
 
 > **⚠ Warning**
-> A green test run can be a lie — read the test *count*, not just the colour. `bail: 3` stops
+> A green test run can be a lie - read the test *count*, not just the colour. `bail: 3` stops
 > the run after 3 failing files, and a SIGKILLed worker drops a whole file while the summary
 > still looks plausible. For a trustworthy full run:
 >
@@ -360,43 +360,43 @@ $ pnpx tsx cli/cron.ts run cron-time-check
 
 ### Runtime
 
-- [express](https://expressjs.com/) — Web framework
-- [TypeORM](https://github.com/typeorm/typeorm) — ORM for TypeScript and JavaScript with support for multiple databases
-- [pg](https://github.com/brianc/node-postgres) — PostgreSQL client
-- [ioredis](https://github.com/redis/ioredis) — Robust Redis client, backing both the cache and the queues
-- [BullMQ](https://docs.bullmq.io/) — Redis-based message queue
-- [zod](https://zod.dev) — TypeScript-first schema validation with static type inference
-- [Pino](https://github.com/pinojs/pino) — Fast, low-overhead logger, with `pino-abstract-transport` and `pino-pretty`
-- [helmet](https://helmetjs.github.io/) — Security middleware for Express
-- [express-rate-limit](https://express-rate-limit.mintlify.app/overview) — Rate limiting middleware for Express
-- [cors](https://github.com/expressjs/cors) — Cross-origin resource sharing
-- [compression](https://github.com/expressjs/compression) — Response compression
-- [cookie-parser](https://github.com/expressjs/cookie-parser) — Cookie parsing
-- [qs](https://github.com/ljharb/qs) — Query string parsing, for nested filter params
-- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) — JSON Web Token implementation
-- [bcrypt](https://github.com/kelektiv/node.bcrypt.js) — Password hashing
-- [sanitize-html](https://github.com/apostrophecms/sanitize-html) — Strips untrusted HTML out of user-submitted content
-- [nodemailer](https://nodemailer.com/) — Email sending over SMTP
-- [@aws-sdk/client-ses](https://github.com/aws/aws-sdk-js-v3) — The alternative email transport
-- [@aws-sdk/client-cloudwatch-logs](https://github.com/aws/aws-sdk-js-v3) — The remote log destination
-- [nunjucks](https://github.com/mozilla/nunjucks) — Templating engine, for emails and pages
-- [node-cron](https://github.com/node-cron/node-cron) — Task scheduler
-- [file-stream-rotator](https://github.com/rogerc/file-stream-rotator) — Rotates the log files
-- [dayjs](https://day.js.org/) — Parses, validates, manipulates, and displays dates and times
-- [uuid](https://github.com/uuidjs/uuid) — Identifier generation
-- [dotenv](https://github.com/motdotla/dotenv) — Loads `.env` in development
-- [reflect-metadata](https://github.com/rbuckton/reflect-metadata) — Required by TypeORM's decorators
+- [express](https://expressjs.com/) - Web framework
+- [TypeORM](https://github.com/typeorm/typeorm) - ORM for TypeScript and JavaScript with support for multiple databases
+- [pg](https://github.com/brianc/node-postgres) - PostgreSQL client
+- [ioredis](https://github.com/redis/ioredis) - Robust Redis client, backing both the cache and the queues
+- [BullMQ](https://docs.bullmq.io/) - Redis-based message queue
+- [zod](https://zod.dev) - TypeScript-first schema validation with static type inference
+- [Pino](https://github.com/pinojs/pino) - Fast, low-overhead logger, with `pino-abstract-transport` and `pino-pretty`
+- [helmet](https://helmetjs.github.io/) - Security middleware for Express
+- [express-rate-limit](https://express-rate-limit.mintlify.app/overview) - Rate limiting middleware for Express
+- [cors](https://github.com/expressjs/cors) - Cross-origin resource sharing
+- [compression](https://github.com/expressjs/compression) - Response compression
+- [cookie-parser](https://github.com/expressjs/cookie-parser) - Cookie parsing
+- [qs](https://github.com/ljharb/qs) - Query string parsing, for nested filter params
+- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - JSON Web Token implementation
+- [bcrypt](https://github.com/kelektiv/node.bcrypt.js) - Password hashing
+- [sanitize-html](https://github.com/apostrophecms/sanitize-html) - Strips untrusted HTML out of user-submitted content
+- [nodemailer](https://nodemailer.com/) - Email sending over SMTP
+- [@aws-sdk/client-ses](https://github.com/aws/aws-sdk-js-v3) - The alternative email transport
+- [@aws-sdk/client-cloudwatch-logs](https://github.com/aws/aws-sdk-js-v3) - The remote log destination
+- [nunjucks](https://github.com/mozilla/nunjucks) - Templating engine, for emails and pages
+- [node-cron](https://github.com/node-cron/node-cron) - Task scheduler
+- [file-stream-rotator](https://github.com/rogerc/file-stream-rotator) - Rotates the log files
+- [dayjs](https://day.js.org/) - Parses, validates, manipulates, and displays dates and times
+- [uuid](https://github.com/uuidjs/uuid) - Identifier generation
+- [dotenv](https://github.com/motdotla/dotenv) - Loads `.env` in development
+- [reflect-metadata](https://github.com/rbuckton/reflect-metadata) - Required by TypeORM's decorators
 
 ### Dev only
 
 - [typescript](https://www.typescriptlang.org/)
-- [tsx](https://github.com/privatenumber/tsx) — Runs the TypeScript entry points and CLI scripts directly
-- [nodemon](https://nodemon.io/) — Restarts the dev server on change
-- [jest](https://jestjs.io/) — JavaScript testing framework
-- [ts-jest](https://kulshekhar.github.io/ts-jest/) — TypeScript preprocessor for Jest
-- [supertest](https://www.npmjs.com/package/supertest) — HTTP assertion library for testing Node.js servers
-- [node-mocks-http](https://github.com/eugef/node-mocks-http) — Mock `req` / `res` objects for unit tests
-- [mailtrap](https://github.com/mailtrap/mailtrap-nodejs) — Mailtrap client, for inspecting outgoing email
-- [commander](https://github.com/tj/commander.js) — Argument parsing for the `cli/` scripts
-- [tsc-alias](https://github.com/justkey007/tsc-alias) — Rewrites the `@/*` alias to relative paths in the build output
-- [biome](https://biomejs.dev/) — Fast formatter and linter for JavaScript, TypeScript, JSX, TSX, JSON, HTML, CSS and GraphQL
+- [tsx](https://github.com/privatenumber/tsx) - Runs the TypeScript entry points and CLI scripts directly
+- [nodemon](https://nodemon.io/) - Restarts the dev server on change
+- [jest](https://jestjs.io/) - JavaScript testing framework
+- [ts-jest](https://kulshekhar.github.io/ts-jest/) - TypeScript preprocessor for Jest
+- [supertest](https://www.npmjs.com/package/supertest) - HTTP assertion library for testing Node.js servers
+- [node-mocks-http](https://github.com/eugef/node-mocks-http) - Mock `req` / `res` objects for unit tests
+- [mailtrap](https://github.com/mailtrap/mailtrap-nodejs) - Mailtrap client, for inspecting outgoing email
+- [commander](https://github.com/tj/commander.js) - Argument parsing for the `cli/` scripts
+- [tsc-alias](https://github.com/justkey007/tsc-alias) - Rewrites the `@/*` alias to relative paths in the build output
+- [biome](https://biomejs.dev/) - Fast formatter and linter for JavaScript, TypeScript, JSX, TSX, JSON, HTML, CSS and GraphQL

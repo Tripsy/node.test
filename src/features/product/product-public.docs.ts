@@ -15,7 +15,7 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
  * Its own file rather than a branch of `product.docs.ts`: documentation is found beside its route
  * file and registered under that file's own name, so this is served as `/docs/product-public`.
  *
- * No `withBearerAuth` and no auth errors — the routes are open, and a doc claiming a requirement
+ * No `withBearerAuth` and no auth errors - the routes are open, and a doc claiming a requirement
  * the route does not have is worse than none.
  */
 const entitySample = getProductEntityMock() as unknown as Record<
@@ -39,7 +39,7 @@ export const docs: Record<
 		},
 		withErrors: [404],
 		request: {
-			notes: 'Only a sellable product is addressable here — a draft, an unreleased or a withdrawn one answers 404 rather than revealing that it exists. The slug is unique per language',
+			notes: 'Only a sellable product is addressable here - a draft, an unreleased or a withdrawn one answers 404 rather than revealing that it exists. The slug is unique per language',
 			params: {
 				slug: {
 					type: 'string',
@@ -135,7 +135,7 @@ export const docs: Record<
 						type: 'number',
 						required: false,
 						condition:
-							'the product a related-products box must not recommend — its own',
+							'the product a related-products box must not recommend - its own',
 					},
 					attribute: {
 						type: 'array',

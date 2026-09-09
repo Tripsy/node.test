@@ -223,7 +223,7 @@ const templateData: TemplateSeedEntry[] = [
 /**
  * The templates an additional feature owns, collected from every
  * `features/<name>/database/<name>.templates.ts`. Discovery rather than a list of imports so that
- * installing or removing a feature through `cli/feature.ts` needs no edit here — and so that a
+ * installing or removing a feature through `cli/feature.ts` needs no edit here - and so that a
  * removed feature cannot leave this file importing a path that no longer exists.
  *
  * Each file default-exports a `TemplateSeedEntry[]`. A feature template collides with a core one

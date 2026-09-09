@@ -5,7 +5,7 @@ import { describeError } from './result.js';
 /**
  * Connect a server over stdio and wire graceful shutdown.
  *
- * stdout is reserved for the JSON-RPC stream, so all logging goes to stderr —
+ * stdout is reserved for the JSON-RPC stream, so all logging goes to stderr -
  * a stray stdout write would corrupt the protocol.
  */
 export const startStdioServer = async (

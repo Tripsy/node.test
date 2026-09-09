@@ -1,15 +1,15 @@
 ---
 description: Build the full vertical slice for a feature whose entity already exists
-argument-hint: "<feature> (kebab-case folder under src/features — e.g. review, complaint, comment)"
+argument-hint: "<feature> (kebab-case folder under src/features - e.g. review, complaint, comment)"
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash, Agent
 ---
 
 Implement the feature **$ARGUMENTS**.
 
 `src/features/<feature>/<feature>.entity.ts` is the contract. This command builds the layers around
-an entity that already exists — it does not design one.
+an entity that already exists - it does not design one.
 
-## 0. Precondition — stop if the entity is not there
+## 0. Precondition - stop if the entity is not there
 
 Check `src/features/$ARGUMENTS/*.entity.ts`. If no entity file exists, **stop and say so**: this
 command has nothing to build from, and inventing a table is a schema decision the user makes, not a
@@ -20,7 +20,7 @@ what is missing, and say what you skipped.
 
 ## 1. Review the entity before writing anything
 
-Read every `*.entity.ts` in the folder, and its doc comments in full — they carry the rules the
+Read every `*.entity.ts` in the folder, and its doc comments in full - they carry the rules the
 columns cannot state (why a table is not `EntityAbstract`, which deletes are hard, what a service is
 expected to maintain by hand). Those comments are the spec for the service you are about to write;
 anything they promise ("`CommentService` clears them in the same transaction") is work in this pass,
@@ -32,37 +32,37 @@ Extract and write down:
 |---|---|
 | `extends EntityAbstract` or not | whether `deleted_at` exists → whether there is `delete(true)` / `restore` at all |
 | `STATUS_TRANSITIONS` | whether the feature needs a `statusUpdate` action and `assertValidStatusTransition` |
-| `@Check(...)` constraints | the validator must reject **before** the database does — a constraint violation reaches the client as a masked 500, not a 422 |
+| `@Check(...)` constraints | the validator must reject **before** the database does - a constraint violation reaches the client as a masked 500, not a 422 |
 | unique indexes | every insert that can collide needs conflict handling with a message per constraint (`RepositoryAbstract.isUniqueViolation`, see `rating.service.ts#asConflict`) |
 | polymorphic target columns (`entity_type` + `entity_id`) | there is no foreign key, so cleanup and orphan handling are the service's job |
 | denormalized counters (`reply_count`, `rating_avg`) | who maintains them, and in which transaction |
-| nullable author columns (`user_id` + `guest_*` + `user_ip_hash`) | the feature has a public, guest-reachable side — see §4 |
+| nullable author columns (`user_id` + `guest_*` + `user_ip_hash`) | the feature has a public, guest-reachable side - see §4 |
 
-### Indexes — fix them here, before any query is written
+### Indexes - fix them here, before any query is written
 
 Every query you are about to write in §3 has to be served by an index. Walk the reads first, then
 check the entity covers them:
 
-- **List/find reads** — the columns a dashboard `find` filters and orders by, leading with the most
+- **List/find reads** - the columns a dashboard `find` filters and orders by, leading with the most
   selective. A composite in the order the query uses them, not one index per column.
-- **Public reads** — the target lookup (`entity_type, entity_id, …, created_at`).
-- **Moderation queues** — partial (`where: "status = 'pending'"`) when the table is dominated by
+- **Public reads** - the target lookup (`entity_type, entity_id, …, created_at`).
+- **Moderation queues** - partial (`where: "status = 'pending'"`) when the table is dominated by
   rows that have left that state.
-- **Soft-deletable tables** — never an index on `deleted_at` itself (see `rules/database.md` §2.3),
+- **Soft-deletable tables** - never an index on `deleted_at` itself (see `rules/database.md` §2.3),
   but every *other* partial index on such a table repeats `AND deleted_at IS NULL` or it silently
   matches deleted rows.
-- **Foreign keys** — Postgres does not index the referencing side. An unindexed FK turns every
+- **Foreign keys** - Postgres does not index the referencing side. An unindexed FK turns every
   parent delete into a sequential scan of the child table. Keep it **non-partial** when a `sync*`
   reads that key with `withDeleted`, which a partial index cannot answer.
-- **Uniqueness that is really a business rule** — one review per user per product, one rating per
-  address — belongs in a unique index, not only in a service check, which races.
+- **Uniqueness that is really a business rule** - one review per user per product, one rating per
+  address - belongs in a unique index, not only in a service check, which races.
 
 Propose the missing ones with a one-line reason each, add them to the entity, and note that a
 migration follows in §5. Do not add an index "just in case": each one is paid for on every write.
 
 ## 2. Pick the closest existing feature and copy its structure
 
-Read it end to end before writing. Do not compose a feature out of remembered conventions — open the
+Read it end to end before writing. Do not compose a feature out of remembered conventions - open the
 template and follow it.
 
 - **polymorphic target, public + dashboard split, hard delete, ip-hashed guests** → `rating`
@@ -70,7 +70,7 @@ template and follow it.
 - **plain CRUD, status, soft delete** → `brand`, `vendor`
 - **content translations / parent-child tree** → `category`, `place`
 
-The path-scoped protocols are the authority where the template and your instinct disagree — read the
+The path-scoped protocols are the authority where the template and your instinct disagree - read the
 ones that apply **before** proposing an approach: `.claude/rules/database.md` (repository/query
 layer, transactions, migrations, seeds), `.claude/rules/api.md` (controller shape, envelope,
 routes), `.claude/rules/validation.md` (validator structure, partial-update pattern),
@@ -83,12 +83,12 @@ routes), `.claude/rules/validation.md` (validator structure, partial-update patt
 | `<feature>.repository.ts` | `<Feature>Query extends RepositoryAbstract<Entity>` + `get<Feature>Repository()` with `createQuery()`. Feature-specific filters live here, return `this`, and are named for what they mean (`filterByTarget`, `filterByOwner`, `filterByTerm`) |
 | `<feature>.service.ts` | all business logic; `ValidatorOutput<Validator, 'action'>` for its inputs; multi-table writes in `dataSource.transaction`; export the singleton |
 | `<feature>.validator.ts` | schemas named after controller actions; `validatorMessages` extends `sharedValidatorMessages`; `paramsUpdateList` + the `hasAtLeastOneValue` refine for `update`; `validateFind({ orderByEnum, filterSchema })` |
-| `<feature>.policy.ts` | `extends PolicyAbstract` over `Entity.NAME`. Usually empty — the abstract carries `canCreate`/`canRead`/… A public controller has no permission gate and says so in the class doc |
+| `<feature>.policy.ts` | `extends PolicyAbstract` over `Entity.NAME`. Usually empty - the abstract carries `canCreate`/`canRead`/… A public controller has no permission gate and says so in the class doc |
 | `<feature>.controller.ts` | dashboard actions, `BaseController`, every action `asyncHandler`, authorize → validate → delegate → output |
 | `<feature>-public.controller.ts` + `-public.routes.ts` | only when the feature is reader-facing (§4) |
 | `<feature>.routes.ts` | async factory, lazy `await import` of the controller, `validateParamsWhenId` / `validateParamsWhenEnum` handlers |
-| `<feature>.docs.ts` | `Record<keyof typeof <feature>Controller, ApiInputDocumentation>` built with `helperApiInputDocumentation` — one entry per controller action, or the type fails. See §3b |
-| `locales/en.json` | `validation.*`, `error.*`, `success.*` — every `getMessage` / `lang` key used anywhere in the slice |
+| `<feature>.docs.ts` | `Record<keyof typeof <feature>Controller, ApiInputDocumentation>` built with `helperApiInputDocumentation` - one entry per controller action, or the type fails. See §3b |
+| `locales/en.json` | `validation.*`, `error.*`, `success.*` - every `getMessage` / `lang` key used anywhere in the slice |
 | `database/<feature>.seed.ts` | required for any feature owning a table (`database.md` §5.4): top-up, natural keys, seeded `random`, `isDirectRun` block. Register it in `src/database/seed/index.ts` after its parents |
 | `manifest.json` | `name`, `version`, `relativePath`, `entities`, `depends_on`, `required_by`; `is_core` only when true |
 
@@ -103,25 +103,25 @@ anything you are about to hand-roll (`hashClientIp`, `assertValidStatusTransitio
 it is resolved, and both bite silently:
 
 - **It is found beside its route file, and registered under that file's own name.** A second route
-  module in the same folder therefore needs its *own* docs file named for itself —
+  module in the same folder therefore needs its *own* docs file named for itself -
   `article-public.routes.ts` → `article-public.docs.ts`, served as `/docs/article-public`. There is
   no way to fold a public module's actions into the feature's docs: `generateDocumentation` looks
   each action up in the route module it was handed.
 - **The permission gate is the containing folder, not the file name.** `article-public` documents
-  the `article` entity, so it is gated on `article` read — which is why a module named for itself
+  the `article` entity, so it is gated on `article` read - which is why a module named for itself
   still reaches everyone who can read the feature.
 
-A missing or throwing docs file is skipped without a word — that is what keeps the undocumented
-majority of features working — so the only proof it loaded is a request that returns it.
+A missing or throwing docs file is skipped without a word - that is what keeps the undocumented
+majority of features working - so the only proof it loaded is a request that returns it.
 
 Write the entries from the source rather than restating it, so they cannot drift: field limits from
 `Configuration.get(...)`, allowed moves from `STATUS_TRANSITIONS`, enum lists from
-`Object.values(...)`. For the public module, omit `withBearerAuth` and `withAuthErrors` — a doc
+`Object.values(...)`. For the public module, omit `withBearerAuth` and `withAuthErrors` - a doc
 claiming an auth requirement the route does not have is worse than none.
 
 **A `dataSample` must be what the endpoint actually returns.** The `<feature>.mock.ts` entity mock
 types as the full entity, so it carries columns declared `select: false` that no read path ever
-sends — `user.password` is the standing example. Strip those before using the mock as a sample.
+sends - `user.password` is the standing example. Strip those before using the mock as a sample.
 
 ## 4. The public/dashboard split
 
@@ -129,13 +129,13 @@ A feature is reader-facing when its entity has guest author columns (`guest_*`, 
 `user_ip_hash`) or a public read of its own. Then it gets **two** controllers and **two** route
 files, as `rating` does:
 
-- `<feature>.routes.ts` — `basePath: '/<plural>'`, permission-gated through the policy.
-- `<feature>-public.routes.ts` — `basePath: '/public/<plural>'`, open, gated by *identity* instead:
+- `<feature>.routes.ts` - `basePath: '/<plural>'`, permission-gated through the policy.
+- `<feature>-public.routes.ts` - `basePath: '/public/<plural>'`, open, gated by *identity* instead:
   the caller is resolved from the request (`hashClientIp` + `res.locals.auth`) and every query is
   scoped to what that identity owns via a `filterByOwner` in the repository.
-- `<feature>-public.docs.ts` — its own docs file, for the reasons in §3b.
+- `<feature>-public.docs.ts` - its own docs file, for the reasons in §3b.
 
-**A public write never addresses a row by id.** The id is not the caller's to name — it forces an
+**A public write never addresses a row by id.** The id is not the caller's to name - it forces an
 ownership check afterwards, and getting that check wrong lets anyone edit anyone's row. Address by
 target plus resolved identity, so the row the query resolves to is one the caller may write by
 construction. Where params and body are merged, spread params **last**, or a body naming a different
@@ -143,21 +143,21 @@ target redirects the write.
 
 `hashClientIp` returning null is a 400 (`error.ip_unresolved`), never a fallback hash.
 
-## 4b. Rows pointing at your target — announce, and answer for your own
+## 4b. Rows pointing at your target - announce, and answer for your own
 
 Two rules, and the second is the one that gets forgotten.
 
 **If the feature hard-deletes rows, it must announce them.** Emit `entityRemoved`
 (`{ entity_type: Entity.NAME, entity_ids }`) after the delete. `rating`, `complaint` and `comment`
 all store rows against a polymorphic target with no foreign key behind it, so nothing else can
-clean up after you — and a soft delete is *not* announced, because the row can come back.
+clean up after you - and a soft delete is *not* announced, because the row can come back.
 
 **If the feature accepts a polymorphic target, it must listen.** `<feature>.listener.ts`, one per
-feature, registered by filename — see `rating.listener.ts` and `complaint.listener.ts`, which are
+feature, registered by filename - see `rating.listener.ts` and `complaint.listener.ts`, which are
 the same twelve lines with a different service.
 
 Adding a **new commentable target** (a review, a product, anything that joins
-`CommentEntityTypeEnum`) means the comment side is already handled — `comment.listener.ts` clears
+`CommentEntityTypeEnum`) means the comment side is already handled - `comment.listener.ts` clears
 the comments *and* the subscriptions on `entityRemoved`. What the new feature owes is the emit:
 hard-delete a commentable row without announcing it and you leave an orphaned discussion, live
 unsubscribe tokens for a page that no longer exists, and complaints queued against comments nobody
@@ -190,7 +190,7 @@ See `.claude/rules/comment.md` for what the comment/complaint side does with the
 ## 5. Migration
 
 `pnpm run migration:generate ./src/database/migrations/<feature>` inside the container, then **read
-the generated file before running it** — generation drops columns it should not, and picks up
+the generated file before running it** - generation drops columns it should not, and picks up
 unrelated entity drift from other branches. Both `up()` and `down()` must be real.
 
 ## 6. Verify
@@ -198,10 +198,10 @@ unrelated entity drift from other branches. Both `up()` and `down()` must be rea
 Run from inside the container (`docker exec $DOCKER_CONTAINER sh -c "cd /var/www/html && …"`):
 
 - `pnpm run typecheck`
-- `pnpm run messages:check` — proves every `lang()` key resolves; a missing locale entry ships the
+- `pnpm run messages:check` - proves every `lang()` key resolves; a missing locale entry ships the
   raw key to the client.
-- `pnpm run manifests:check` — the new `manifest.json` has to fit the graph.
-- `pnpm run biome` — this is the "on demand" case CLAUDE.md's don't-run-biome rule leaves open: a
+- `pnpm run manifests:check` - the new `manifest.json` has to fit the graph.
+- `pnpm run biome` - this is the "on demand" case CLAUDE.md's don't-run-biome rule leaves open: a
   new feature is a dozen fresh files and import order, formatting and cycle detection are exactly
   what a copied folder gets wrong. It writes in place, so re-read anything still open and report
   what changed.
@@ -209,7 +209,7 @@ Run from inside the container (`docker exec $DOCKER_CONTAINER sh -c "cd /var/www
   MCP tools to confirm the shape.
 - **Prove the docs registered**, since a broken `<feature>.docs.ts` is skipped silently. In
   development they ride along on any non-2xx response, so an unauthenticated request to a route of
-  the module is enough — and it works for a public module too, where `/docs/:feature` would need a
+  the module is enough - and it works for a public module too, where `/docs/:feature` would need a
   session:
   `curl -s localhost:3000/<plural>/1 | python3 -c "import sys,json; print(json.load(sys.stdin).get('meta',{}).get('documentation',{}).get('path'))"`
   A `None` means the file threw or was never found; check its name matches the *route file*.
@@ -220,17 +220,17 @@ Run from inside the container (`docker exec $DOCKER_CONTAINER sh -c "cd /var/www
 - Entity review: indexes added and why, constraints the validator now mirrors, anything in the
   entity's doc comments the service had to honour.
 - Files created, and the template feature each layer followed.
-- **Porting** — `src/shared/**`, `src/config/**`, `src/middleware/**`, `src/providers/**`,
+- **Porting** - `src/shared/**`, `src/config/**`, `src/middleware/**`, `src/providers/**`,
   `src/helpers/**` and core features are shared with `../star-api`: if you touched any, say so and
   offer to port.
-- **Frontend** — new routes are a new API contract. Name the `../nready-ui` pieces that need to
+- **Frontend** - new routes are a new API contract. Name the `../nready-ui` pieces that need to
   follow: the `src/services/*.service.ts`, `src/models/permission.model.ts`
   (`PermissionEntityType`), `src/models/log-history.model.ts` (the backend *table* name), and the
   dashboard page, which `/add-dashboard-feature <feature>` builds there. Say which route modules
-  you documented — the dashboard renders one usage-guide tab per module, so a public one is a tab
+  you documented - the dashboard renders one usage-guide tab per module, so a public one is a tab
   the frontend would otherwise not know to add.
 - **If the feature became a comment target** (it joined `CommentEntityTypeEnum`), the frontend also
-  owes a resolver in `src/config/comment-target.config.ts` — the map that turns a comment's target
+  owes a resolver in `src/config/comment-target.config.ts` - the map that turns a comment's target
   into a page URL for the permalinks in notification emails. Without it the discussion works and
   every emailed link to it 404s, silently. `../nready-ui/.claude/rules/comment.md` §7 has the list.
 - Anything deliberately left out, and why.

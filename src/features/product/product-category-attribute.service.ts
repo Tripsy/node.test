@@ -32,7 +32,7 @@ import type { ValidatorOutput } from '@/shared/types/mock.type';
 /**
  * How an attribute label reads in a message meant for an editor.
  *
- * A label is a term, and a term is stored as it was typed — `color`, not `Color`. The dashboard
+ * A label is a term, and a term is stored as it was typed - `color`, not `Color`. The dashboard
  * capitalizes one for display wherever it renders it, so a message that named it verbatim would
  * be the one place the same label appeared lower-cased. The id fallback is left alone: `#8` is
  * not a word.
@@ -74,7 +74,7 @@ const entryColumns: string[] = [
 ];
 
 /**
- * The nullable ones among them — the only columns a caller can empty rather than change.
+ * The nullable ones among them - the only columns a caller can empty rather than change.
  * The rest are `NOT NULL` with a default, so there is nothing for a `null` to mean there.
  */
 const nullableEntryColumns: string[] = [
@@ -125,7 +125,7 @@ export class ProductCategoryAttributeService {
 	 * The rules the row has to satisfy once the payload is merged onto it.
 	 *
 	 * The validator runs the same checks against a `create` payload, where every field is
-	 * stated. An update carries only what changed, so this is the pass that actually holds —
+	 * stated. An update carries only what changed, so this is the pass that actually holds -
 	 * moving a definition from `term` to `number` while leaving its option rows in place is a
 	 * two-field change no single-field check can see.
 	 */
@@ -227,7 +227,7 @@ export class ProductCategoryAttributeService {
 				/*
 				 * The column defaults are restated rather than left to the database, because
 				 * `assertDefinition` runs before the insert and has to see the row as it will
-				 * be stored — an absent `value_type` reaching it as `undefined` fails every
+				 * be stored - an absent `value_type` reaching it as `undefined` fails every
 				 * rule it checks, including the ones the payload satisfies.
 				 */
 				const entry = repository.create({
@@ -269,7 +269,7 @@ export class ProductCategoryAttributeService {
 
 	/**
 	 * A definition's `unit` is applied on write, so changing it does not reinterpret the values
-	 * already recorded under it — every one has to be rewritten through the new factor, or the
+	 * already recorded under it - every one has to be rewritten through the new factor, or the
 	 * stored base figures describe a quantity the form no longer shows.
 	 *
 	 * Scoped to the products in this definition's category subtree rather than to the label: the
@@ -352,13 +352,13 @@ export class ProductCategoryAttributeService {
 	/**
 	 * The payload's own columns, with an explicitly emptied one restored to `null`.
 	 *
-	 * The validator folds every empty optional onto `undefined` — the empty value this side is
-	 * built with — and zod keeps the key only when the request actually carried it. So a key
+	 * The validator folds every empty optional onto `undefined` - the empty value this side is
+	 * built with - and zod keeps the key only when the request actually carried it. So a key
 	 * that is present and `undefined` is the caller saying *clear this*, while an absent key is
 	 * a partial update saying *leave it*, and the two have to reach the row differently: `save`
 	 * skips an undefined property, which would make them the same write.
 	 *
-	 * Without the distinction a definition could never leave `number` — the `unit` and bounds it
+	 * Without the distinction a definition could never leave `number` - the `unit` and bounds it
 	 * was quoted in would survive the change and fail `assertDefinition` on the merged row.
 	 */
 	private mergeableValues(
@@ -448,10 +448,10 @@ export class ProductCategoryAttributeService {
 	 * A label two of a product's categories cannot agree the scope of.
 	 *
 	 * Capture, affixes and option list are all things a category may override for a label it
-	 * shares — one control, described by whichever definition wins. Scope is not: a label is
+	 * shares - one control, described by whichever definition wins. Scope is not: a label is
 	 * either a fact about the product or an axis that separates its variants, and the two are
 	 * answered in different places by different rows. Resolving that by depth picks a winner
-	 * silently, and the answer stored under the losing scope is then dropped as undeclared —
+	 * silently, and the answer stored under the losing scope is then dropped as undeclared -
 	 * `ProductAttributeRepository.syncValues` soft-removes whatever the payload omits, and a
 	 * form seeded from live rows never offers it again.
 	 *
@@ -508,7 +508,7 @@ export class ProductCategoryAttributeService {
 	/**
 	 * The definitions a product in these categories renders its form from.
 	 *
-	 * The set is a union — a product sits in several categories — deduped by label with the
+	 * The set is a union - a product sits in several categories - deduped by label with the
 	 * deepest category winning, so a child overrides an ancestor's capture, affixes and option
 	 * list rather than adding a second control for the same label. Ties within one depth are
 	 * broken by `sort_order`, which is what the repository already ordered by.
@@ -579,14 +579,14 @@ export class ProductCategoryAttributeService {
 	}
 
 	/**
-	 * Reorders one category's definitions — the set a product's form is drawn from, in the order
+	 * Reorders one category's definitions - the set a product's form is drawn from, in the order
 	 * it draws them.
 	 *
 	 * Scoped to a single category, because that is what a position means here: definitions from
 	 * several categories reach a product through the resolve walk, which sorts the union itself
 	 * and would ignore any order agreed across them.
 	 *
-	 * Ascending, unlike `category.updateOrder` — this table is read `ORDER BY sort_order ASC`
+	 * Ascending, unlike `category.updateOrder` - this table is read `ORDER BY sort_order ASC`
 	 * everywhere, so the first id has to come out lowest. The step leaves room to slip a
 	 * definition between two later without rewriting the set.
 	 */
@@ -604,7 +604,7 @@ export class ProductCategoryAttributeService {
 			});
 
 			/*
-			 * The submitted ids have to be a complete reordering of that exact set — not a
+			 * The submitted ids have to be a complete reordering of that exact set - not a
 			 * subset, and nothing from another category. A partial list cannot describe an
 			 * order, and a foreign id would silently move a definition out from under the
 			 * category that declares it.
@@ -694,13 +694,13 @@ export class ProductCategoryAttributeService {
 				.createQuery()
 				/*
 				 * The wording, joined rather than left to the caller. A definition carries only
-				 * `attribute_label_id`, and a listing has nothing else to name it by — resolving the
+				 * `attribute_label_id`, and a listing has nothing else to name it by - resolving the
 				 * ids afterwards would be a second request per page, against an endpoint whose `id`
 				 * filter takes one term at a time.
 				 *
 				 * LEFT on both, so a definition still lists when its label term is soft-deleted or
 				 * carries no translation yet; the row comes back with `attribute_label` null or its
-				 * `contents` empty. Every language is joined, not one — the client picks, and
+				 * `contents` empty. Every language is joined, not one - the client picks, and
 				 * `pagination` counts distinct root ids, so the extra rows do not shorten a page.
 				 */
 				.join(

@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Adds `exchange_rate` — what one unit of `currency` was worth in `base_currency` on a given day.
+ * Adds `exchange_rate` - what one unit of `currency` was worth in `base_currency` on a given day.
  *
  * Generation also picked up unrelated drift from entities that have no migration yet (`review`,
  * and two `document_series` columns), which is stripped here: this migration creates the new

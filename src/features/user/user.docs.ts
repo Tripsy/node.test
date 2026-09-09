@@ -18,7 +18,7 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import { UserRoleEnum } from '@/shared/types/user-role.type';
 
 /**
- * `password` is declared `select: false` on the entity, so no read path ever returns it —
+ * `password` is declared `select: false` on the entity, so no read path ever returns it -
  * the mock only carries one because it types as the full `UserEntity`. Stripped here so the
  * documented response matches what a caller actually receives.
  */

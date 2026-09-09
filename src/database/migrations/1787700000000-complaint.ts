@@ -2,7 +2,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
  * The `complaint` table only. `review` is still an unmigrated entity, so a generated migration
- * carries it too — this one was cut down to what the complaint feature needs to run, along with the
+ * carries it too - this one was cut down to what the complaint feature needs to run, along with the
  * `document_series` column drops and the foreign-key renames the same generation swept up from
  * unrelated drift.
  *

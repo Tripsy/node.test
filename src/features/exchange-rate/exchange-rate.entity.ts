@@ -22,7 +22,7 @@ export const ExchangeRateSourceEnum = {
 export type ExchangeRateSource =
 	(typeof ExchangeRateSourceEnum)[keyof typeof ExchangeRateSourceEnum];
 
-/** ISO 4217 alphabetic code, as stored — uppercase, exactly three letters. */
+/** ISO 4217 alphabetic code, as stored - uppercase, exactly three letters. */
 export const CURRENCY_CODE_PATTERN = /^[A-Z]{3}$/;
 export const CURRENCY_CODE_CHARS = 3;
 
@@ -30,7 +30,7 @@ export const CURRENCY_CODE_CHARS = 3;
  * The currency every rate is expressed in: the deployment's own, from `app.currency`.
  *
  * Validated rather than trusted. `APP_CURRENCY` is a free-form env string, and a typo reaching a
- * `char(3)` column would label money wrongly and keep doing it silently — so a broken value fails
+ * `char(3)` column would label money wrongly and keep doing it silently - so a broken value fails
  * the write instead, which is a deployment error and reads as one in the log.
  */
 export const resolveBaseCurrency = (): string => {
@@ -48,21 +48,21 @@ export const resolveBaseCurrency = (): string => {
 const ENTITY_TABLE_NAME = 'exchange_rate';
 
 /**
- * What one unit of `currency` was worth in `base_currency` on `rate_date` — `EUR`, `5.2575`,
+ * What one unit of `currency` was worth in `base_currency` on `rate_date` - `EUR`, `5.2575`,
  * `RON`, meaning 1 EUR = 5.2575 RON.
  *
  * **`base_currency` is the deployment's own currency, not the priced one.** That matches how the
- * word is already used across this codebase — `invoice.base_currency`, and the "rate to the base
- * currency" that `grn`, `cash_flow` and `order_product` freeze onto a document — and it is
+ * word is already used across this codebase - `invoice.base_currency`, and the "rate to the base
+ * currency" that `grn`, `cash_flow` and `order_product` freeze onto a document - and it is
  * deliberately the opposite of the FX-market reading of a pair, where the EUR/RON quote calls EUR
  * the base. Rows are stored in the direction a document converts in: multiply an amount in
  * `currency` by `rate` to reach the books.
  *
  * Only that one direction is stored. The reverse is the reciprocal and belongs to whoever needs
- * it — storing both doubles every import and lets the two drift out of agreement.
+ * it - storing both doubles every import and lets the two drift out of agreement.
  *
  * **The table is a history, not a current-rate cache.** A document freezes the rate it was priced
- * at, so what this table has to answer is "the rate as of the day that document was written" —
+ * at, so what this table has to answer is "the rate as of the day that document was written" -
  * the newest row whose `rate_date` is on or before it. Reading "today's rate" is the same query
  * with today's date, so there is no separate latest-rate row to keep in step.
  *
@@ -70,7 +70,7 @@ const ENTITY_TABLE_NAME = 'exchange_rate';
  * soft-deleted row keeps its (currency, base, day) key occupied while every query filters it out,
  * so the next import of that same day would fail on the unique index against a row nobody can
  * see. Removing a rate is a hard delete, and a wrong rate is corrected in place rather than
- * deleted — documents already priced off it keep their own frozen copy.
+ * deleted - documents already priced off it keep their own frozen copy.
  */
 @Entity({
 	name: ENTITY_TABLE_NAME,
@@ -120,7 +120,7 @@ export default class ExchangeRateEntity {
 	})
 	base_currency!: string;
 
-	// Scale 8 carries the pairs a scale of 6 flattens — a unit of a weak currency is worth
+	// Scale 8 carries the pairs a scale of 6 flattens - a unit of a weak currency is worth
 	// ~0.00003 of a strong one, which rounds to four significant digits at 6 decimals. The columns
 	// that freeze a rate onto a document are `decimal(10, 6)`, so the value narrows on the way
 	// out; the wider column here keeps the published figure intact for the conversions that read

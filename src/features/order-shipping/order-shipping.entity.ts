@@ -54,14 +54,14 @@ export default class OrderShippingEntity extends EntityAbstract {
 	carrier_id!: number | null;
 
 	/**
-	 * Where the goods are picked from — the origin, as opposed to the address snapshot below, which
+	 * Where the goods are picked from - the origin, as opposed to the address snapshot below, which
 	 * is the destination.
 	 *
 	 * Set per shipment rather than per order, so one order can ship from two warehouses. It is also
 	 * what makes FIFO possible: a lot cannot be chosen before the warehouse holding it is known,
 	 * which is why stock leaves on the shipping transition rather than on order confirmation.
 	 *
-	 * Required, because everything physically shipped leaves from somewhere — a restaurant's
+	 * Required, because everything physically shipped leaves from somewhere - a restaurant's
 	 * kitchen is a warehouse in every sense this column cares about. `warehouse.is_default` covers
 	 * the single-site case so nothing has to be chosen by hand.
 	 */

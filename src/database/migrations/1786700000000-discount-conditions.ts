@@ -8,7 +8,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * row in place, and cannot half-succeed.
  *
  * `min_order_count`, `client_tags` and `eligible_categories` are removed from the stored JSON.
- * They were never evaluated — the two behavioral ones had no implementation, and
+ * They were never evaluated - the two behavioral ones had no implementation, and
  * `eligible_categories` is targeting, which now lives in `category_discount`. Left in place they
  * would be worse than useless: the evaluator fails closed on an unrecognized key, so every
  * discount carrying one would silently stop applying.

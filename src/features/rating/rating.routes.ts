@@ -15,7 +15,7 @@ export default async () => {
 				method: 'get',
 				handlers: [validateParamsWhenId('id')],
 			},
-			// Hard delete — the table has no `deleted_at`, so there is no `restore` to pair
+			// Hard delete - the table has no `deleted_at`, so there is no `restore` to pair
 			// with it and nothing to undo the removal of a row.
 			delete: {
 				path: '/:id',

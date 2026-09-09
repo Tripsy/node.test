@@ -47,7 +47,7 @@ export const docs: Record<
 		withBearerAuth: true,
 		withErrors: [401, 403],
 		request: {
-			notes: "The same catalog as `GET /products`, counted by the thing that is actually sold: a product with three sizes is three rows, and `total` counts variants. Gated on the `product` permission — a variant has none of its own. Read-only: a variant is created and withdrawn through its product's payload, where the rules that hold across the set are enforced. `deleted_at` on the row is the variant's own; a variant whose *product* was deleted carries a null there and a timestamp on `product.deleted_at`, and both only appear under `is_deleted`",
+			notes: "The same catalog as `GET /products`, counted by the thing that is actually sold: a product with three sizes is three rows, and `total` counts variants. Gated on the `product` permission - a variant has none of its own. Read-only: a variant is created and withdrawn through its product's payload, where the rules that hold across the set are enforced. `deleted_at` on the row is the variant's own; a variant whose *product* was deleted carries a null there and a timestamp on `product.deleted_at`, and both only appear under `is_deleted`",
 			query: {
 				page: {
 					type: 'number',

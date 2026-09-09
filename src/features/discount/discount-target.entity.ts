@@ -7,7 +7,7 @@ import type {
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 
 /**
- * What a target row points at — every discount scope except `order`, which applies to the
+ * What a target row points at - every discount scope except `order`, which applies to the
  * basket as a whole and therefore has nothing to point at.
  */
 type ScopeWithTargets = Exclude<DiscountScope, typeof DiscountScopeEnum.ORDER>;
@@ -39,7 +39,7 @@ const _scopesHaveTargetTypes: Record<ScopeWithTargets, DiscountTargetType> = {
 const ENTITY_TABLE_NAME = 'discount_target';
 
 /**
- * Everything a discount applies to, in one polymorphic table — the same shape as
+ * Everything a discount applies to, in one polymorphic table - the same shape as
  * `operational_record` in cash-flow.
  *
  * One table rather than one per target kind, for two reasons that matter more than the foreign
@@ -53,7 +53,7 @@ const ENTITY_TABLE_NAME = 'discount_target';
  *    basket line. Across five tables that is five round trips unioned in application code;
  *    here it is a single `WHERE (type, id) IN (…)` against one index.
  *
- * The cost is that `entity_id` carries no foreign key — it cannot, pointing at five tables —
+ * The cost is that `entity_id` carries no foreign key - it cannot, pointing at five tables -
  * so a deleted category can leave a row behind. Harmless (the resolver only ever matches ids
  * it was handed, so an orphan matches nothing) but it does accumulate, which is the trade
  * `operational_record` already makes.
@@ -85,7 +85,7 @@ export default class DiscountTargetEntity extends EntityAbstract {
 	})
 	target_type!: DiscountTargetType;
 
-	// No foreign key by design — see the class comment. The id is meaningful only together
+	// No foreign key by design - see the class comment. The id is meaningful only together
 	// with `target_type`.
 	@Column('int', { nullable: false })
 	entity_id!: number;

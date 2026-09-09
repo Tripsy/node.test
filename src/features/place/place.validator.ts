@@ -21,7 +21,7 @@ export const OrderByEnum = {
 
 /**
  * Width of the `code` column (`varchar(3)`). Postgres rejects a longer value outright, so the
- * cap belongs here — a value that reaches the write fails as a 500 rather than a field error.
+ * cap belongs here - a value that reaches the write fails as a 500 rather than a field error.
  */
 const CODE_MAX_CHARS = 3;
 

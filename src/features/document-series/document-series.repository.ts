@@ -38,8 +38,8 @@ export const getDocumentSeriesRepository = () =>
 	});
 
 /**
- * Allocation runs inside the caller's transaction — the whole point is that a rolled-back
- * document rolls the counter back with it — so it cannot go through the module-level
+ * Allocation runs inside the caller's transaction - the whole point is that a rolled-back
+ * document rolls the counter back with it - so it cannot go through the module-level
  * repository, which is bound to the data source rather than to that transaction's manager.
  */
 export const createDocumentSeriesQuery = (manager: EntityManager) =>

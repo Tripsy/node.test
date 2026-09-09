@@ -60,7 +60,7 @@ export const docs: Record<AccountAction, ApiInputDocumentation> = {
 		},
 		withAuthErrors: true,
 		request: {
-			notes: '`data` is the bare array, empty for an account that has linked none. `email` is what the provider reported when the link was made and is kept for auditing — it is not the account address and does not follow it',
+			notes: '`data` is the bare array, empty for an account that has linked none. `email` is what the provider reported when the link was made and is kept for auditing - it is not the account address and does not follow it',
 		},
 	}),
 	oauthUnlink: helperApiInputDocumentation({
@@ -73,7 +73,7 @@ export const docs: Record<AccountAction, ApiInputDocumentation> = {
 		withAuthErrors: true,
 		withErrors: [404, 409, 422],
 		request: {
-			notes: 'A provider that is not linked answers 404. Unlinking the last one answers 409 while the account has no password, since that would leave no way back in — set a password through password recovery first. The link is removed outright rather than soft-deleted, so the same provider can be linked again',
+			notes: 'A provider that is not linked answers 404. Unlinking the last one answers 409 while the account has no password, since that would leave no way back in - set a password through password recovery first. The link is removed outright rather than soft-deleted, so the same provider can be linked again',
 			params: {
 				provider: providerParam,
 			},
@@ -89,7 +89,7 @@ export const docs: Record<AccountAction, ApiInputDocumentation> = {
 		withAuthErrors: true,
 		withErrors: [400],
 		request: {
-			notes: "Revokes the token the request was made with and leaves this account's other sessions alone — use `DELETE /account/token` to end one of those",
+			notes: "Revokes the token the request was made with and leaves this account's other sessions alone - use `DELETE /account/token` to end one of those",
 		},
 	}),
 	passwordUpdate: helperApiInputDocumentation({
@@ -149,7 +149,7 @@ export const docs: Record<AccountAction, ApiInputDocumentation> = {
 		},
 		withAuthErrors: true,
 		request: {
-			notes: "Echoes the auth context resolved for the token rather than reading the user row, so it is the cheapest way to check a token is still live and to learn what it may do. `permissions` maps a permission entity to the operations granted on it and is empty for an admin, who is allowed everything without a grant. `has_password` is false for a social sign-in account that has never set one, and `activeToken` is this session's ident — the one `GET /account/me/sessions` marks `used_now`",
+			notes: "Echoes the auth context resolved for the token rather than reading the user row, so it is the cheapest way to check a token is still live and to learn what it may do. `permissions` maps a permission entity to the operations granted on it and is empty for an admin, who is allowed everything without a grant. `has_password` is false for a social sign-in account that has never set one, and `activeToken` is this session's ident - the one `GET /account/me/sessions` marks `used_now`",
 		},
 	}),
 	meSessions: helperApiInputDocumentation({
@@ -204,7 +204,7 @@ export const docs: Record<AccountAction, ApiInputDocumentation> = {
 		withAuthErrors: true,
 		withErrors: [400, 404, 422],
 		request: {
-			notes: 'Soft delete — the row stays and only an administrator can bring it back. `password_current` is required whenever the account has a password and a wrong one answers 400; a social sign-in account that has never set one sends nothing, the bearer token being the same bar every other `/me` endpoint clears',
+			notes: 'Soft delete - the row stays and only an administrator can bring it back. `password_current` is required whenever the account has a password and a wrong one answers 400; a social sign-in account that has never set one sends nothing, the bearer token being the same bar every other `/me` endpoint clears',
 			body: {
 				password_current: {
 					type: 'string',

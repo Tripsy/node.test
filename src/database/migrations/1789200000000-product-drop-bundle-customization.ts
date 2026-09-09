@@ -5,12 +5,12 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * two columns on `product_bundle_item` that only meant anything inside a group.
  *
  * A bundle is now a flat list of components, all of them always included. What went away is the
- * "choose a drink, +6.00" shape — a question asked at order time whose answer is another product.
+ * "choose a drink, +6.00" shape - a question asked at order time whose answer is another product.
  * Nothing consumed it: no order, invoice or report read `product_bundle_item_price`, and the
  * dashboard could never create a group, so every row in the wild came from the seed.
  *
  * `product_option_group` / `product_option` / `product_option_price` are untouched. They mirror
- * these tables in shape but answer a different question — an option's answer is a label with a
+ * these tables in shape but answer a different question - an option's answer is a label with a
  * delta and nothing behind it, so asking the customer something and adjusting the price is still
  * expressible; only "the answer is another product" is gone.
  *
@@ -65,7 +65,7 @@ export class ProductDropBundleCustomization1789200000000
 
 	/**
 	 * Rebuilds the schema, not the data. Every group, every candidate's `group_id` and every delta
-	 * is gone once `up` has run — a bundle that offered a choice comes back as the flat list of
+	 * is gone once `up` has run - a bundle that offered a choice comes back as the flat list of
 	 * whatever components survived, with the candidates now always included.
 	 */
 	public async down(queryRunner: QueryRunner): Promise<void> {

@@ -13,7 +13,7 @@ import {
  *
  * The numbers are whatever the last cache fill saw, so two tiles can disagree by up to the
  * cache lifetime. Each response carries `meta.isCached` saying which of the two it was, and
- * nothing invalidates these keys — a figure catches up when its entry lapses, not when the
+ * nothing invalidates these keys - a figure catches up when its entry lapses, not when the
  * underlying row changes.
  *
  * This feature is the one part of the API a project is expected to rewrite rather than reuse:
@@ -38,7 +38,7 @@ export const docs: Record<keyof typeof statsController, ApiInputDocumentation> =
 			},
 			withAuthErrors: true,
 			request: {
-				notes: `\`data\` is the bare array, newest first and capped — it is a panel, not a paged list; \`GET /log-history\` is the endpoint to page through. ${cacheNote}`,
+				notes: `\`data\` is the bare array, newest first and capped - it is a panel, not a paged list; \`GET /log-history\` is the endpoint to page through. ${cacheNote}`,
 			},
 		}),
 		recentCounts: helperApiInputDocumentation({
@@ -94,7 +94,7 @@ export const docs: Record<keyof typeof statsController, ApiInputDocumentation> =
 			},
 			withAuthErrors: true,
 			request: {
-				notes: `One group per feature, keyed by ${PENDING_REVIEW_ENTITIES.join(', ')}, each newest first. \`total\` is the real backlog and \`entries\` only its first page, so the two differ once a queue grows past what the panel shows. What counts as waiting differs per feature — a pending status for most, either pending or flagged for a comment, and unresolved for a complaint. \`label\` is the best name the row offers cheaply and is null for an article, whose title lives per language in a table this query does not join. ${cacheNote}`,
+				notes: `One group per feature, keyed by ${PENDING_REVIEW_ENTITIES.join(', ')}, each newest first. \`total\` is the real backlog and \`entries\` only its first page, so the two differ once a queue grows past what the panel shows. What counts as waiting differs per feature - a pending status for most, either pending or flagged for a comment, and unresolved for a complaint. \`label\` is the best name the row offers cheaply and is null for an article, whose title lives per language in a table this query does not join. ${cacheNote}`,
 			},
 		}),
 		sumExpenses: helperApiInputDocumentation({
@@ -111,7 +111,7 @@ export const docs: Record<keyof typeof statsController, ApiInputDocumentation> =
 			},
 			withAuthErrors: true,
 			request: {
-				notes: `Outgoing cash flow from the first of this month to now, compared against the same span of the previous month, so early in a month both figures are small. Only completed entries count — pending money is not money yet. \`value\` is the positive magnitude in the base currency and \`change\` its percentage against the comparison span, with \`trend\` reading \`up\` on a rise in spending. With nothing in the previous span \`change\` is a flat 100. ${cacheNote}`,
+				notes: `Outgoing cash flow from the first of this month to now, compared against the same span of the previous month, so early in a month both figures are small. Only completed entries count - pending money is not money yet. \`value\` is the positive magnitude in the base currency and \`change\` its percentage against the comparison span, with \`trend\` reading \`up\` on a rise in spending. With nothing in the previous span \`change\` is a flat 100. ${cacheNote}`,
 			},
 		}),
 		sumRevenues: helperApiInputDocumentation({

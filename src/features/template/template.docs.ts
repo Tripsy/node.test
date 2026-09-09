@@ -18,7 +18,7 @@ const entitySample = getTemplateEntityMock() as unknown as Record<
 >;
 
 const identityNote =
-	'label, language and type are unique together among the rows that are not deleted, and they are also how a template is looked up at render time — never by id';
+	'label, language and type are unique together among the rows that are not deleted, and they are also how a template is looked up at render time - never by id';
 
 const labelParam = {
 	type: 'string' as const,
@@ -38,7 +38,7 @@ const contentParam = {
 	type: 'object' as const,
 	required: true,
 	condition:
-		'email: subject, html, optional text and layout — page: title, html and optional layout. `html` is sanitised on save, so what is stored is what will be sent or served',
+		'email: subject, html, optional text and layout - page: title, html and optional layout. `html` is sanitised on save, so what is stored is what will be sent or served',
 };
 
 /**
@@ -46,7 +46,7 @@ const contentParam = {
  * sends, or the body of a public page. Only the email path renders through the template engine,
  * so a `{{ placeholder }}` resolves there and is printed literally on a page.
  *
- * Every write clears two cache entries, not one — the row's own, and the label/language/type
+ * Every write clears two cache entries, not one - the row's own, and the label/language/type
  * lookup that a render reads. A rename clears the old lookup as well, or the previous name would
  * go on serving the previous body until its TTL.
  *
@@ -109,7 +109,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404, 409, 422],
 		request: {
-			notes: `Provide at least one of label, language or content — \`type\` alone does not count, since it is filled in from the stored row when the body omits it. ${identityNote}, so a renamed template is re-checked against the others`,
+			notes: `Provide at least one of label, language or content - \`type\` alone does not count, since it is filled in from the stored row when the body omits it. ${identityNote}, so a renamed template is re-checked against the others`,
 			params: {
 				id: {
 					type: 'number',
@@ -226,7 +226,7 @@ export const docs: Record<
 					term: {
 						type: 'string',
 						required: false,
-						condition: `an all-digit term matches the id exactly; otherwise the label and the stored content itself, from ${Configuration.get('filter.termMinLength')} characters — so a phrase from the body finds the template holding it`,
+						condition: `an all-digit term matches the id exactly; otherwise the label and the stored content itself, from ${Configuration.get('filter.termMinLength')} characters - so a phrase from the body finds the template holding it`,
 					},
 					language: { type: 'string', required: false },
 					type: {

@@ -7,7 +7,7 @@ import type { FeatureRoutesModule } from '@/shared/types/routes.type';
 
 /**
  * The target addresses the row, never an id: `UQ_complaint_user` allows one live complaint per
- * reporter per target, so the path plus the authenticated caller names exactly one row — one the
+ * reporter per target, so the path plus the authenticated caller names exactly one row - one the
  * caller may write by construction, with no ownership check left to a later step.
  */
 export default async () => {

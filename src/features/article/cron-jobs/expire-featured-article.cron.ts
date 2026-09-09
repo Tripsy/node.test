@@ -11,7 +11,7 @@ export const EXPECTED_RUN_TIME = 5; // seconds
  * the read side evaluates `featured_expire_at`, so an article stays on the homepage until this
  * job clears the flag. Set the date to the day the placement should end, not the minute.
  *
- * Rows go through `ArticleService.expireFeatured` one at a time — it clears the slot, the order
+ * Rows go through `ArticleService.expireFeatured` one at a time - it clears the slot, the order
  * position and the deadline together, and records which group was given up in the audit trail.
  */
 const expireFeaturedArticle = async () => {

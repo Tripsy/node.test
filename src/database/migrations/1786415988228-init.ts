@@ -1106,7 +1106,7 @@ export class Init1786415988228 implements MigrationInterface {
 			`CREATE INDEX "IDX_warehouse_deleted_at" ON "warehouse"  ("deleted_at") WHERE deleted_at IS NULL`,
 		);
 		await queryRunner.query(
-			`COMMENT ON TABLE "warehouse" IS 'Locations stock is held in, and the origin goods are shipped from — including for products that are not stock-tracked'`,
+			`COMMENT ON TABLE "warehouse" IS 'Locations stock is held in, and the origin goods are shipped from - including for products that are not stock-tracked'`,
 		);
 		await queryRunner.query(
 			`CREATE TABLE "product_bundle_item" ("id" SERIAL NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), "deleted_at" TIMESTAMP, "product_id" integer NOT NULL, "group_id" integer, "variant_id" integer NOT NULL, "quantity" numeric(12,2) NOT NULL DEFAULT '1', "is_default" boolean NOT NULL DEFAULT false, "position" integer NOT NULL DEFAULT '0', CONSTRAINT "CHK_53dcf10353fd7e1a68acc04402" CHECK ((quantity > 0)), CONSTRAINT "PK_8122cf28ef84ed7579411282f52" PRIMARY KEY ("id")); COMMENT ON COLUMN "product_bundle_item"."product_id" IS 'The bundle this component belongs to'; COMMENT ON COLUMN "product_bundle_item"."group_id" IS 'NULL means the component is always included, not a choice'; COMMENT ON COLUMN "product_bundle_item"."variant_id" IS 'The variant consumed when this component is part of the order'; COMMENT ON COLUMN "product_bundle_item"."quantity" IS 'How many of the variant this component contributes'; COMMENT ON COLUMN "product_bundle_item"."is_default" IS 'Preselected within its group; meaningless without one'; COMMENT ON COLUMN "product_bundle_item"."position" IS 'Display order within the group, or within the bundle'`,

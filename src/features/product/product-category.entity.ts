@@ -21,8 +21,8 @@ const ENTITY_TABLE_NAME = 'product_category';
  * children up the same way.
  */
 @Index('IDX_product_category_product_id', ['product_id'])
-// Carries `product_id` so the listing's category filter — which seeks the link by `category_id`
-// and needs the product back — answers from the index instead of the heap
+// Carries `product_id` so the listing's category filter - which seeks the link by `category_id`
+// and needs the product back - answers from the index instead of the heap
 @Index('IDX_product_category_category_id', ['category_id', 'product_id'])
 export default class ProductCategoryEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;

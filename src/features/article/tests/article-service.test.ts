@@ -144,7 +144,7 @@ describe('ArticleService', () => {
 			},
 		);
 
-		// Three link changes in one call — the clean is per operation, not per row
+		// Three link changes in one call - the clean is per operation, not per row
 		await serviceArticle.updateDataWithContent(entity, {
 			id: entity.id,
 			categories: [1, 2],

@@ -7,15 +7,15 @@ import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 const ENTITY_TABLE_NAME = 'product_variant_attribute';
 
 /**
- * What distinguishes one variant from its siblings — size `large`, color `blue`. Same value shape
- * as `product_attribute` — one term-backed column and three scalar ones, exactly one filled — with
+ * What distinguishes one variant from its siblings - size `large`, color `blue`. Same value shape
+ * as `product_attribute` - one term-backed column and three scalar ones, exactly one filled - with
  * one deliberate difference: the unique key stops at the label, so a variant holds exactly one
  * value per axis. A product may legitimately list three allergens under the same label; a variant
  * cannot be both `large` and `small`.
  *
  * The axes a variant is expected to carry are declared the same way a product's attributes are, by
  * a `product_category_attribute` row on the product's category whose `scope` is `variant`. Numbers
- * are stored bare here too — a `32 cm` size axis is `32` under a definition whose suffix is `cm` —
+ * are stored bare here too - a `32 cm` size axis is `32` under a definition whose suffix is `cm` -
  * so variants can be filtered by range on the same terms as products.
  */
 @Entity({
@@ -49,8 +49,8 @@ const ENTITY_TABLE_NAME = 'product_variant_attribute';
 	},
 )
 // An attribute row that says nothing, or says two things, is not a state the application should
-// have to interpret on read. `value_base` is excluded from the count — it is the normalized form of
-// `value_numeric`, not a fifth kind of value — and the second clause ties the two together
+// have to interpret on read. `value_base` is excluded from the count - it is the normalized form of
+// `value_numeric`, not a fifth kind of value - and the second clause ties the two together
 @Check(`
 	(
 		(value_term_id IS NOT NULL)::int
@@ -74,7 +74,7 @@ export default class ProductVariantAttributeEntity extends EntityAbstract {
 	@Index('IDX_product_variant_attribute_variant_id')
 	variant_id!: number;
 
-	// Both indexed for the cascade `term` triggers on delete — Postgres looks the children up by
+	// Both indexed for the cascade `term` triggers on delete - Postgres looks the children up by
 	// each key separately, the label is not a prefix of the unique index, and the facet indexes
 	// lead on the label rather than the value
 	@Column('int', { nullable: false })

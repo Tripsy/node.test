@@ -12,7 +12,7 @@ import {
 
 /**
  * Fixed so every run of every seed produces the same demo rows. Change it only to
- * regenerate the whole demo dataset from scratch — existing rows are matched by natural
+ * regenerate the whole demo dataset from scratch - existing rows are matched by natural
  * key, so a different value inserts a second set alongside the first.
  */
 export const RANDOM_SEED = 20260728;

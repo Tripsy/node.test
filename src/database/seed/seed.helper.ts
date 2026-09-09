@@ -72,7 +72,7 @@ type TopUpOptions<Row extends ObjectLiteral> = {
  * Inserts candidates `0..target-1` whose natural key is not in the table yet.
  *
  * Top-up rather than wipe-and-insert: `order`, `invoice`, `product` and friends hold
- * `RESTRICT` foreign keys, so clearing a parent table fails while children reference it —
+ * `RESTRICT` foreign keys, so clearing a parent table fails while children reference it -
  * and the database already holds rows worth keeping. Counting alone would not be enough
  * either, since re-running has to avoid colliding with the unique indexes on `slug`,
  * `sku`, `email` and friends; comparing natural keys avoids both.
@@ -142,7 +142,7 @@ export async function loadIds(
 export function formatSummary(summary: SeedSummary): string {
 	const { entity, alreadyPresent, inserted, target, tableTotal } = summary;
 
-	// Rows that were in the table before any seed ran — reported separately so the
+	// Rows that were in the table before any seed ran - reported separately so the
 	// seeded ratio never reads as more than its target.
 	const untouched = tableTotal - alreadyPresent - inserted;
 	const untouchedNote = untouched > 0 ? `, ${untouched} pre-existing` : '';

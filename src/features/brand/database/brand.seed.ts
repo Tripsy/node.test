@@ -10,7 +10,7 @@ import BrandEntity, {
 } from '@/features/brand/brand.entity';
 import BrandContentEntity from '@/features/brand/brand-content.entity';
 
-/** Real manufacturers — products reference these, and the names show up all over the UI. */
+/** Real manufacturers - products reference these, and the names show up all over the UI. */
 const brandNames = [
 	'Acer',
 	'Anker',

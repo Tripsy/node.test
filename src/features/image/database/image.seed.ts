@@ -22,15 +22,15 @@ import ProductVariantEntity from '@/features/product/product-variant.entity';
  * Cover art for the public site: article covers, product covers, and the per-variant galleries
  * a catalog listing variants draws from.
  *
- * Only the rows are seeded here — the bytes live in the **frontend** container, under
+ * Only the rows are seeded here - the bytes live in the **frontend** container, under
  * `nready-ui/public/uploads/`, because `IMAGE_SAVE_PATH` is a frontend setting and the UI is
  * what writes and serves uploads. `nready-ui/.claude/scripts/fetch-seed-images.sh` fetches
  * files for exactly the paths below; a row without its file renders as a broken image, so
  * run the two together.
  *
  * Deliberately partial, and that is the point rather than a shortcut. The storefront resolves a
- * card's picture through a fallback chain — a variant's own gallery, then its product's, and a
- * collapsed card the other way round — so seeding everything would leave every branch but the
+ * card's picture through a fallback chain - a variant's own gallery, then its product's, and a
+ * collapsed card the other way round - so seeding everything would leave every branch but the
  * first untested. Covering two products in three and one variant in three means one pass over
  * the catalog shows all of it: products with art, products falling back to their default
  * variant, variants with their own photograph, variants borrowing their product's, and cards

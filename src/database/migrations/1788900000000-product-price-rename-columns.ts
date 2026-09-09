@@ -10,7 +10,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * for, which is what the dashboard labels now say too.
  *
  * `RENAME COLUMN` preserves the data and Postgres rewrites the check expressions to follow the
- * new names — but the constraints keep their old hashed names, which TypeORM derives from the
+ * new names - but the constraints keep their old hashed names, which TypeORM derives from the
  * expression. Left alone, every later `migration:generate` would try to drop and re-add them, so
  * the three are dropped and recreated here under the names the renamed expressions hash to.
  */

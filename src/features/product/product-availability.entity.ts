@@ -5,17 +5,17 @@ import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 const ENTITY_TABLE_NAME = 'product_availability';
 
 /**
- * Recurring windows in which the product may be ordered — a lunch menu on weekdays between 12:00
+ * Recurring windows in which the product may be ordered - a lunch menu on weekdays between 12:00
  * and 15:00, a happy hour every evening.
  *
  * Deliberately separate from `product.available_from` / `available_until`, which answer a
  * different question. Those are absolute and describe the product's life in the catalog: when it
  * first appears and when it is withdrawn, and they alone drive `sale_status`. These rows describe
  * the hours *within* that life when ordering is open, repeat forever, and leave `sale_status`
- * untouched — an out-of-hours product is still `available`, just not right now.
+ * untouched - an out-of-hours product is still `available`, just not right now.
  *
- * A window is a weekday and, optionally, a span of clock times — no hours at all means the whole
- * of that day. Bounding the recurrence itself — a list that runs daily but only over the summer —
+ * A window is a weekday and, optionally, a span of clock times - no hours at all means the whole
+ * of that day. Bounding the recurrence itself - a list that runs daily but only over the summer -
  * is the product's own life in the catalog, so it belongs on those absolute dates rather than
  * being expressed a second time here where it would not reach `sale_status`.
  *
@@ -30,7 +30,7 @@ const ENTITY_TABLE_NAME = 'product_availability';
 })
 // Resolving "can this be ordered now" reads every window for one product and filters by weekday
 @Index('IDX_product_availability_product_id', ['product_id', 'day_of_week'])
-// ISO 8601 weekdays, the numbering `discount.conditions.day_range` is also written in — one
+// ISO 8601 weekdays, the numbering `discount.conditions.day_range` is also written in - one
 // reading of "day 1" across the codebase, resolved from a `Date` by `isoWeekday`
 @Check(
 	'CHK_product_availability_day_of_week',
@@ -53,7 +53,7 @@ export default class ProductAvailabilityEntity extends EntityAbstract {
 	product_id!: number;
 
 	/*
-	 * ISO 8601 numbering, 1 = Monday … 7 = Sunday — the same one `discount.conditions.day_range`
+	 * ISO 8601 numbering, 1 = Monday … 7 = Sunday - the same one `discount.conditions.day_range`
 	 * is written in, so a weekday means one thing everywhere it is stored or compared. It is not
 	 * what `Date.getDay()` returns; `isoWeekday` in `helpers/date.helper` is the conversion, and
 	 * is the only place that knows JavaScript counts from Sunday as 0.
@@ -69,7 +69,7 @@ export default class ProductAvailabilityEntity extends EntityAbstract {
 	 * `time` rather than `timestamp`: these are clock times that recur, with no date attached.
 	 * They are read in the venue's timezone, not the customer's.
 	 *
-	 * **Null in both together means all day** — "available on Sundays" rather than the same rule
+	 * **Null in both together means all day** - "available on Sundays" rather than the same rule
 	 * spelled `00:00`–`23:59`. One set and one null is refused by a check constraint, because
 	 * nothing could agree on what half a window means.
 	 */

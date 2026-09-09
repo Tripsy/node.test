@@ -89,7 +89,7 @@ class ArticlePublicController extends BaseController {
 	});
 
 	/**
-	 * Sibling cache key to the payload, so `article:<id>*` invalidation drops both together —
+	 * Sibling cache key to the payload, so `article:<id>*` invalidation drops both together -
 	 * a rule edit goes through `ArticleService`, which cleans that prefix after commit.
 	 *
 	 * The cast is the cache boundary: `get` returns whatever was deserialized from Redis, and

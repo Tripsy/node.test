@@ -3,13 +3,13 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 /**
  * Gives a bundle the one thing `is_optional` cannot express: **exactly one of these**.
  *
- * `product_bundle_group` is a question asked inside a bundle — "choose your fries" — and
+ * `product_bundle_group` is a question asked inside a bundle - "choose your fries" - and
  * `product_bundle_item.group_id` makes a component a candidate for it. Two independent tick boxes
  * can both be taken or both left; a group takes exactly one of its candidates.
  *
  * It carries no `min_select` / `max_select`, unlike `product_option_group`. A bound counting
- * candidate rows cannot state the one case that would need it — a mixed pack is a number of
- * *units*, and each row carries its own `quantity` — so the pair would have been two
+ * candidate rows cannot state the one case that would need it - a mixed pack is a number of
+ * *units*, and each row carries its own `quantity` - so the pair would have been two
  * columns nothing could read correctly. Exactly one is the whole of what a bundle choice means.
  *
  * `is_optional` keeps its meaning outside a group and is refused inside one, where the group
@@ -20,7 +20,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * The table, its indexes and the `group_id` column carry the names
  * `ProductDropBundleCustomization1789200000000` dropped, for the reason its successor gave for
  * reusing `product_bundle_item_price`: one spelling of the idea in the schema rather than two.
- * The shape is not that one restored — `is_default` and the deltas now exist outside a group too,
+ * The shape is not that one restored - `is_default` and the deltas now exist outside a group too,
  * and the delta means the component's price rather than the bundle's.
  *
  * Every existing component lands on `group_id = NULL`, which is what it already meant, so no
@@ -85,7 +85,7 @@ export class ProductBundleGroups1789400000000 implements MigrationInterface {
 
 	/**
 	 * Rebuilds the schema, not the data. Every group is gone once this has run, and its candidates
-	 * come back as plain components of the bundle — all of them always included, since a candidate
+	 * come back as plain components of the bundle - all of them always included, since a candidate
 	 * carries no `is_optional` to fall back on. A swap therefore returns as both alternatives
 	 * bundled together, which is why the deltas are cleared with it: each was written against the
 	 * candidate's own price on the assumption only one would be taken.

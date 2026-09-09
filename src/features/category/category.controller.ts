@@ -161,7 +161,7 @@ class CategoryController extends BaseController {
 		this.policy.canUpdate(res.locals.auth);
 
 		// `id` and `status` come from the path (`/:id/status/:status`), `force` from the
-		// query string — so both sources are merged, with the path winning on conflict.
+		// query string - so both sources are merged, with the path winning on conflict.
 		const data = this.validate(
 			this.validator.statusUpdate,
 			{ ...req.query, ...req.params },

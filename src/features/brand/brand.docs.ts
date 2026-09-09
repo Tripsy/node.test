@@ -27,7 +27,7 @@ const contentsFormat =
 	'[{ language: string; description?: string; meta?: { title?: string; description?: string; keywords?: string } }]';
 
 const slugNote =
-	'slug is trimmed and lower-cased, and unique per brand_type among the rows that are not deleted — a soft-deleted brand releases its slug';
+	'slug is trimmed and lower-cased, and unique per brand_type among the rows that are not deleted - a soft-deleted brand releases its slug';
 
 const languageParam = {
 	type: 'enum' as const,
@@ -63,7 +63,7 @@ export const docs: Record<keyof typeof brandController, ApiInputDocumentation> =
 						required: true,
 						format: contentsFormat,
 						condition:
-							'at least one entry, and one per language — a repeated language is rejected',
+							'at least one entry, and one per language - a repeated language is rejected',
 					},
 				},
 				sample: brandInputPayloads.create,
@@ -200,7 +200,7 @@ export const docs: Record<keyof typeof brandController, ApiInputDocumentation> =
 			withAuthErrors: true,
 			withErrors: [400, 422],
 			request: {
-				notes: '`positions` is the whole group in the order wanted, at least two ids — it sets `sort_order`, which `order_by=sort_order` then reads',
+				notes: '`positions` is the whole group in the order wanted, at least two ids - it sets `sort_order`, which `order_by=sort_order` then reads',
 				params: {
 					brand_type: {
 						type: 'enum',

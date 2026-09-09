@@ -29,7 +29,7 @@ import {
 } from '@/tests/jest-service.setup';
 
 /**
- * `save` echoing its input back — what a test asserting on the row the service *built* needs.
+ * `save` echoing its input back - what a test asserting on the row the service *built* needs.
  * Cast because TypeORM's `save` is overloaded, and no single implementation signature satisfies
  * every overload.
  */
@@ -49,7 +49,7 @@ describe('ProductCategoryAttributeService', () => {
 
 	/*
 	 * The service is constructed with the extended repository, so its two custom methods have
-	 * to live on the injected object — spying on the exported singleton would leave the
+	 * to live on the injected object - spying on the exported singleton would leave the
 	 * service holding the unstubbed one.
 	 */
 	const repository = Object.assign(mock.repository, {
@@ -174,7 +174,7 @@ describe('ProductCategoryAttributeService', () => {
 	describe('updateData', () => {
 		/*
 		 * `create` states every field, so the validator can check it. An update carries only
-		 * what changed, which is why the rules are re-run against the merged row — moving a
+		 * what changed, which is why the rules are re-run against the merged row - moving a
 		 * definition from `term` to `number` while leaving its option rows in place is a
 		 * two-field change no single-field check can see.
 		 */
@@ -224,7 +224,7 @@ describe('ProductCategoryAttributeService', () => {
 		/*
 		 * The validator folds an emptied optional onto `undefined` and keeps the key only when
 		 * the request carried it, so presence is the whole difference between *clear this* and
-		 * *leave it* — and `save` skips an undefined property, which would collapse the two.
+		 * *leave it* - and `save` skips an undefined property, which would collapse the two.
 		 */
 		it('clears a nullable column the payload emptied', async () => {
 			const entity = getProductCategoryAttributeEntityMock();
@@ -314,7 +314,7 @@ describe('ProductCategoryAttributeService', () => {
 
 		/*
 		 * A position only means something relative to its siblings, so a slice cannot describe
-		 * an order — and a foreign id would move a definition out from under the category that
+		 * an order - and a foreign id would move a definition out from under the category that
 		 * declares it.
 		 */
 		it('refuses a list that is not the whole set', async () => {
@@ -341,7 +341,7 @@ describe('ProductCategoryAttributeService', () => {
 	});
 
 	/*
-	 * Changing `unit` does not reinterpret the values already recorded — the factor is applied
+	 * Changing `unit` does not reinterpret the values already recorded - the factor is applied
 	 * on write, so each one has to be rewritten or the stored base figures describe a quantity
 	 * the form no longer shows.
 	 */
@@ -454,7 +454,7 @@ describe('ProductCategoryAttributeService', () => {
 		/*
 		 * Capture and options are a category's to override; scope is not. Two categories
 		 * disagreeing about it describe two different rows for one label, and picking a winner
-		 * by depth drops whatever was stored under the other — so the write path asks for the
+		 * by depth drops whatever was stored under the other - so the write path asks for the
 		 * disagreement to be reported instead.
 		 */
 		function scopeConflict() {
@@ -495,7 +495,7 @@ describe('ProductCategoryAttributeService', () => {
 			).rejects.toMatchObject({ statusCode: 422 });
 		});
 
-		// The read path resolves it silently on purpose — a `resolve` that threw would leave
+		// The read path resolves it silently on purpose - a `resolve` that threw would leave
 		// the form's attributes section looking like the categories declared nothing
 		it('resolves the same disagreement when not asked to assert', async () => {
 			repository.findForCategories.mockResolvedValue(scopeConflict());

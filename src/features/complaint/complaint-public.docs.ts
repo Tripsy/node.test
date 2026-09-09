@@ -15,8 +15,8 @@ import {
 /**
  * The reader-facing half of the complaint feature, mounted under `/public/complaints` by
  * `complaint-public.routes.ts`. Documented separately from `complaint.docs.ts` because it is a
- * route module of its own — a different base path, a different controller, and no permission
- * check — even though both describe the same entity.
+ * route module of its own - a different base path, a different controller, and no permission
+ * check - even though both describe the same entity.
  *
  * A bearer token is required all the same: no permission is checked, but an account is. A
  * complaint accuses somebody, and an anonymous accusation is one nobody can be asked about.
@@ -37,13 +37,13 @@ const targetParams = {
 		required: true,
 		values: Object.values(ComplaintEntityTypeEnum),
 		condition:
-			'a review is not a target — it is reported by flagging it through moderation instead',
+			'a review is not a target - it is reported by flagging it through moderation instead',
 	},
 	entity_id: { type: 'number' as const, required: true },
 };
 
 const addressingNote =
-	"Addressed by target rather than by id: one live complaint per reporter per target, so the path plus the authenticated caller names exactly one row — one they may write by construction. Holding none on that target answers 404, the same answer somebody else's gives";
+	"Addressed by target rather than by id: one live complaint per reporter per target, so the path plus the authenticated caller names exactly one row - one they may write by construction. Holding none on that target answers 404, the same answer somebody else's gives";
 
 const descriptionParam = {
 	type: 'string' as const,
@@ -95,7 +95,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [422],
 		request: {
-			notes: 'Answers null rather than 404 when the caller has filed nothing — it exists so a report widget can show itself as already used instead of walking the reader into a 409',
+			notes: 'Answers null rather than 404 when the caller has filed nothing - it exists so a report widget can show itself as already used instead of walking the reader into a 409',
 			params: targetParams,
 		},
 	}),
@@ -110,7 +110,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 404, 422],
 		request: {
-			notes: `Provide at least one of reason or description — the target is what the complaint is and moving it would file a different report under a row a moderator may be reading. Refused once resolved: the row is then the record a disputed decision is answered from. ${addressingNote}`,
+			notes: `Provide at least one of reason or description - the target is what the complaint is and moving it would file a different report under a row a moderator may be reading. Refused once resolved: the row is then the record a disputed decision is answered from. ${addressingNote}`,
 			params: targetParams,
 			body: {
 				reason: {

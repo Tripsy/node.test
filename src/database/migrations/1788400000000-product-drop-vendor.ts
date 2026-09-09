@@ -9,7 +9,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * of them, and nothing read it apart from the dashboard field that set it.
  *
  * **`down()` cannot restore the values.** It rebuilds the column, its index and the foreign key,
- * so the schema round-trips, but every product comes back with a null vendor — the assignments
+ * so the schema round-trips, but every product comes back with a null vendor - the assignments
  * live only in whatever backup predates this migration.
  */
 export class ProductDropVendor1788400000000 implements MigrationInterface {

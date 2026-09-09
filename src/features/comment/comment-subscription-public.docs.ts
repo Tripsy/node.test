@@ -17,7 +17,7 @@ import {
 const tokenParam = {
 	type: 'string' as const,
 	required: true,
-	condition: `exactly ${UNSUBSCRIBE_TOKEN_LENGTH} characters — the hex form of the 32 random bytes carried in the notification link; a truncated link answers 422 rather than a lookup that finds nothing`,
+	condition: `exactly ${UNSUBSCRIBE_TOKEN_LENGTH} characters - the hex form of the 32 random bytes carried in the notification link; a truncated link answers 422 rather than a lookup that finds nothing`,
 };
 
 export const docs: Record<
@@ -39,7 +39,7 @@ export const docs: Record<
 		},
 		withErrors: [404, 422],
 		request: {
-			notes: 'The address is echoed back so the reader can see which of theirs is subscribed — it is one they already hold, having received the mail at it',
+			notes: 'The address is echoed back so the reader can see which of theirs is subscribed - it is one they already hold, having received the mail at it',
 			params: {
 				token: tokenParam,
 			},

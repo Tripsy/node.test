@@ -8,7 +8,7 @@ import asyncHandler from '@/helpers/async.handler';
 import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
- * The anonymous face of the category tree. No policy is consulted anywhere in here — the
+ * The anonymous face of the category tree. No policy is consulted anywhere in here - the
  * route is open by design, and what keeps it safe is the *shape* of what it can ask for:
  * `publicFind` has no status or deleted filter, and `findByFilterPublic` pins both. Adding a
  * filter to either that could widen the set is what would break that.

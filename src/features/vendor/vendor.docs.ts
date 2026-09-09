@@ -14,7 +14,7 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 
 /**
  * Written out rather than taken from a `vendor.mock.ts`, which this feature does not have. The
- * row is the whole entity — a vendor carries no relations and no content of its own.
+ * row is the whole entity - a vendor carries no relations and no content of its own.
  */
 const entitySample: Record<string, unknown> = {
 	id: 1,
@@ -43,7 +43,7 @@ const typeParam = {
  * A vendor is a name, what it supplies, and where it stands. Nothing here is language-specific and
  * nothing hangs off it, so the row is the whole entity.
  *
- * `status` is never part of a create or an update body — it moves only through its own route, and
+ * `status` is never part of a create or an update body - it moves only through its own route, and
  * only along the transitions the entity declares.
  */
 export const docs: Record<
@@ -61,7 +61,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [422],
 		request: {
-			notes: 'A new vendor starts as `pending` and is moved from there through the status route. The name is not unique — two vendors may share one',
+			notes: 'A new vendor starts as `pending` and is moved from there through the status route. The name is not unique - two vendors may share one',
 			body: {
 				name: { type: 'string', required: true },
 				type: typeParam,
@@ -103,7 +103,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404, 422],
 		request: {
-			notes: 'Provide at least one of name or type. A `status` in the body is ignored — it has its own route',
+			notes: 'Provide at least one of name or type. A `status` in the body is ignored - it has its own route',
 			params: {
 				id: {
 					type: 'number',
@@ -130,7 +130,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: 'Soft delete, whatever the status — a deleted vendor keeps the status it had, and anything already pointing at it keeps resolving',
+			notes: 'Soft delete, whatever the status - a deleted vendor keeps the status it had, and anything already pointing at it keeps resolving',
 			params: {
 				id: {
 					type: 'number',
@@ -259,7 +259,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 404, 409, 422],
 		request: {
-			notes: `Only these transitions are allowed: ${statusTransitionNote} — nothing returns a vendor to \`pending\`. Asking for the status it already holds answers 400, and a transition that is not allowed answers 409. A deleted vendor cannot be moved at all`,
+			notes: `Only these transitions are allowed: ${statusTransitionNote} - nothing returns a vendor to \`pending\`. Asking for the status it already holds answers 400, and a transition that is not allowed answers 409. A deleted vendor cannot be moved at all`,
 			params: {
 				id: {
 					type: 'number',

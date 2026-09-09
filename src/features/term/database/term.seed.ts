@@ -15,7 +15,7 @@ type TermRow = {
 	type: TermType;
 	/** The English wording, and the key this seed re-runs against. */
 	en: string;
-	/** Omitted where no translation exists yet — the reader falls back to `en`. */
+	/** Omitted where no translation exists yet - the reader falls back to `en`. */
 	ro?: string;
 };
 
@@ -24,7 +24,7 @@ type TermRow = {
  * mean something, and `attribute_label` / `attribute_value` have to pair up for
  * `product_attribute` to be seeded on top of them later.
  *
- * One entry is one term across every language, which is the whole point of the shape — a
+ * One entry is one term across every language, which is the whole point of the shape - a
  * product pointing at "Color" renders as "Culoare" in Romanian rather than pinning itself to
  * whichever row was picked at write time.
  *
@@ -56,7 +56,7 @@ const TERMS: readonly TermRow[] = [
 		ro: 'Nivel de iuteala',
 	},
 
-	// Attribute values — colors
+	// Attribute values - colors
 	{ type: TermTypeEnum.ATTRIBUTE_VALUE, en: 'Red', ro: 'Rosu' },
 	{ type: TermTypeEnum.ATTRIBUTE_VALUE, en: 'Blue', ro: 'Albastru' },
 	{ type: TermTypeEnum.ATTRIBUTE_VALUE, en: 'Green', ro: 'Verde' },
@@ -64,7 +64,7 @@ const TERMS: readonly TermRow[] = [
 	{ type: TermTypeEnum.ATTRIBUTE_VALUE, en: 'Silver', ro: 'Argintiu' },
 	{ type: TermTypeEnum.ATTRIBUTE_VALUE, en: 'White', ro: 'Alb' },
 
-	// Attribute values — sizes and materials
+	// Attribute values - sizes and materials
 	{ type: TermTypeEnum.ATTRIBUTE_VALUE, en: 'Small', ro: 'Mic' },
 	{ type: TermTypeEnum.ATTRIBUTE_VALUE, en: 'Medium', ro: 'Mediu' },
 	{ type: TermTypeEnum.ATTRIBUTE_VALUE, en: 'Large', ro: 'Mare' },
@@ -112,7 +112,7 @@ const TERMS: readonly TermRow[] = [
 	{ type: TermTypeEnum.TEXT, en: 'One extra year', ro: 'Inca un an' },
 	{ type: TermTypeEnum.TEXT, en: 'Two extra years', ro: 'Inca doi ani' },
 
-	// Bundle choice prompts — the question a `product_bundle_group` asks
+	// Bundle choice prompts - the question a `product_bundle_group` asks
 	{
 		type: TermTypeEnum.BUNDLE_CHOICE,
 		en: 'Choose your fries',

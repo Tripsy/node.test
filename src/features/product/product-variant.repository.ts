@@ -35,7 +35,7 @@ export class ProductVariantQuery extends RepositoryAbstract<ProductVariantEntity
 	 * `ProductQuery.filterByTerm` needs an `EXISTS` subquery for the same thing only because the
 	 * alias its listings join is pinned to the default variant. The predicate must stay spelled
 	 * `lower(sku) LIKE lower(:term)`: `IDX_product_variant_sku_prefix` is built over
-	 * `lower("sku") text_pattern_ops`, and an `ILIKE` cannot seek on it — it reverts to a
+	 * `lower("sku") text_pattern_ops`, and an `ILIKE` cannot seek on it - it reverts to a
 	 * sequential scan with nothing reported.
 	 *
 	 * The translation branch requires the caller to have joined the `content` alias, and its
@@ -72,7 +72,7 @@ export class ProductVariantQuery extends RepositoryAbstract<ProductVariantEntity
 	}
 
 	/**
-	 * The sellable window of the variant's product — the same rule as `ProductQuery`, read across
+	 * The sellable window of the variant's product - the same rule as `ProductQuery`, read across
 	 * the join: the product is published (`workflow = ready`), past its opening date, inside its
 	 * selling window and not withdrawn.
 	 *
@@ -112,7 +112,7 @@ export const ProductVariantRepository = dataSource
 		},
 
 		/**
-		 * Replaces the product's variants with the set the payload states, matching on `sku` —
+		 * Replaces the product's variants with the set the payload states, matching on `sku` -
 		 * the natural key, and the only stable identifier a form can round-trip.
 		 *
 		 * Soft-deleted variants are read alongside the live ones and revived when their SKU
@@ -237,7 +237,7 @@ export const ProductVariantRepository = dataSource
 		},
 
 		/**
-		 * One value per axis, matching the table's unique key — which stops at the label,
+		 * One value per axis, matching the table's unique key - which stops at the label,
 		 * unlike `product_attribute`'s. A variant cannot be both `large` and `small`.
 		 */
 		async syncAttributes(

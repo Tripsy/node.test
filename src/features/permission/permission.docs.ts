@@ -17,7 +17,7 @@ const entitySample = getPermissionEntityMock() as unknown as Record<
 >;
 
 const pairNote =
-	'entity and operation are unique together among the rows that are not deleted — a soft-deleted permission releases the pair, and restoring it fails while another row holds the same one';
+	'entity and operation are unique together among the rows that are not deleted - a soft-deleted permission releases the pair, and restoring it fails while another row holds the same one';
 
 const entityParam = {
 	type: 'string' as const,
@@ -34,7 +34,7 @@ const operationParam = {
 };
 
 /**
- * A row here grants nothing on its own — it becomes access only once `user-permission` assigns it
+ * A row here grants nothing on its own - it becomes access only once `user-permission` assigns it
  * to a user, which is also the write that clears that user's cached permission set. Deleting a
  * permission takes it away from everyone holding it without touching the grants, because the
  * lookup joins this table and skips deleted rows.
@@ -93,7 +93,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404, 409, 422],
 		request: {
-			notes: `Both parameters are required — this is a full replacement of the pair, not a partial edit. ${pairNote}, so the new pair is re-checked against the other permissions`,
+			notes: `Both parameters are required - this is a full replacement of the pair, not a partial edit. ${pairNote}, so the new pair is re-checked against the other permissions`,
 			params: {
 				id: {
 					type: 'number',
@@ -117,7 +117,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: 'Soft delete. Every user holding this permission loses it, while the grants themselves are left in place — restoring the row hands it back to all of them',
+			notes: 'Soft delete. Every user holding this permission loses it, while the grants themselves are left in place - restoring the row hands it back to all of them',
 			params: {
 				id: {
 					type: 'number',

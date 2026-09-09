@@ -71,7 +71,7 @@ export type CommentType =
 const ENTITY_TABLE_NAME = 'comment';
 
 /**
- * Comments are hard-deleted — no `deleted_at`, so `EntityAbstract` is not the base here — and
+ * Comments are hard-deleted - no `deleted_at`, so `EntityAbstract` is not the base here - and
  * `parent_id` cascades so a subtree goes with its root. `rating` and `complaint` point at comments
  * polymorphically, with no foreign key to carry that cascade: `CommentService` resolves the subtree
  * and clears them, along with the parent's `reply_count`, in the same transaction which performs
@@ -87,8 +87,8 @@ const ENTITY_TABLE_NAME = 'comment';
 })
 /**
  * The thread read, which is the hottest query on this table: one target, the approved rows only,
- * one level of the tree at a time — `parent_id IS NULL` for the roots, `parent_id = ?` for the
- * replies under one of them — newest first.
+ * one level of the tree at a time - `parent_id IS NULL` for the roots, `parent_id = ?` for the
+ * replies under one of them - newest first.
  *
  * `type` is not in it. Three values over a table dominated by `comment` buy almost no selectivity,
  * and sitting between the target and `status` they would have cost every thread read the ordering
@@ -106,7 +106,7 @@ const ENTITY_TABLE_NAME = 'comment';
 @Index('IDX_comment_moderation', ['created_at'], {
 	where: `status = 'pending'`,
 })
-// One author's history, which the dashboard lists newest first — the trailing `created_at` is what
+// One author's history, which the dashboard lists newest first - the trailing `created_at` is what
 // keeps that ordering inside the index scan.
 @Index('IDX_comment_user_status', ['user_id', 'status', 'created_at'])
 @Index('IDX_comment_user_ip_hash', ['user_ip_hash', 'created_at'])
@@ -159,7 +159,7 @@ export default class CommentEntity {
 	 * When the text was last rewritten, and null for a comment nobody has touched since posting.
 	 *
 	 * A column of its own rather than a comparison against `updated_at`: that one moves for every
-	 * save on the row — a moderation decision, a pin — so reading it as "edited" would put the
+	 * save on the row - a moderation decision, a pin - so reading it as "edited" would put the
 	 * marker on comments whose author never went back to them. Written only where `content`
 	 * actually changes.
 	 */
@@ -219,7 +219,7 @@ export default class CommentEntity {
 	})
 	guest_website?: string | null;
 
-	// Direct replies only — a subtree count would have to be walked up the whole ancestor chain on
+	// Direct replies only - a subtree count would have to be walked up the whole ancestor chain on
 	// every write, while this one moves by 1 for a single parent.
 	@Column({
 		type: 'int',
@@ -264,7 +264,7 @@ export default class CommentEntity {
 
 	/**
 	 * When this comment went out in a subscriber digest, so the four-hourly run does not send it
-	 * twice. Null means "not yet announced", which is what the run selects on — and what a comment
+	 * twice. Null means "not yet announced", which is what the run selects on - and what a comment
 	 * approved but never notified stays until it is.
 	 *
 	 * Stamped whether or not anybody was notified: a target with no subscribers still has to leave

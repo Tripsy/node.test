@@ -3,7 +3,7 @@
  *
  * The bytes of an image live in the frontend project (`IMAGE_SAVE_PATH` is a `nready-ui`
  * setting), so a tool over there has to be able to ask this database what files it is
- * expected to hold — `nready-ui/.claude/scripts/fetch-seed-images.sh` is the caller.
+ * expected to hold - `nready-ui/.claude/scripts/fetch-seed-images.sh` is the caller.
  *
  * Usage: npx tsx cli/list-image-paths.ts [section]   (default: article)
  */

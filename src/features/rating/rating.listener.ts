@@ -27,13 +27,13 @@ function isRatingTarget(entityType: string): entityType is RatingEntityType {
  *
  * The dependency points this way on purpose: `rating` already knows which targets it accepts,
  * while the features owning those rows know nothing about this table. They announce what left and
- * each feature storing something against those ids answers for its own — so a target added later
+ * each feature storing something against those ids answers for its own - so a target added later
  * needs no change here beyond its enum entry.
  *
  * Fire-and-forget through `runInBackground`, so a failed cleanup logs instead of rejecting into
  * `server.ts`'s `unhandledRejection` handler, which would shut the API down. The target is already
- * gone by the time this runs; leftover ratings are invisible — nothing reads them once their
- * target cannot be resolved — and the next removal of the same ids clears them.
+ * gone by the time this runs; leftover ratings are invisible - nothing reads them once their
+ * target cannot be resolved - and the next removal of the same ids clears them.
  */
 export default function registerRatingListener() {
 	eventEmitter.on('entityRemoved', (payload: EntityRemovedEventPayload) => {

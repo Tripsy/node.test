@@ -20,8 +20,8 @@ export default async () => {
 				method: 'get',
 			},
 			/*
-			 * One endpoint per direction. The alternative — a single route taking `is_resolved` in
-			 * the body — cannot work here: a required boolean is validated as "must be true", so
+			 * One endpoint per direction. The alternative - a single route taking `is_resolved` in
+			 * the body - cannot work here: a required boolean is validated as "must be true", so
 			 * the reopening half would answer 422 on every call.
 			 */
 			resolve: {
@@ -34,7 +34,7 @@ export default async () => {
 				method: 'patch',
 				handlers: [validateParamsWhenId('id')],
 			},
-			// Soft — a dismissed complaint is still the record a disputed decision is answered
+			// Soft - a dismissed complaint is still the record a disputed decision is answered
 			// from, so `restore` pairs with it.
 			delete: {
 				path: '/:id',

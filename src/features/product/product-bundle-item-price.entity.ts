@@ -12,13 +12,13 @@ const ENTITY_TABLE_NAME = 'product_bundle_item_price';
  * carries a currency whether or not a column says so, and adding 3 to a figure quoted in EUR is
  * only right if the 3 is EUR.
  *
- * The figure adjusts the **component's own sale price**, not the bundle's — the bundle price
+ * The figure adjusts the **component's own sale price**, not the bundle's - the bundle price
  * covers the components that are always included, and a ticked optional one adds
  * `variant.sale_price + price_delta`. A negative delta is therefore the usual case: it is the
  * discount for taking the component inside the kit rather than buying it on its own.
  *
  * Only an optional component may carry one. On a component that is always included the figure has
- * nothing to adjust, since the bundle price already covers it — `ProductValidator` refuses it.
+ * nothing to adjust, since the bundle price already covers it - `ProductValidator` refuses it.
  */
 @Entity({
 	name: ENTITY_TABLE_NAME,
@@ -51,7 +51,7 @@ export default class ProductBundleItemPriceEntity extends EntityAbstract {
 	})
 	currency!: string;
 
-	// No positivity check, unlike `product_price.sale_price` — a discount for taking the component
+	// No positivity check, unlike `product_price.sale_price` - a discount for taking the component
 	// as part of the kit is the point, so the delta is signed
 	@Column('decimal', {
 		precision: 12,

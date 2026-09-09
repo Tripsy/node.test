@@ -13,7 +13,7 @@ export class CommentSubscriptionQuery extends RepositoryAbstract<CommentSubscrip
 
 	/**
 	 * The discussion a subscriber follows, in the order `UQ_comment_subscription_user` holds the
-	 * columns — the unique doubles as the fan-out lookup, so the digest run reads it without an
+	 * columns - the unique doubles as the fan-out lookup, so the digest run reads it without an
 	 * index of its own.
 	 */
 	filterByTarget(
@@ -28,7 +28,7 @@ export class CommentSubscriptionQuery extends RepositoryAbstract<CommentSubscrip
 
 	/**
 	 * The unsubscribe credential. A guest subscriber holds no session, so this is the only handle
-	 * the public endpoints can authenticate them by — which is why it carries a unique index and
+	 * the public endpoints can authenticate them by - which is why it carries a unique index and
 	 * is never guessable.
 	 */
 	filterByToken(token: string): this {

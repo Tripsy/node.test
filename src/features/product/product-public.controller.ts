@@ -11,7 +11,7 @@ import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
  * The storefront surface. No policy: a catalog is public by definition, and what a visitor may
- * see is decided by the query instead — every read here goes through `filterBySellable`, so a
+ * see is decided by the query instead - every read here goes through `filterBySellable`, so a
  * draft, an unreleased or a withdrawn product is not addressable by any route on this module.
  */
 class ProductPublicController extends BaseController {
@@ -37,7 +37,7 @@ class ProductPublicController extends BaseController {
 
 		/*
 		 * The slug resolves to an id first, so the cached payload is keyed the way
-		 * `cleanEntityCache` invalidates — by `product:<id>*`. A slug-keyed entry would outlive
+		 * `cleanEntityCache` invalidates - by `product:<id>*`. A slug-keyed entry would outlive
 		 * an edit until its TTL, and the sellable window would be baked into it.
 		 */
 		const ref = await this.productService.resolvePublicRef(

@@ -19,7 +19,7 @@ const entitySample = getCronHistoryEntityMock() as unknown as Record<
 
 /**
  * Read-only apart from the purge: rows are written by `cron.provider.ts` around every scheduled
- * run, never by a caller, so there is no create and no update — and no soft delete either, the
+ * run, never by a caller, so there is no create and no update - and no soft delete either, the
  * table carrying no `deleted_at`.
  */
 const writeNote = `Rows are written by the runner itself: ${CronHistoryStatusEnum.OK} when the job returns, ${CronHistoryStatusEnum.ERROR} when it throws, and ${CronHistoryStatusEnum.WARNING} when a run that did not fail took longer than the job declares as its expected run time`;
@@ -58,7 +58,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [409, 422],
 		request: {
-			notes: 'Takes a list of ids in the body rather than one in the path — this is a purge, not the removal of a single record. Hard, since the table has no deleted state, and matching nothing answers 409 rather than reporting a success that removed no row. A weekly job already drops every run older than 90 days, which is longer than the other cleanups keep: this table is what the error and warning digests report from',
+			notes: 'Takes a list of ids in the body rather than one in the path - this is a purge, not the removal of a single record. Hard, since the table has no deleted state, and matching nothing answers 409 rather than reporting a success that removed no row. A weekly job already drops every run older than 90 days, which is longer than the other cleanups keep: this table is what the error and warning digests report from',
 			body: {
 				ids: {
 					type: 'array',

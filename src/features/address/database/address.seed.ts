@@ -37,7 +37,7 @@ export const addressSeed: SeedDefinition = {
 
 		if (cities.length === 0) {
 			throw new Error(
-				'No city places found — run the place seed before the address seed',
+				'No city places found - run the place seed before the address seed',
 			);
 		}
 
@@ -49,7 +49,7 @@ export const addressSeed: SeedDefinition = {
 			manager,
 			entityClass: AddressEntity,
 			// `address` carries no unique column, so the street line doubles as the natural
-			// key — the house number is derived from the index, which keeps it distinct.
+			// key - the house number is derived from the index, which keeps it distinct.
 			keyColumn: 'details',
 			buildRow: (index) => ({
 				city_id: randomPick(random, cityIds),

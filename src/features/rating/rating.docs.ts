@@ -15,7 +15,7 @@ import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 /**
  * Written out rather than taken from a `rating.mock.ts`, which this feature does not have. It is
  * the dashboard view, so it carries the rater's account when there is one; `user_ip_hash` is not
- * in it — that column identifies a visitor across every rating they ever cast, no decision is
+ * in it - that column identifies a visitor across every rating they ever cast, no decision is
  * made from it, and it is returned by no route.
  */
 const entitySample: Record<string, unknown> = {
@@ -37,7 +37,7 @@ const entitySample: Record<string, unknown> = {
 
 /**
  * The dashboard half: read one rating, remove one, list them. There is no create and no update
- * here — a rating is cast by a reader through `rating-public.routes.ts`, and this side only ever
+ * here - a rating is cast by a reader through `rating-public.routes.ts`, and this side only ever
  * looks at the result or takes it away.
  */
 export const docs: Record<
@@ -55,7 +55,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: 'A rating cast without an account is anchored to a hashed origin address, which is not returned — a guest rating carries nothing beyond what it says about the target',
+			notes: 'A rating cast without an account is anchored to a hashed origin address, which is not returned - a guest rating carries nothing beyond what it says about the target',
 			params: {
 				id: {
 					type: 'number',
@@ -74,7 +74,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [404],
 		request: {
-			notes: 'Permanent — this table has no `deleted_at`, so there is no restore. A soft-deleted row would go on holding its slot under both uniques, barring that address from ever rating the target again, and would keep counting in the aggregates',
+			notes: 'Permanent - this table has no `deleted_at`, so there is no restore. A soft-deleted row would go on holding its slot under both uniques, barring that address from ever rating the target again, and would keep counting in the aggregates',
 			params: {
 				id: {
 					type: 'number',
@@ -112,7 +112,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [422],
 		request: {
-			notes: 'There is no free-text term on this listing — a rating carries no text to search. Narrow it by target, by rating type or by rater instead',
+			notes: 'There is no free-text term on this listing - a rating carries no text to search. Narrow it by target, by rating type or by rater instead',
 			query: {
 				page: {
 					type: 'number',

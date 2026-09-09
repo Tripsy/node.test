@@ -6,7 +6,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * Both back an optional facet on the dashboard listing and nothing else: `type` is three values
  * skewing to `physical`, `composition` two skewing to `simple`. Admin traffic, always paginated,
- * and at that cardinality Postgres seq-scans for the common value regardless — so neither index
+ * and at that cardinality Postgres seq-scans for the common value regardless - so neither index
  * is picked for the query it exists for, while both are maintained on every product write.
  *
  * `IDX_product_workflow` stays, and the difference is worth stating because the rule above looks

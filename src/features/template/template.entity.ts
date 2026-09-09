@@ -36,7 +36,7 @@ export type EmailContent = {
 
 /**
  * One row of `template.seed.ts`. Exported from the entity rather than from the seed, because the
- * seed self-executes on import — a feature contributing its own templates has to be able to name
+ * seed self-executes on import - a feature contributing its own templates has to be able to name
  * the shape without starting a seeding run.
  */
 export type TemplateSeedEntry = {

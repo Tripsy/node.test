@@ -7,7 +7,7 @@ let loaded = false;
  * Load the project-root .env once.
  *
  * import.meta.dirname is absolute (Node 20.11+), so the path resolves from this
- * file's location — independent of the cwd Claude Code spawns the server with.
+ * file's location - independent of the cwd Claude Code spawns the server with.
  * Path: src/shared -> src -> mcp -> .claude -> project root.
  */
 export const loadProjectEnv = (): void => {

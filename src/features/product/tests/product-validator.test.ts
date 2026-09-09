@@ -132,7 +132,7 @@ describe(validator, () => {
 			expect(validated.success).toBe(false);
 		});
 
-		it('accepts position 0 — the first display slot is not a missing value', () => {
+		it('accepts position 0 - the first display slot is not a missing value', () => {
 			const validated = createWith({
 				variants: [{ ...defaultVariant, position: 0 }],
 			});
@@ -235,7 +235,7 @@ describe(validator, () => {
 		});
 
 		/*
-		 * `min_price` is a floor, not a requirement — a market may be quoted without one. The
+		 * `min_price` is a floor, not a requirement - a market may be quoted without one. The
 		 * `refine` that compares it against `sale_price` has to let an absent value through, or
 		 * the optional field is required in practice by the rule meant to bound it. Three shapes
 		 * reach it as absent: the key omitted, an explicit `null`, and the empty string a form
@@ -319,7 +319,7 @@ describe(validator, () => {
 	describe('availabilities', () => {
 		const window = { starts_at: '12:00', ends_at: '15:00' };
 
-		it('accepts a window with no weekday — that means every day', () => {
+		it('accepts a window with no weekday - that means every day', () => {
 			expect(createWith({ availabilities: [window] }).success).toBe(true);
 		});
 
@@ -330,7 +330,7 @@ describe(validator, () => {
 			).toBe(true);
 		});
 
-		it('rejects day_of_week 0 — the numbering is ISO-8601, not JavaScript', () => {
+		it('rejects day_of_week 0 - the numbering is ISO-8601, not JavaScript', () => {
 			expect(
 				createWith({ availabilities: [{ ...window, day_of_week: 0 }] })
 					.success,
@@ -352,7 +352,7 @@ describe(validator, () => {
 			prices: [{ currency: 'RON', price_delta: 0 }],
 		});
 
-		it('accepts a signed delta — declining something may reduce the price', () => {
+		it('accepts a signed delta - declining something may reduce the price', () => {
 			const validated = createWith({
 				option_groups: [
 					{
@@ -626,7 +626,7 @@ describe(validator, () => {
 	});
 
 	/*
-	 * The product carries no code of its own any more — `product_variant.sku` is the only SKU in
+	 * The product carries no code of its own any more - `product_variant.sku` is the only SKU in
 	 * the system, and a payload naming a product-level one is ignored rather than honoured.
 	 */
 	describe('the product has no sku', () => {
@@ -649,7 +649,7 @@ describe(validator, () => {
 
 		/*
 		 * The listing sorts on the product's own columns only. `label` lives on the content
-		 * join and `sku` on the variant one — neither is a column of `product`, and admitting
+		 * join and `sku` on the variant one - neither is a column of `product`, and admitting
 		 * either would put a join alias into the API contract.
 		 */
 		it.each(['sku', 'label', 'updated_at'])(
@@ -692,7 +692,7 @@ describe(validator, () => {
 			}, validated);
 		});
 
-		it('ignores workflow — it moves through its own route', () => {
+		it('ignores workflow - it moves through its own route', () => {
 			// Nothing updatable was supplied, so `params_at_least_one` still fires
 			expect(
 				productValidator.update.safeParse({
@@ -702,7 +702,7 @@ describe(validator, () => {
 			).toBe(false);
 		});
 
-		it('ignores sale_status — it is derived from the availability dates', () => {
+		it('ignores sale_status - it is derived from the availability dates', () => {
 			expect(
 				productValidator.update.safeParse({
 					id: 1,

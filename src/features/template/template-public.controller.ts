@@ -12,10 +12,10 @@ import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
 import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
- * The visitor-facing half of the template feature, mounted under `/public/pages` — the page
+ * The visitor-facing half of the template feature, mounted under `/public/pages` - the page
  * bodies the public site serves at `/page/<label>`.
  *
- * No policy is consulted anywhere in here — the route is open by design, and what keeps it
+ * No policy is consulted anywhere in here - the route is open by design, and what keeps it
  * safe is the *shape* of what it can ask for: the type is pinned to `page`, so an email
  * template is unreachable whatever the label is, and the language is the request's rather than
  * the caller's to choose. Letting either be passed in is what would break that.
@@ -33,7 +33,7 @@ class TemplatePublicController extends BaseController {
 		const data = this.validate(this.validator.publicRead, req.params, res);
 
 		/*
-		 * Label, language and type, in that order — the segments `TemplateService.lookupKey`
+		 * Label, language and type, in that order - the segments `TemplateService.lookupKey`
 		 * invalidates on every write. The key is shared with the write path, not this
 		 * controller's own, so the order is a contract between the two.
 		 */

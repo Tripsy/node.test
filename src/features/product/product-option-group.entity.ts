@@ -15,7 +15,7 @@ import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
 const ENTITY_TABLE_NAME = 'product_option_group';
 
 /**
- * A question asked at order time — "choose a side", "extras" — whose answers are the rows in
+ * A question asked at order time - "choose a side", "extras" - whose answers are the rows in
  * `product_option`.
  *
  * Distinct from a variant: a variant is a different thing to sell, with its own SKU and price

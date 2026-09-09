@@ -10,7 +10,7 @@ import type { ValidatorOutput } from '@/shared/types/mock.type';
  * A second module rather than a widened `ProductService.findByFilter`: that query pins
  * `variant.is_default = true` to stop rows multiplying, and `getManyAndCount` with skip/take
  * resolves the page as a distinct **product-id** subquery first. Loosening the join there cannot
- * produce variant-paged results — `limit: 20` would return twenty *products'* worth of variants.
+ * produce variant-paged results - `limit: 20` would return twenty *products'* worth of variants.
  * Rooting the query on `product_variant` is what makes the page count variants.
  */
 class ProductVariantService {
@@ -47,7 +47,7 @@ class ProductVariantService {
 			/*
 			 * Before the joins, and that ordering is load-bearing. TypeORM appends a joined
 			 * relation's `deleted_at IS NULL` to the ON clause inside `join()` itself, reading
-			 * `withDeleted` as it stands at that moment — so calling this afterwards lifts the
+			 * `withDeleted` as it stands at that moment - so calling this afterwards lifts the
 			 * condition on the root row and leaves every join still filtering. Soft-deleting a
 			 * product does not cascade to its variants (no cascade on the `@OneToMany`, and
 			 * `ProductService.delete` only touches the product row), so with the call at the end
@@ -118,7 +118,7 @@ class ProductVariantService {
 
 		/*
 		 * Joined inside the branch rather than alongside the rest: on a variant root these two
-		 * only multiply rows, and neither is selected — the listing shows a product's brand and
+		 * only multiply rows, and neither is selected - the listing shows a product's brand and
 		 * translation, not its whole category set.
 		 */
 		if (data.filter.category_id) {

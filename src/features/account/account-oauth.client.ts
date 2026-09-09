@@ -11,7 +11,7 @@ import { getSystemLogger } from '@/providers/logger.provider';
 /**
  * What the application needs from a provider, normalized across them.
  *
- * `email` is nullable because Facebook can legitimately have none — an account registered
+ * `email` is nullable because Facebook can legitimately have none - an account registered
  * with a phone number, or one where the user declined the `email` scope.
  */
 export type OAuthProfile = {
@@ -128,7 +128,7 @@ async function requestProvider<T>(
  * token endpoint over a TLS connection this process opened, authenticated with the client
  * secret. OpenID Connect Core §3.1.3.7 explicitly allows skipping signature validation for
  * tokens obtained that way, which saves fetching and caching Google's JWKS. The claims
- * that bind the token to *this* application (`aud`, `iss`, `exp`) are still checked below —
+ * that bind the token to *this* application (`aud`, `iss`, `exp`) are still checked below -
  * skipping those would accept a token minted for a different client.
  */
 function readGoogleIdToken(idToken: string, clientId: string): OAuthProfile {
@@ -230,7 +230,7 @@ async function resolveFacebookProfile(
 	/*
 	 * No `/debug_token` round-trip: the token was just minted for this app id, using this
 	 * app secret, on a connection this process opened. `debug_token` exists to catch tokens
-	 * that arrived from an untrusted client — which is exactly the case the code exchange
+	 * that arrived from an untrusted client - which is exactly the case the code exchange
 	 * removes.
 	 */
 	const profile = await requestProvider<FacebookProfile>(
@@ -252,7 +252,7 @@ async function resolveFacebookProfile(
 		/*
 		 * Graph exposes no `email_verified` field. An address only reaches the Graph
 		 * response after Facebook has confirmed it on its own side, so its presence is the
-		 * verification signal — there is nothing weaker to fall back to.
+		 * verification signal - there is nothing weaker to fall back to.
 		 */
 		email_verified: !!profile.email,
 		name: profile.name ?? null,

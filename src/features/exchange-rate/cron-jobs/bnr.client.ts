@@ -2,7 +2,7 @@ import { getErrorMessage } from '@/helpers/system.helper';
 import { getSystemLogger } from '@/providers/logger.provider';
 
 /**
- * The daily reference bulletin. It always holds one `Cube` — the most recent working day — so a
+ * The daily reference bulletin. It always holds one `Cube` - the most recent working day - so a
  * run on a weekend or a holiday re-reads the last one published rather than finding nothing. The
  * ten-day and per-year files (`curs.bnr.ro/nbrfxrates10days.xml`,
  * `curs.bnr.ro/files/xml/years/nbrfxrates<year>.xml`) have the same shape and are what a backfill
@@ -22,7 +22,7 @@ export const BNR_PROVIDER = 'bnr.ro';
 export type BnrBulletin = {
 	/** The day the rates are *for*, not the day they were fetched. */
 	rate_date: string;
-	/** What every rate is expressed in — BNR's `OrigCurrency`, which is RON. */
+	/** What every rate is expressed in - BNR's `OrigCurrency`, which is RON. */
 	base_currency: string;
 	/**
 	 * Currency code → units of `base_currency` for **one** unit of it, with BNR's `multiplier`
@@ -36,7 +36,7 @@ export type BnrBulletin = {
  * ships no XML dependency, the document is machine-generated against a fixed schema, and only
  * three things are read out of it. Every value taken is validated
  * before it is used, so a shape change surfaces as a thrown error on the next run instead of a
- * wrong rate — which is the failure mode that actually matters here.
+ * wrong rate - which is the failure mode that actually matters here.
  */
 const CUBE_DATE = /<Cube\s+date="(\d{4}-\d{2}-\d{2})"/;
 const ORIG_CURRENCY = /<OrigCurrency>\s*([A-Za-z]{3})\s*<\/OrigCurrency>/;
@@ -53,7 +53,7 @@ export async function fetchBnrBulletin(): Promise<BnrBulletin> {
 
 /**
  * Separate from the fetch so the shape can be exercised without the network, and so a backfill
- * reading the ten-day or per-year file — same schema, several `Cube` elements — has something to
+ * reading the ten-day or per-year file - same schema, several `Cube` elements - has something to
  * build on. This one reads the first `Cube` it finds, which for the daily bulletin is the only.
  */
 export function parseBnrBulletin(document: string): BnrBulletin {
@@ -129,7 +129,7 @@ function parseRates(document: string): Record<string, number> {
 			continue;
 		}
 
-		// `multiplier="100"` means the figure is for a hundred units — weak currencies are
+		// `multiplier="100"` means the figure is for a hundred units - weak currencies are
 		// quoted that way, and storing it undivided would overstate the rate a hundredfold
 		const multiplier = Number(RATE_MULTIPLIER.exec(attributes)?.[1] ?? 1);
 

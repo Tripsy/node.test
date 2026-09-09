@@ -48,7 +48,7 @@ export default class UserEntity extends EntityAbstract {
 	email_verified_at!: Date | null;
 
 	/*
-	 * Nullable because an account created through social sign-in has no password at all —
+	 * Nullable because an account created through social sign-in has no password at all -
 	 * see `account-oauth.service.ts`. `null` is the honest representation: an unusable
 	 * placeholder hash would be indistinguishable from a real one, and password recovery
 	 * would happily hand such an account a working password.

@@ -6,7 +6,7 @@ import type { accountController } from '@/features/account/account.controller';
 import type { FeatureRoutesModule } from '@/shared/types/routes.type';
 
 /**
- * The half of the account feature a visitor can call without a token — the ways into an
+ * The half of the account feature a visitor can call without a token - the ways into an
  * account and the links emailed out of it.
  *
  * Open is not the same as anonymous: `register`, `login`, `oauthLogin`, `passwordRecover`,

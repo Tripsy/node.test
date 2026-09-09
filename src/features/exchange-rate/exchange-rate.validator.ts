@@ -43,7 +43,7 @@ const RATE_DECIMALS = 8;
 const PROVIDER_MAX_CHARS = 50;
 
 /**
- * `base_currency` is accepted in no write schema — the service fills it from `app.currency`,
+ * `base_currency` is accepted in no write schema - the service fills it from `app.currency`,
  * because a rate the dashboard enters is always against the books the deployment keeps. It stays
  * a filter on `find`, where a table holding rows imported before a currency switch still has to
  * be searchable by what they were quoted in.
@@ -61,7 +61,7 @@ export class ExchangeRateValidator extends BaseValidator<
 			allowDecimals: RATE_DECIMALS,
 		}),
 		/*
-		 * `maxFutureSeconds: 0` rejects any day after today while leaving today itself valid —
+		 * `maxFutureSeconds: 0` rejects any day after today while leaving today itself valid -
 		 * a rate is published for a day that has begun, never announced ahead.
 		 */
 		rate_date: this.validateDate(
@@ -163,7 +163,7 @@ export class ExchangeRateValidator extends BaseValidator<
 	/**
 	 * Uppercased before the pattern runs, so `eur` is accepted and stored the single way every
 	 * row uses. The column is `char(3)` and Postgres does not fold case, so a lowercase row
-	 * would sit unmatched beside its uppercase twin — and the unique index would not see the
+	 * would sit unmatched beside its uppercase twin - and the unique index would not see the
 	 * two as the same currency.
 	 */
 	private currencyCode(message: string) {

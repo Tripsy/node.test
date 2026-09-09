@@ -16,7 +16,7 @@ import { BaseController } from '@/shared/abstracts/controller.abstract';
  *
  * `find` is the whole surface. A variant is created and withdrawn through its product's payload,
  * where `syncVariants` replaces the set as a whole and the validator enforces the rules that hold
- * across it — exactly one default, no duplicate SKU. A write route here would bypass both.
+ * across it - exactly one default, no duplicate SKU. A write route here would bypass both.
  */
 class ProductVariantController extends BaseController {
 	constructor(

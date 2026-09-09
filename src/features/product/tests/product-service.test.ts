@@ -46,7 +46,7 @@ import {
 } from '@/tests/jest-service.setup';
 
 /**
- * `save` echoing its input back — what a test asserting on the row the service *built* needs.
+ * `save` echoing its input back - what a test asserting on the row the service *built* needs.
  * Cast because TypeORM's `save` is overloaded, and no single implementation signature satisfies
  * every overload.
  */
@@ -204,7 +204,7 @@ describe('ProductService', () => {
 
 		/*
 		 * `repository.create()` builds the row without applying the column defaults, and
-		 * `assertUnitForType` reads both values before the insert — so an omitted `type`
+		 * `assertUnitForType` reads both values before the insert - so an omitted `type`
 		 * would index `UNITS_BY_TYPE` with `undefined` and a payload the docs call valid
 		 * would fail. The columns the service does not read pre-save are left to Postgres,
 		 * which returns them on the insert.
@@ -270,7 +270,7 @@ describe('ProductService', () => {
 	});
 
 	/*
-	 * `sale_status` is derived, never stated — the timestamps are what an editor edits and this
+	 * `sale_status` is derived, never stated - the timestamps are what an editor edits and this
 	 * is only their projection, which is why the column carries no transition map. It is applied
 	 * on every write as well as by the cron, or a product created with a future opening date
 	 * would read as sellable until the next cron pass.
@@ -383,7 +383,7 @@ describe('ProductService', () => {
 
 		/*
 		 * The definitions are resolved from the product's categories, so a payload that omits
-		 * the links has to be checked against the ones already stored — otherwise an edit that
+		 * the links has to be checked against the ones already stored - otherwise an edit that
 		 * only changes an attribute would be validated against no schema at all.
 		 */
 		it('reads the stored category links when the payload omits them', async () => {
@@ -433,7 +433,7 @@ describe('ProductService', () => {
 				},
 			);
 
-			// Several branches in one call — the clean is per operation, not per row
+			// Several branches in one call - the clean is per operation, not per row
 			await service.updateDataWithContent(entity, {
 				id: entity.id,
 				categories: [1, 2],
@@ -542,7 +542,7 @@ describe('ProductService', () => {
 		});
 
 		/**
-		 * A variant axis states what tells siblings apart, so it is demanded of every variant —
+		 * A variant axis states what tells siblings apart, so it is demanded of every variant -
 		 * except a bundle's, which has none. The bundle editor does not offer the `variant`
 		 * scope at all, so demanding it there would make the bundle unsavable in any category
 		 * declaring a required one, with nothing an editor could supply.
@@ -559,7 +559,7 @@ describe('ProductService', () => {
 
 			/*
 			 * A bundle write also runs the composition checks, which read the variant and
-			 * bundle-item tables — stubbed to a bundle that is already large enough, so the
+			 * bundle-item tables - stubbed to a bundle that is already large enough, so the
 			 * size rule does not stand in for the one under test.
 			 */
 			const builder = {
@@ -684,7 +684,7 @@ describe('ProductService', () => {
 			);
 		});
 
-		// The second half of the invariant `product_category_attribute_option` cannot hold —
+		// The second half of the invariant `product_category_attribute_option` cannot hold -
 		// it spans three tables
 		it('rejects a term that is not on the definition option list', async () => {
 			const definition = getProductCategoryAttributeEntityMock();
@@ -725,7 +725,7 @@ describe('ProductService', () => {
 		/**
 		 * Arranges a bundle write. `componentProduct` is what the referenced variant belongs
 		 * to, which is what the nesting check reads; `includedUnits` is the figure the
-		 * composition check sums — the quantities of the components that are always included.
+		 * composition check sums - the quantities of the components that are always included.
 		 *
 		 * It defaults to a bundle that is already large enough, so a test about something else
 		 * does not trip the size rule.
@@ -852,7 +852,7 @@ describe('ProductService', () => {
 		/*
 		 * A bundle has to be more than one thing, or it is a product wearing a bundle's
 		 * clothes. Counted in units the customer receives, which is what makes one component
-		 * taken twice a bundle and one taken once not — and counted over the components that
+		 * taken twice a bundle and one taken once not - and counted over the components that
 		 * are always included, since every optional one can be left unticked.
 		 */
 		it.each([

@@ -26,7 +26,7 @@ import ProductVariantEntity from '@/features/product/product-variant.entity';
  * itself is polymorphic and carries no foreign key, so nothing here needs the owning entities
  * except to read real ids.
  *
- * Every scope but `order` is covered — that one applies to the basket as a whole and points at
+ * Every scope but `order` is covered - that one applies to the basket as a whole and points at
  * nothing. A plan whose owners are absent (a feature removed, or its seed not yet run) simply
  * links nothing rather than failing.
  */
@@ -50,7 +50,7 @@ const PLANS: readonly LinkPlan[] = [
 		scope: DiscountScopeEnum.CATEGORY,
 		targetType: DiscountTargetTypeEnum.CATEGORY,
 		ownerEntity: CategoryEntity,
-		// Product categories only — a discount on a blog category would never resolve.
+		// Product categories only - a discount on a blog category would never resolve.
 		ownerWhere: { type: 'product' },
 	},
 	{

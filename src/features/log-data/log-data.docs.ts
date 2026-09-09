@@ -22,10 +22,10 @@ const entitySample = getLogDataEntityMock() as unknown as Record<
 
 /**
  * Read-only apart from the purge: rows are written by the logger's database destination, never by
- * a caller, so there is no create and no update — and no soft delete either, the table carrying
+ * a caller, so there is no create and no update - and no soft delete either, the table carrying
  * no `deleted_at`.
  */
-const writeNote = `Rows are written by the logger itself, and only for the levels the deployment persists — ${Configuration.get('logging.levelDatabase').join(' and ')} by default, with the rest going to the console, the log file and CloudWatch instead`;
+const writeNote = `Rows are written by the logger itself, and only for the levels the deployment persists - ${Configuration.get('logging.levelDatabase').join(' and ')} by default, with the rest going to the console, the log file and CloudWatch instead`;
 
 export const docs: Record<
 	keyof typeof logDataController,
@@ -61,7 +61,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [409, 422],
 		request: {
-			notes: 'Takes a list of ids in the body rather than one in the path — this is a purge, not the removal of a single record. Hard, since the table has no deleted state, and matching nothing answers 409 rather than reporting a success that removed no row. A weekly job already drops everything older than 30 days',
+			notes: 'Takes a list of ids in the body rather than one in the path - this is a purge, not the removal of a single record. Hard, since the table has no deleted state, and matching nothing answers 409 rather than reporting a success that removed no row. A weekly job already drops everything older than 30 days',
 			body: {
 				ids: {
 					type: 'array',
@@ -130,7 +130,7 @@ export const docs: Record<
 						type: 'enum',
 						required: false,
 						values: Object.values(LogDataCategoryEnum),
-						condition: `where the line came from: ${LogDataCategoryEnum.SYSTEM} for the application itself, ${LogDataCategoryEnum.CRON} for a scheduled job, ${LogDataCategoryEnum.HISTORY} for an audit event — the last one keeps its own table and reaches this one only where history logging is routed through the logger`,
+						condition: `where the line came from: ${LogDataCategoryEnum.SYSTEM} for the application itself, ${LogDataCategoryEnum.CRON} for a scheduled job, ${LogDataCategoryEnum.HISTORY} for an audit event - the last one keeps its own table and reaches this one only where history logging is routed through the logger`,
 					},
 					level: {
 						type: 'enum',

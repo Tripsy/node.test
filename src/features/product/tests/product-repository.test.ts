@@ -17,7 +17,7 @@ import { createMockRepository } from '@/tests/jest-service.setup';
  * mocked query whose `filterByTerm` never runs.
  *
  * The SQL is worth pinning. `product.sku` is gone, so a code lookup now reaches the variant, and
- * two details decide whether it works at all — the subquery alias, and the `lower(...) LIKE`
+ * two details decide whether it works at all - the subquery alias, and the `lower(...) LIKE`
  * spelling the prefix index needs.
  */
 describe('ProductQuery.filterByTerm', () => {
@@ -143,7 +143,7 @@ describe('ProductQuery.filterByTerm', () => {
  * decision under test is its own: whether a variant's axis values are written at all.
  *
  * `syncAttributes` replaces the set it is given, so an empty array clears every stored value. A
- * payload that says nothing about the attributes has to skip the call entirely — the dashboard
+ * payload that says nothing about the attributes has to skip the call entirely - the dashboard
  * sends no `variants[].attributes`, and writing `[]` on its behalf would make an edit that only
  * touches the product name destroy what tells the sibling variants apart.
  */
@@ -209,7 +209,7 @@ describe('ProductVariantRepository.syncVariants', () => {
 });
 
 /**
- * The filter is tri-state — absent is "any", `false` is the dashboard's "Not sellable" — so the
+ * The filter is tri-state - absent is "any", `false` is the dashboard's "Not sellable" - so the
  * query class is exercised directly to see which of the three actually reaches the builder. A
  * service-level test cannot: it holds a mocked query whose `filterBySellable` never runs.
  */
@@ -259,7 +259,7 @@ describe('ProductQuery.filterBySellable', () => {
 
 	/*
 	 * The regression this guards: a withdrawal dated in the future leaves `sale_status` on
-	 * `available` — `resolveSaleStatus` compares against now — and the other two clauses say
+	 * `available` - `resolveSaleStatus` compares against now - and the other two clauses say
 	 * nothing about it, so the product went on selling until the nightly cron caught the column
 	 * up. Comparing the timestamp here is what closes that window.
 	 */
@@ -289,7 +289,7 @@ describe('ProductQuery.filterBySellable', () => {
 	/*
 	 * The regression this guards: `sale_status` is derived from the availability timestamps
 	 * alone, so a product with no dates set computes to `available` however unfinished it is.
-	 * A draft then satisfied the predicate — listed under the dashboard's "Sellable now", and
+	 * A draft then satisfied the predicate - listed under the dashboard's "Sellable now", and
 	 * served to visitors at its public URL, which `resolvePublicRef` documents as a 404.
 	 */
 	it('requires the product to be published', () => {
@@ -323,7 +323,7 @@ describe('ProductQuery.filterBySellable', () => {
 
 	/*
 	 * One predicate, negated whole. Negating each half separately would drop rows to
-	 * three-valued logic, and the `IS NULL` branches are what keep every clause true or false —
+	 * three-valued logic, and the `IS NULL` branches are what keep every clause true or false -
 	 * a product with no closing date is sellable, not unknown.
 	 */
 	it('negates the whole predicate in a single condition', () => {

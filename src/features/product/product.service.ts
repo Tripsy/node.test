@@ -68,7 +68,7 @@ import { toBaseUnit } from '@/shared/types/measure-unit.type';
 import type { ValidatorOutput } from '@/shared/types/mock.type';
 
 /**
- * Columns owned by the product row itself — everything else lives in a child table
+ * Columns owned by the product row itself - everything else lives in a child table
  * (`product_content`, `product_variant`, `product_attribute`, and the option and bundle trees).
  */
 const entryColumns: string[] = [
@@ -93,7 +93,7 @@ export type WithCoverImage<T> = T & {
 };
 
 /**
- * Every live variant of a listed product, axis wording resolved and each carrying its own cover —
+ * Every live variant of a listed product, axis wording resolved and each carrying its own cover -
  * see `attachVariants`.
  */
 export type WithVariants<T> = T & {
@@ -104,7 +104,7 @@ export type WithVariants<T> = T & {
  * How many units a bundle has to add up to before it is a bundle rather than a product.
  *
  * Counted over the components that are always included, so the floor holds for the cheapest
- * thing the customer can walk away with — see `assertBundleIsComposed`.
+ * thing the customer can walk away with - see `assertBundleIsComposed`.
  */
 const BUNDLE_MINIMUM_UNITS = 2;
 
@@ -112,7 +112,7 @@ const BUNDLE_MINIMUM_UNITS = 2;
  * How many candidates a choice needs before it is a choice.
  *
  * A group takes exactly one of its candidates, so one candidate is not an alternative to anything
- * — see `assertBundleGroupsAreUsable`.
+ * - see `assertBundleGroupsAreUsable`.
  */
 const BUNDLE_GROUP_MINIMUM_CANDIDATES = 2;
 
@@ -123,7 +123,7 @@ export class ProductService {
 	 * Both slug checks read outside the transaction that writes the content, so two concurrent
 	 * requests can find the same slug free and only the second meets the `(slug, language)`
 	 * unique index. Postgres answers that with a bare unique violation, which the error handler
-	 * would mask as a 500 — mapped back onto the same 409 the pre-check raises so the race and
+	 * would mask as a 500 - mapped back onto the same 409 the pre-check raises so the race and
 	 * the ordinary case read alike.
 	 *
 	 * The variant code indexes are handled here too, and separately: a SKU and a barcode are
@@ -252,7 +252,7 @@ export class ProductService {
 				/*
 				 * `type` and `unit` carry their column defaults explicitly because
 				 * `repository.create()` does not apply them and `assertUnitForType` below
-				 * reads both before the insert — an omitted `type` would index
+				 * reads both before the insert - an omitted `type` would index
 				 * `UNITS_BY_TYPE` with `undefined`. The other defaulted columns are only
 				 * read after `save`, which back-fills them through `RETURNING`.
 				 */
@@ -311,7 +311,7 @@ export class ProductService {
 
 		/*
 		 * The attribute definitions are resolved from the product's categories, so a payload
-		 * that omits the links has to be checked against the ones already stored — otherwise
+		 * that omits the links has to be checked against the ones already stored - otherwise
 		 * an edit that only changes an attribute would be validated against no schema at all.
 		 */
 		const categoryIds =
@@ -339,8 +339,8 @@ export class ProductService {
 		/*
 		 * One clean for the whole operation, emitted after the transaction commits. The child
 		 * rows written above carry no subscribers of their own: a row-level hook fires once per
-		 * row — a product with four variants and twelve prices meant sixteen identical Redis
-		 * SCANs — and it fires *inside* the transaction, where a concurrent reader can refill
+		 * row - a product with four variants and twelve prices meant sixteen identical Redis
+		 * SCANs - and it fires *inside* the transaction, where a concurrent reader can refill
 		 * the cache from a snapshot about to be superseded.
 		 */
 		await cleanEntityCache(ProductEntity, updatedEntry.id);
@@ -361,7 +361,7 @@ export class ProductService {
 	 * Every child table, in an order the foreign keys allow: the bundle tree names variants, so
 	 * the variants of this product have to exist before it is written.
 	 *
-	 * An absent key means "leave alone" and an empty array means "clear" — the same contract
+	 * An absent key means "leave alone" and an empty array means "clear" - the same contract
 	 * the article feature uses, and the reason a partial update can touch one branch of a
 	 * product without restating the rest of it.
 	 */
@@ -526,7 +526,7 @@ export class ProductService {
 	 *
 	 * A group takes exactly one of its candidates, so it needs **two** to be a choice at all. With
 	 * one it is a component that is always included wearing a prompt, and with none a question
-	 * with no answers — both reachable only through a payload that removed candidates, or created
+	 * with no answers - both reachable only through a payload that removed candidates, or created
 	 * the group and never filled it.
 	 *
 	 * Read back from the rows just written for the reason `assertBundleIsComposed` gives: an
@@ -621,12 +621,12 @@ export class ProductService {
 	 * A bundle has to be more than one thing, or it is a product wearing a bundle's clothes.
 	 *
 	 * Counted in units a customer ends up with rather than in components, so a single component
-	 * with `quantity: 2` — a two-pack — qualifies where the same component alone does not.
+	 * with `quantity: 2` - a two-pack - qualifies where the same component alone does not.
 	 *
 	 * **Only what the customer cannot decline counts.** The floor has to hold for the least the
-	 * customer can walk away with, so an optional component is out — it can be left unticked —
+	 * customer can walk away with, so an optional component is out - it can be left unticked -
 	 * and so is a candidate: the group guarantees *a* candidate is taken, not that one in
-	 * particular, and their quantities may differ — a bundle whose whole content is one choice is
+	 * particular, and their quantities may differ - a bundle whose whole content is one choice is
 	 * a single product with a decision attached.
 	 *
 	 * Read back from the rows just written instead of from the payload: an update is partial,
@@ -672,7 +672,7 @@ export class ProductService {
 
 		/*
 		 * A bundle carries exactly one variant, the header line its components hang off, and it
-		 * has no siblings — so an axis meant to tell siblings apart has nothing to distinguish
+		 * has no siblings - so an axis meant to tell siblings apart has nothing to distinguish
 		 * and is not asked for. Values still resolve if a caller sends any; only the demand for
 		 * the required ones is lifted, which would otherwise make a bundle unsavable in any
 		 * category declaring one, with nothing an editor could supply.
@@ -705,7 +705,7 @@ export class ProductService {
 	 * set is checked against the definitions it was resolved from, which is also the only place
 	 * that knows which of them were required.
 	 *
-	 * Named by its label rather than its id — the message reaches an editor, and the first
+	 * Named by its label rather than its id - the message reaches an editor, and the first
 	 * translation the term carries is the closest thing to a name available here.
 	 */
 	private assertRequiredSupplied(
@@ -758,7 +758,7 @@ export class ProductService {
 	 *   against a form field that was never offered;
 	 * - a term-backed value has to be on the definition's option list, which spans three tables
 	 *   and is the second half of the invariant `product_category_attribute_option` cannot hold;
-	 * - `value_base` is produced by `toBaseUnit`, once, on write — converting at read time would
+	 * - `value_base` is produced by `toBaseUnit`, once, on write - converting at read time would
 	 *   put arithmetic between a range filter and its index.
 	 */
 	private resolveAttributeValue(
@@ -888,8 +888,8 @@ export class ProductService {
 	/**
 	 * The category and every category beneath it, as ids.
 	 *
-	 * Every `category_id` filter resolves through here — this service's listings, the storefront's,
-	 * and `ProductVariantService`'s — so "in this category" means the same thing to all of them: a
+	 * Every `category_id` filter resolves through here - this service's listings, the storefront's,
+	 * and `ProductVariantService`'s - so "in this category" means the same thing to all of them: a
 	 * catalog tree is three levels deep and a shopper filtering on the top one expects the whole
 	 * branch. Public for that last caller, which sits in a sibling module of the same feature.
 	 */
@@ -913,7 +913,7 @@ export class ProductService {
 	 *
 	 * Not joined onto the main query: variants, option groups, bundle components, availabilities
 	 * and attributes are five independent to-many relations, and joining them together
-	 * multiplies into their product — four variants against three option groups against six
+	 * multiplies into their product - four variants against three option groups against six
 	 * attributes is seventy-two rows for one product, every column repeated in each.
 	 */
 	private async attachBranches(
@@ -951,7 +951,7 @@ export class ProductService {
 			 * else, so an editor handed the ids alone has a control it cannot draw and no way
 			 * to resolve them but one request per row.
 			 *
-			 * Every translation, not the request's own — the dashboard edits a product under
+			 * Every translation, not the request's own - the dashboard edits a product under
 			 * all of them at once and picks per language at render time.
 			 *
 			 * `options` is ordered explicitly. Insertion order matches `position` only until a
@@ -971,7 +971,7 @@ export class ProductService {
 						position: 'ASC',
 						id: 'ASC',
 						// The deltas have no position of their own, so a market is named by its
-						// code — an unordered read hands a multi-market answer back in a
+						// code - an unordered read hands a multi-market answer back in a
 						// different order each time, and the editor redraws its rows to match.
 						prices: { currency: 'ASC' },
 					},
@@ -1017,7 +1017,7 @@ export class ProductService {
 	/**
 	 * @description Used in `read` method from controller; this will return a custom shape
 	 *
-	 * An omitted `language` means every translation, not the request's own — the dashboard edits
+	 * An omitted `language` means every translation, not the request's own - the dashboard edits
 	 * all of them at once and has no other way to ask for them.
 	 */
 	public async getEntryData(data: {
@@ -1127,9 +1127,9 @@ export class ProductService {
 	}
 
 	/**
-	 * @description Used in `publicRead` from controller — the anonymous surface.
+	 * @description Used in `publicRead` from controller - the anonymous surface.
 	 *
-	 * Keyed on the content slug, which is the whole public address (`/products/<slug>`) — the
+	 * Keyed on the content slug, which is the whole public address (`/products/<slug>`) - the
 	 * category a product is filed under does not appear in it. Only the sellable
 	 * window is reachable, so a draft or a withdrawn product answers 404 to a visitor rather
 	 * than leaking its existence through a different status code.
@@ -1155,13 +1155,13 @@ export class ProductService {
 	/**
 	 * Attaches every live variant of each listed product, named.
 	 *
-	 * A variant has no label column — what tells one from its siblings is its axis values in
+	 * A variant has no label column - what tells one from its siblings is its axis values in
 	 * `product_variant_attribute`, so the wording has to be resolved through `term_content` before
 	 * a card can say "Small". Only the requested language is joined: the dashboard reads every
 	 * translation at once, a storefront reads exactly one.
 	 *
 	 * `language` is optional on the validator and filled in by the controller. Were it left unset
-	 * the term-content joins would match nothing and the axes would come back unnamed — the same
+	 * the term-content joins would match nothing and the axes would come back unnamed - the same
 	 * failure the listing's own `INNER` content join already has, not a quieter one.
 	 *
 	 * A second query rather than more joins on the listing itself. That statement already
@@ -1172,7 +1172,7 @@ export class ProductService {
 	 * This is the listing's only variant source. The pinned `is_default` join it used to carry was
 	 * multiplying the listing's rows to produce a payload this then replaced wholesale; a card
 	 * reads the default off `is_default` in the set instead. `filterByTerm` never used that alias
-	 * either — it matches SKUs through its own `EXISTS` subquery, precisely so a product is found
+	 * either - it matches SKUs through its own `EXISTS` subquery, precisely so a product is found
 	 * by any of its codes rather than only its default one.
 	 */
 	private async attachVariants<
@@ -1209,7 +1209,7 @@ export class ProductService {
 			)
 			/*
 			 * Projected, never the whole entity. A variant row carries `cost_price`, and its prices
-			 * carry `min_price` — what the product costs to buy and the floor a discount may not
+			 * carry `min_price` - what the product costs to buy and the floor a discount may not
 			 * resolve below. Neither belongs on a route with no policy, and the stock knobs say more
 			 * about the warehouse than a card needs. The joined rows' primary keys are selected
 			 * because TypeORM cannot map a narrowed join without them.
@@ -1253,7 +1253,7 @@ export class ProductService {
 
 		/*
 		 * The axes are ordered by their definition's `sort_order`, over the union of every category
-		 * on the page — one resolve, not one per product. Insertion order is not usable here: it
+		 * on the page - one resolve, not one per product. Insertion order is not usable here: it
 		 * would read "Blue Large" on one row and "Large Blue" on the next, from the same two axes.
 		 */
 		const categoryIds = [
@@ -1276,7 +1276,7 @@ export class ProductService {
 			definitions.get(label_id)?.sort_order ?? Number.MAX_SAFE_INTEGER;
 
 		/*
-		 * A variant's own photographs, filed under the `product_variant` section — the picture a
+		 * A variant's own photographs, filed under the `product_variant` section - the picture a
 		 * card shows when the catalog is listing variants rather than products. Resolved for the
 		 * whole page in one call, the way the products' own covers are.
 		 *
@@ -1327,8 +1327,8 @@ export class ProductService {
 	 * Attaches each product's cover image, when the deployment has something to answer with.
 	 *
 	 * Asked of the registry in `target-image.config.ts` rather than of the `image` feature,
-	 * which is optional here. With no provider registered — a deployment without `image`, or the
-	 * `test` environment, where bootstrap does not run — every product answers `null`. The key
+	 * which is optional here. With no provider registered - a deployment without `image`, or the
+	 * `test` environment, where bootstrap does not run - every product answers `null`. The key
 	 * stays present either way: a client must not have to tell "no image" apart from "no image
 	 * feature".
 	 */
@@ -1429,8 +1429,8 @@ export class ProductService {
 		 * The variants `attachBranches` loaded are replaced by the projected, named set.
 		 *
 		 * Two reasons, both of which apply only here. A branch read for the dashboard carries
-		 * `cost_price` and `min_price` — what the product costs to buy and the floor a discount may
-		 * not resolve below — and neither belongs on a route with no policy. And a variant has no
+		 * `cost_price` and `min_price` - what the product costs to buy and the floor a discount may
+		 * not resolve below - and neither belongs on a route with no policy. And a variant has no
 		 * label of its own, so a page offering a choice between them needs the axis values resolved
 		 * through `term_content`, which the dashboard's read has no use for and does not join.
 		 */
@@ -1450,7 +1450,7 @@ export class ProductService {
 	 * The catalog listing.
 	 *
 	 * Facets are one indexed `IN` subquery per facet, `AND`ed. A single `OR`-of-`AND`s cannot
-	 * use a composite index leading on the label and degrades to a sequential scan — see
+	 * use a composite index leading on the label and degrades to a sequential scan - see
 	 * `.claude/rules/product.md` §12.7. Ranges compare `value_base`, which is why the payload's
 	 * figures are converted through the definition's unit first.
 	 */
@@ -1537,7 +1537,7 @@ export class ProductService {
 			 * (link row -> category -> translation) and are what its public URL is built
 			 * from. The link is to-many, so these joins multiply the raw rows; pagination
 			 * survives it because `getManyAndCount` with skip/take resolves the page as a
-			 * distinct-id subquery first. The primary keys are selected for the same reason —
+			 * distinct-id subquery first. The primary keys are selected for the same reason -
 			 * without them TypeORM cannot tell the duplicated rows apart.
 			 */
 			.join(

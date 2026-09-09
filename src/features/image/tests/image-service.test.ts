@@ -78,7 +78,7 @@ describe('ImageService', () => {
 		const { transaction } = setupTransactionMock(mockImage.repository);
 
 		// The service loads the images by id, rejects the request if any is missing, then
-		// saves them back with their new sort_order — so the builder has to return one
+		// saves them back with their new sort_order - so the builder has to return one
 		// image per requested position.
 		const images = orderData.positions.map((position) => ({
 			...getImageEntityMock(),

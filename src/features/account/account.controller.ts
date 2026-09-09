@@ -78,7 +78,7 @@ class AccountController extends BaseController {
 	 * Issues an auth token for an already-authenticated user, or refuses when the session
 	 * cap is reached and hands back the list of tokens the client can revoke.
 	 *
-	 * Shared by password login and social login so both answer identically — the frontend
+	 * Shared by password login and social login so both answer identically - the frontend
 	 * has one code path for the 403-with-token-list case.
 	 */
 	private async issueAuthToken(
@@ -710,7 +710,7 @@ class AccountController extends BaseController {
 		}
 
 		// Throws NotFoundError when the account no longer exists. The entity itself is
-		// not needed — the update targets `user_id` directly.
+		// not needed - the update targets `user_id` directly.
 		await this.userService.findById(user_id, false);
 
 		await this.userService.update({
@@ -740,7 +740,7 @@ class AccountController extends BaseController {
 		/*
 		 * A social sign-in account has no password to confirm with. The request is already
 		 * authenticated by a valid auth token, which is the same bar every other `/me`
-		 * endpoint clears — refusing here would leave such a user unable to delete their
+		 * endpoint clears - refusing here would leave such a user unable to delete their
 		 * own account at all.
 		 */
 		if (user.password) {

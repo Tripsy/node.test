@@ -110,7 +110,7 @@ export class BrandService {
 			return saved;
 		});
 
-		// One clean for the whole operation, after commit — the content rows written above
+		// One clean for the whole operation, after commit - the content rows written above
 		// have no subscriber invalidating the brand's keys. See `cleanEntityCache`
 		await cleanEntityCache(BrandEntity, updatedEntity.id);
 
@@ -183,7 +183,7 @@ export class BrandService {
 	}
 
 	/**
-	 * The unique index on `(slug, brand_type)` is partial — `WHERE deleted_at IS NULL` — so
+	 * The unique index on `(slug, brand_type)` is partial - `WHERE deleted_at IS NULL` - so
 	 * deleting a brand releases its slug straight away and another may take it. Restoring the
 	 * first one then collides, and without this check the collision surfaces from the database
 	 * as a masked 500 instead of the 409 `create` and `update` already answer with.

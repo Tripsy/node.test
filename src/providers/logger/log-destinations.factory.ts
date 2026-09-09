@@ -17,7 +17,7 @@ function levelsFor(key: LogLevelKey): ReadonlyArray<LogDataLevel> {
  * Builds the destination set for the current environment.
  *
  * This is the only place that knows which destinations exist. Adding one means adding a
- * class and a line here — `LogStream` fans out over whatever it is handed, so it never
+ * class and a line here - `LogStream` fans out over whatever it is handed, so it never
  * changes. Destinations configured with no levels are left out entirely rather than
  * constructed and skipped per line, which also avoids opening an AWS client or a file
  * handle that would never be used.

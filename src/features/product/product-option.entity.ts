@@ -26,7 +26,7 @@ const ENTITY_TABLE_NAME = 'product_option';
 
 /**
  * One answer to the question its group asks. The price effect is a *delta* against the variant
- * price, held per currency in `product-option-price.entity` — negative is allowed, so "no cheese,
+ * price, held per currency in `product-option-price.entity` - negative is allowed, so "no cheese,
  * -2" is expressible.
  */
 @Entity({

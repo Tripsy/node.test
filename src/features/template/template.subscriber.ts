@@ -3,7 +3,7 @@ import TemplateEntity from '@/features/template/template.entity';
 import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 
 /**
- * Audit only, and entirely the base class's — the three hooks this used to override differed from
+ * Audit only, and entirely the base class's - the three hooks this used to override differed from
  * it in nothing but the cache cleaning, which now lives in `TemplateService`.
  *
  * That move is not a straight lift: a template is read by `label`/`language`/`type` at render time,

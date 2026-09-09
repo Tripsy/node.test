@@ -28,7 +28,7 @@ const ENTITY_TABLE_NAME = 'complaint';
 /**
  * A complaint does not outlive its target. `(entity_type, entity_id)` carries no foreign key, so
  * `ComplaintListener` clears these rows when the target announces a hard delete on `entityRemoved`
- * — there is nothing left to moderate once the thing being accused is gone.
+ * - there is nothing left to moderate once the thing being accused is gone.
  *
  * That covers comments, which are hard-deleted. An article leaves through `deleted_at` instead and
  * can be restored, so its complaints stay: they become answerable again the moment it comes back.
@@ -45,7 +45,7 @@ const ENTITY_TABLE_NAME = 'complaint';
 	where: 'deleted_at IS NULL',
 })
 // Moderation queue. Partial: the open set stays small while the table only grows.
-// `deleted_at IS NULL` belongs in the predicate, not only in the query — without it the index
+// `deleted_at IS NULL` belongs in the predicate, not only in the query - without it the index
 // carries withdrawn complaints, and a queue read that excludes them cannot be answered from it.
 @Index('IDX_complaint_open', ['created_at'], {
 	where: 'is_resolved = false AND deleted_at IS NULL',

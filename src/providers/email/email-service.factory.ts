@@ -8,7 +8,7 @@ import {
 
 /**
  * Lives here rather than in `email.provider.ts` so the log-email destination can resolve
- * a transport without importing that module — `email.provider.ts` imports the logger, so
+ * a transport without importing that module - `email.provider.ts` imports the logger, so
  * going through it would close a cycle (logger -> destination -> email.provider -> logger).
  * This file deliberately imports nothing that reaches the logger.
  */

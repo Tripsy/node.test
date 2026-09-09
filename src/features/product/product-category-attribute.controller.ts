@@ -19,7 +19,7 @@ import { BaseController } from '@/shared/abstracts/controller.abstract';
  * carry, how each is captured, and which values are admissible.
  *
  * It holds no product data, which is why it is a module of its own rather than a branch of the
- * product payload — a definition outlives every product that answers to it.
+ * product payload - a definition outlives every product that answers to it.
  */
 class ProductCategoryAttributeController extends BaseController {
 	constructor(
@@ -128,7 +128,7 @@ class ProductCategoryAttributeController extends BaseController {
 	});
 
 	/**
-	 * The resolved form for a set of categories — the union across them and their ancestors,
+	 * The resolved form for a set of categories - the union across them and their ancestors,
 	 * deduped by label with the deepest category winning, split by scope.
 	 *
 	 * This is what the product editor renders from, so it takes the categories the form is

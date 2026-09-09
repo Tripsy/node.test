@@ -153,7 +153,7 @@ export const docs: Record<
 		withAuthErrors: true,
 		withErrors: [400, 404, 409, 422],
 		request: {
-			notes: `Provide at least one body parameter. Only an entry in ${CashFlowStatusEnum.PENDING}, ${CashFlowStatusEnum.AUTHORIZED} or ${CashFlowStatusEnum.REQUIRES_ACTION} can be updated — anything else answers 409. ${consistencyNote}, and the pair is re-checked against whichever half is left unchanged. status and parent_id are not updatable here`,
+			notes: `Provide at least one body parameter. Only an entry in ${CashFlowStatusEnum.PENDING}, ${CashFlowStatusEnum.AUTHORIZED} or ${CashFlowStatusEnum.REQUIRES_ACTION} can be updated - anything else answers 409. ${consistencyNote}, and the pair is re-checked against whichever half is left unchanged. status and parent_id are not updatable here`,
 			params: {
 				id: {
 					type: 'number',

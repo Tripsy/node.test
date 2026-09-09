@@ -16,7 +16,7 @@ import type { UserQuery } from '@/features/user/user.repository';
 import { UserService } from '@/features/user/user.service';
 import { createMockRepository } from '@/tests/jest-service.setup';
 
-// Derived from the configured frontend origin — that is exactly what the guard accepts.
+// Derived from the configured frontend origin - that is exactly what the guard accepts.
 const REDIRECT_URI = `${Configuration.get('frontend.url')}/auth/callback/google`;
 
 function getOAuthProfileMock(

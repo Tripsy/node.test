@@ -17,7 +17,7 @@ const baseConfig = {
 	 * One limiter instance is cached per type, so `register`, `passwordRecover` and
 	 * `emailConfirmSend` all share a single 10-per-15-minutes budget. In a suite that
 	 * counter carries across every test in the file, which makes results depend on how
-	 * many requests ran before — adding a case anywhere can push an unrelated one into a
+	 * many requests ran before - adding a case anywhere can push an unrelated one into a
 	 * 429. Nothing asserts rate-limiting behavior, so there is nothing to lose by
 	 * skipping it.
 	 *

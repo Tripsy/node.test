@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Adds `comment.notified_at` — the marker the four-hourly subscriber digest selects on.
+ * Adds `comment.notified_at` - the marker the four-hourly subscriber digest selects on.
  *
  * Existing rows are backfilled with their own `created_at` rather than left null: the column is
  * new but the comments are not, and a null would put every approved comment ever written into the

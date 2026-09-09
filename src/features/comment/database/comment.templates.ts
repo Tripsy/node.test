@@ -39,7 +39,7 @@ const commentTemplates: TemplateSeedEntry[] = [
 	 * The one template that ships in a second language, because it is the only one addressed to a
 	 * reader whose language the system actually knows: a subscription stores it, and the digest
 	 * asks for it. Everything else here is either staff-facing or sent inside a flow the user is
-	 * already reading in their own language. A language with no template still delivers — see the
+	 * already reading in their own language. A language with no template still delivers - see the
 	 * fallback in `loadEmailTemplate`.
 	 */
 	{

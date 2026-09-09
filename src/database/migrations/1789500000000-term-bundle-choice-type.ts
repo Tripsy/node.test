@@ -5,7 +5,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * They were written as `text` while `product_bundle_group` was being built. That is the
  * general-purpose type, so the prompt picker was searching the same pool as every other
- * free-standing string — a list too broad to choose from, and one an operator could pollute by
+ * free-standing string - a list too broad to choose from, and one an operator could pollute by
  * creating a prompt that then shows up wherever `text` terms are offered.
  *
  * Renamed and recreated rather than `ALTER TYPE ... ADD VALUE`, the shape
@@ -13,7 +13,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * new value in the same transaction, and TypeORM runs a migration inside one.
  *
  * Existing rows keep the type they have. Prompts already written as `text` stay `text` and stop
- * appearing in the picker — there is no way to tell them apart from any other `text` term, so
+ * appearing in the picker - there is no way to tell them apart from any other `text` term, so
  * guessing would reclassify strings that were never prompts. Re-pick the prompt on any bundle
  * choice saved before this.
  */
@@ -34,7 +34,7 @@ export class TermBundleChoiceType1789500000000 implements MigrationInterface {
 	}
 
 	/**
-	 * Any term written as `bundle_choice` becomes `text` on the way back — the type it would have
+	 * Any term written as `bundle_choice` becomes `text` on the way back - the type it would have
 	 * been written as before this migration. The bundle choices pointing at it keep working: a
 	 * `label_id` is a plain foreign key to `term` and the backend accepts any type behind it. Only
 	 * the picker's filter narrows, so the prompt still renders and only re-picking it is affected.

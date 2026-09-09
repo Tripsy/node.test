@@ -11,12 +11,12 @@ import { LogHistoryActionEnum } from '@/shared/types/log-history.type';
 
 /**
  * Audit only. These four overrides exist for their action mapping, which is deliberately *not* the
- * base class's — `beforeRemove` records `DELETED` and `afterSoftRemove` records `REMOVED`, the
+ * base class's - `beforeRemove` records `DELETED` and `afterSoftRemove` records `REMOVED`, the
  * reverse of `SubscriberAbstract`, and an update is recorded only when it is a restore. Do not
  * collapse them into the base; it would rewrite the audit trail.
  *
  * The cache these writes affect belongs to `user`, not to this table, and is dropped by
- * `UserPermissionService` — see the note there.
+ * `UserPermissionService` - see the note there.
  */
 @EventSubscriber()
 export class UserPermissionSubscriber extends SubscriberAbstract<UserPermissionEntity> {

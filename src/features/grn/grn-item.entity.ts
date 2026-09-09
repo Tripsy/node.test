@@ -7,12 +7,12 @@ import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 const ENTITY_TABLE_NAME = 'grn_item';
 
 /**
- * A received line — **and the FIFO lot it creates**. The two are the same row because a lot is
+ * A received line - **and the FIFO lot it creates**. The two are the same row because a lot is
  * exactly "these units, at this cost, received on this day", which is what a receipt line already
  * says.
  *
  * `qty_remaining` is the authoritative on-hand figure. Quantity for a variant in a warehouse is
- * `SUM(qty_remaining)` over its open lots on confirmed receipts — a handful of rows, rather than a
+ * `SUM(qty_remaining)` over its open lots on confirmed receipts - a handful of rows, rather than a
  * replay of the whole ledger. `warehouse_movement` is the audit trail that explains how it got
  * there, and a reconciliation job compares the two and reports drift rather than silently
  * correcting it.
@@ -32,7 +32,7 @@ const ENTITY_TABLE_NAME = 'grn_item';
 		'Received lines; each is a FIFO lot, and qty_remaining is the authoritative on-hand figure',
 })
 // One line per variant per receipt. A delivery that physically contains two lots of the same
-// variant — an old production run and a new one at a different cost, or two expiry dates — is
+// variant - an old production run and a new one at a different cost, or two expiry dates - is
 // entered as two receipts, so the document and the lot stay one-to-one
 @Index('IDX_grn_item_unique', ['grn_id', 'variant_id'], {
 	unique: true,
@@ -117,7 +117,7 @@ export default class GrnItemEntity extends EntityAbstract {
 	})
 	lot_code!: string | null;
 
-	// Costs nothing while unused, and is the difference between FIFO and FEFO later — a kitchen
+	// Costs nothing while unused, and is the difference between FIFO and FEFO later - a kitchen
 	// picks the soonest to expire, not the oldest received
 	@Column('date', {
 		nullable: true,

@@ -12,8 +12,8 @@ import { UserRoleEnum } from '@/shared/types/user-role.type';
 /**
  * Creates the first administrator, so a freshly migrated database has a way in.
  *
- * Written in the same standalone style as `permission.seed.ts` and `template.seed.ts` —
- * owning its connection lifecycle and runnable directly — rather than as a
+ * Written in the same standalone style as `permission.seed.ts` and `template.seed.ts` -
+ * owning its connection lifecycle and runnable directly - rather than as a
  * `SeedDefinition`, because this project has no seed runner to register one with.
  *
  * Credentials come from the environment and have no defaults, deliberately: a fallback
@@ -83,10 +83,10 @@ async function seedAdmin(): Promise<void> {
 
 				if (existing) {
 					// Deliberately does not reset the password of an existing
-					// administrator — re-running a bootstrap step must never lock
+					// administrator - re-running a bootstrap step must never lock
 					// someone out.
 					getSystemLogger().info(
-						`Administrator ${email} already exists — nothing to do`,
+						`Administrator ${email} already exists - nothing to do`,
 					);
 
 					return;
@@ -99,7 +99,7 @@ async function seedAdmin(): Promise<void> {
 					 * Plaintext on purpose: `UserSubscriber.beforeInsert` hashes
 					 * `password` on the way in, so a pre-hashed value would be hashed
 					 * twice and no login would ever match. The same hook fills
-					 * `password_updated_at`, which the recovery flow reads — hence not
+					 * `password_updated_at`, which the recovery flow reads - hence not
 					 * setting it here.
 					 */
 					password,

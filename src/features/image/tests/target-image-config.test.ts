@@ -9,7 +9,7 @@ import {
 
 /**
  * The registry that keeps `image` optional. Its own file because the provider slot is module
- * state with no way to unregister — a suite sharing the module with tests that expect the
+ * state with no way to unregister - a suite sharing the module with tests that expect the
  * unregistered default would have to depend on execution order to get it.
  *
  * Order matters within this file for the same reason: the empty-registry case runs first, since

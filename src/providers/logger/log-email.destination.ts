@@ -69,7 +69,7 @@ export class LogEmailDestination implements LogDestination {
 					text: body,
 					// Escaped, not sanitized: a log message can legitimately contain
 					// markup, and the reader needs to see it verbatim rather than
-					// have it stripped — or rendered.
+					// have it stripped - or rendered.
 					html: `<pre>${escapeHtml(body)}</pre>`,
 				},
 				from,
