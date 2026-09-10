@@ -13,7 +13,6 @@ import {
 	EntityAbstract,
 	type PageMeta,
 } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const CategoryStatusEnum = {
@@ -46,13 +45,13 @@ export type CategoryType =
 /**
  * How deep each tree may go, counting a root as 1.
  *
- * - `article` — parent category > category
- * - `product` — parent category > category > sub-category
+ * - `article` - parent category > category
+ * - `product` - parent category > category > sub-category
  *
  * The closure table has no notion of a ceiling, so nothing in the schema enforces this:
  * `CategoryService` checks it on create and on every re-parent, and the `can_parent` list
  * filter is what keeps a picker from offering a category that has no room left. A tree that
- * predates the limit is left alone — the rule bites on the next write, not retroactively.
+ * predates the limit is left alone - the rule bites on the next write, not retroactively.
  */
 export const CATEGORY_MAX_DEPTH: Record<CategoryType, number> = {
 	[CategoryTypeEnum.PRODUCT]: 3,
@@ -75,7 +74,6 @@ const ENTITY_TABLE_NAME = 'category';
 	comment: 'Hierarchical product categories',
 })
 @Tree('closure-table')
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_category_type', ['type', 'status'])
 export default class CategoryEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;

@@ -54,17 +54,21 @@ export class BrandValidator extends BaseValidator<typeof validatorMessages> {
 			BrandTypeEnum,
 			this.getMessage('invalid_brand_type'),
 		),
-		contents: this.contentsSchema
-			.array()
-			.min(1, this.getMessage('invalid_contents'))
-			.refine(
-				(contents) => {
-					const languages = contents.map((c) => c.language);
+		/*
+		 * No minimum, unlike the entities whose content row carries their wording: a brand
+		 * keeps its `name` and `slug` on the row itself, and every column of `brand_content` is
+		 * nullable - so demanding one would only force an editor to invent a description to
+		 * satisfy a row that may legitimately hold nothing. `update` never asked for one
+		 * either, and `saveContent` already returns early on an empty list.
+		 */
+		contents: this.contentsSchema.array().refine(
+			(contents) => {
+				const languages = contents.map((c) => c.language);
 
-					return new Set(languages).size === languages.length;
-				},
-				{ message: this.getMessage('duplicate_contents') },
-			),
+				return new Set(languages).size === languages.length;
+			},
+			{ message: this.getMessage('duplicate_contents') },
+		),
 	});
 
 	readonly read = z.object({
@@ -126,9 +130,17 @@ export class BrandValidator extends BaseValidator<typeof validatorMessages> {
 		defaultPage: 1,
 
 		filterSchema: {
-			id: this.validateNumber(this.getMessage('invalid_number'), {
-				required: false,
-			}),
+			/*
+			 * A list rather than a scalar, so a caller holding several ids - the discount view
+			 * naming its targets - resolves them all in one request. A single id still arrives
+			 * as one.
+			 */
+			id: this.validateIdFilter(
+				this.getMessage('invalid_ids', { name: 'id' }),
+				{
+					required: false,
+				},
+			),
 			term: this.validateString(this.getMessage('invalid_string'), {
 				required: false,
 				minChars: Configuration.get('filter.termMinLength'),
@@ -151,6 +163,33 @@ export class BrandValidator extends BaseValidator<typeof validatorMessages> {
 				this.getMessage('invalid_boolean'),
 				{ required: false },
 			).default(false),
+		},
+	});
+
+	readonly publicFind = this.validateFind({
+		orderByEnum: OrderByEnum,
+		defaultOrderBy: OrderByEnum.SORT_ORDER,
+
+		directionEnum: OrderDirectionEnum,
+		defaultDirection: OrderDirectionEnum.ASC,
+
+		defaultLimit: Configuration.get('filter.limit'),
+		defaultPage: 1,
+
+		filterSchema: {
+			language: this.validateLanguage(
+				this.getMessage('invalid_language'),
+				{ required: false },
+			),
+			brand_type: this.validateEnum(
+				BrandTypeEnum,
+				this.getMessage('invalid_brand_type'),
+				{ required: false },
+			).default(BrandTypeEnum.PRODUCT),
+			term: this.validateString(this.getMessage('invalid_string'), {
+				required: false,
+				minChars: Configuration.get('filter.termMinLength'),
+			}),
 		},
 	});
 

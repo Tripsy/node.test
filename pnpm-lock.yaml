@@ -56,9 +56,6 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
-      mysql2:
-        specifier: ^3.23.2
-        version: 3.23.2(@types/node@24.13.3)
       node-cron:
         specifier: ^4.6.0
         version: 4.6.0
@@ -91,7 +88,7 @@ importers:
         version: 2.17.6
       typeorm:
         specifier: ^1.1.0
-        version: 1.1.0(ioredis@5.11.1(supports-color@5.5.0))(mysql2@3.23.2(@types/node@24.13.3))(pg@8.22.0)(supports-color@5.5.0)
+        version: 1.1.0(ioredis@5.11.1(supports-color@5.5.0))(pg@8.22.0)(supports-color@5.5.0)
       uuid:
         specifier: ^14.0.1
         version: 14.0.1
@@ -191,6 +188,9 @@ packages:
   '@aws-sdk/core@3.977.1':
     resolution: {integrity: sha512-KVtQRtc00ES/y+Sc3vYXeP6pCIcNlBJCZOwvqSy8ZpVGmbM5+IG+AfhuTKQ2oXmIVqZJewaGMMpzPkywC6xg0w==}
     engines: {node: '>=20.0.0'}
+    deprecated: |-
+      Deprecated due to Document number parsing bug in JSON, see
+        https://github.com/aws/aws-sdk-js-v3/issues/8246. Newer version available.
 
   '@aws-sdk/credential-provider-env@3.972.62':
     resolution: {integrity: sha512-BkDrk2cNjed31IKin/Oksb2ziF+gfuyRskFVuT4EU9Mep7M8Y/d8DJG4+anHme4Vuse7CwaEscwEfGyR6mzBhQ==}
@@ -1396,6 +1396,7 @@ packages:
   cron-parser@4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
     engines: {node: '>=12.0.0'}
+    deprecated: v4 is no longer maintained, upgrade to v5
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -2260,12 +2261,6 @@ packages:
   mylas@2.1.14:
     resolution: {integrity: sha512-BzQguy9W9NJgoVn2mRWzbFrFWWztGCcng2QI9+41frfk+Athwgx3qhqhvStz7ExeUUu7Kzw427sNzHpEZNINog==}
     engines: {node: '>=16.0.0'}
-
-  mysql2@3.23.2:
-    resolution: {integrity: sha512-fxh3HpQ8vJtu/Mmnd4Xsur19jGjHGzRLMxptiDtOkbX7EVBgnafGSGDx1WGGVmJLClVh2LeeBMMo24IFv8wCyQ==}
-    engines: {node: '>= 8.0'}
-    peerDependencies:
-      '@types/node': '>= 8'
 
   named-placeholders@1.1.6:
     resolution: {integrity: sha512-Tz09sEL2EEuv5fFowm419c1+a/jSMiBjI9gHxVLrVdbUkkNUUfjsVYs9pVZu5oCon/kmRh9TfLEObFtkVxmY0w==}
@@ -4119,7 +4114,8 @@ snapshots:
 
   atomic-sleep@1.0.0: {}
 
-  aws-ssl-profiles@1.1.2: {}
+  aws-ssl-profiles@1.1.2:
+    optional: true
 
   axios@1.18.1(debug@4.4.3(supports-color@5.5.0))(supports-color@5.5.0):
     dependencies:
@@ -4726,6 +4722,7 @@ snapshots:
   generate-function@2.3.1:
     dependencies:
       is-property: 1.0.2
+    optional: true
 
   gensync@1.0.0-beta.2: {}
 
@@ -4914,7 +4911,8 @@ snapshots:
 
   is-promise@4.0.0: {}
 
-  is-property@1.0.2: {}
+  is-property@1.0.2:
+    optional: true
 
   is-stream@2.0.1: {}
 
@@ -5335,7 +5333,8 @@ snapshots:
 
   lodash.once@4.1.1: {}
 
-  long@5.3.2: {}
+  long@5.3.2:
+    optional: true
 
   lru-cache@10.4.3: {}
 
@@ -5343,7 +5342,8 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lru.min@1.1.4: {}
+  lru.min@1.1.4:
+    optional: true
 
   luxon@3.7.2: {}
 
@@ -5445,21 +5445,10 @@ snapshots:
 
   mylas@2.1.14: {}
 
-  mysql2@3.23.2(@types/node@24.13.3):
-    dependencies:
-      '@types/node': 24.13.3
-      aws-ssl-profiles: 1.1.2
-      denque: 2.1.0
-      generate-function: 2.3.1
-      iconv-lite: 0.7.3
-      long: 5.3.2
-      lru.min: 1.1.4
-      named-placeholders: 1.1.6
-      sql-escaper: 1.5.1
-
   named-placeholders@1.1.6:
     dependencies:
       lru.min: 1.1.4
+    optional: true
 
   nanoid@3.3.16: {}
 
@@ -5902,7 +5891,8 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sql-escaper@1.5.1: {}
+  sql-escaper@1.5.1:
+    optional: true
 
   sql-highlight@6.1.0: {}
 
@@ -6077,7 +6067,7 @@ snapshots:
       media-typer: 1.1.1
       mime-types: 3.0.2
 
-  typeorm@1.1.0(ioredis@5.11.1(supports-color@5.5.0))(mysql2@3.23.2(@types/node@24.13.3))(pg@8.22.0)(supports-color@5.5.0):
+  typeorm@1.1.0(ioredis@5.11.1(supports-color@5.5.0))(pg@8.22.0)(supports-color@5.5.0):
     dependencies:
       '@sqltools/formatter': 1.2.5
       ansis: 4.3.1
@@ -6091,7 +6081,6 @@ snapshots:
       yargs: 18.1.0
     optionalDependencies:
       ioredis: 5.11.1(supports-color@5.5.0)
-      mysql2: 3.23.2(@types/node@24.13.3)
       pg: 8.22.0
     transitivePeerDependencies:
       - babel-plugin-macros

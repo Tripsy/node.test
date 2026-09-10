@@ -5,6 +5,7 @@ import { addressSeed } from '@/features/address/database/address.seed';
 import { articleSeed } from '@/features/article/database/article.seed';
 import { brandSeed } from '@/features/brand/database/brand.seed';
 import { carrierSeed } from '@/features/carrier/database/carrier.seed';
+import { cartSeed } from '@/features/cart/database/cart.seed';
 import { cashFlowSeed } from '@/features/cash-flow/database/cash-flow.seed';
 import { categorySeed } from '@/features/category/database/category.seed';
 import { clientSeed } from '@/features/client/database/client.seed';
@@ -14,7 +15,9 @@ import { discountSeed } from '@/features/discount/database/discount.seed';
 import { documentSeriesSeed } from '@/features/document-series/database/document-series.seed';
 import { imageSeed } from '@/features/image/database/image.seed';
 import { placeSeed } from '@/features/place/database/place.seed';
+import { productSeed } from '@/features/product/database/product.seed';
 import { ratingSeed } from '@/features/rating/database/rating.seed';
+import { reviewSeed } from '@/features/review/database/review.seed';
 import { termSeed } from '@/features/term/database/term.seed';
 import { userSeed } from '@/features/user/database/user.seed';
 import { vendorSeed } from '@/features/vendor/database/vendor.seed';
@@ -24,7 +27,7 @@ import { vendorSeed } from '@/features/vendor/database/vendor.seed';
  * a seed reads the ids of its parents, so moving one earlier makes it find nothing.
  *
  * The `permission` and `template` seeds are not listed. They are reference data with
- * wipe-and-insert semantics, not demo volume, and are run on their own — as is
+ * wipe-and-insert semantics, not demo volume, and are run on their own - as is
  * `account/database/admin.seed.ts`, which is keyed to `ADMIN_EMAIL`/`ADMIN_PASSWORD` and
  * would make `pnpm run seed` require an environment to be configured.
  */
@@ -41,6 +44,9 @@ const seeds: readonly SeedDefinition[] = [
 	userSeed,
 	cashFlowSeed,
 	termSeed,
+	// Reads category, term, brand ids; seeds the category attribute definitions
+	// its products answer to before the products themselves
+	productSeed,
 	discountSeed,
 	// Reads discount ids alongside client, category and brand ids
 	discountTargetSeed,
@@ -50,10 +56,15 @@ const seeds: readonly SeedDefinition[] = [
 	imageSeed,
 	// Reads article and user ids
 	ratingSeed,
+	// Reads product, product variant and user ids
+	reviewSeed,
 	// Reads article and user ids; replies are inserted after the roots they hang from
 	commentSeed,
 	// Reads article, comment and user ids
 	complaintSeed,
+	// Reads product variant, product option and user ids; the lines cite variants, so it has to
+	// follow `productSeed`
+	cartSeed,
 ];
 
 function resolveSeeds(
@@ -85,7 +96,7 @@ try {
 	);
 
 	console.info(
-		`Seeding finished — ${inserted} row(s) inserted across ${summaries.length} entit${summaries.length === 1 ? 'y' : 'ies'} ✅`,
+		`Seeding finished - ${inserted} row(s) inserted across ${summaries.length} entit${summaries.length === 1 ? 'y' : 'ies'} ✅`,
 	);
 
 	process.exit(0);

@@ -4,7 +4,7 @@
  * The public site addresses an article as `/articles/<category>/<slug>`, so one filed under
  * nothing (or only under a product category) has no canonical URL and renders without a
  * chip. `ArticleValidator` now refuses to create such a row, but that rule cannot reach the
- * ones already stored — this is how they are found.
+ * ones already stored - this is how they are found.
  *
  * Usage: npx tsx cli/check-article-categories.ts [--fix]
  *   --fix  assigns each offender the article category with the fewest articles, so the

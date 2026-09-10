@@ -6,7 +6,7 @@ import { createMockQuery } from '@/tests/jest-service.setup';
 /*
  * Same shape as `account-cron-jobs.test.ts`: the job resolves its repository through
  * `dataSource.getRepository(...)`, which is never initialized under `test`, so the
- * repository module is replaced before the job is imported — under the ESM preset that
+ * repository module is replaced before the job is imported - under the ESM preset that
  * means `unstable_mockModule` plus a dynamic import.
  */
 const logDataQuery = createMockQuery() as unknown as jest.Mocked<LogDataQuery>;
@@ -52,7 +52,7 @@ describe('log-data cron jobs', () => {
 
 			const [column, from, to] = logDataQuery.filterByRange.mock.calls[0];
 
-			// `created_at`, not `expire_at` — `log_data` has no expiry of its own, the
+			// `created_at`, not `expire_at` - `log_data` has no expiry of its own, the
 			// retention window is the only thing bounding it.
 			expect(column).toBe('created_at');
 			expect(from).toBeUndefined();
@@ -64,7 +64,7 @@ describe('log-data cron jobs', () => {
 			expect((to as Date).getTime()).toBeGreaterThan(expected - 5000);
 			expect((to as Date).getTime()).toBeLessThan(expected + 5000);
 
-			// (isSoftDelete: false, multiple: true, force: true) — `log_data` has no
+			// (isSoftDelete: false, multiple: true, force: true) - `log_data` has no
 			// `deleted_at`, so a soft delete would silently no-op and the table would keep
 			// growing exactly as before.
 			expect(logDataQuery.delete).toHaveBeenCalledWith(false, true, true);

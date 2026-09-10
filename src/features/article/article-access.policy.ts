@@ -39,7 +39,7 @@ export class ArticleAccessPolicy {
 	 *
 	 * Every check fails closed: a rule that cannot be evaluated denies rather than allows. The
 	 * point of a restriction is that the uncertain case is the one it exists for. `rule` is
-	 * therefore required, not optional — a caller that has not loaded it passes `null` and is
+	 * therefore required, not optional - a caller that has not loaded it passes `null` and is
 	 * denied, rather than skipping the check by omission.
 	 *
 	 * The rule arrives from the caller because the caller owns the cache; `visibility` must
@@ -59,7 +59,7 @@ export class ArticleAccessPolicy {
 		}
 
 		if (!rule) {
-			// Marked restricted with nothing describing the restriction — the safe reading is
+			// Marked restricted with nothing describing the restriction - the safe reading is
 			// "restricted", not "public by accident"
 			throw new NotAllowedError(lang('article.error.access_restricted'));
 		}

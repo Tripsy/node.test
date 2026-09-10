@@ -1,7 +1,6 @@
 import type { DeepPartial } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/message.setup';
-import { Configuration } from '@/config/settings.config';
 import { BadRequestError, CustomError } from '@/exceptions';
 import CashFlowEntity, {
 	AMOUNT_DECIMALS,
@@ -34,6 +33,7 @@ import {
 } from '@/features/cash-flow/operational-record.entity';
 import { getOperationalRecordRepository } from '@/features/cash-flow/operational-record.repository';
 import { clientService } from '@/features/client/client.service';
+import { exchangeRateService } from '@/features/exchange-rate/exchange-rate.service';
 import { vendorService } from '@/features/vendor/vendor.service';
 import { arrayHasValue, pickValuesFromObject } from '@/helpers/objects.helper';
 import {
@@ -155,13 +155,40 @@ export class CashFlowService {
 		}
 	}
 
-	public getExchangeRate(selectedCurrency: Currency) {
-		if (selectedCurrency === Configuration.currency()) {
-			return 1;
+	/**
+	 * The rate this entry converts to the books at, frozen onto the row - see the
+	 * `exchange_rate` column and `GROSS_AMOUNT_BASE_CURRENCY_EXPRESSION`, which is what sums a
+	 * mixed-currency set of rows.
+	 *
+	 * A refund inherits the rate its parent was captured at instead of taking today's.
+	 * `checkRefund` has already established that the two are the same currency, so converting
+	 * the way back at a rate that has since moved would leave a residue in base currency that
+	 * no payment ever produced - an FX gain is its own entry, not part of a refund.
+	 *
+	 * There is no fallback when the currency has never been published. Converting at an invented
+	 * rate silently mis-states every base-currency total that sums this column, so the entry is
+	 * refused instead and the rate is entered by hand or imported first.
+	 */
+	public async getExchangeRate(
+		selectedCurrency: Currency,
+		parentEntry?: CashFlowEntity | null,
+	): Promise<number> {
+		if (parentEntry) {
+			return parentEntry.exchange_rate;
 		}
 
-		// TODO - not implemented
-		return 1.1;
+		// Answers 1 for the deployment's own currency without a query
+		const rate = await exchangeRateService.getRateAsOf(selectedCurrency);
+
+		if (rate === null) {
+			throw new BadRequestError(
+				lang('cash-flow.error.exchange_rate_unavailable', {
+					currency: selectedCurrency,
+				}),
+			);
+		}
+
+		return rate;
 	}
 
 	public async getRefundedAmountSum(parent_id: number): Promise<number> {
@@ -260,8 +287,11 @@ export class CashFlowService {
 		this.checkCategory(data.category, data.parent_id);
 		this.checkOperationalRecords(data.category, data.operational_records);
 
+		// Held beyond the refund checks: a refund takes its rate from the entry it reverses
+		let parentEntry: CashFlowEntity | null = null;
+
 		if (data.parent_id) {
-			const parentEntry = await this.findById(data.parent_id, false);
+			parentEntry = await this.findById(data.parent_id, false);
 
 			const refundedAmount = await this.getRefundedAmountSum(
 				data.parent_id,
@@ -284,7 +314,7 @@ export class CashFlowService {
 			amount: inputAmount,
 			vat_rate: data.vat_rate,
 			currency: currency,
-			exchange_rate: this.getExchangeRate(currency),
+			exchange_rate: await this.getExchangeRate(currency, parentEntry),
 			external_reference: data.external_reference,
 			parent_id: data.parent_id,
 			notes: data.notes,
@@ -377,11 +407,13 @@ export class CashFlowService {
 			);
 		}
 
+		let parentEntry: CashFlowEntity | null = null;
+
 		if (
 			entry.parent_id &&
 			(data.category || data.amount || data.currency)
 		) {
-			const parentEntry = await this.findById(entry.parent_id, false);
+			parentEntry = await this.findById(entry.parent_id, false);
 
 			const refundedAmount = await this.getRefundedAmountSum(
 				entry.parent_id,
@@ -394,6 +426,20 @@ export class CashFlowService {
 				parentEntry: parentEntry,
 				refundedAmount: refundedAmount,
 			});
+		}
+
+		/*
+		 * The rate belongs to the currency it was quoted for, and `exchange_rate` is not in
+		 * `paramsUpdateList` - so a currency changed on its own would leave the row converting
+		 * at a rate nobody ever published for it. Re-read at the *current* day rather than the
+		 * day of the entry: the amount is being restated now, and the entry is still in a
+		 * mutable status, so it has not been reported on.
+		 */
+		if (data.currency && data.currency !== entry.currency) {
+			entry.exchange_rate = await this.getExchangeRate(
+				data.currency,
+				parentEntry,
+			);
 		}
 
 		const operationalRecords = this.dropInvalidOperationalRecords(

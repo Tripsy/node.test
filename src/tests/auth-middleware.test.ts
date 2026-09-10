@@ -9,8 +9,8 @@ import { createMockRepository } from '@/tests/jest-service.setup';
 /*
  * `createApp()` skips `authMiddleware` under APP_ENV=test (see `app.ts`), which is what
  * lets every other controller test simulate auth by spying on the policy. That also means
- * nothing in the suite exercises the middleware itself — so this file mounts it directly on
- * a minimal app: output handler, the middleware, and the one route that serialises whatever
+ * nothing in the suite exercises the middleware itself - so this file mounts it directly on
+ * a minimal app: output handler, the middleware, and the one route that serializes whatever
  * the middleware produced.
  *
  * The property under test is that the password hash never reaches the response.
@@ -28,7 +28,7 @@ jest.unstable_mockModule('@/features/user/user.repository', () => ({
 	getUserRepository: () => mockUser.repository,
 }));
 
-// `findByToken` is stubbed below, so the query side of this repository is never reached —
+// `findByToken` is stubbed below, so the query side of this repository is never reached -
 // only the `update` the middleware makes to slide the token's expiry forward, and the
 // fire-and-forget cleanup helper.
 jest.unstable_mockModule('@/features/account/account-token.repository', () => ({

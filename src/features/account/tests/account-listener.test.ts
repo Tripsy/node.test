@@ -76,7 +76,7 @@ describe('registerAccountListener', () => {
 
 		/*
 		 * Regression guard. This listener used to be `async`, which turned the throw into
-		 * an unhandled rejection — and `server.ts` responds to those by shutting the
+		 * an unhandled rejection - and `server.ts` responds to those by shutting the
 		 * server down. A failed welcome email must not take the API with it.
 		 */
 		expect(() =>

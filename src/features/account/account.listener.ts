@@ -14,7 +14,7 @@ export default function registerAccountListener() {
 		 *
 		 * Inside the previous `async` listener that throw became a rejected promise
 		 * nothing awaited, and `server.ts` turns an unhandled rejection into a full
-		 * graceful shutdown — so a bad mail template would have taken the API down on the
+		 * graceful shutdown - so a bad mail template would have taken the API down on the
 		 * next registration. The account is already created by this point; a failed
 		 * follow-up mail is worth logging, not worth failing over.
 		 */

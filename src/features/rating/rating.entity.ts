@@ -47,7 +47,7 @@ const ENTITY_TABLE_NAME = 'rating';
  * rated, `updated_at` when they last changed it.
  *
  * Deliberately **not** `EntityAbstract`: this table has no `deleted_at`. A withdrawn rating has to
- * leave the table outright — a soft-deleted row goes on holding its slot under both uniques, so
+ * leave the table outright - a soft-deleted row goes on holding its slot under both uniques, so
  * nobody at that address could ever rate the target again, and it would keep counting in the
  * aggregates. Both deletes are therefore hard, and there is no `restore` to pair with them.
  *
@@ -55,7 +55,7 @@ const ENTITY_TABLE_NAME = 'rating';
  * row carries, so a reader moving from stars to a like is casting a different rating, not
  * changing this one.
  *
- * A rating is rationed twice over — once per origin address and once per account — so both uniques
+ * A rating is rationed twice over - once per origin address and once per account - so both uniques
  * have to be reckoned with on write: an insert can collide on either, and the two say different
  * things to the caller ("you already rated this" against "this address already has").
  *
@@ -68,8 +68,8 @@ const ENTITY_TABLE_NAME = 'rating';
 	schema: 'public',
 })
 // One rating per target per origin, signed in or not: the address is what is actually being
-// rationed, so a second account does not buy a second vote. Two people sharing an address — a
-// household, an office, a mobile carrier's NAT — get one vote between them, which is the cost of
+// rationed, so a second account does not buy a second vote. Two people sharing an address - a
+// household, an office, a mobile carrier's NAT - get one vote between them, which is the cost of
 // counting by origin rather than by identity.
 @Index('UQ_rating_ip', ['entity_type', 'entity_id', 'type', 'user_ip_hash'], {
 	unique: true,
@@ -145,7 +145,7 @@ export default class RatingEntity {
 
 	// RELATIONS
 	// Cascade rather than SET NULL: nulling `user_id` does not remove the rating, it turns a
-	// member's vote into a guest one that keeps counting in every aggregate — and the row goes on
+	// member's vote into a guest one that keeps counting in every aggregate - and the row goes on
 	// holding its slot under `UQ_rating_ip`, so nobody at that address can rate the target again.
 	@ManyToOne('UserEntity', {
 		onDelete: 'CASCADE',

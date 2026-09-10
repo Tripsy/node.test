@@ -23,7 +23,7 @@ export const RATING_STARS_MAX = 5;
 
 /**
  * How many targets one summary request may ask about. A comment thread reads a page of comments
- * at a time, so the cap sits above a page and well below "every rating in the table" — the point
+ * at a time, so the cap sits above a page and well below "every rating in the table" - the point
  * is that a caller cannot turn one request into a full scan.
  */
 export const RATING_SUMMARY_MAX_TARGETS = 50;
@@ -75,26 +75,26 @@ export class RatingValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * One shape per rating type rather than one object carrying three optional columns.
 	 * `CHK_rating_reaction` and `CHK_rating_value` hold the same rule in the database, so a
-	 * looser schema here does not admit the row — it turns a 422 the caller can act on into a
+	 * looser schema here does not admit the row - it turns a 422 the caller can act on into a
 	 * constraint violation, which reaches them as a masked 500.
 	 */
 	private ratingSchema() {
 		return z.discriminatedUnion('type', [
-			// Like — a direction, no reaction
+			// Like - a direction, no reaction
 			z.object({
 				...this.targetSchema(),
 				type: z.literal(RatingTypeEnum.LIKE),
 				value: this.likeValueSchema(),
 			}),
 
-			// Stars — a score, no reaction
+			// Stars - a score, no reaction
 			z.object({
 				...this.targetSchema(),
 				type: z.literal(RatingTypeEnum.STARS),
 				value: this.starsValueSchema(),
 			}),
 
-			// Emoji — a reaction, no value
+			// Emoji - a reaction, no value
 			z.object({
 				...this.targetSchema(),
 				type: z.literal(RatingTypeEnum.EMOJI),
@@ -110,7 +110,7 @@ export class RatingValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * The same shape as `create`, and necessarily so: the target and `type` address the row and
-	 * are not editable, while `value` / `reaction` are the payload — which is exactly what a
+	 * are not editable, while `value` / `reaction` are the payload - which is exactly what a
 	 * cast carries. The controller merges the params holding the first three with the body
 	 * holding the rest, so one schema validates the whole request.
 	 */
@@ -143,7 +143,7 @@ export class RatingValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	/**
-	 * The same summary for a set of targets at once — what a list of rated things needs, and the
+	 * The same summary for a set of targets at once - what a list of rated things needs, and the
 	 * only shape that keeps a comment thread from issuing one request per comment.
 	 *
 	 * The ids arrive as a comma-separated query value, which is what a URL can carry; anything

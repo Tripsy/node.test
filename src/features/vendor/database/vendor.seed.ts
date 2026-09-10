@@ -16,7 +16,7 @@ const TARGET = 15;
 
 /**
  * Trades a haulier actually buys from, paired into a readable trade name. The trade carries the
- * vendor type with it — what is bought is what decides it, and hard-coding the pair keeps the row
+ * vendor type with it - what is bought is what decides it, and hard-coding the pair keeps the row
  * a pure function of the index, which `topUp` requires.
  */
 const VENDOR_TRADES: ReadonlyArray<readonly [string, VendorType]> = [

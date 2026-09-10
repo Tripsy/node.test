@@ -47,7 +47,6 @@
 		"helmet": "^8.3.0",
 		"ioredis": "^5.11.1",
 		"jsonwebtoken": "^9.0.3",
-		"mysql2": "^3.23.2",
 		"node-cron": "^4.6.0",
 		"nodemailer": "^9.0.3",
 		"nunjucks": "^3.2.4",

@@ -3,14 +3,13 @@ import type { ClientTypeEnum } from '@/features/client/client.entity';
 import type { DiscountSnapshot } from '@/features/discount/discount.entity';
 import type OrderEntity from '@/features/order/order.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 export const InvoiceStatusEnum = {
 	DRAFT: 'draft', // Initial state, not sent to customer
 	ISSUED: 'issued', // Invoice issued to customer
 	PAID: 'paid', // Payment received in full
 	OVERDUE: 'overdue', // Past due date, payment not received
-	CANCELLED: 'cancelled', // Invoice invalidated
+	CANCELLED: 'canceled', // Invoice invalidated
 	REFUNDED: 'refunded', // Payment returned to the customer
 } as const;
 
@@ -86,7 +85,6 @@ const ENTITY_TABLE_NAME = 'invoice';
 	schema: 'public',
 	comment: 'Stores invoices generated from orders',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_invoice_ref', ['ref_code', 'ref_number'], {
 	unique: true,
 	where: 'deleted_at IS NULL',

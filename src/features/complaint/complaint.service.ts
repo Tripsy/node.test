@@ -42,7 +42,7 @@ export class ComplaintService {
 	 * @description Used in `create` method from the public controller
 	 *
 	 * Strictly an insert. A reporter who already has a live complaint on this target is told so
-	 * rather than silently overwriting it — they amend it through `updateOwn` — because the second
+	 * rather than silently overwriting it - they amend it through `updateOwn` - because the second
 	 * filing would otherwise erase the text a moderator may already be reading.
 	 *
 	 * `UQ_complaint_user` is scoped to live rows, so a withdrawn complaint leaves the slot free and
@@ -53,7 +53,7 @@ export class ComplaintService {
 		userId: number,
 	): Promise<ComplaintEntity> {
 		/*
-		 * The target decides whether it still takes reports — an article whose editor turned
+		 * The target decides whether it still takes reports - an article whose editor turned
 		 * them off answers no, and one that is gone answers no for everything. A target with
 		 * no resolver registered is open, which is every one of them but `article`.
 		 */
@@ -97,13 +97,13 @@ export class ComplaintService {
 	 * Tells whoever owns the target that it has been reported, and by how many separate people.
 	 *
 	 * Only a filing announces: an amendment changes what a complaint says, not who stands behind
-	 * it, and a withdrawal lowers a count that has already been acted on — a moderator's decision
+	 * it, and a withdrawal lowers a count that has already been acted on - a moderator's decision
 	 * is not unmade by the reporter who asked for it. A restored complaint stays quiet for the same
 	 * reason, being a decision in the other direction.
 	 *
 	 * Awaited rather than backgrounded: the count is the point of the event, and a listener acting
 	 * on a stale one would flag the wrong target. What listeners then do with it is their own
-	 * concern — `complaint` neither knows nor waits for it.
+	 * concern - `complaint` neither knows nor waits for it.
 	 */
 	private async announceFiled(
 		entityType: ComplaintEntityType,
@@ -126,7 +126,8 @@ export class ComplaintService {
 	): Promise<number> {
 		return this.repository
 			.createQuery()
-			.filterByTarget(entityType, entityId)
+			.filterBy('entity_type', entityType)
+			.filterBy('entity_id', entityId)
 			.countDistinctReporters();
 	}
 
@@ -138,7 +139,7 @@ export class ComplaintService {
 	 * after the fact would leave that decision explaining text nobody ever read.
 	 *
 	 * Addressed by target plus the caller, so the row this resolves to is by construction one they
-	 * may write. `firstOrFail` answers 404 when they hold no complaint on the target — the same
+	 * may write. `firstOrFail` answers 404 when they hold no complaint on the target - the same
 	 * answer somebody else's complaint gives.
 	 */
 	public async updateOwn(
@@ -173,7 +174,7 @@ export class ComplaintService {
 	 * releases its slot under `UQ_complaint_user`, while staying readable to anyone reviewing what
 	 * was reported and later taken back.
 	 *
-	 * Refused once resolved, for the same reason `updateOwn` is — a moderator's decision cannot be
+	 * Refused once resolved, for the same reason `updateOwn` is - a moderator's decision cannot be
 	 * unmade by the person who asked for it.
 	 */
 	public async deleteOwn(
@@ -206,8 +207,9 @@ export class ComplaintService {
 		return this.repository
 			.createQuery()
 			.select(OWN_COLUMNS)
-			.filterByTarget(data.entity_type, data.entity_id)
-			.filterByOwner(userId)
+			.filterBy('entity_type', data.entity_type)
+			.filterBy('entity_id', data.entity_id)
+			.filterBy('user_id', userId)
 			.first();
 	}
 
@@ -218,8 +220,9 @@ export class ComplaintService {
 	): Promise<ComplaintEntity> {
 		return this.repository
 			.createQuery()
-			.filterByTarget(entityType, entityId)
-			.filterByOwner(userId)
+			.filterBy('entity_type', entityType)
+			.filterBy('entity_id', entityId)
+			.filterBy('user_id', userId)
 			.firstOrFail();
 	}
 
@@ -227,7 +230,7 @@ export class ComplaintService {
 	 * @description Used in `resolveUpdate` method from the dashboard controller
 	 *
 	 * Both directions of the moderation decision. `CHK_complaint_resolved` ties the flag to the
-	 * timestamp, so reopening has to clear `resolved_at` — and `resolved_by` with it, since a
+	 * timestamp, so reopening has to clear `resolved_at` - and `resolved_by` with it, since a
 	 * moderator's name against a complaint nobody has decided on reads as a decision.
 	 *
 	 * `resolvedBy` is nullable because the column is: the caller is authenticated here, but a
@@ -292,7 +295,7 @@ export class ComplaintService {
 		} catch (error) {
 			/*
 			 * A target nobody reported is the ordinary case, and `RepositoryAbstract.delete`
-			 * reports "nothing matched" as a 404 — meaningful when a caller named one row, noise
+			 * reports "nothing matched" as a 404 - meaningful when a caller named one row, noise
 			 * when the caller is a cleanup sweeping ids it has no expectations about.
 			 */
 			if (!(error instanceof NotFoundError)) {
@@ -309,7 +312,7 @@ export class ComplaintService {
 	 * @description Used in `read` method from the dashboard controller
 	 *
 	 * The target is returned as the pair of columns that name it and nothing more. There is no
-	 * foreign key to join through — `entity_type` picks the table at read time — and a comment is
+	 * foreign key to join through - `entity_type` picks the table at read time - and a comment is
 	 * hard-deleted, so a complaint whose `entity_id` no longer resolves is a normal row here rather
 	 * than a broken one.
 	 */
@@ -353,7 +356,8 @@ export class ComplaintService {
 				'user.id',
 				'user.name',
 			])
-			.filterByTarget(data.filter.entity_type, data.filter.entity_id)
+			.filterBy('entity_type', data.filter.entity_type)
+			.filterBy('entity_id', data.filter.entity_id)
 			.filterBy('reason', data.filter.reason)
 			.filterBy('user_id', data.filter.user_id)
 			.filterBy('resolved_by', data.filter.resolved_by)

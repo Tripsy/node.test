@@ -11,7 +11,7 @@ export class LogDataCategory1787453095727 implements MigrationInterface {
 	 * `history` and `cron`, so no row has ever carried either of the dropped values. Severity
 	 * is `level`, which is a separate enum and untouched here.
 	 *
-	 * The index on (level, category, created_at) is not dropped and recreated — Postgres
+	 * The index on (level, category, created_at) is not dropped and recreated - Postgres
 	 * rebuilds an index over an altered column on its own.
 	 */
 	public async up(queryRunner: QueryRunner): Promise<void> {

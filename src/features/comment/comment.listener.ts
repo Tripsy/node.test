@@ -17,8 +17,8 @@ import { runInBackground } from '@/helpers/background.helper';
  *
  * A listener rather than a step inside `create`: whether commenting also means subscribing is a
  * policy about notifications, and a failure to record it must not fail the comment somebody has
- * just written. `subscribe` is insert-or-ignore, so a second comment on the same discussion — and
- * a comment from somebody who has since opted out — leaves the existing row alone.
+ * just written. `subscribe` is insert-or-ignore, so a second comment on the same discussion - and
+ * a comment from somebody who has since opted out - leaves the existing row alone.
  */
 const COMMENT_ENTITY_TYPES: readonly string[] = Object.values(
 	CommentEntityTypeEnum,
@@ -37,12 +37,12 @@ function isCommentTarget(entityType: string): entityType is CommentEntityType {
 }
 
 /**
- * Clears the discussion on targets that have just been hard-deleted — the comments and the
+ * Clears the discussion on targets that have just been hard-deleted - the comments and the
  * subscriptions to them alike.
  *
  * Roots only, one target at a time: `deleteByTarget` walks each root's subtree, and the replies
  * follow through the cascade. The subscriptions go in the same pass because they are keyed by the
- * same target and nothing else would ever remove them — a subscriber would otherwise keep a live
+ * same target and nothing else would ever remove them - a subscriber would otherwise keep a live
  * unsubscribe token for a discussion that no longer exists.
  */
 async function clearTargets(
@@ -82,12 +82,12 @@ async function subscribeAuthor(
  *
  * The rule lives here rather than in `complaint` because it is a rule about comments: what a
  * count of reports means, and what a comment does about it, is this feature's business. All the
- * event carries is the count — `complaint` knows how to count reporters, and nothing else.
+ * event carries is the count - `complaint` knows how to count reporters, and nothing else.
  *
  * Fire-and-forget through `runInBackground`, so a failed flag logs instead of rejecting into
  * `server.ts`'s `unhandledRejection` handler, which would shut the API down. The complaints
  * themselves are already stored and sitting in the moderation queue, so nothing is lost when this
- * fails — the comment simply stays up until somebody acts on them.
+ * fails - the comment simply stays up until somebody acts on them.
  */
 export default function registerCommentListener() {
 	eventEmitter.on('commentPosted', (payload: CommentPostedEventPayload) => {

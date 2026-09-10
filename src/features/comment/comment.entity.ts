@@ -13,8 +13,13 @@ import type UserEntity from '@/features/user/user.entity';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 /**
- * What a comment can hang from. A product is absent on purpose: what a buyer writes about a
- * product is a `review`, and a comment reaches it by targeting that review.
+ * What a comment can hang from. `article` is the only one in use: a product is not a target, and
+ * neither is a review - a review is one buyer's statement about a product, moderated and scored on
+ * its own, not a thread other readers reply to.
+ *
+ * `review` stays in the enum because dropping a value from a Postgres enum means recreating the
+ * type, and nothing writes it. Reading it as available is a mistake: the storefront renders no
+ * comment section on a review, and no feature registers a participation resolver for one.
  */
 export const CommentEntityTypeEnum = {
 	ARTICLE: 'article',
@@ -23,6 +28,19 @@ export const CommentEntityTypeEnum = {
 
 export type CommentEntityType =
 	(typeof CommentEntityTypeEnum)[keyof typeof CommentEntityTypeEnum];
+
+/**
+ * The targets a *new* comment may name. Narrower than the enum above, which stays as the column's
+ * full domain - reads, filters and any row already written keep working against it - while a write
+ * is refused for anything not listed here.
+ *
+ * Without this the public `create` would accept `review` and store a comment nobody can reach:
+ * `entity_type`/`entity_id` carries no foreign key, and no participation resolver answers for a
+ * review, so an unreachable id is not caught anywhere else either.
+ */
+export const CommentWritableEntityTypeEnum = {
+	ARTICLE: CommentEntityTypeEnum.ARTICLE,
+} as const;
 
 export const CommentStatusEnum = {
 	PENDING: 'pending', // Awaiting moderation
@@ -71,14 +89,14 @@ export type CommentType =
 const ENTITY_TABLE_NAME = 'comment';
 
 /**
- * Comments are hard-deleted — no `deleted_at`, so `EntityAbstract` is not the base here — and
+ * Comments are hard-deleted - no `deleted_at`, so `EntityAbstract` is not the base here - and
  * `parent_id` cascades so a subtree goes with its root. `rating` and `complaint` point at comments
  * polymorphically, with no foreign key to carry that cascade: `CommentService` resolves the subtree
  * and clears them, along with the parent's `reply_count`, in the same transaction which performs
  * the `delete` operation.
  *
- * The target (`entity_type` + `entity_id`) has no foreign key either, so an article or review that
- * goes away leaves its comments behind for the same service call, or for the orphan sweep.
+ * The target (`entity_type` + `entity_id`) has no foreign key either, so an article that goes away
+ * leaves its comments behind for the same service call, or for the orphan sweep.
  */
 @Entity({
 	name: ENTITY_TABLE_NAME,
@@ -87,8 +105,8 @@ const ENTITY_TABLE_NAME = 'comment';
 })
 /**
  * The thread read, which is the hottest query on this table: one target, the approved rows only,
- * one level of the tree at a time — `parent_id IS NULL` for the roots, `parent_id = ?` for the
- * replies under one of them — newest first.
+ * one level of the tree at a time - `parent_id IS NULL` for the roots, `parent_id = ?` for the
+ * replies under one of them - newest first.
  *
  * `type` is not in it. Three values over a table dominated by `comment` buy almost no selectivity,
  * and sitting between the target and `status` they would have cost every thread read the ordering
@@ -106,7 +124,7 @@ const ENTITY_TABLE_NAME = 'comment';
 @Index('IDX_comment_moderation', ['created_at'], {
 	where: `status = 'pending'`,
 })
-// One author's history, which the dashboard lists newest first — the trailing `created_at` is what
+// One author's history, which the dashboard lists newest first - the trailing `created_at` is what
 // keeps that ordering inside the index scan.
 @Index('IDX_comment_user_status', ['user_id', 'status', 'created_at'])
 @Index('IDX_comment_user_ip_hash', ['user_ip_hash', 'created_at'])
@@ -159,7 +177,7 @@ export default class CommentEntity {
 	 * When the text was last rewritten, and null for a comment nobody has touched since posting.
 	 *
 	 * A column of its own rather than a comparison against `updated_at`: that one moves for every
-	 * save on the row — a moderation decision, a pin — so reading it as "edited" would put the
+	 * save on the row - a moderation decision, a pin - so reading it as "edited" would put the
 	 * marker on comments whose author never went back to them. Written only where `content`
 	 * actually changes.
 	 */
@@ -219,7 +237,7 @@ export default class CommentEntity {
 	})
 	guest_website?: string | null;
 
-	// Direct replies only — a subtree count would have to be walked up the whole ancestor chain on
+	// Direct replies only - a subtree count would have to be walked up the whole ancestor chain on
 	// every write, while this one moves by 1 for a single parent.
 	@Column({
 		type: 'int',
@@ -264,7 +282,7 @@ export default class CommentEntity {
 
 	/**
 	 * When this comment went out in a subscriber digest, so the four-hourly run does not send it
-	 * twice. Null means "not yet announced", which is what the run selects on — and what a comment
+	 * twice. Null means "not yet announced", which is what the run selects on - and what a comment
 	 * approved but never notified stays until it is.
 	 *
 	 * Stamped whether or not anybody was notified: a target with no subscribers still has to leave

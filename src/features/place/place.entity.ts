@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import type PlaceContentEntity from '@/features/place/place-content.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 export const PlaceTypeEnum = {
 	COUNTRY: 'country',
@@ -25,7 +24,6 @@ const ENTITY_TABLE_NAME = 'place';
 	schema: 'public',
 	comment: 'Places (countries, regions, cities)',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 export default class PlaceEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;

@@ -4,7 +4,6 @@ import type { DiscountSnapshot } from '@/features/discount/discount.entity';
 import type OrderEntity from '@/features/order/order.entity';
 import type WarehouseEntity from '@/features/warehouse/warehouse.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 export const ShippingStatusEnum = {
@@ -26,7 +25,6 @@ const ENTITY_TABLE_NAME = 'order_shipping';
 	schema: 'public',
 	comment: 'Stores shipping details for orders',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 export default class OrderShippingEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
@@ -56,14 +54,14 @@ export default class OrderShippingEntity extends EntityAbstract {
 	carrier_id!: number | null;
 
 	/**
-	 * Where the goods are picked from — the origin, as opposed to the address snapshot below, which
+	 * Where the goods are picked from - the origin, as opposed to the address snapshot below, which
 	 * is the destination.
 	 *
 	 * Set per shipment rather than per order, so one order can ship from two warehouses. It is also
 	 * what makes FIFO possible: a lot cannot be chosen before the warehouse holding it is known,
 	 * which is why stock leaves on the shipping transition rather than on order confirmation.
 	 *
-	 * Required, because everything physically shipped leaves from somewhere — a restaurant's
+	 * Required, because everything physically shipped leaves from somewhere - a restaurant's
 	 * kitchen is a warehouse in every sense this column cares about. `warehouse.is_default` covers
 	 * the single-site case so nothing has to be chosen by hand.
 	 */

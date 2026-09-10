@@ -2,12 +2,11 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type OrderEntity from '@/features/order/order.entity';
 import type UserEntity from '@/features/user/user.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 export const SubscriptionStatusEnum = {
 	ACTIVE: 'active',
 	PAUSED: 'paused',
-	CANCELLED: 'cancelled',
+	CANCELLED: 'canceled',
 	EXPIRED: 'expired',
 } as const;
 
@@ -21,7 +20,6 @@ const ENTITY_TABLE_NAME = 'subscription';
 	schema: 'public',
 	comment: 'Recurring subscriptions created from orders',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_subscription_end_at', ['end_at', 'status'])
 export default class SubscriptionEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
@@ -68,7 +66,7 @@ export default class SubscriptionEntity extends EntityAbstract {
 
 	@Column('timestamp', {
 		nullable: true,
-		comment: 'When the subscription ended (if cancelled/expired)',
+		comment: 'When the subscription ended (if canceled/expired)',
 	})
 	end_at!: Date | null;
 

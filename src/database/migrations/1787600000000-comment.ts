@@ -2,7 +2,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
  * The `comment` feature's two tables only. `review` and `complaint` are still unmigrated entities,
- * so a generated migration carries them too — this one was cut down to what the comment feature
+ * so a generated migration carries them too - this one was cut down to what the comment feature
  * needs to run, along with the `document_series` column drops and the foreign-key renames the same
  * generation swept up from unrelated drift.
  *

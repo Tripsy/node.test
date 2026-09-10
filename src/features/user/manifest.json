@@ -15,6 +15,7 @@
 		"complaint",
 		"rating",
 		"review",
-		"stats"
+		"stats",
+		"cart"
 	]
 }

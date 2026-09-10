@@ -11,7 +11,7 @@ import type { LogDataLevel } from '@/shared/types/log-data.type';
 /**
  * Persists log lines to `log_data` for the dashboard's log viewer.
  *
- * Silently skipped while the data source is uninitialized — logs are emitted during
+ * Silently skipped while the data source is uninitialized - logs are emitted during
  * bootstrap and shutdown, when the connection either doesn't exist yet or is already gone,
  * and a rejected insert there would be reported through the very logger that produced it.
  */

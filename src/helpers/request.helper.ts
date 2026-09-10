@@ -18,7 +18,7 @@ export function getRouteParam(req: Request, name: string): string | undefined {
  * deployment sets. There is no geo-IP lookup in this project: the code always comes from a
  * proxy the API sits behind, so a deployment with no such proxy simply has no country.
  *
- * A caller that gates access on this must treat `undefined` as "unknown", not as "allowed" —
+ * A caller that gates access on this must treat `undefined` as "unknown", not as "allowed" -
  * the header is absent both when nobody set it and when a client strips it.
  *
  * @param {Request} req - The request to read the country from

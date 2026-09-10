@@ -3,7 +3,7 @@
 Local [MCP](https://modelcontextprotocol.io) servers giving Claude Code direct access to this project's infrastructure. One shared package, one `node_modules`, multiple servers.
 
 - **Transport:** stdio (Claude Code spawns each server)
-- **Config:** reads the project-root `.env` — no separate credentials
+- **Config:** reads the project-root `.env` - no separate credentials
 - **Access:** read-only by default; writes are gated
 
 ## Layout
@@ -34,12 +34,12 @@ src/
 | `redis_scan` | Non-blocking `SCAN` by glob pattern (never `KEYS`). |
 | `redis_ttl` / `redis_info` | Key TTL / server INFO. |
 | `redis_set` / `redis_expire` / `redis_del` | Targeted writes. |
-| `redis_flush` | `FLUSHDB` — refused unless `allowDestructive: true`. |
+| `redis_flush` | `FLUSHDB` - refused unless `allowDestructive: true`. |
 
 ## Safety model
 
 1. **Read-only is structural** on Postgres (`BEGIN TRANSACTION READ ONLY`).
-2. **Destructive ops are gated** (`allowDestructive: true`) — defense-in-depth on top of Claude Code's own tool-permission prompt (`.claude/rules/database.md` §6.1).
+2. **Destructive ops are gated** (`allowDestructive: true`) - defense-in-depth on top of Claude Code's own tool-permission prompt (`.claude/rules/database.md` §6.1).
 3. **Parameterize** all user input (`$1,$2…` for SQL; explicit key names for Redis).
 
 ## Connection

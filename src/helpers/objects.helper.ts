@@ -76,7 +76,7 @@ export function setObjectValue(
 }
 
 /**
- * A plain `{}` or an object with a null prototype — something whose contents live in its own
+ * A plain `{}` or an object with a null prototype - something whose contents live in its own
  * enumerable properties. A `Date`, `RegExp` or class instance is not: its value is internal
  * state, so `Object.values()` on one returns `[]`.
  */
@@ -92,7 +92,7 @@ function isPlainObject(value: object): boolean {
  * @param {unknown} obj - The object to check
  * @param {readonly string[]} keys - Restrict the check to these properties. Update schemas pass
  *   their `paramsUpdateList`: the controller merges the path `id` into the payload before
- *   validating, and counting that would make every update look non-empty — including one whose
+ *   validating, and counting that would make every update look non-empty - including one whose
  *   body was empty, which is precisely what the check exists to reject.
  * @returns {boolean} - True if the object has at least one not `undefined` value, false otherwise
  */
@@ -107,7 +107,7 @@ export function hasAtLeastOneValue(
 	}
 
 	/*
-	 * A `Date` or `RegExp` is a value, not a container to look inside — recursing would find no
+	 * A `Date` or `RegExp` is a value, not a container to look inside - recursing would find no
 	 * enumerable properties and report it as empty. This matters wherever the only updatable
 	 * fields are dates (`work-session` accepts `start_at`/`end_at` and nothing else): such a
 	 * payload has to count as sent, not as empty.

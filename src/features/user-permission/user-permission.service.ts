@@ -8,7 +8,7 @@ import type { ValidatorOutput } from '@/shared/types/mock.type';
 /**
  * The only cross-entity invalidation in the codebase: a permission row is never read on its own,
  * but the caller's permission set is baked into the cached `user` entry the auth middleware reads.
- * So every write here drops **`user:<user_id>*`**, not this table's own keys — which nothing reads.
+ * So every write here drops **`user:<user_id>*`**, not this table's own keys - which nothing reads.
  *
  * It is also the only invalidation that has to fire on *insert*: granting a permission changes an
  * entry that already exists and is already cached.
@@ -64,7 +64,7 @@ export class UserPermissionService {
 			}),
 		);
 
-		// Once for the whole grant rather than per permission — they all belong to one user,
+		// Once for the whole grant rather than per permission - they all belong to one user,
 		// and one scan of the keyspace answers for the lot.
 		await cleanEntityCache(UserEntity, data.user_id);
 
@@ -81,11 +81,18 @@ export class UserPermissionService {
 		await cleanEntityCache(UserEntity, user_id);
 	}
 
-	public async restore(id: number, user_id: number) {
+	/**
+	 * Addressed by the pair rather than by the grant row's own id, matching `delete`.
+	 *
+	 * `restore()` reads with `withDeleted()`, so a pair that is currently granted matches its
+	 * live row and is restored to the state it is already in - the call is idempotent and only
+	 * a pair with no row at all answers 404.
+	 */
+	public async restore(user_id: number, permission_id: number) {
 		await this.repository
 			.createQuery()
-			.filterById(id)
 			.filterBy('user_id', user_id)
+			.filterBy('permission_id', permission_id)
 			.restore();
 
 		await cleanEntityCache(UserEntity, user_id);

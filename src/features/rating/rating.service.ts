@@ -18,7 +18,7 @@ import type { ValidatorOutput } from '@/shared/types/mock.type';
 
 /**
  * Who is casting or withdrawing a rating. `user_id` is null for a guest; `user_ip_hash` is always
- * present, which is what lets a guest be addressed at all — see the entity for why the column is
+ * present, which is what lets a guest be addressed at all - see the entity for why the column is
  * required even when an account is known.
  */
 export type RatingOwner = {
@@ -64,14 +64,14 @@ export class RatingService {
 	 * Strictly an insert, never an upsert: a caller who already holds a rating on this target is
 	 * told so (see `asConflict`) and changes it through `updateOwn`. Silently folding the two
 	 * would also swallow `UQ_rating_ip`, whose collision is somebody *else* behind the same
-	 * address — a row this caller must not overwrite.
+	 * address - a row this caller must not overwrite.
 	 */
 	public async create(
 		data: ValidatorOutput<RatingValidator, 'create'>,
 		owner: RatingOwner,
 	): Promise<RatingEntity> {
 		/*
-		 * The target decides whether it still takes ratings — an article whose editor turned
+		 * The target decides whether it still takes ratings - an article whose editor turned
 		 * them off answers no, and one that is gone answers no for everything. A target with
 		 * no resolver registered is open, which is every one of them but `article`.
 		 */
@@ -106,7 +106,7 @@ export class RatingService {
 
 	/**
 	 * Both uniques are reachable from one insert and they say different things: `UQ_rating_user`
-	 * means this account already voted, `UQ_rating_ip` means this address did — possibly somebody
+	 * means this account already voted, `UQ_rating_ip` means this address did - possibly somebody
 	 * else behind the same NAT. A caller can act on the first (withdraw, then vote again) and not
 	 * on the second, so the two must not collapse into one message.
 	 *
@@ -136,8 +136,8 @@ export class RatingService {
 	/**
 	 * @description Used in `update` method from the public controller
 	 *
-	 * Addressed the way `deleteOwn` is — by target plus the identity resolved from the request,
-	 * never by id — so the row this resolves to is by construction one the caller may edit, and
+	 * Addressed the way `deleteOwn` is - by target plus the identity resolved from the request,
+	 * never by id - so the row this resolves to is by construction one the caller may edit, and
 	 * no ownership check is left to a later step.
 	 *
 	 * `firstOrFail` answers 404 when the caller holds no rating on this target, which is the same
@@ -178,7 +178,7 @@ export class RatingService {
 	 * @description Used in `delete` method from the public controller
 	 *
 	 * Scoped to the caller's own row by `filterByOwner`, so a caller can only ever withdraw what
-	 * they cast. A target nobody rated raises the repository's 404 — the same answer somebody
+	 * they cast. A target nobody rated raises the repository's 404 - the same answer somebody
 	 * else's rating gives, which is what keeps this from reporting on rows the caller cannot see.
 	 */
 	public async deleteOwn(
@@ -196,7 +196,7 @@ export class RatingService {
 	 * @description Used by `RatingListener`, on `entityRemoved`
 	 *
 	 * Ratings left pointing at targets that no longer exist. `(entity_type, entity_id)` carries no
-	 * foreign key, so nothing removes them when the target goes — the feature that owned it
+	 * foreign key, so nothing removes them when the target goes - the feature that owned it
 	 * announces the removal and this clears what was cast on it.
 	 *
 	 * Hard, like every other delete on this table: there is no `deleted_at` to soft-delete into,
@@ -219,7 +219,7 @@ export class RatingService {
 		} catch (error) {
 			/*
 			 * A target nobody rated is the ordinary case, and `RepositoryAbstract.delete` reports
-			 * "nothing matched" as a 404 — meaningful when a caller named one row, noise when the
+			 * "nothing matched" as a 404 - meaningful when a caller named one row, noise when the
 			 * caller is a cleanup sweeping ids it has no expectations about.
 			 */
 			if (!(error instanceof NotFoundError)) {
@@ -319,8 +319,8 @@ export class RatingService {
 	/**
 	 * @description Used in `summaries` method from the public controller
 	 *
-	 * The same aggregate for a set of targets, in one query. A list of rated things — a page of
-	 * comments, a feed of articles — would otherwise issue one request per row, which is the
+	 * The same aggregate for a set of targets, in one query. A list of rated things - a page of
+	 * comments, a feed of articles - would otherwise issue one request per row, which is the
 	 * shape that turns a thread into a dozen round trips.
 	 *
 	 * Targets nobody has rated are absent from the result rather than present and empty: the
@@ -369,7 +369,7 @@ export class RatingService {
 	}
 
 	/**
-	 * What the caller cast across a set of targets, keyed by target — the `own` half of the
+	 * What the caller cast across a set of targets, keyed by target - the `own` half of the
 	 * summary above, resolved in the same single query rather than per row.
 	 */
 	public async getOwnRatingsForTargets(
@@ -409,7 +409,7 @@ export class RatingService {
 	/**
 	 * Folds one target's `(type, value, reaction)` groups into the shape a widget renders.
 	 *
-	 * At most a dozen rows per target — three like directions, five scores, one per reaction —
+	 * At most a dozen rows per target - three like directions, five scores, one per reaction -
 	 * so this runs on a set that cannot grow with traffic.
 	 */
 	private static foldSummary(rows: RatingSummaryRow[]): RatingSummary {
@@ -423,7 +423,7 @@ export class RatingService {
 		let starsSum = 0;
 
 		for (const row of rows) {
-			// The driver returns an aggregate as a string — `COUNT(*)` is `bigint` in Postgres,
+			// The driver returns an aggregate as a string - `COUNT(*)` is `bigint` in Postgres,
 			// which node-postgres does not narrow to a JS number on its own.
 			const count = Number(row.count);
 

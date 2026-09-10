@@ -4,6 +4,7 @@ import {
 	CommentEntityTypeEnum,
 	CommentStatusEnum,
 	CommentTypeEnum,
+	CommentWritableEntityTypeEnum,
 } from '@/features/comment/comment.entity';
 import { hasAtLeastOneValue } from '@/helpers/objects.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
@@ -44,11 +45,30 @@ const validatorMessages = [
 ] as const;
 
 export class CommentValidator extends BaseValidator<typeof validatorMessages> {
-	/** The polymorphic target, shared by every schema that addresses one. */
+	/**
+	 * The polymorphic target, shared by the schemas that address one for *reading*: the full enum,
+	 * so a filter or a thread read can name any value the column holds.
+	 */
 	private targetSchema() {
 		return {
 			entity_type: this.validateEnum(
 				CommentEntityTypeEnum,
+				this.getMessage('invalid_entity_type'),
+			),
+			entity_id: this.validateId(this.getMessage('invalid_entity_id')),
+		};
+	}
+
+	/**
+	 * The same target for a write, narrowed to what actually takes comments - see
+	 * `CommentWritableEntityTypeEnum`. The refusal is the same `invalid_entity_type` message: from
+	 * the caller's side a target that accepts nothing and a value that is not a target are the
+	 * same answer.
+	 */
+	private writableTargetSchema() {
+		return {
+			entity_type: this.validateEnum(
+				CommentWritableEntityTypeEnum,
 				this.getMessage('invalid_entity_type'),
 			),
 			entity_id: this.validateId(this.getMessage('invalid_entity_id')),
@@ -73,14 +93,14 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	}
 
 	/**
-	 * What a visitor posts. The author is never in the body — it is resolved from the request — so
+	 * What a visitor posts. The author is never in the body - it is resolved from the request - so
 	 * the only identity fields here are the ones a guest supplies about themselves, and they stay
 	 * optional at this level: whether they are required depends on whether the caller is signed in,
 	 * which is a fact about the request rather than about its shape. `CommentService` holds that
 	 * rule, mirroring `CHK_comment_author`.
 	 */
 	readonly create = z.object({
-		...this.targetSchema(),
+		...this.writableTargetSchema(),
 
 		type: this.validateEnum(
 			CommentTypeEnum,
@@ -128,7 +148,7 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	 * are what the comment *is*, and changing any of them after the fact would relocate a row the
 	 * thread has already been rendered around.
 	 *
-	 * Addressed by id — unlike `rating`, where the target identifies the caller's single row, an
+	 * Addressed by id - unlike `rating`, where the target identifies the caller's single row, an
 	 * author may hold many comments on one target, so nothing shorter addresses one. Ownership is
 	 * enforced by `CommentQuery.filterByOwner` on the same query that loads it.
 	 */
@@ -148,7 +168,7 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 
 	/**
 	 * The thread as a visitor sees it. The target comes from the path, so it sits in `querySchema`
-	 * (top level) rather than in `filter`; `parent_id` picks the level being read — omitted means
+	 * (top level) rather than in `filter`; `parent_id` picks the level being read - omitted means
 	 * the roots.
 	 *
 	 * `status` is deliberately absent: a public read only ever returns approved rows, and letting
@@ -217,7 +237,7 @@ export class CommentValidator extends BaseValidator<typeof validatorMessages> {
 	});
 
 	/**
-	 * The moderation decision. `status` arrives in the path and the reason in the body — it is
+	 * The moderation decision. `status` arrives in the path and the reason in the body - it is
 	 * optional, and stored as written for the audit trail rather than shown to the author.
 	 */
 	readonly statusUpdate = z.object({

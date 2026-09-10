@@ -12,7 +12,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * order line rather than through these rows.
  *
  * Written by hand from TypeORM's generated output, with its unrelated `document_series` column
- * drops removed — that is drift between the entity and this database, not part of this change.
+ * drops removed - that is drift between the entity and this database, not part of this change.
  */
 export class DiscountTargets1786610215138 implements MigrationInterface {
 	name = 'DiscountTargets1786610215138';

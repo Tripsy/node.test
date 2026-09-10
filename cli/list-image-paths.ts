@@ -3,7 +3,7 @@
  *
  * The bytes of an image live in the frontend project (`IMAGE_SAVE_PATH` is a `nready-ui`
  * setting), so a tool over there has to be able to ask this database what files it is
- * expected to hold — `nready-ui/.claude/scripts/fetch-seed-images.sh` is the caller.
+ * expected to hold - `nready-ui/.claude/scripts/fetch-seed-images.sh` is the caller.
  *
  * Usage: npx tsx cli/list-image-paths.ts [section]   (default: article)
  */
@@ -40,3 +40,13 @@ try {
 } finally {
 	await dataSource.destroy();
 }
+
+/*
+ * Explicit, the way `seed.runner.ts` and the seed index end: closing the data source is not
+ * enough to end the process, because importing the entity graph opens handles this tool never
+ * asked for and only `server.ts` closes (the Redis client among them). Without this the paths
+ * are printed and the process then hangs - and the caller,
+ * `nready-ui/.claude/scripts/fetch-seed-images.sh`, reads them through a command substitution,
+ * which waits for EOF and so waits forever.
+ */
+process.exit(0);

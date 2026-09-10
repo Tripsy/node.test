@@ -1,7 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type AddressEntity from '@/features/address/address.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const WarehouseStatusEnum = {
@@ -22,7 +21,7 @@ const ENTITY_TABLE_NAME = 'warehouse';
 
 /**
  * Warehouse exists to give quantities somewhere to belong, or as a label for where products are
- * shipped from — even for products marked with `track_stock = false`.
+ * shipped from - even for products marked with `track_stock = false`.
  *
  * That second job is why `order_shipping.warehouse_id` is `NOT NULL` while stock tracking is
  * optional: a kitchen sending out food owns no inventory, but the order still left from somewhere.
@@ -31,9 +30,8 @@ const ENTITY_TABLE_NAME = 'warehouse';
 	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
-		'Locations stock is held in, and the origin goods are shipped from — including for products that are not stock-tracked',
+		'Locations stock is held in, and the origin goods are shipped from - including for products that are not stock-tracked',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 // At most one default. Partial rather than a check constraint, because the rule is about the set
 // of rows rather than any single one
 @Index('IDX_warehouse_default', ['is_default'], {

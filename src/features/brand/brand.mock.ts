@@ -69,6 +69,16 @@ export const brandInputPayloads = {
 			is_deleted: false,
 		},
 	},
+	publicFind: {
+		page: 1,
+		limit: 10,
+		order_by: OrderByEnum.SORT_ORDER,
+		direction: OrderDirectionEnum.ASC,
+		filter: {
+			language: 'en',
+			brand_type: BrandTypeEnum.PRODUCT,
+		},
+	},
 	orderUpdate: {
 		positions: [1, 2],
 	},

@@ -3,7 +3,7 @@ import { CommentSubscriptionTypeEnum } from '@/features/comment/comment-subscrip
 import { BaseValidator } from '@/shared/abstracts/validator.abstract';
 
 /**
- * The token is 32 random bytes as hex, so its length is fixed and known — checking it here turns a
+ * The token is 32 random bytes as hex, so its length is fixed and known - checking it here turns a
  * truncated link into a 422 with a message instead of a lookup that finds nothing.
  */
 export const UNSUBSCRIBE_TOKEN_LENGTH = 64;
@@ -29,7 +29,7 @@ export class CommentSubscriptionValidator extends BaseValidator<
 	readonly publicRead = z.object(this.tokenSchema());
 
 	/**
-	 * Both directions of the choice, including opting out — `unsubscribed` is one of the three
+	 * Both directions of the choice, including opting out - `unsubscribed` is one of the three
 	 * values, not a separate endpoint, because it is a state the row keeps rather than a deletion.
 	 */
 	readonly publicUpdate = z.object({

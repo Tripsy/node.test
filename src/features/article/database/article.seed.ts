@@ -43,7 +43,7 @@ const TITLES: readonly string[] = [
 	'Docking stations, ranked by regret',
 	'When a mouse is worth replacing',
 	'Reading the fine print on warranties',
-	'Desk lamps and the colour of light',
+	'Desk lamps and the color of light',
 	'A chair you will still like in year three',
 	'Backups that actually get restored',
 	'Notes on refurbished hardware',
@@ -59,10 +59,10 @@ const TITLES: readonly string[] = [
 ];
 
 /**
- * The article the public site is developed against — index 1, so `article-0002`. The rest of
+ * The article the public site is developed against - index 1, so `article-0002`. The rest of
  * the seed is volume: one title, one paragraph, no attribution. This one carries what the
- * article page actually has to lay out — several headings with prose between them, a by-line
- * with a bio, and the source block a parsed article shows — so every one of those branches is
+ * article page actually has to lay out - several headings with prose between them, a by-line
+ * with a bio, and the source block a parsed article shows - so every one of those branches is
  * visible without hand-editing the database.
  */
 const SHOWCASE_INDEX = 1;
@@ -73,7 +73,7 @@ you do not have, and the few that matter are the ones you stop noticing after a 
 ## Start with what you touch all day
 
 The keyboard, the mouse and the chair are in contact with you for hours. Everything else is
-scenery. If the budget only stretches to one upgrade, spend it here — a wrist that aches at
+scenery. If the budget only stretches to one upgrade, spend it here - a wrist that aches at
 four in the afternoon is not fixed by a nicer monitor arm.
 
 Look for a switch weight you can sustain, not the one that feels best in the shop. Ten minutes
@@ -98,15 +98,15 @@ near the desk so the whole thing survives a monitor being raised.
 
 ## Light before decoration
 
-A desk lamp with adjustable colour temperature is the accessory people regret buying last and
+A desk lamp with adjustable color temperature is the accessory people regret buying last and
 should have bought first. Cool light in the morning, warm after sunset, and the screen stops
 being the brightest thing in the room.
 
 ## What to skip
 
-Wrist rests that force an angle, drawer organisers for a drawer you do not open, and any hub
+Wrist rests that force an angle, drawer organizers for a drawer you do not open, and any hub
 that draws its power from the laptop it is supposed to be charging. None of these fail
-loudly — they simply sit there, having cost money.
+loudly - they simply sit there, having cost money.
 
 ## Where to stop
 
@@ -228,7 +228,7 @@ export const articleSeed: SeedDefinition = {
 
 			/*
 			 * The title list is shorter than the target, so it wraps. A repeated title
-			 * gets its pass number appended — the slug is already unique per index, and
+			 * gets its pass number appended - the slug is already unique per index, and
 			 * two rows reading identically in a listing look like a bug rather than
 			 * volume.
 			 */
@@ -243,8 +243,8 @@ export const articleSeed: SeedDefinition = {
 					language: 'en',
 					slug,
 					title,
-					brief: `${title} — what to look for and what to skip.`,
-					// Markdown, which is what the column holds and the editor edits — the
+					brief: `${title} - what to look for and what to skip.`,
+					// Markdown, which is what the column holds and the editor edits - the
 					// dashboard renders it to HTML for display only.
 					content: isShowcase
 						? SHOWCASE_CONTENT
@@ -252,7 +252,7 @@ export const articleSeed: SeedDefinition = {
 					author: isShowcase ? SHOWCASE_AUTHOR : null,
 					meta: {
 						title,
-						description: `${title} — a short guide`,
+						description: `${title} - a short guide`,
 					},
 				}),
 			);

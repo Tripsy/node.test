@@ -5,10 +5,9 @@ import type {
 	DiscountScopeEnum,
 } from '@/features/discount/discount.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 /**
- * What a target row points at — every discount scope except `order`, which applies to the
+ * What a target row points at - every discount scope except `order`, which applies to the
  * basket as a whole and therefore has nothing to point at.
  */
 type ScopeWithTargets = Exclude<DiscountScope, typeof DiscountScopeEnum.ORDER>;
@@ -40,21 +39,21 @@ const _scopesHaveTargetTypes: Record<ScopeWithTargets, DiscountTargetType> = {
 const ENTITY_TABLE_NAME = 'discount_target';
 
 /**
- * Everything a discount applies to, in one polymorphic table — the same shape as
+ * Everything a discount applies to, in one polymorphic table - the same shape as
  * `operational_record` in cash-flow.
  *
  * One table rather than one per target kind, for two reasons that matter more than the foreign
  * key it gives up:
  *
  * 1. **Direction.** A typed `category_discount` has to live in the `category` feature, which
- *    makes catalogue features depend on `discount`. Discounts are the optional thing here; a
+ *    makes catalog features depend on `discount`. Discounts are the optional thing here; a
  *    shop should be installable without them. Owning the table on this side keeps every arrow
  *    pointing at `discount` and lets it stay a leaf.
  * 2. **One query.** The resolver asks "which discounts point at any of these things" for a
  *    basket line. Across five tables that is five round trips unioned in application code;
  *    here it is a single `WHERE (type, id) IN (…)` against one index.
  *
- * The cost is that `entity_id` carries no foreign key — it cannot, pointing at five tables —
+ * The cost is that `entity_id` carries no foreign key - it cannot, pointing at five tables -
  * so a deleted category can leave a row behind. Harmless (the resolver only ever matches ids
  * it was handed, so an orphan matches nothing) but it does accumulate, which is the trade
  * `operational_record` already makes.
@@ -65,7 +64,6 @@ const ENTITY_TABLE_NAME = 'discount_target';
 	comment:
 		'What a discount applies to; polymorphic by target_type, the window and conditions stay on the discount',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index(
 	'IDX_discount_target_unique',
 	['discount_id', 'target_type', 'entity_id'],
@@ -87,7 +85,7 @@ export default class DiscountTargetEntity extends EntityAbstract {
 	})
 	target_type!: DiscountTargetType;
 
-	// No foreign key by design — see the class comment. The id is meaningful only together
+	// No foreign key by design - see the class comment. The id is meaningful only together
 	// with `target_type`.
 	@Column('int', { nullable: false })
 	entity_id!: number;

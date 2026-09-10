@@ -18,7 +18,7 @@ const IDLE_TIMEOUT = 5 * 60 * 1000;
  * Daily-rotated files under `logs/`, one stream per level.
  *
  * Streams are opened lazily and closed after `IDLE_TIMEOUT` so a quiet level doesn't hold
- * a file handle all day. `close()` clears the pending timers as well as the streams —
+ * a file handle all day. `close()` clears the pending timers as well as the streams -
  * without that a timer surviving shutdown fires against an already-deleted entry and
  * throws inside the timer callback, where nothing can catch it.
  */

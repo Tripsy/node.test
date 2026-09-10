@@ -8,7 +8,7 @@ services:
             dockerfile: docker/dockerfile
         volumes:
             - .:/var/www/html
-        # DB_HOST/REDIS_HOST point at host.docker.internal — Postgres and Redis run in
+        # DB_HOST/REDIS_HOST point at host.docker.internal - Postgres and Redis run in
         # their own compose stacks and are reached through their published host ports.
         # Docker Desktop injects this name on its own, the Linux engine does not, so it
         # is declared here to keep the container portable across both.
@@ -20,7 +20,7 @@ services:
         #
         # Serving requests takes ~105 MB, but `pnpm test` peaks at ~2.4 GB (measured via
         # `docker stats` across a full run). At the previous 2g the suite sat pinned at
-        # 100% of the cgroup for its whole duration, and jest workers were SIGKILLed —
+        # 100% of the cgroup for its whole duration, and jest workers were SIGKILLed -
         # which silently drops entire test files while still reporting a pass. 4g clears
         # the measured peak with room to spare.
         mem_limit: 4g

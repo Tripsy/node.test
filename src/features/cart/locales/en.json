@@ -1,0 +1,27 @@
+{
+	"validation": {
+		"invalid_variant_id": "Invalid product variant",
+		"invalid_product_id": "Invalid product",
+		"invalid_quantity": "The quantity must be a positive number of at most 999, with up to two decimals",
+		"invalid_options": "Invalid product options",
+		"invalid_currency": "The currency must be a three-letter code",
+		"invalid_client_id": "Invalid client",
+		"invalid_token": "Invalid cart token"
+	},
+	"error": {
+		"not_found": "Cart not found",
+		"item_not_found": "That line is no longer in your cart",
+		"empty": "The cart is empty",
+		"has_issues": "Some lines can no longer be bought; review the cart before checking out"
+	},
+	"success": {
+		"add_item": "Added to your cart",
+		"update_item": "Cart updated successfully",
+		"remove_item": "Removed from your cart",
+		"clear": "Cart emptied successfully",
+		"set_currency": "Cart currency updated successfully",
+		"checkout": "Order placed successfully",
+		"delete": "Cart removed successfully",
+		"restore": "Cart restored successfully"
+	}
+}

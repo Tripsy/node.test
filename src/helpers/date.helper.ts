@@ -53,6 +53,21 @@ export function createPastDate(seconds: number): Date {
 }
 
 /**
+ * The ISO 8601 weekday of a date - Monday is 1 through Sunday is 7.
+ *
+ * Every weekday stored or evaluated in this codebase is written in this numbering:
+ * `discount.conditions.day_range` and `product_availability.day_of_week`. This is the one place
+ * that knows `Date.getDay()` counts from Sunday as 0, so nothing else re-derives the conversion
+ * and drifts by a day.
+ *
+ * @param {Date} date - The date to read
+ * @returns {number} - 1 (Monday) through 7 (Sunday)
+ */
+export function isoWeekday(date: Date): number {
+	return date.getDay() || 7;
+}
+
+/**
  * Check if a string is a valid date
  *
  * @param {string} date - The date string to check
@@ -195,7 +210,7 @@ export function dateDiff(
  * Get `start` and `end` dates from a month relative to the current date.
  *
  * The window stops at the same day-of-month as today so a month-over-month comparison puts
- * an equal number of elapsed days on each side — comparing a partial current month against a
+ * an equal number of elapsed days on each side - comparing a partial current month against a
  * complete previous one would read as a collapse every time.
  *
  * eg: if current date is 2026 July 15, then getMonthIntervalBasedOnCurrentDate(1) will return { start: Jun 1, 2026, 00:00:00, end: Jun 16, 2026, 00:00:00 }
@@ -212,7 +227,7 @@ export function getMonthIntervalBasedOnCurrentDate(monthsAgo: number) {
 
 	const start = new Date(targetYear, targetMonth, 1);
 
-	// Last day that actually exists in the target month — a day-of-month of 31 has to fall back
+	// Last day that actually exists in the target month - a day-of-month of 31 has to fall back
 	// to 30 (or 28/29) rather than roll over into the following month
 	const lastDayOfTargetMonth = new Date(
 		targetYear,

@@ -78,7 +78,7 @@ describe('ImageService', () => {
 		const { transaction } = setupTransactionMock(mockImage.repository);
 
 		// The service loads the images by id, rejects the request if any is missing, then
-		// saves them back with their new sort_order — so the builder has to return one
+		// saves them back with their new sort_order - so the builder has to return one
 		// image per requested position.
 		const images = orderData.positions.map((position) => ({
 			...getImageEntityMock(),
@@ -120,18 +120,18 @@ describe('ImageService', () => {
 	]);
 
 	describe('getPrimaryByTargets', () => {
-		it('should keep the lowest sort_order per target', async () => {
+		it('should keep the highest sort_order per target', async () => {
 			const first = {
 				...getImageEntityMock(),
 				id: 10,
 				entity_id: 7,
-				sort_order: 0,
+				sort_order: 5,
 			};
 			const later = {
 				...getImageEntityMock(),
 				id: 11,
 				entity_id: 7,
-				sort_order: 5,
+				sort_order: 0,
 			};
 			const other = {
 				...getImageEntityMock(),
@@ -140,7 +140,7 @@ describe('ImageService', () => {
 				sort_order: 2,
 			};
 
-			// The query orders `sort_order ASC`, so the service sees them in this order and the
+			// The query orders `sort_order DESC`, so the service sees them in this order and the
 			// first one it meets for a target is the one that stands for it.
 			mockImage.query.all.mockResolvedValue([
 				first,
@@ -157,6 +157,31 @@ describe('ImageService', () => {
 			expect(primary.get(7)?.id).toBe(10);
 			expect(primary.get(8)?.id).toBe(12);
 			expect(primary.size).toBe(2);
+		});
+
+		/*
+		 * The direction itself, not just the picking. The rows above arrive pre-sorted from a
+		 * mocked query, so nothing there would notice the `orderBy` flipping - and flipping it is
+		 * exactly how the cover silently becomes the image an editor dragged to the *end* of the
+		 * gallery. The manager stamps `length - index` and lists descending, so the highest number
+		 * is the one it shows first.
+		 */
+		it('should ask the database for the highest sort_order first', async () => {
+			mockImage.query.orderBy.mockClear();
+			mockImage.query.all.mockResolvedValue(
+				[] as unknown as [ImageEntity[], number],
+			);
+
+			await serviceImage.getPrimaryByTargets(
+				ImageSectionEnum.ARTICLE,
+				ImageTypeEnum.GALLERY,
+				[7],
+			);
+
+			expect(mockImage.query.orderBy).toHaveBeenCalledWith(
+				'image.sort_order',
+				'DESC',
+			);
 		});
 
 		it('should leave a target with no image of that type out of the map', async () => {

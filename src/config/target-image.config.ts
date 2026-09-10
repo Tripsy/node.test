@@ -4,7 +4,7 @@
  *
  * `image` writes against `(section, entity_id)` with no foreign key to anything, so a target has
  * no relation to walk and would otherwise have to reach into the image repository to find its own
- * picture — which is what `article` did, and what made optional decoration a hard install-time
+ * picture - which is what `article` did, and what made optional decoration a hard install-time
  * dependency. A project should be able to take `article`, `brand` or `category` and leave the
  * image library behind.
  *
@@ -23,7 +23,7 @@
  * client must not have to tell "this row has no image" apart from "this deployment has no image
  * feature".
  *
- * The vocabulary here is deliberately the *storing* feature's — an image and its type — not the
+ * The vocabulary here is deliberately the *storing* feature's - an image and its type - not the
  * role a page casts it in. What an article calls its `cover_image` is article's word for the first
  * gallery image; a brand asking the same registry for its `logo` is not asking for a cover.
  */
@@ -33,7 +33,7 @@
  * the first of its `gallery`.
  *
  * Declared here rather than imported from the image feature even though it duplicates
- * `ImageTypeEnum` — that import is the dependency this file exists to remove. The duplication is
+ * `ImageTypeEnum` - that import is the dependency this file exists to remove. The duplication is
  * the tripwire: a provider whose own enum grows past this one stops compiling in its bootstrap,
  * which is where somebody should notice that consumers gained an option.
  */
@@ -46,7 +46,7 @@ export type TargetImageType =
 	(typeof TargetImageTypeEnum)[keyof typeof TargetImageTypeEnum];
 
 /**
- * How the file is reached — the vocabulary the API promises its clients, owned here for the same
+ * How the file is reached - the vocabulary the API promises its clients, owned here for the same
  * reason as the type above, and mirroring `ImageStorageEnum`.
  */
 export const TargetImageStorageEnum = {
@@ -59,7 +59,7 @@ export type TargetImageStorage =
 
 /**
  * Whatever the provider knows about the file; an older row may know none of it. `mime` stays a
- * plain string — no consumer branches on it, so restating the five literals buys nothing.
+ * plain string - no consumer branches on it, so restating the five literals buys nothing.
  */
 export type TargetImageProperties = {
 	width?: number;
@@ -81,7 +81,7 @@ export type TargetImage = {
  *
  * `section` is the target's table name (`ArticleEntity.NAME`), the way a polymorphic target is
  * named everywhere here. A provider that does not serve that section answers with an empty map
- * rather than failing — an unknown section is a deployment fact, not an error.
+ * rather than failing - an unknown section is a deployment fact, not an error.
  *
  * Which of several images wins is the provider's rule, not the caller's: it returns the first by
  * whatever order it keeps them in.
@@ -92,11 +92,30 @@ export type TargetImageProvider = (
 	entityIds: number[],
 ) => Promise<Map<number, TargetImage>>;
 
+/**
+ * The same question asked of a whole gallery: every image a target carries of that type, in the
+ * order it shows them.
+ *
+ * A second slot rather than a second answer on the first, because the two are different questions
+ * and a caller almost always wants exactly one of them. A listing wants the one picture that
+ * stands for each row and must not drag twelve down the wire per card; a detail page wants the
+ * set. Folding them together would make the cheap call pay for the expensive one.
+ *
+ * Registered from the same bootstrap and by the same feature - this is still one provider of
+ * images, asked two ways.
+ */
+export type TargetImageListProvider = (
+	section: string,
+	imageType: TargetImageType,
+	entityIds: number[],
+) => Promise<Map<number, TargetImage[]>>;
+
 let targetImageProvider: TargetImageProvider | null = null;
+let targetImageListProvider: TargetImageListProvider | null = null;
 
 /**
  * Called from the providing feature's `*.bootstrap.ts`. Registering twice replaces the previous
- * provider rather than adding a second opinion — a reload, not a second source of images.
+ * provider rather than adding a second opinion - a reload, not a second source of images.
  */
 export const registerTargetImageProvider = (
 	provider: TargetImageProvider,
@@ -114,4 +133,30 @@ export const resolveTargetImages = async (
 	}
 
 	return targetImageProvider(section, imageType, entityIds);
+};
+
+/** Called from the providing feature's `*.bootstrap.ts`, like the primary one above. */
+export const registerTargetImageListProvider = (
+	provider: TargetImageListProvider,
+): void => {
+	targetImageListProvider = provider;
+};
+
+/**
+ * Every image each named target carries, keyed by entity id; a target with none is absent from
+ * the map rather than present with an empty list, so the two slots read alike.
+ *
+ * With nothing registered this answers an empty map - the same "no image feature installed" state
+ * `resolveTargetImages` describes, and a consumer renders it as an empty gallery either way.
+ */
+export const resolveTargetImageLists = async (
+	section: string,
+	imageType: TargetImageType,
+	entityIds: number[],
+): Promise<Map<number, TargetImage[]>> => {
+	if (!targetImageListProvider || entityIds.length === 0) {
+		return new Map();
+	}
+
+	return targetImageListProvider(section, imageType, entityIds);
 };

@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Adds `comment_subscription.language` — what a notification is written in, and what the page its
+ * Adds `comment_subscription.language` - what a notification is written in, and what the page its
  * unsubscribe link leads to is rendered in.
  *
  * Backfilled with `en` before the `NOT NULL` is applied. The column has no database default on

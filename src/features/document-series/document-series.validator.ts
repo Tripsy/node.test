@@ -10,7 +10,7 @@ import {
 
 /**
  * `document_type` and `next_number` are absent on purpose. The first is the key the counter is
- * stored under — editing it would move already-issued numbers to a different series — and the
+ * stored under - editing it would move already-issued numbers to a different series - and the
  * counter itself only ever moves through an allocation. A series that has to start from a legacy
  * number is created with `start_number` set.
  */

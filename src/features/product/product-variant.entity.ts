@@ -11,7 +11,6 @@ import type ProductEntity from '@/features/product/product.entity';
 import type ProductPriceEntity from '@/features/product/product-price.entity';
 import type ProductVariantAttributeEntity from '@/features/product/product-variant-attribute.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 const ENTITY_TABLE_NAME = 'product_variant';
@@ -22,7 +21,7 @@ const ENTITY_TABLE_NAME = 'product_variant';
  * blue") and what a price is attached to.
  *
  * **Every product carries at least one variant, even when nothing varies.** A single-variant
- * product is the normal case, not a special one — the alternative, prices hanging off both the
+ * product is the normal case, not a special one - the alternative, prices hanging off both the
  * product and the variant, means two places to look for the answer and a rule about which wins.
  * The service layer creates the default variant alongside the product.
  *
@@ -35,8 +34,7 @@ const ENTITY_TABLE_NAME = 'product_variant';
 	comment:
 		'The purchasable unit of a product; prices and order lines reference this, not the product',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
-// Redundant on its own — `id` is already unique — but it is the target a composite foreign key
+// Redundant on its own - `id` is already unique - but it is the target a composite foreign key
 // needs. `order_product` points at (variant_id, product_id) together, which is what stops a line
 // naming a variant that belongs to a different product
 @Index('IDX_product_variant_id_product_id', ['id', 'product_id'], {
@@ -100,7 +98,7 @@ export default class ProductVariantEntity extends EntityAbstract {
 	 * shirt on a shelf.
 	 *
 	 * Cannot be derived from `product.type`: a dish and a print-on-demand shirt are both
-	 * `physical`, and neither is stocked. Inert unless the `grn` feature is installed — nothing
+	 * `physical`, and neither is stocked. Inert unless the `grn` feature is installed - nothing
 	 * here references it, it only gates whether that feature's machinery fires.
 	 */
 	@Column('boolean', {
@@ -124,19 +122,24 @@ export default class ProductVariantEntity extends EntityAbstract {
 	allow_backorder!: boolean;
 
 	/**
-	 * What the goods cost, in the application's base currency (`app.currency`) — no currency
+	 * What the goods cost, in the application's base currency (`app.currency`) - no currency
 	 * column, because there is only ever one. Prices are quoted per market and belong in
 	 * `product_price`; cost is an accounting figure and the books are kept in one currency.
 	 *
 	 * A purchase in another currency is converted once, at the exchange rate of the receiving day,
-	 * and frozen here — never converted again at read time, where a moving rate would make last
+	 * and frozen here - never converted again at read time, where a moving rate would make last
 	 * month's margin change. Margin is settled in base currency on both sides:
 	 * `order_product.exchange_rate` brings the sale back to meet this.
+	 *
+	 * **It never moves what a customer is charged.** Reporting reads it; no pricing or discount
+	 * path does. A floor on a sale is `product_price.min_price` alone - deriving one from cost
+	 * would make the price of two identical items differ by their purchase history, and would
+	 * shift the moment a goods receipt recomputes the average below.
 	 *
 	 * Once goods receipts exist this becomes a weighted moving average, recomputed on each
 	 * confirmed receipt as
 	 * `(qty_on_hand × cost_price + received_qty × unit_cost_base) / (qty_on_hand + received_qty)`.
-	 * Inbound only — selling stock must not move what it cost. See the README TODO.
+	 * Inbound only - selling stock must not move what it cost.
 	 */
 	@Column('decimal', {
 		precision: 12,

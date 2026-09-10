@@ -78,7 +78,7 @@ export class TemplateService {
 		/*
 		 * Captured before the assign below overwrites them. A template is read by
 		 * label/language/type at render time, not by id, and an edit that renames it would
-		 * otherwise leave the *old* name serving the old body until its TTL — the row the id
+		 * otherwise leave the *old* name serving the old body until its TTL - the row the id
 		 * clean drops is not the one that lookup reads.
 		 */
 		const previous = this.lookupKey(entry);
@@ -100,7 +100,7 @@ export class TemplateService {
 		return saved;
 	}
 
-	/** The segments `template.controller.ts` builds its render-time cache key from. */
+	/** The segments `template-public.controller.ts` builds its render-time cache key from. */
 	private lookupKey(entry: TemplateEntity): [string, string, string] {
 		return [entry.label, entry.language, entry.type];
 	}

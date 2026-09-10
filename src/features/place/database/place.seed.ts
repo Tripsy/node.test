@@ -10,7 +10,7 @@ import PlaceContentEntity from '@/features/place/place-content.entity';
 /**
  * Real geography rather than generated strings: places are referenced by every address in
  * the app, so readable names make the rest of the demo data legible. `code` is the natural
- * key — the entity keeps no name column, names live in `place_content`.
+ * key - the entity keeps no name column, names live in `place_content`.
  */
 type PlaceSeedRow = {
 	code: string;

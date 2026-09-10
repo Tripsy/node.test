@@ -14,7 +14,7 @@ export class CacheProvider {
 
 	/**
 	 * Every key is built here, so prefixing at this point covers reads, writes and the patterns
-	 * handed to `deleteByPattern` alike — the invalidation helpers assemble theirs as
+	 * handed to `deleteByPattern` alike - the invalidation helpers assemble theirs as
 	 * `${buildKey(...args)}*`. An empty `redis.keyPrefix` drops out via the same filter that
 	 * removes empty segments, leaving keys unprefixed.
 	 */
@@ -56,7 +56,7 @@ export class CacheProvider {
 		try {
 			/*
 			 * Objects, arrays and quoted strings are parsed back; a bare number is left as the
-			 * string Redis returned. That is deliberate — "42" cannot be told apart from a
+			 * string Redis returned. That is deliberate - "42" cannot be told apart from a
 			 * numeric string a caller stored on purpose, so coercing it here would corrupt
 			 * one to serve the other. Callers that need a number convert it themselves.
 			 */
@@ -140,7 +140,7 @@ export class CacheProvider {
 		/*
 		 * Redis rejects `EX 0` outright ("ERR invalid expire time in 'set' command"), and the
 		 * catch below would turn that into a silent no-op with only a log line. A resolved TTL
-		 * of 0 means caching is switched off — `get()` already reads it that way — so skip the
+		 * of 0 means caching is switched off - `get()` already reads it that way - so skip the
 		 * write rather than issue one that cannot succeed. `CACHE_TTL=0` is the supported way to
 		 * turn caching off for an environment, which is why the setting keeps an explicit 0
 		 * rather than falling back.
@@ -220,7 +220,7 @@ export class CacheProvider {
 	 * Drops every key under `<namespace>:<ident>:…` for a set of idents, in a single scan.
 	 *
 	 * `MATCH` takes one glob, so N idents through `deleteByPattern` is N full passes over the
-	 * keyspace — a bulk delete of a few thousand rows would scan it a few thousand times. One
+	 * keyspace - a bulk delete of a few thousand rows would scan it a few thousand times. One
 	 * wide pass filtered in the client trades a narrower `MATCH` for a constant number of round
 	 * trips, which is the better deal past a single ident.
 	 *

@@ -10,7 +10,7 @@ export class StatsPolicy extends PolicyAbstract {
 	}
 
 	// Dashboard figures aggregate across every feature, so there is no per-entity permission
-	// that could scope them — they are admin-only.
+	// that could scope them - they are admin-only.
 	public seeStats(auth: AuthContext): void {
 		this.requiredAuth(auth);
 

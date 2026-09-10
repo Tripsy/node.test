@@ -107,9 +107,17 @@ export class CategoryValidator extends BaseValidator<typeof validatorMessages> {
 		defaultPage: 1,
 
 		filterSchema: {
-			id: this.validateNumber(this.getMessage('invalid_number'), {
-				required: false,
-			}),
+			/*
+			 * A list rather than a scalar, so a caller holding several ids - the discount view
+			 * naming its targets - resolves them all in one request. A single id still arrives
+			 * as one.
+			 */
+			id: this.validateIdFilter(
+				this.getMessage('invalid_ids', { name: 'id' }),
+				{
+					required: false,
+				},
+			),
 			language: this.validateLanguage(
 				this.getMessage('invalid_language'),
 				{ required: false },
@@ -129,7 +137,7 @@ export class CategoryValidator extends BaseValidator<typeof validatorMessages> {
 				minChars: Configuration.get('filter.termMinLength'),
 			}),
 			/*
-			 * `parent_id` and `is_root` together address one sibling group — the same set
+			 * `parent_id` and `is_root` together address one sibling group - the same set
 			 * `orderUpdate` reorders, which is why a manual-order listing needs them.
 			 * They are separate params because a null parent cannot survive a query
 			 * string: `preprocessOptional` folds an empty value onto `undefined`, so
@@ -143,7 +151,7 @@ export class CategoryValidator extends BaseValidator<typeof validatorMessages> {
 				required: false,
 			}).default(false),
 			/*
-			 * Only categories with room for a child under their type's depth limit — what a
+			 * Only categories with room for a child under their type's depth limit - what a
 			 * parent picker has to offer, so the choice it presents and the rule the service
 			 * enforces on save cannot drift apart.
 			 */
@@ -161,7 +169,7 @@ export class CategoryValidator extends BaseValidator<typeof validatorMessages> {
 	/**
 	 * The anonymous listing. Deliberately narrower than `find`: no `status` and no
 	 * `is_deleted`, because a visitor may only ever address the published tree and the
-	 * service pins both. What remains is how to slice that tree — by type, by sibling group,
+	 * service pins both. What remains is how to slice that tree - by type, by sibling group,
 	 * or by search term.
 	 */
 	readonly publicFind = this.validateFind({

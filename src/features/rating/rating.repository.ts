@@ -33,11 +33,11 @@ export class RatingQuery extends RepositoryAbstract<RatingEntity> {
 	 * Narrows to the rows the caller is allowed to speak for, which is what makes a public delete
 	 * safe without an ownership check downstream.
 	 *
-	 * A signed-in caller is matched by `user_id` alone — their rating may have been cast from a
+	 * A signed-in caller is matched by `user_id` alone - their rating may have been cast from a
 	 * different address than the one they are deleting it from.
 	 *
 	 * A guest is matched by address **and** `user_id IS NULL`. Dropping that second condition would
-	 * let anyone sharing an address — a household, an office, a carrier's NAT — delete a signed-in
+	 * let anyone sharing an address - a household, an office, a carrier's NAT - delete a signed-in
 	 * user's rating, since `UQ_rating_ip` allows both rows to exist under the same hash.
 	 */
 	filterByOwner(userId: number | null, userIpHash: string): this {

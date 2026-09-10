@@ -22,7 +22,7 @@ export type EntityWithCache = {
  *    leave it stale with no further write coming to correct it. Cleaning after commit closes that
  *    window; no amount of deduplication downstream can.
  *
- * **Awaited inside the request**, so the write is readable by whoever made it — the dashboard
+ * **Awaited inside the request**, so the write is readable by whoever made it - the dashboard
  * re-reads an entry the moment its form submit resolves, and a clean handed to a background task
  * would let that read be answered with the entry it just replaced.
  *
@@ -43,7 +43,7 @@ export async function cleanEntityCache(
  *
  * `template` is the case this exists for: it is read by `label`/`language`/`type` at render time,
  * so an id-keyed clean leaves that lookup serving the old body until its TTL. Everything else in
- * the codebase keys on the id, and should keep doing so — a segment order that puts a literal
+ * the codebase keys on the id, and should keep doing so - a segment order that puts a literal
  * before the id (`<entity>:some-group:<id>`) is unreachable by `cleanEntityCache` and has silently
  * outlived its writes before.
  */
@@ -64,8 +64,8 @@ export async function cleanEntityCacheBy(
  * The same for many rows at once, in a single pass over the keyspace.
  *
  * A loop of `cleanEntityCache` is a full SCAN per id, so a bulk delete of a few thousand rows would
- * scan the keyspace a few thousand times. One ident stays on the narrow `MATCH` — cheaper when
- * Redis can skip most of the keyspace — and anything more goes wide and filters in the client.
+ * scan the keyspace a few thousand times. One ident stays on the narrow `MATCH` - cheaper when
+ * Redis can skip most of the keyspace - and anything more goes wide and filters in the client.
  */
 export async function cleanEntityCacheMany(
 	entity: EntityWithCache,

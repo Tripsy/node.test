@@ -8,7 +8,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * `migration:generate` cannot see these: they must not be added to the entities, or every
  * future generated migration would try to drop them.
  *
- * The expression is duplicated from the two repositories on purpose — Postgres only uses an
+ * The expression is duplicated from the two repositories on purpose - Postgres only uses an
  * expression index when the query repeats it verbatim, down to the `COALESCE` and the
  * `'simple'` configuration. Change one side and the search silently reverts to a sequential
  * scan; there is no error to notice.

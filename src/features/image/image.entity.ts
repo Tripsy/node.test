@@ -12,6 +12,7 @@ import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const ImageSectionEnum = {
 	PRODUCT: 'product',
+	PRODUCT_VARIANT: 'product_variant',
 	CATEGORY: 'category',
 	BRAND: 'brand',
 	ARTICLE: 'article',
@@ -25,8 +26,8 @@ const IMAGE_SECTIONS: readonly string[] = Object.values(ImageSectionEnum);
 /**
  * Whether this table stores anything for the named target at all.
  *
- * A predicate rather than a cast: a section reaches this feature as a plain table name — from the
- * target-image registry, and from `entityRemoved` — and the same check that decides to act is the
+ * A predicate rather than a cast: a section reaches this feature as a plain table name - from the
+ * target-image registry, and from `entityRemoved` - and the same check that decides to act is the
  * one that proves the type. Handing an unchecked string to a query would reach Postgres as an
  * invalid enum literal.
  */

@@ -50,7 +50,7 @@ describe(controller, () => {
 		settings: resolveArticleSettings(entity.details),
 	};
 
-	// The listing keeps the entity shape: it selects no `details` and carries no switches — a
+	// The listing keeps the entity shape: it selects no `details` and carries no switches - a
 	// card decides nothing about whether the article takes comments.
 	const listedEntry = { ...entity, cover_image: null };
 
@@ -125,7 +125,7 @@ describe(controller, () => {
 
 	it('read should keep the visibility rule out of the response', async () => {
 		// The rule lives under a sibling cache key precisely so it cannot ride along in the
-		// payload — the reader being gated must not be handed the gate's configuration
+		// payload - the reader being gated must not be handed the gate's configuration
 		jest.spyOn(articleService, 'resolvePublicRef').mockResolvedValue({
 			id: entity.id,
 			visibility: ArticleVisibilityEnum.RESTRICTED,

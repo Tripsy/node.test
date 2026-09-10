@@ -7,7 +7,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * `TIMESTAMP DEFAULT now()` is the shape `@UpdateDateColumn` generates and what all 49 tables in
  * the init migration carry; anything else leaves drift that the next `migration:generate` for an
  * unrelated feature would pick up. A freshly cast rating therefore reads `updated_at` equal to
- * `created_at` — "never changed" is `updated_at <= created_at`, not a null. Rows that predate
+ * `created_at` - "never changed" is `updated_at <= created_at`, not a null. Rows that predate
  * this column keep a null, which the default does not backfill.
  */
 export class RatingUpdatedAt1787500000000 implements MigrationInterface {

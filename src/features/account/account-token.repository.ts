@@ -24,7 +24,7 @@ export const getAccountTokenRepository = () =>
 
 		/*
 		 * Fire-and-forget by design: the only callers are in `auth.middleware.ts`, which
-		 * continues to `next()` regardless — cleaning up a dead token must not add latency
+		 * continues to `next()` regardless - cleaning up a dead token must not add latency
 		 * to the request. `runInBackground` keeps a failed delete from surfacing as an
 		 * unhandled rejection, which `server.ts` would treat as grounds for a shutdown.
 		 */

@@ -5,7 +5,6 @@ import {
 	Index,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 const ENTITY_TABLE_NAME = 'permission';
 
@@ -14,7 +13,6 @@ const ENTITY_TABLE_NAME = 'permission';
 	schema: 'system',
 	comment: 'Stores permissions',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_permission', ['entity', 'operation'], {
 	unique: true,
 	where: 'deleted_at IS NULL',

@@ -1,5 +1,4 @@
 import {
-	Check,
 	Column,
 	Entity,
 	Index,
@@ -11,60 +10,57 @@ import type ProductEntity from '@/features/product/product.entity';
 import type ProductBundleItemEntity from '@/features/product/product-bundle-item.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 const ENTITY_TABLE_NAME = 'product_bundle_group';
 
 /**
- * A choice offered inside a bundle — "choose a side", "choose a drink" — whose candidates are the
- * `product_bundle_item` rows pointing at it.
+ * A choice offered inside a bundle - "choose your fries" - whose candidates are the
+ * `product_bundle_item` rows carrying its `group_id`. Exactly one of them is taken.
  *
- * Same shape as `product_option_group`, down to the `min_select` / `max_select` pair and the
- * absence of an `is_required` flag. The difference is what the answers are: an option's answer is a
- * `term`, a label with a price delta and nothing behind it, while a bundle item's answer is a
- * `product_variant` — a real sellable thing with its own stock, VAT class and cost. That is why the
- * two are separate tables rather than one with a nullable column: the behaviour at checkout
- * diverges completely.
+ * This is the only thing in the schema that says **exactly one of these**. An optional component
+ * outside a group is an independent tick box bounded by nothing but its own `quantity`, so two of
+ * them can both be taken or both left.
  *
- * A bundle component that is always included needs no group at all; see
- * `product-bundle-item.entity.ts`.
+ * **No `min_select` / `max_select`, unlike `product_option_group`**, and this is the one place the
+ * two shapes deliberately diverge. Such a bound would count candidate *rows*, while what a bundle
+ * is measured in is units - every candidate carries its own `quantity` ceiling. So the one case
+ * the pair would buy, a mixed pack of *n* units drawn from a list, is exactly the case it cannot
+ * state: `max_select = 6` over rows whose ceiling is 2 permits twelve. Rather than keep two
+ * columns nothing could read correctly, a bundle choice means one thing and says it in its shape.
+ *
+ * A group therefore needs **two** candidates to be a choice at all -
+ * `ProductService.assertBundleGroupsAreUsable` refuses fewer. With one, "exactly one of these" is
+ * just a component that is always included, wearing a prompt.
+ *
+ * Distinct from `product_option_group` in what a candidate is, too: an option's answer is a term -
+ * a label with a delta and nothing behind it - where a candidate here is a variant, so the choice
+ * decides what leaves stock and at which VAT rate. See `.claude/rules/product.md` §8.
  */
 @Entity({
 	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 	comment:
-		'A choice offered within a bundle; the candidates live in product-bundle-item.entity',
+		'A choice offered inside a bundle; exactly one of its product-bundle-item candidates is taken',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
+// Rendering a bundle reads every group it has, in display order
 @Index('IDX_product_bundle_group_product_id', ['product_id', 'position'])
 @Index('IDX_product_bundle_group_label_id', ['label_id'])
-@Check(`(min_select >= 0)`)
-@Check(`(max_select IS NULL OR max_select >= min_select)`)
 export default class ProductBundleGroupEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	@Column('int', { nullable: false })
+	@Column('int', {
+		nullable: false,
+		comment: 'The bundle this choice belongs to',
+	})
 	product_id!: number;
 
 	@Column('int', {
 		nullable: false,
-		comment: 'Term holding the multilingual prompt, e.g. "Choose a drink"',
+		comment:
+			'Term holding the multilingual prompt, e.g. "Choose your fries"',
 	})
 	label_id!: number;
-
-	@Column('int', {
-		nullable: false,
-		default: 0,
-		comment: 'Candidates that must be chosen; 0 makes the group optional',
-	})
-	min_select!: number;
-
-	@Column('int', {
-		nullable: true,
-		comment: 'Candidates that may be chosen; NULL means no upper bound',
-	})
-	max_select!: number | null;
 
 	@Column('int', {
 		nullable: false,
@@ -86,6 +82,11 @@ export default class ProductBundleGroupEntity extends EntityAbstract {
 	@JoinColumn({ name: 'label_id' })
 	label!: TermEntity;
 
+	/*
+	 * CASCADE from the group's side is a hard delete only; a soft-removed group leaves its
+	 * candidates behind, which is why `assertBundleGroupsAreUsable` reads the pair back rather
+	 * than trusting the sync.
+	 */
 	@OneToMany(
 		'ProductBundleItemEntity',
 		(item: ProductBundleItemEntity) => item.group,

@@ -1,5 +1,6 @@
 import { expect, jest } from '@jest/globals';
 import type TermEntity from '@/features/term/term.entity';
+import { TermTypeEnum } from '@/features/term/term.entity';
 import {
 	getTermEntityMock,
 	termOutputPayloads,
@@ -49,13 +50,56 @@ describe('TermService', () => {
 			type: createData.type,
 		});
 
+		/*
+		 * Folded by the service, not by the validator: the schema cannot see the term's `type`,
+		 * and only some types are folded. A tag is one of the folded ones - "Summer" and "summer"
+		 * rendering as two tags is the defect the rule exists for.
+		 */
 		expect(saveContent).toHaveBeenCalledWith(
 			expect.anything(),
-			createData.contents,
+			createData.contents.map((content) => ({
+				...content,
+				value: content.value.toLowerCase(),
+			})),
 			entity.id,
 		);
 
 		expect(result).toBe(entity);
+	});
+
+	/*
+	 * The exempt types are the ones the customer reads: the question a bundle asks, an
+	 * order-time question and its answers (`text`), and the heading a specification renders
+	 * under (`attribute_label`). Folding those would put "choose your fries" on the storefront.
+	 * Uniqueness is unaffected - `assertNotDuplicate` compares `LOWER()` either way.
+	 */
+	it.each([
+		[TermTypeEnum.BUNDLE_CHOICE, 'Choose your fries'],
+		[TermTypeEnum.TEXT, 'Extra cheese'],
+		[TermTypeEnum.ATTRIBUTE_LABEL, 'Spice level'],
+	])('keeps the case a %s term was written with', async (type, wording) => {
+		const entity = getTermEntityMock();
+
+		setupTransactionMock(mockTerm.repository);
+
+		mockTerm.query.first.mockResolvedValue(null);
+		mockTerm.repository.save.mockResolvedValue(entity);
+
+		const saveContent = jest
+			.spyOn(TermContentRepository, 'saveContent')
+			.mockResolvedValue(undefined);
+
+		await serviceTerm.create({
+			...termOutputPayloads.create,
+			type,
+			contents: [{ language: 'en', value: wording }],
+		} as never);
+
+		expect(saveContent).toHaveBeenCalledWith(
+			expect.anything(),
+			[{ language: 'en', value: wording }],
+			entity.id,
+		);
 	});
 
 	it('should reject a term whose wording is already used by another term of the same type', async () => {

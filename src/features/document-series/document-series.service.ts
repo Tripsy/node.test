@@ -18,7 +18,7 @@ import type { ValidatorOutput } from '@/shared/types/mock.type';
 
 /**
  * What a series hands out. Rendering the two into a reference a person reads (`INV-000142`)
- * is left to the display layer — the series holds no template to render it with.
+ * is left to the display layer - the series holds no template to render it with.
  */
 export type AllocatedReference = {
 	code: string;
@@ -61,7 +61,7 @@ export class DocumentSeriesService {
 
 		// A single statement rather than SELECT … FOR UPDATE + UPDATE: it takes the same row
 		// lock, cannot read a value it then fails to claim, and stays one round trip.
-		// Raw on purpose — a counter bump is not a business update and has no history entry.
+		// Raw on purpose - a counter bump is not a business update and has no history entry.
 		// TypeORM hands back `[rows, affectedCount]` for a write, not a bare row array
 		const [rows]: [Array<{ number: number }>, number] = await manager.query(
 			`UPDATE "document_series"
@@ -115,7 +115,7 @@ export class DocumentSeriesService {
 	 * One series per document type, enforced by a unique index. The lookup is what produces a
 	 * message the caller can act on; the catch below covers the insert that loses a race with
 	 * a concurrent one, where the index is the only thing left to stop it. Without either, a
-	 * duplicate surfaces as a driver error — a 500 whose message the error handler masks.
+	 * duplicate surfaces as a driver error - a 500 whose message the error handler masks.
 	 */
 	public async create(
 		data: ValidatorOutput<DocumentSeriesValidator, 'create'>,
@@ -183,7 +183,7 @@ export class DocumentSeriesService {
 
 	/**
 	 * Hard delete: the table has no `deleted_at`, and a series that has issued numbers should be
-	 * left in place rather than removed — its counter is what the next allocation continues
+	 * left in place rather than removed - its counter is what the next allocation continues
 	 * from.
 	 */
 	public async delete(id: number) {

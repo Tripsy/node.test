@@ -35,7 +35,7 @@ function isComplaintTarget(
  * Fire-and-forget through `runInBackground`, so a failed cleanup logs instead of rejecting into
  * `server.ts`'s `unhandledRejection` handler, which would shut the API down. Leftover complaints
  * are visible in the moderation queue rather than invisible, so a failure here is worth the log it
- * writes — unlike ratings, which simply stop being read.
+ * writes - unlike ratings, which simply stop being read.
  */
 export default function registerComplaintListener() {
 	eventEmitter.on('entityRemoved', (payload: EntityRemovedEventPayload) => {

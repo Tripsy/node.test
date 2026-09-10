@@ -7,7 +7,6 @@ import {
 import type ClientEntity from '@/features/client/client.entity';
 import type VendorEntity from '@/features/vendor/vendor.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 export const OperationalRecordTypeEnum = {
 	CLIENT: 'client',
@@ -55,7 +54,6 @@ const ENTITY_TABLE_NAME = 'operational_record';
 	schema: 'public',
 	comment: 'Store operational records linked with cash flow operations.',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index(
 	'IDX_operational_record_cash_flow_id',
 	['cash_flow_id', 'operational_record_type'],

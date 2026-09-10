@@ -15,7 +15,7 @@ import { createCurrentDate } from '@/helpers/date.helper';
 
 /**
  * The provider round-trip, as a function. Injected rather than imported directly so it can
- * be replaced in tests — the alternative is a live HTTP call to Google in the unit suite.
+ * be replaced in tests - the alternative is a live HTTP call to Google in the unit suite.
  */
 export type ResolveOAuthProfile = (
 	provider: AccountIdentityProvider,
@@ -34,10 +34,10 @@ export class AccountOAuthService {
 
 	/**
 	 * The provider matches `redirect_uri` against the value used to obtain the code, so it
-	 * has to be forwarded verbatim from the client — which means it has to be checked here.
+	 * has to be forwarded verbatim from the client - which means it has to be checked here.
 	 *
 	 * The provider's own registered-URI list already blocks a redirect to an attacker's
-	 * host, so this is defence in depth rather than the primary control; it exists so a
+	 * host, so this is defense in depth rather than the primary control; it exists so a
 	 * misconfigured provider console cannot turn this endpoint into a code-relay.
 	 */
 	private assertAllowedRedirectUri(redirect_uri: string): void {
@@ -102,7 +102,7 @@ export class AccountOAuthService {
 	}
 
 	/**
-	 * @description Creates an account with no password — the provider is the only credential
+	 * @description Creates an account with no password - the provider is the only credential
 	 */
 	private createUserFromProfile(
 		profile: OAuthProfile,
@@ -141,7 +141,7 @@ export class AccountOAuthService {
 			profile.provider_user_id,
 		);
 
-		// Known identity — the subject id is authoritative, the current email is irrelevant.
+		// Known identity - the subject id is authoritative, the current email is irrelevant.
 		if (identity) {
 			const user = await this.userService.findById(
 				identity.user_id,

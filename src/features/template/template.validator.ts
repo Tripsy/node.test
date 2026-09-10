@@ -18,7 +18,7 @@ export const paramsUpdateList: string[] = [
 
 /*
  * `type` discriminates the update union, so the controller fills it in from the stored row
- * whenever the body omits it — by the time the schema runs it is always present, and counting
+ * whenever the body omits it - by the time the schema runs it is always present, and counting
  * it would defeat the empty-update check exactly as `id` would. It stays in
  * `paramsUpdateList` because it is genuinely updatable and the message should say so.
  *
@@ -113,7 +113,7 @@ export class TemplateValidator extends BaseValidator<typeof validatorMessages> {
 		id: this.validateId(this.getMessage('invalid_id', { name: 'id' })),
 	});
 
-	readonly readPage = z.object({
+	readonly publicRead = z.object({
 		label: this.validateString(this.getMessage('invalid_label')),
 	});
 

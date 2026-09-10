@@ -29,7 +29,7 @@ const ENTITY_TABLE_NAME = 'comment_subscription';
 	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 })
-// Also the fan-out lookup on a new comment — it leads with (entity_type, entity_id).
+// Also the fan-out lookup on a new comment - it leads with (entity_type, entity_id).
 // `user_email` is compared byte-for-byte, so the service lower-cases it on write; a decorator
 // cannot declare the lower(user_email) expression index that would hold the rule in the schema.
 @Index(
@@ -81,7 +81,7 @@ export default class CommentSubscriptionEntity {
 	entity_id!: number;
 
 	/**
-	 * What the notification — and the page its unsubscribe link leads to — is written in.
+	 * What the notification - and the page its unsubscribe link leads to - is written in.
 	 *
 	 * Stored rather than resolved at send time: a guest has no account to read a language from, and
 	 * the digest runs from a cron with no request behind it. It is the language of the page they
@@ -100,7 +100,7 @@ export default class CommentSubscriptionEntity {
 
 	/**
 	 * Carried in the unsubscribe link. A guest subscriber holds no session, so this is the only
-	 * credential the opt-out endpoint can authenticate them by — it is a secret, and reaches the
+	 * credential the opt-out endpoint can authenticate them by - it is a secret, and reaches the
 	 * client only through the notification email.
 	 */
 	@Column({

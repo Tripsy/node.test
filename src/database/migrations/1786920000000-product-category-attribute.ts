@@ -1,25 +1,25 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Declares, per category, which attributes a product is expected to carry — and moves the recorded
+ * Declares, per category, which attributes a product is expected to carry - and moves the recorded
  * values off `term` for everything that is not shared vocabulary.
  *
  * An attribute value used to be a `term` id and nothing else, so a measurement had to be spelled
  * out as one: "500 ml" was an `attribute_value` row, per language, and filtering products by volume
  * meant casting localized text with no index in reach. `product_attribute` now stores the number
- * bare in `value_numeric`, with the unit fixed by the definition, and carries `value_base` — the
- * same figure converted into its dimension's base unit — so a range filter is an index-only scan
+ * bare in `value_numeric`, with the unit fixed by the definition, and carries `value_base` - the
+ * same figure converted into its dimension's base unit - so a range filter is an index-only scan
  * and stays correct across categories that quote the label differently (`ml` here, `l` there).
  *
  * `attribute_value_id` is **renamed** rather than dropped and re-added: every existing value is a
  * term id and remains valid as `value_term_id`, so the move is lossless. The column becomes
  * nullable because a scalar value now lives in one of the three new columns instead, which is also
- * why the unique index splits in two — a nullable column inside the old three-column key would
+ * why the unique index splits in two - a nullable column inside the old three-column key would
  * enforce nothing, Postgres counting every NULL as distinct.
  *
  * No backfill of `value_base` is needed: the columns it pairs with are introduced here, so no row
  * can have a number yet. Once the service exists, changing a definition's `unit` does require
- * rewriting every value under it — see `.claude/rules/product.md` §10.11.
+ * rewriting every value under it - see `.claude/rules/product.md` §10.11.
  */
 export class ProductCategoryAttribute1786920000000
 	implements MigrationInterface
@@ -108,7 +108,7 @@ export class ProductCategoryAttribute1786920000000
 		);
 
 		/*
-		 * `product_attribute` — the value stops being a term id only.
+		 * `product_attribute` - the value stops being a term id only.
 		 *
 		 * The foreign key is dropped before the rename and recreated after, rather than left to
 		 * follow the column: its name is derived from the column it covers, and a constraint still
@@ -151,7 +151,7 @@ export class ProductCategoryAttribute1786920000000
 
 		/*
 		 * Every pre-existing row carries a term id and no scalar, so it satisfies the check as it
-		 * stands — nothing to repair before adding it.
+		 * stands - nothing to repair before adding it.
 		 */
 		await queryRunner.query(`ALTER TABLE "product_attribute" ADD CONSTRAINT "CHK_aa707808285fe47e69e3c8edbc" CHECK (
 	(
@@ -189,7 +189,7 @@ export class ProductCategoryAttribute1786920000000
 		);
 
 		/*
-		 * `product_variant_attribute` — the same treatment, minus the unique index, which is keyed
+		 * `product_variant_attribute` - the same treatment, minus the unique index, which is keyed
 		 * on `(variant_id, attribute_label_id)` and already admits exactly one value per axis.
 		 */
 		await queryRunner.query(

@@ -4,8 +4,8 @@ import SubscriberAbstract from '@/shared/abstracts/subscriber.abstract';
 import { LogHistoryActionEnum } from '@/shared/types/log-history.type';
 
 /**
- * A complaint accuses somebody, and what the dashboard does with it — resolve, reopen, dismiss,
- * restore — is exactly the trail a disputed moderation decision is answered from. That is what
+ * A complaint accuses somebody, and what the dashboard does with it - resolve, reopen, dismiss,
+ * restore - is exactly the trail a disputed moderation decision is answered from. That is what
  * `log_history` keeps, and it is the only reason this table is subscribed to at all: `HAS_CACHE`
  * is false, so there is no cache behind it either way.
  *
@@ -31,8 +31,8 @@ export class ComplaintSubscriber extends SubscriberAbstract<ComplaintEntity> {
 	 * The moderation decision, logged as a status move on top of the plain `updated` entry the
 	 * base class writes.
 	 *
-	 * `SubscriberAbstract` looks for a `status` column to do this, and a complaint has none — its
-	 * state is the `is_resolved` flag — so the transition it exists to record would otherwise go
+	 * `SubscriberAbstract` looks for a `status` column to do this, and a complaint has none - its
+	 * state is the `is_resolved` flag - so the transition it exists to record would otherwise go
 	 * down as an ordinary update, indistinguishable from an amended description.
 	 */
 	afterUpdate(event: UpdateEvent<ComplaintEntity>) {

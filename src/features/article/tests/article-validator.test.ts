@@ -70,7 +70,7 @@ describe(validator, () => {
 		expect(validated.success).toBe(false);
 	});
 
-	it('update() ignores source_mode — it is create-only', () => {
+	it('update() ignores source_mode - it is create-only', () => {
 		const validated = articleValidator.update.safeParse({
 			id: 1,
 			source_mode: 'parsed',

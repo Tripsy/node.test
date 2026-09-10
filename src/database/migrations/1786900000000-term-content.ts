@@ -4,7 +4,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * Splits the wording out of `term` into a per-language `term_content`, leaving `term` as the
  * language-neutral identity its consumers already point at.
  *
- * A term row used to *be* one language — unique on `(type, language, value)` — so
+ * A term row used to *be* one language - unique on `(type, language, value)` - so
  * `product_attribute`, `product_tag` and `product_variant_attribute`, which hold a single
  * `term.id`, pinned themselves to whichever language was picked at write time. A product
  * attributed with "Color" rendered as "Color" in a Romanian storefront, with no way back to
@@ -22,7 +22,7 @@ export class TermContent1786900000000 implements MigrationInterface {
 	public async up(queryRunner: QueryRunner): Promise<void> {
 		/*
 		 * No `deleted_at`, matching `image_content`: a translation is never deleted on its own
-		 * — the only write is an upsert — and the row dies with its term through the cascade
+		 * - the only write is an upsert - and the row dies with its term through the cascade
 		 * below. The soft-delete state stays on `term`, where the delete/restore actions act.
 		 */
 		await queryRunner.query(
@@ -74,7 +74,7 @@ export class TermContent1786900000000 implements MigrationInterface {
 
 		/*
 		 * A term with several translations can only collapse back into one row, so the rollback
-		 * keeps the lowest content id per term and drops the rest — the old shape has nowhere to
+		 * keeps the lowest content id per term and drops the rest - the old shape has nowhere to
 		 * put them.
 		 */
 		await queryRunner.query(

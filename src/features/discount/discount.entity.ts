@@ -1,12 +1,11 @@
 import { Column, Entity, Index } from 'typeorm';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 /**
  * What a discount attaches to, which decides the link table its targets live in:
  * `client_discount`, `variant_discount`, `product_discount`, `category_discount`,
- * `brand_discount`. `order` is the exception — it takes no targets and applies to the
+ * `brand_discount`. `order` is the exception - it takes no targets and applies to the
  * basket as a whole.
  *
  * Country is deliberately absent. It describes the buyer rather than the goods and its key
@@ -50,7 +49,7 @@ export type DiscountReason =
  * A discount applies only when every condition it carries is met.
  *
  * **These are re-evaluated, not decided once.** `hour_range` and `day_range` depend on when
- * the question is asked, and `min_order_value` on a basket that is still being edited — so a
+ * the question is asked, and `min_order_value` on a basket that is still being edited - so a
  * discount that qualifies when a product is added to the cart may not qualify when the order
  * is confirmed. Resolve again at confirmation and treat the snapshot on the order line as the
  * record of what was actually granted, never as a promise made earlier.
@@ -99,7 +98,6 @@ const ENTITY_TABLE_NAME = 'discount';
 	comment:
 		'Stores discount definitions. Note: Discount applied only for prices without VAT before exchange rate conversion',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_discount_active', ['start_at', 'end_at', 'scope'])
 export default class DiscountEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;

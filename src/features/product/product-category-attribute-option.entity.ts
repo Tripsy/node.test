@@ -2,12 +2,11 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type ProductCategoryAttributeEntity from '@/features/product/product-category-attribute.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 const ENTITY_TABLE_NAME = 'product_category_attribute_option';
 
 /**
- * One admissible value for a list-backed attribute definition — the *red* in *red, blue, white*.
+ * One admissible value for a list-backed attribute definition - the *red* in *red, blue, white*.
  *
  * A row rather than a string in a `jsonb` column, because the option is a `term` of type
  * `attribute_value` and that buys three things a literal cannot: the wording renders per language
@@ -17,7 +16,7 @@ const ENTITY_TABLE_NAME = 'product_category_attribute_option';
  * same vocabulary rather than two spellings that have to agree.
  *
  * A numeric attribute has no option rows. Its restriction is `min_value` / `max_value` on the
- * definition — a range, which is what a measurement is bounded by, and which leaves the number in
+ * definition - a range, which is what a measurement is bounded by, and which leaves the number in
  * `value_numeric` where it stays filterable. A dropdown of allowed numbers would put the value back
  * in a `term` and forfeit that; see `.claude/rules/product.md` §12.
  */
@@ -27,16 +26,14 @@ const ENTITY_TABLE_NAME = 'product_category_attribute_option';
 	comment:
 		'One admissible value for a list-backed product category attribute',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
-// The only read: every option for a definition, in offer order. Leading on `attribute_id` also
-// serves the cascade the definition's delete triggers
-@Index(
-	'IDX_product_category_attribute_option_attribute_id',
-	['attribute_id', 'sort_order'],
-	{
-		where: 'deleted_at IS NULL',
-	},
-)
+// Every option for a definition, in offer order. Leading on `attribute_id` also serves the cascade
+// the definition's delete triggers, and `ProductCategoryAttributeRepository.syncOptions`, which
+// reads the same key with `withDeleted` - the reason it carries no `deleted_at IS NULL` predicate,
+// since a partial index answers neither
+@Index('IDX_product_category_attribute_option_attribute_id', [
+	'attribute_id',
+	'sort_order',
+])
 @Index(
 	'IDX_product_category_attribute_option_unique',
 	['attribute_id', 'term_id'],
@@ -53,7 +50,7 @@ export default class ProductCategoryAttributeOptionEntity extends EntityAbstract
 	@Column('int', { nullable: false })
 	attribute_id!: number;
 
-	// Indexed for the cascade `term` triggers on delete — it is not a prefix of either index
+	// Indexed for the cascade `term` triggers on delete - it is not a prefix of either index
 	@Column('int', { nullable: false })
 	@Index('IDX_product_category_attribute_option_term_id')
 	term_id!: number;

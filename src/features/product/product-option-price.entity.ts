@@ -1,7 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type ProductOptionEntity from '@/features/product/product-option.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 const ENTITY_TABLE_NAME = 'product_option_price';
@@ -19,7 +18,6 @@ const ENTITY_TABLE_NAME = 'product_option_price';
 	comment:
 		'Per-currency price delta for a product option; excludes VAT, like product-price.entity',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_product_option_price_unique', ['option_id', 'currency'], {
 	unique: true,
 	where: 'deleted_at IS NULL',
@@ -28,7 +26,14 @@ export default class ProductOptionPriceEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
+	/*
+	 * Non-partial on purpose. `ProductOptionRepository.syncPrices` reads this key with `withDeleted`, so it can revive a
+	 * row rather than collide with the partial unique index, and no index carrying
+	 * `WHERE deleted_at IS NULL` answers a query that does not say it. The foreign key's cascade
+	 * looks the children up the same way.
+	 */
 	@Column('int', { nullable: false })
+	@Index('IDX_product_option_price_option_id')
 	option_id!: number;
 
 	@Column('char', {
@@ -38,7 +43,7 @@ export default class ProductOptionPriceEntity extends EntityAbstract {
 	})
 	currency!: string;
 
-	// No positivity check, unlike `product_price.price` — a discount for leaving something out is
+	// No positivity check, unlike `product_price.price` - a discount for leaving something out is
 	// a normal answer, so the delta is signed
 	@Column('decimal', {
 		precision: 12,

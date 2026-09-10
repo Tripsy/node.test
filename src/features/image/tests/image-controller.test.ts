@@ -86,7 +86,7 @@ testControllerStatusUpdate<ImageEntity>({
 });
 
 describe(`${controller} - orderUpdate`, () => {
-	// PATCH /images/:section/:entity_id/order — `section`, not `image_type`, and the
+	// PATCH /images/:section/:entity_id/order - `section`, not `image_type`, and the
 	// entity_id segment is required.
 	const route = `${basePath}/${getImageEntityMock().section}/${getImageEntityMock().entity_id}/order`;
 

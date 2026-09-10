@@ -10,7 +10,7 @@ import type { AuthContext } from '@/shared/types/express';
 
 /*
  * `comparePassword` is a module-level function, not a method on an injected singleton, so it
- * cannot be reached with `jest.spyOn` under the ESM preset — the mock has to be registered
+ * cannot be reached with `jest.spyOn` under the ESM preset - the mock has to be registered
  * before the subject is imported (see testing.md §2.2).
  */
 const comparePassword =

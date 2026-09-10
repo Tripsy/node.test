@@ -21,7 +21,7 @@ const ENTITY_TABLE_NAME = 'log_data';
 /*
  * Equality columns lead, the range column trails: `findByFilter` filters `level` and
  * `category` by equality but `created_at` by range, and a btree stops filtering at the
- * first range predicate — anything ordered after `created_at` could never be used.
+ * first range predicate - anything ordered after `created_at` could never be used.
  */
 @Index('IDX_log_data', ['level', 'category', 'created_at'])
 export default class LogDataEntity {

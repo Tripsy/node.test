@@ -2,7 +2,6 @@ import { Check, Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import type ProductEntity from '@/features/product/product.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 const ENTITY_TABLE_NAME = 'product_attribute';
@@ -20,7 +19,7 @@ const ENTITY_TABLE_NAME = 'product_attribute';
  * | `string` | `value_text` |
  * | `boolean` | `value_boolean` |
  *
- * A number is stored bare — `330`, not `330 ml`. The unit is fixed by the definition and rendered
+ * A number is stored bare - `330`, not `330 ml`. The unit is fixed by the definition and rendered
  * at read time, which is what lets a range query run against an indexed numeric column.
  * `value_numeric` keeps the figure as entered, for display; `value_base` carries it converted into
  * the dimension's base unit, and that is what filters compare. Storing both is what lets one
@@ -36,14 +35,13 @@ const ENTITY_TABLE_NAME = 'product_attribute';
 	schema: 'public',
 	comment: 'Key/value attributes for products, using multilingual terms',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 /**
  * Uniqueness splits in two, because the rule genuinely differs by value shape and a single key
  * cannot say both. A nullable `value_term_id` inside one unique index would say neither: Postgres
  * counts every NULL as distinct, so scalar rows would go entirely unconstrained.
  *
  * - Term-backed rows differ in `value_term_id`, so a product may list three allergens under one
- *   label — the cardinality `product_variant_attribute` deliberately forbids for itself.
+ *   label - the cardinality `product_variant_attribute` deliberately forbids for itself.
  * - Scalar rows are keyed on the label alone, so it admits exactly one number, string or boolean
  *   per product. That is the right rule: a product has one volume.
  *
@@ -67,7 +65,7 @@ const ENTITY_TABLE_NAME = 'product_attribute';
 		where: 'value_term_id IS NULL AND deleted_at IS NULL',
 	},
 )
-// Facet indexes — one per filterable value shape, each leading on the label because a filter always
+// Facet indexes - one per filterable value shape, each leading on the label because a filter always
 // names one ("volume between 300 and 600"), and each carrying `product_id` so the scan answers from
 // the index alone. Partial, so they hold only the rows of that shape rather than the whole table.
 // `IDX_product_attribute_attribute_value_id` below cannot serve either: it leads on the value, so a
@@ -87,7 +85,7 @@ const ENTITY_TABLE_NAME = 'product_attribute';
 	},
 )
 // An attribute row that says nothing, or says two things, is not a state the application should
-// have to interpret on read. `value_base` is excluded from the count — it is not a fifth kind of
+// have to interpret on read. `value_base` is excluded from the count - it is not a fifth kind of
 // value but the normalized form of `value_numeric`, and the second clause ties the two together so
 // no row can be filterable without being displayable, or the reverse
 @Check(`
@@ -103,19 +101,24 @@ export default class ProductAttributeEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
 
-	// No index of its own: it is the leftmost column of `IDX_product_attribute_unique`, which every
-	// read reaches through, and the sibling link tables (product_tag, product_category) do the same
+	/*
+	 * Non-partial on purpose. `ProductAttributeRepository.syncValues` reads this key with `withDeleted`, so it can revive a
+	 * row rather than collide with the partial unique index, and no index carrying
+	 * `WHERE deleted_at IS NULL` answers a query that does not say it. The foreign key's cascade
+	 * looks the children up the same way.
+	 */
 	@Column('int', { nullable: false })
+	@Index('IDX_product_attribute_product_id')
 	product_id!: number;
 
-	// Indexed for the cascade `term` triggers on delete — Postgres looks the children up by this
+	// Indexed for the cascade `term` triggers on delete - Postgres looks the children up by this
 	// key on its own, and it is not a prefix of the unique index
 	@Column('int', { nullable: false })
 	@Index('IDX_product_attribute_attribute_label_id')
 	attribute_label_id!: number;
 
 	// Nullable since a value may instead be a literal in one of the three columns below. Keeps its
-	// own index for the same cascade reason as the label — the facet index leads on the label, so
+	// own index for the same cascade reason as the label - the facet index leads on the label, so
 	// it does not answer "which rows point at this term"
 	@Column('int', { nullable: true })
 	@Index('IDX_product_attribute_attribute_value_id')
@@ -133,7 +136,7 @@ export default class ProductAttributeEntity extends EntityAbstract {
 
 	/**
 	 * `value_numeric` converted into its dimension's base unit by `toBaseUnit`, or a copy of it
-	 * when the definition names no unit — so every numeric attribute has one and a range filter
+	 * when the definition names no unit - so every numeric attribute has one and a range filter
 	 * needs no branch.
 	 *
 	 * Derived, never supplied by a payload, and written in the same statement as `value_numeric`.

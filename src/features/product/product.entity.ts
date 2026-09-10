@@ -12,12 +12,11 @@ import type ProductAvailabilityEntity from '@/features/product/product-availabil
 import type ProductBundleGroupEntity from '@/features/product/product-bundle-group.entity';
 import type ProductBundleItemEntity from '@/features/product/product-bundle-item.entity';
 import type ProductCategoryEntity from '@/features/product/product-category.entity';
+import type ProductContentEntity from '@/features/product/product-content.entity';
 import type ProductOptionGroupEntity from '@/features/product/product-option-group.entity';
 import type ProductTagEntity from '@/features/product/product-tag.entity';
 import type ProductVariantEntity from '@/features/product/product-variant.entity';
-import type VendorEntity from '@/features/vendor/vendor.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const ProductWorkflowEnum = {
@@ -47,14 +46,14 @@ export const WORKFLOW_TRANSITIONS: StatusTransitions<ProductWorkflow> = {
 
 /**
  * Derived, never set directly from a payload: a cron job recomputes it from `available_from`,
- * `available_until` and `discontinued_at`. That is also why it carries no transition map — the
+ * `available_until` and `discontinued_at`. That is also why it carries no transition map - the
  * timestamps are the input the user edits, this is only their projection.
  */
 export const ProductSaleStatusEnum = {
 	AVAILABLE: 'available', // Sellable now
 	COMING_SOON: 'coming_soon', // `available_from` is in the future
 	UNAVAILABLE: 'unavailable', // `available_until` has passed
-	DISCONTINUED: 'discontinued', // `discontinued_at` is set — permanent
+	DISCONTINUED: 'discontinued', // `discontinued_at` is set - permanent
 } as const;
 
 export type ProductSaleStatus =
@@ -72,7 +71,7 @@ export type ProductType =
 /**
  * Whether the product is sold on its own or assembled from other products.
  *
- * Separate from `type` on purpose — that describes how a product is fulfilled (physical, digital,
+ * Separate from `type` on purpose - that describes how a product is fulfilled (physical, digital,
  * service) and stays orthogonal: a bundle of physical goods is both `physical` and `bundle`.
  *
  * A `bundle` holds no stock and its own `vat_category` is unused: the components carry both, and
@@ -102,6 +101,25 @@ export type ProductUnit =
 	(typeof ProductUnitEnum)[keyof typeof ProductUnitEnum];
 
 /**
+ * Which units each type may be sold in. A service is priced by time, a download has no physical
+ * dimension to measure, and only a physical good can be sold by weight, volume or length.
+ *
+ * Enforced by `ProductService.assertUnitForType` rather than by a column check: the pairing spans
+ * two columns and a partial update may move either one alone, so it can only be judged after the
+ * payload is merged onto the stored row.
+ */
+export const UNITS_BY_TYPE: Record<ProductType, readonly ProductUnit[]> = {
+	[ProductTypeEnum.PHYSICAL]: [
+		ProductUnitEnum.PIECE,
+		ProductUnitEnum.KG,
+		ProductUnitEnum.LITRE,
+		ProductUnitEnum.METRE,
+	],
+	[ProductTypeEnum.DIGITAL]: [ProductUnitEnum.PIECE],
+	[ProductTypeEnum.SERVICE]: [ProductUnitEnum.HOUR],
+};
+
+/**
  * The VAT *class* a product declares. The *rate* it resolves to is a function of jurisdiction and
  * date, so it is worked out when the order line is written and snapshot there
  * (`order_product.vat_rate`).
@@ -129,36 +147,31 @@ const ENTITY_TABLE_NAME = 'product';
 	comment:
 		'Stores core product information; textual content is saved in a product-content.entity, prices in a product-price.entity',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
-// The cron that recomputes `sale_status` asks two questions — "coming_soon rows whose
-// available_from is due" and "available rows whose available_until has passed" — so both indexes
-// lead on the equality column and carry the timestamp as the range. The partial predicate keeps
-// them to the rows that actually hold a deadline, which is a small slice of the catalog.
-// `discontinued_at` gets none: it is set by hand and the service moves `sale_status` in the same
-// write, so nothing ever scans for it
-@Index(
-	'IDX_product_sale_status_available_from',
-	['sale_status', 'available_from'],
-	{
-		where: 'available_from IS NOT NULL AND deleted_at IS NULL',
-	},
-)
-@Index(
-	'IDX_product_sale_status_available_until',
-	['sale_status', 'available_until'],
-	{
-		where: 'available_until IS NOT NULL AND deleted_at IS NULL',
-	},
-)
+/*
+ * One per deadline, for the cron that recomputes `sale_status`. Its candidate set is an `OR` of
+ * the three timestamps and constrains nothing else, so each index leads on the column its branch
+ * seeks - a btree only applies a condition on its leading column, and one led by `sale_status`
+ * would be reachable by a full scan alone. The partial predicate keeps each to the rows that
+ * actually hold that deadline, which is a small slice of the catalog and is what every branch of
+ * the `OR` tests for first.
+ *
+ * They serve the seek and not the selectivity: `available_from <= now()` matches every row that
+ * has ever opened, and the clause that makes the set drain - the stored status disagreeing with
+ * what the timestamps imply - cannot be indexed. Past the size where the write cost outweighs
+ * that, dropping all three and letting the three-hourly pass scan is the better trade.
+ */
+@Index('IDX_product_available_from', ['available_from'], {
+	where: 'available_from IS NOT NULL AND deleted_at IS NULL',
+})
+@Index('IDX_product_available_until', ['available_until'], {
+	where: 'available_until IS NOT NULL AND deleted_at IS NULL',
+})
+@Index('IDX_product_discontinued_at', ['discontinued_at'], {
+	where: 'discontinued_at IS NOT NULL AND deleted_at IS NULL',
+})
 export default class ProductEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
-
-	// The style code, one level above what is actually sold — the purchasable code and the barcode
-	// live on `product_variant`, since two sizes of the same dish are two sellable things
-	@Column('varchar', { nullable: false })
-	@Index('IDX_product_sku', { unique: true, where: 'deleted_at IS NULL' })
-	sku!: string;
 
 	@Column({
 		type: 'enum',
@@ -166,6 +179,13 @@ export default class ProductEntity extends EntityAbstract {
 		default: ProductWorkflowEnum.DRAFT,
 		nullable: false,
 	})
+	/*
+	 * The one enum here that carries an index, and the reason is cardinality of the *query*
+	 * rather than of the column: `draft`, `pending_review` and `revision_required` are each a
+	 * small minority of the catalog and the dashboard's review queue seeks them by name. `type`
+	 * and `composition` are skewed facets nothing asks a rare value of, so they carry none - see
+	 * `1789800000000-product-drop-enum-facet-indexes.ts`.
+	 */
 	@Index('IDX_product_workflow')
 	workflow!: ProductWorkflow;
 
@@ -175,9 +195,17 @@ export default class ProductEntity extends EntityAbstract {
 		default: ProductSaleStatusEnum.AVAILABLE,
 		nullable: false,
 	})
-	// Kept alongside the two composites above: those are partial, so the planner cannot use them
-	// for a plain "what is sellable" filter that says nothing about the availability window
-	@Index('IDX_product_sale_status')
+	/*
+	 * **A projection, never the authority.** Nothing that decides what may be sold reads this:
+	 * `filterBySellable` compares the three timestamps directly, because a column a cron catches
+	 * up on a schedule trails the deadline it describes between passes. This is what the
+	 * dashboard's badge and its status facet are built on, and that is the whole of its job.
+	 *
+	 * Deliberately unindexed, as `type` and `composition` are. The facet is admin traffic,
+	 * paginated, over four values that skew heavily to `available` - a btree Postgres would
+	 * decline to use for the common one anyway. The three partial indexes above stay: those serve
+	 * the cron, which seeks on a deadline.
+	 */
 	sale_status!: ProductSaleStatus;
 
 	@Column({
@@ -186,7 +214,6 @@ export default class ProductEntity extends EntityAbstract {
 		default: ProductTypeEnum.PHYSICAL,
 		nullable: false,
 	})
-	@Index('IDX_product_type')
 	type!: ProductType;
 
 	@Column({
@@ -195,7 +222,6 @@ export default class ProductEntity extends EntityAbstract {
 		default: ProductCompositionEnum.SIMPLE,
 		nullable: false,
 	})
-	@Index('IDX_product_composition')
 	composition!: ProductComposition;
 
 	@Column({
@@ -242,15 +268,11 @@ export default class ProductEntity extends EntityAbstract {
 	})
 	details!: Record<string, string | number | boolean> | null;
 
-	// Nullable: plenty of catalogs sell unbranded items — a restaurant dish has no manufacturer,
+	// Nullable: plenty of catalogs sell unbranded items - a restaurant dish has no manufacturer,
 	// and inventing a placeholder brand row to satisfy the key is worse than an absent one
 	@Column('int', { nullable: true })
 	@Index('IDX_product_brand_id')
 	brand_id!: number | null;
-
-	@Column('int', { nullable: true })
-	@Index('IDX_product_vendor_id')
-	vendor_id!: number | null;
 
 	// RELATIONS
 	// RESTRICT even though the column is nullable: an absent brand is a legitimate state, silently
@@ -262,14 +284,13 @@ export default class ProductEntity extends EntityAbstract {
 	@JoinColumn({ name: 'brand_id' })
 	brand?: BrandEntity | null;
 
-	@ManyToOne('VendorEntity', {
-		onDelete: 'SET NULL',
-		nullable: true,
-	})
-	@JoinColumn({ name: 'vendor_id' })
-	vendor?: VendorEntity | null;
+	@OneToMany(
+		'ProductContentEntity',
+		(content: ProductContentEntity) => content.product,
+	)
+	contents?: ProductContentEntity[];
 
-	// Prices hang off the variant, not the product — a product is priced only through them
+	// Prices hang off the variant, not the product - a product is priced only through them
 	@OneToMany(
 		'ProductVariantEntity',
 		(variant: ProductVariantEntity) => variant.product,
@@ -288,15 +309,18 @@ export default class ProductEntity extends EntityAbstract {
 	)
 	availabilities?: ProductAvailabilityEntity[];
 
-	// Populated only while `composition` is `bundle`
+	/*
+	 * Both populated only while `composition` is `bundle`. A component is included unless it is
+	 * `is_optional` or a candidate in one of the groups, which are held flat here for the same
+	 * reason the payload holds them flat - a component belongs to a group or to no group, and one
+	 * list beats two places to read it from.
+	 */
 	@OneToMany(
 		'ProductBundleGroupEntity',
 		(bundleGroup: ProductBundleGroupEntity) => bundleGroup.product,
 	)
 	bundle_groups?: ProductBundleGroupEntity[];
 
-	// Every component of this bundle, whether or not it sits in a group — `product_bundle_item`
-	// links to the bundle directly so an always-included component needs no group
 	@OneToMany(
 		'ProductBundleItemEntity',
 		(bundleItem: ProductBundleItemEntity) => bundleItem.product,

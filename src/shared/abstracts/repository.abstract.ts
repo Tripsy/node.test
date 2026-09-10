@@ -404,11 +404,11 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 
 	/**
 	 * Drops the cached entries of the rows a terminal just wrote, **after** its transaction has
-	 * committed — inside it, a concurrent reader could refill the cache from a snapshot the commit
+	 * committed - inside it, a concurrent reader could refill the cache from a snapshot the commit
 	 * is about to supersede, and nothing further would come along to correct it.
 	 *
 	 * The entity class is reached through `this.repository.target`, which TypeORM types as
-	 * `EntityTarget<T>` — legitimately a string or a schema, not only a class — so the statics have
+	 * `EntityTarget<T>` - legitimately a string or a schema, not only a class - so the statics have
 	 * to be read defensively. Failing closed is right: something without them owns no keyspace.
 	 */
 	private async cleanCache(ids: number[]): Promise<void> {
@@ -577,7 +577,7 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		min?: Date | number | null,
 		max?: Date | number | null,
 	): this {
-		// Pass Date objects directly to TypeORM — avoids timezone issues from string formatting
+		// Pass Date objects directly to TypeORM - avoids timezone issues from string formatting
 		const minValue = min ?? undefined;
 		const maxValue = max ?? undefined;
 
@@ -601,10 +601,27 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 		return this;
 	}
 
-	filterById(id?: number | null) {
+	/**
+	 * Filters on the primary key, by one id or by several.
+	 *
+	 * A list goes through `IN` and is skipped when empty - an empty array would otherwise reach
+	 * Postgres as `IN ()`, a syntax error rather than a query answering with no rows. Either
+	 * form marks the query as filtered, so a `delete`/`restore` scoped to a set of ids is
+	 * accepted where an unfiltered one is refused.
+	 */
+	filterById(id?: number | readonly number[] | null) {
+		if (Array.isArray(id)) {
+			if (id.length > 0) {
+				this.hasFilter = true;
+				this.filterBy('id', [...id], 'IN');
+			}
+
+			return this;
+		}
+
 		if (id) {
 			this.hasFilter = true;
-			this.filterBy('id', id);
+			this.filterBy('id', id as number);
 		}
 
 		return this;
@@ -643,12 +660,12 @@ abstract class RepositoryAbstract<TEntity extends ObjectLiteral> {
 	 * Splitting on whitespace alone is not enough: `to_tsquery` has a grammar, and the
 	 * operators in it (`& | ! ( ) : <->` and a trailing backslash) are exactly the characters a
 	 * search box collects by accident. `to_tsquery('simple', 'foo(bar:*')` does not return
-	 * nothing, it raises a syntax error — which surfaces as a 500 for anyone typing an opening
+	 * nothing, it raises a syntax error - which surfaces as a 500 for anyone typing an opening
 	 * bracket. Splitting on "not a letter or digit" removes the whole class at once, in any
 	 * alphabet, rather than escaping a list that has to stay in sync with Postgres.
 	 *
 	 * Returns an empty string when nothing survives (`"+++"`, `"()"`). **Callers must skip the
-	 * filter in that case** — `to_tsquery('simple', ':*')` is itself a syntax error.
+	 * filter in that case** - `to_tsquery('simple', ':*')` is itself a syntax error.
 	 *
 	 * @param {string} term - Raw search input
 	 * @returns {string} - `&`-joined tokens, or '' when the input carried no searchable text

@@ -27,17 +27,17 @@ const ENTITY_TABLE_NAME = 'document_series';
 /**
  * Numbering series and their counters.
  *
- * A series stores only what has to be allocated — the code and the running number. How the two
+ * A series stores only what has to be allocated - the code and the running number. How the two
  * are rendered into a reference is a presentation choice and belongs to whatever displays it,
  * so there is no template or padding column here.
  *
- * A series runs continuously — there is no yearly reset. Restarting the counter would need the
+ * A series runs continuously - there is no yearly reset. Restarting the counter would need the
  * year on the document too: references are keyed on (`ref_code`, `ref_number`), so the first
  * document of a new year would collide with the first of the old one.
  *
  * **No `deleted_at`**, so this does not extend `EntityAbstract`. `RepositoryAbstract` soft-deletes
  * by default and every query filters `deleted_at IS NULL`, which for a counter means the row
- * holding the last issued number quietly disappears while its `document_type` stays taken — an
+ * holding the last issued number quietly disappears while its `document_type` stays taken - an
  * allocation would then fail rather than continue. Deleting a series is a hard delete, and only
  * safe before it has issued anything.
  */

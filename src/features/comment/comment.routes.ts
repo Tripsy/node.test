@@ -24,7 +24,7 @@ export default async () => {
 				method: 'put',
 				handlers: [validateParamsWhenId('id')],
 			},
-			// Hard delete — the table has no `deleted_at`, so there is no `restore` to pair
+			// Hard delete - the table has no `deleted_at`, so there is no `restore` to pair
 			// with it, and the replies go with the comment through the cascade.
 			delete: {
 				path: '/:id',

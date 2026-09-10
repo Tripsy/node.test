@@ -10,6 +10,10 @@ import { v4 as uuid } from 'uuid';
 import { Configuration } from '@/config/settings.config';
 import { createCurrentDate } from '@/helpers/date.helper';
 import authMiddleware from '@/middleware/auth.middleware';
+import {
+	clientKeyMiddleware,
+	reportClientKeyState,
+} from '@/middleware/client-key.middleware';
 import { corsHandler } from '@/middleware/cors-handler.middleware';
 import { errorHandler } from '@/middleware/error-handler.middleware';
 import languageMiddleware from '@/middleware/language.middleware';
@@ -74,7 +78,7 @@ export async function createApp() {
 	 * Configuration
 	 *
 	 * In production the app sits behind exactly one reverse proxy, so `req.ip` must come
-	 * from X-Forwarded-For rather than the socket — otherwise every request looks like it
+	 * from X-Forwarded-For rather than the socket - otherwise every request looks like it
 	 * originates from the proxy's address. That single shared address would collapse
 	 * `express-rate-limit` into one global bucket for all callers, and make every logged IP
 	 * identical.
@@ -94,6 +98,14 @@ export async function createApp() {
 
 	// CORS handling
 	app.use(corsHandler);
+
+	/*
+	 * Client key gate. Sits directly behind CORS and ahead of the body parsers so an
+	 * unkeyed caller is refused before a 10mb body is read; `/health` and `/ready` are
+	 * exempt inside the middleware.
+	 */
+	reportClientKeyState();
+	app.use(clientKeyMiddleware);
 
 	// Compression
 	app.use(

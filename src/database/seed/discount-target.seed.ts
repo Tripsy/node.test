@@ -15,23 +15,26 @@ import DiscountTargetEntity, {
 	type DiscountTargetType,
 	DiscountTargetTypeEnum,
 } from '@/features/discount/discount-target.entity';
+import ProductEntity from '@/features/product/product.entity';
+import ProductVariantEntity from '@/features/product/product-variant.entity';
 
 /**
  * Links the seeded discounts to the entities they apply to.
  *
  * Lives in the seed orchestrator rather than in `discount`, so that owning the demo wiring does
- * not hand `discount` a dependency on every catalogue feature it points at. The target table
+ * not hand `discount` a dependency on every catalog feature it points at. The target table
  * itself is polymorphic and carries no foreign key, so nothing here needs the owning entities
  * except to read real ids.
  *
- * `product`/`variant` targets are skipped: there is no product seed, so there would be nothing
- * to point at.
+ * Every scope but `order` is covered - that one applies to the basket as a whole and points at
+ * nothing. A plan whose owners are absent (a feature removed, or its seed not yet run) simply
+ * links nothing rather than failing.
  */
 
 type LinkPlan = {
 	scope: DiscountScope;
 	targetType: DiscountTargetType;
-	// biome-ignore lint/suspicious/noExplicitAny: three unrelated owner entities
+	// biome-ignore lint/suspicious/noExplicitAny: five unrelated owner entities
 	ownerEntity: new () => any;
 	/** Narrows which owners are eligible; categories are a mixed tree of two types. */
 	ownerWhere?: Record<string, unknown>;
@@ -47,13 +50,28 @@ const PLANS: readonly LinkPlan[] = [
 		scope: DiscountScopeEnum.CATEGORY,
 		targetType: DiscountTargetTypeEnum.CATEGORY,
 		ownerEntity: CategoryEntity,
-		// Product categories only — a discount on a blog category would never resolve.
+		// Product categories only - a discount on a blog category would never resolve.
 		ownerWhere: { type: 'product' },
 	},
 	{
 		scope: DiscountScopeEnum.BRAND,
 		targetType: DiscountTargetTypeEnum.BRAND,
 		ownerEntity: BrandEntity,
+	},
+	/*
+	 * Unfiltered on purpose: a launch offer is written before the product it announces is
+	 * sellable, so narrowing to the live catalog would leave the scheduled campaigns pointing
+	 * at nothing.
+	 */
+	{
+		scope: DiscountScopeEnum.PRODUCT,
+		targetType: DiscountTargetTypeEnum.PRODUCT,
+		ownerEntity: ProductEntity,
+	},
+	{
+		scope: DiscountScopeEnum.VARIANT,
+		targetType: DiscountTargetTypeEnum.VARIANT,
+		ownerEntity: ProductVariantEntity,
 	},
 ];
 

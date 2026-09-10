@@ -18,7 +18,7 @@ const ENTITY_TABLE_NAME = 'log_history';
 	comment: 'Store entities history: created, updated, deleted, etc.',
 })
 /*
- * `entity` leads because an id is only meaningful within its entity — id 5 exists for
+ * `entity` leads because an id is only meaningful within its entity - id 5 exists for
  * `user`, `product` and `order` alike. This order also serves a filter on `entity` alone,
  * which an `entity_id`-leading index cannot.
  */

@@ -18,7 +18,7 @@ const pool = new Pool({
 /**
  * Run a query inside a READ ONLY transaction. Postgres rejects any write at the
  * transaction level regardless of the role's grants, so this is a structural
- * guarantee — not just a naming convention.
+ * guarantee - not just a naming convention.
  */
 export const runReadOnly = async <T extends QueryResultRow = QueryResultRow>(
 	sql: string,
@@ -70,7 +70,7 @@ const WHERE_PATTERN = /\bwhere\b/i;
  * Heuristic defense-in-depth gate matching `.claude/rules/database.md` §6.1.
  * Returns a human-readable reason when a statement is high-risk, else null.
  *
- * This is a coarse text scan (comments/string literals can fool it) — the
+ * This is a coarse text scan (comments/string literals can fool it) - the
  * authoritative approval gate is Claude Code's own tool-permission prompt.
  */
 export const assessDanger = (sql: string): string | null => {

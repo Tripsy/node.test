@@ -1,6 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 export const TemplateTypeEnum = {
 	PAGE: 'page',
@@ -37,7 +36,7 @@ export type EmailContent = {
 
 /**
  * One row of `template.seed.ts`. Exported from the entity rather than from the seed, because the
- * seed self-executes on import — a feature contributing its own templates has to be able to name
+ * seed self-executes on import - a feature contributing its own templates has to be able to name
  * the shape without starting a seeding run.
  */
 export type TemplateSeedEntry = {
@@ -60,7 +59,6 @@ const ENTITY_TABLE_NAME = 'template';
 	schema: 'system',
 	comment: 'Stores email & page templates',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_label_language_type', ['label', 'language', 'type'], {
 	unique: true,
 	where: 'deleted_at IS NULL',

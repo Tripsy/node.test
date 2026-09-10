@@ -4,7 +4,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * Documents `article.details` as the home of the per-article `allow_rating` / `allow_comments` /
  * `allow_complaints` switches.
  *
- * Comment only — the column already exists and the switches are jsonb keys, so no stored row
+ * Comment only - the column already exists and the switches are jsonb keys, so no stored row
  * changes. An article that overrides nothing keeps `details` null and follows the deployment
  * defaults (`ARTICLE_ALLOW_*`, all on unless set to `false`).
  */

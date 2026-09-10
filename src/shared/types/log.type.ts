@@ -26,7 +26,7 @@ export type CallStack = {
  *
  * Built once per line and handed to every destination, replacing the previous
  * `JSON.parse(JSON.stringify(log))` that each destination did for itself. Destinations
- * must treat it as read-only — they share the same object.
+ * must treat it as read-only - they share the same object.
  */
 export type LogRecord = {
 	readonly level: LogDataLevel;
@@ -50,7 +50,7 @@ export type LogRecord = {
  * One place a log line can go.
  *
  * Adding a destination means adding a file that implements this and registering it in
- * `log-destinations.factory.ts` — `LogStream` itself never changes. `levels` is read by
+ * `log-destinations.factory.ts` - `LogStream` itself never changes. `levels` is read by
  * the factory, so a destination that accepts nothing is dropped at startup rather than
  * being asked to no-op on every line.
  */
@@ -58,7 +58,7 @@ export interface LogDestination {
 	readonly name: LogDestinationName;
 	readonly levels: ReadonlyArray<LogDataLevel>;
 	/**
-	 * Deliver one record. Must not throw — a destination that fails is the logger's
+	 * Deliver one record. Must not throw - a destination that fails is the logger's
 	 * problem to swallow, never the caller's. Rejections are caught and reported to
 	 * `console.error` by `LogStream`, since logging the logger would recurse.
 	 */

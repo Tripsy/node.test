@@ -9,12 +9,14 @@ import DiscountTargetEntity, {
 	type DiscountTargetType,
 	DiscountTargetTypeEnum,
 } from '@/features/discount/discount-target.entity';
+import { isoWeekday } from '@/helpers/date.helper';
+import { roundMoney } from '@/helpers/shop.helper';
 
 /**
  * Everything the resolver needs about one basket line.
  *
  * Money splits across two currencies and mixing them is the easy mistake here, so each field
- * says which one it is in. `exchangeRate` follows `order_product.exchange_rate` — "rate to the
+ * says which one it is in. `exchangeRate` follows `order_product.exchange_rate` - "rate to the
  * base currency", so `base = sale × rate` and `sale = base ÷ rate`, and it is 1 when the sale
  * is already in base currency.
  */
@@ -31,10 +33,8 @@ export type DiscountLineContext = {
 	unitPrice: number;
 	exchangeRate: number;
 
-	/** `product_price.min_price` — sale currency, already market-specific. */
+	/** `product_price.min_price` - sale currency, already market-specific. */
 	minPrice?: number | null;
-	/** `product_variant.cost_price` — base currency. */
-	costPrice?: number | null;
 
 	/** Basket subtotal excluding VAT, sale currency, for `min_order_value`. */
 	orderValue?: number;
@@ -42,7 +42,7 @@ export type DiscountLineContext = {
 	countryCode?: string | null;
 
 	/**
-	 * The moment the question is being asked, for `hour_range` and `day_range` — and for the
+	 * The moment the question is being asked, for `hour_range` and `day_range` - and for the
 	 * discount's own window. Injectable so a test is not at the mercy of the clock, and so a
 	 * caller re-resolving an order can ask "did this hold at confirmation time".
 	 */
@@ -68,18 +68,14 @@ export type ResolvedDiscount = {
 const KNOWN_CONDITION_KEYS = new Set<string>(DiscountConditionKeys);
 
 /**
- * Inclusive range test that also accepts a window wrapping past the end of the cycle — 22:00
- * to 04:00, or Friday to Monday — which reads naturally to whoever sets it and would otherwise
+ * Inclusive range test that also accepts a window wrapping past the end of the cycle - 22:00
+ * to 04:00, or Friday to Monday - which reads naturally to whoever sets it and would otherwise
  * be an empty range.
  */
 function inCyclicRange(value: number, [from, to]: [number, number]): boolean {
 	return from <= to
 		? value >= from && value <= to
 		: value >= from || value <= to;
-}
-
-function round(value: number): number {
-	return Math.round(value * 100) / 100;
 }
 
 /** Expands categories to themselves plus every ancestor, so a discount on "Shoes" reaches "Shoes > Running". */
@@ -92,7 +88,7 @@ async function expandCategoryAncestors(
 
 	/*
 	 * `category` is a `@Tree('closure-table')`, so TypeORM maintains `category_closure` with
-	 * one row per ancestor/descendant pair — including the self-pair. One join therefore
+	 * one row per ancestor/descendant pair - including the self-pair. One join therefore
 	 * replaces a recursive walk, and re-parenting a category moves its discounts with it
 	 * because the closure rows are rebuilt by TypeORM, not by us.
 	 */
@@ -105,7 +101,7 @@ async function expandCategoryAncestors(
 }
 
 /**
- * The entity ids this line could match, grouped by target type — every category ancestor
+ * The entity ids this line could match, grouped by target type - every category ancestor
  * included, so a discount on "Shoes" reaches a product in "Shoes > Running".
  */
 async function buildTargetGroups(
@@ -139,7 +135,7 @@ async function buildTargetGroups(
  * Every live discount linked to anything on this line, in one query.
  *
  * Targets are polymorphic, so all five kinds live in one table and the lookup is a single
- * statement joined to the discount for its window — one round trip however many category
+ * statement joined to the discount for its window - one round trip however many category
  * ancestors turned up. A table per target kind cost a query each plus a union in application
  * code.
  *
@@ -236,10 +232,9 @@ export function evaluateConditions(
 			}
 
 			case 'day_range': {
-				// `getDay()` is Sunday-based; conditions are written in ISO weekdays.
-				const isoDay = now.getDay() === 0 ? 7 : now.getDay();
-
-				if (!inCyclicRange(isoDay, value as [number, number])) {
+				if (
+					!inCyclicRange(isoWeekday(now), value as [number, number])
+				) {
 					return false;
 				}
 
@@ -269,27 +264,24 @@ export function evaluateConditions(
 /**
  * The lowest unit price a discount may resolve to, in the sale currency.
  *
- * `min_price` wins outright when set: it is a deliberate per-market commercial decision and
- * may legitimately sit below cost for a campaign. Cost is the fallback safety net for variants
- * with no floor of their own. Both absent means no floor — the only remaining guard is that a
- * line cannot go negative.
+ * `min_price` is the whole rule: a deliberate per-market commercial decision, which may
+ * legitimately sit below cost for a campaign. Absent, there is no floor - the only remaining
+ * guard is that a line cannot go negative.
+ *
+ * **Cost is deliberately not a fallback.** What the goods cost is an accounting figure and must
+ * not move what a customer is charged: a floor derived from it would make the sale price of two
+ * identical items differ by their purchase history, and would shift under a variant the moment a
+ * goods receipt recomputes the weighted average. A seller who wants cost respected states it as a
+ * `min_price`, in the market's own currency, where it is visible and auditable.
  */
 function resolveFloor(context: DiscountLineContext): number | null {
-	if (context.minPrice !== null && context.minPrice !== undefined) {
-		return context.minPrice;
-	}
-
-	if (context.costPrice !== null && context.costPrice !== undefined) {
-		return context.costPrice / context.exchangeRate;
-	}
-
-	return null;
+	return context.minPrice ?? null;
 }
 
 /**
  * Money off the whole line, after clamping.
  *
- * An `amount` discount is per unit, matching `percent`, which is inherently per unit — a line
+ * An `amount` discount is per unit, matching `percent`, which is inherently per unit - a line
  * of three gets the discount three times either way.
  */
 export function computeReduction(
@@ -308,7 +300,7 @@ export function computeReduction(
 			? context.unitPrice
 			: Math.max(0, context.unitPrice - floor);
 
-	return round(
+	return roundMoney(
 		Math.max(0, Math.min(rawPerUnit, maxPerUnit)) * context.quantity,
 	);
 }
@@ -329,7 +321,7 @@ export class DiscountResolutionService {
 	/**
 	 * The single best discount for one basket line, or null when nothing applies.
 	 *
-	 * Every candidate is costed and the largest reduction wins outright — there is no scope
+	 * Every candidate is costed and the largest reduction wins outright - there is no scope
 	 * precedence, so a product promotion can beat a client's own discount. Ties go to the
 	 * lowest id, which keeps the outcome stable across reruns rather than leaving it to row
 	 * order.

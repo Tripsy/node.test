@@ -27,7 +27,7 @@ import type { ValidatorOutput } from '@/shared/types/mock.type';
 
 /**
  * Who the request counts as. `user_id` is null for a guest; `user_ip_hash` is always present, which
- * is what lets a guest be addressed at all — it is the only handle their later edit or withdrawal
+ * is what lets a guest be addressed at all - it is the only handle their later edit or withdrawal
  * can be matched by.
  *
  * `is_staff` is resolved from the caller's role, never from the body: it is a badge the comment is
@@ -44,7 +44,7 @@ export type CommentAuthor = {
  *
  * Three rather than one: a single report is as often a disagreement as a problem, and taking a
  * comment down on it would hand any reader a mute button for anybody they argue with. Three
- * independent readers — distinct, identifiable accounts, which is what `complaint` counts — is
+ * independent readers - distinct, identifiable accounts, which is what `complaint` counts - is
  * enough of a signal to hide the comment until a moderator has looked at it, and the move is
  * reversible from the dashboard either way.
  */
@@ -52,10 +52,10 @@ export const COMMENT_FLAG_REPORTER_THRESHOLD = 3;
 
 /**
  * Whether a **member's** comment is public the moment it is written. A guest's is never
- * auto-approved — see `create` below for why an account is the line.
+ * auto-approved - see `create` below for why an account is the line.
  *
  * On by default: a discussion that only appears after somebody has looked at it is not a
- * discussion, and the moderation this replaces is reactive for members — a comment can be
+ * discussion, and the moderation this replaces is reactive for members - a comment can be
  * rejected, and `COMMENT_FLAG_REPORTER_THRESHOLD` separate reports take it down on their own
  * (`comment.listener.ts`). Turn it off per deployment for a site that would rather read
  * everything first; nothing else changes, the queue simply fills again.
@@ -96,7 +96,7 @@ export class CommentService {
 	/**
 	 * @description Used in `create` method from the public controller
 	 *
-	 * A **member's** comment lands `approved` — public straight away — unless `isCommentAutoApproved()`
+	 * A **member's** comment lands `approved` - public straight away - unless `isCommentAutoApproved()`
 	 * is turned off for the deployment. Moderation is reactive for them: a comment can still be
 	 * rejected, and three separate reports take one down on their own (`comment.listener.ts`).
 	 *
@@ -104,13 +104,13 @@ export class CommentService {
 	 * An account is the only thing standing behind what a comment claims: it can be suspended, it
 	 * carries an address somebody confirmed, and the reports that flag a comment count identifiable
 	 * reporters for the same reason. A guest is an address hash and a name they typed, so the one
-	 * thing that could be undone afterwards — publishing it — is not done first.
+	 * thing that could be undone afterwards - publishing it - is not done first.
 	 *
 	 * Both consequences of being visible are handled here rather than left to `updateStatus`,
 	 * which is where they used to happen:
 	 *
 	 * - the parent's `reply_count` moves in the same transaction as the insert, because the
-	 *   counter is read publicly next to a list of approved replies — a visible reply the counter
+	 *   counter is read publicly next to a list of approved replies - a visible reply the counter
 	 *   does not know about is as wrong as a pending one it does;
 	 * - the thread cache is dropped, because a public read now returns something different.
 	 *
@@ -125,7 +125,7 @@ export class CommentService {
 
 		/*
 		 * `CHK_comment_author` holds the same rule in the database. Checking it here is what turns
-		 * a missing name into a 400 the caller can act on — the constraint violation it would
+		 * a missing name into a 400 the caller can act on - the constraint violation it would
 		 * otherwise raise reaches them as a masked 500.
 		 */
 		if (isGuest && (!data.guest_name || !data.guest_email)) {
@@ -135,7 +135,7 @@ export class CommentService {
 		/*
 		 * Asked before anything is written: the target decides whether it still takes comments
 		 * at all, and an article whose editor closed the discussion answers no. A target with
-		 * nobody registered for it — and every target while the registry is empty — is open,
+		 * nobody registered for it - and every target while the registry is empty - is open,
 		 * so this is a refusal only where somebody owns the switch.
 		 */
 		const isAccepted = await isParticipationAllowed(
@@ -177,7 +177,7 @@ export class CommentService {
 				}),
 			);
 
-			// The moderation trail stays empty: nobody decided this, the setting did — the same
+			// The moderation trail stays empty: nobody decided this, the setting did - the same
 			// reason `moderated_by` is null for the automatic flag.
 			if (isPublic && stored.parent_id) {
 				await repository.increment(
@@ -235,7 +235,8 @@ export class CommentService {
 			.createQuery()
 			.select(['comment.id'])
 			.filterById(data.parent_id)
-			.filterByTarget(data.entity_type, data.entity_id)
+			.filterBy('entity_type', data.entity_type)
+			.filterBy('entity_id', data.entity_id)
 			.filterByStatus(CommentStatusEnum.APPROVED)
 			.first();
 
@@ -247,7 +248,7 @@ export class CommentService {
 	}
 
 	/**
-	 * The states an author may still rewrite their own comment in — `pending`, because nobody has
+	 * The states an author may still rewrite their own comment in - `pending`, because nobody has
 	 * read it yet, and `approved`, because with `COMMENT_AUTO_APPROVE` on that is where a member's
 	 * comment lands the moment it is written, and a rule excluding it would mean no member can
 	 * ever correct a typo.
@@ -255,11 +256,11 @@ export class CommentService {
 	 * The three that are missing are the ones a moderator decided: `rejected`, `spam` and
 	 * `flagged`. That text is the record a decision was taken against, and letting the author
 	 * replace it would be letting them answer the complaint by changing what was complained about.
-	 * Nothing here returns a comment to the queue either — `STATUS_TRANSITIONS` has no path back to
+	 * Nothing here returns a comment to the queue either - `STATUS_TRANSITIONS` has no path back to
 	 * `pending`, by design.
 	 *
 	 * The trade this accepts: an approved comment can be rewritten into something a moderator
-	 * never passed. `edited_at` is what makes that visible — the thread marks an edited comment —
+	 * never passed. `edited_at` is what makes that visible - the thread marks an edited comment -
 	 * and the reactive half of moderation (§3's automatic flagging, a moderator's own decision)
 	 * applies to the new text exactly as it did to the old.
 	 */
@@ -295,7 +296,7 @@ export class CommentService {
 		const saved = await this.repository.save(entry);
 
 		/*
-		 * An approved comment is on the page, so its thread has to be dropped — this is the one
+		 * An approved comment is on the page, so its thread has to be dropped - this is the one
 		 * public write that used to be safe without it, back when only `pending` rows could be
 		 * edited. A pending one changes no public read, and cleaning for it would drop every
 		 * cached page of the target for nothing.
@@ -311,7 +312,7 @@ export class CommentService {
 	 * @description Used in `delete` method from the public controller
 	 *
 	 * Scoped to the caller's own row, so a visitor can only ever withdraw what they wrote. A
-	 * comment somebody else owns raises the repository's 404 — the same answer an id that never
+	 * comment somebody else owns raises the repository's 404 - the same answer an id that never
 	 * existed gives, which is what keeps this from reporting on rows the caller cannot see.
 	 */
 	public async deleteOwn(
@@ -338,7 +339,7 @@ export class CommentService {
 	 * Removes a comment and everything hanging beneath it.
 	 *
 	 * `parent_id` is `ON DELETE CASCADE`, so the descendants go with the root on their own. What
-	 * cascade cannot reach is everything pointing at those rows *polymorphically* — `rating` names
+	 * cascade cannot reach is everything pointing at those rows *polymorphically* - `rating` names
 	 * a comment through `(entity_type, entity_id)` with no foreign key to travel. The subtree is
 	 * therefore resolved before the delete and announced afterwards on `entityRemoved`, which the
 	 * feature owning those rows listens for and clears on its own; this service holds no reference
@@ -347,7 +348,7 @@ export class CommentService {
 	 * The announcement sits outside the transaction, and after it commits: a listener running
 	 * inside would be clearing rows for a delete that could still roll back. The cleanup is
 	 * therefore eventually consistent rather than atomic, which is safe because Postgres does not
-	 * reuse a serial id — nothing can claim the ids those rows still point at in the meantime.
+	 * reuse a serial id - nothing can claim the ids those rows still point at in the meantime.
 	 *
 	 * The parent's `reply_count` drops by exactly one, and only when the row being removed was
 	 * approved: the counter follows visibility (see `updateStatus`), so a pending reply was never
@@ -407,8 +408,8 @@ export class CommentService {
 
 	/**
 	 * Comments left behind by a target that no longer exists. `(entity_type, entity_id)` carries no
-	 * foreign key, so nothing removes them when an article or a review goes away — whoever deletes
-	 * the target calls this.
+	 * foreign key, so nothing removes them when the target goes away - whoever deletes it calls
+	 * this.
 	 *
 	 * Roots only: their descendants follow through the cascade, and deleting a reply whose parent is
 	 * in the same sweep would only move a counter that is about to be removed.
@@ -420,7 +421,8 @@ export class CommentService {
 		const roots = await this.repository
 			.createQuery()
 			.select(['comment.id'])
-			.filterByTarget(entityType, entityId)
+			.filterBy('entity_type', entityType)
+			.filterBy('entity_id', entityId)
 			.filterByParent(null)
 			.all();
 
@@ -432,9 +434,9 @@ export class CommentService {
 	/**
 	 * @description Used in `update` method from the dashboard controller
 	 *
-	 * Only the presentation of a comment is editable here — its text, what kind of contribution it
+	 * Only the presentation of a comment is editable here - its text, what kind of contribution it
 	 * is, whether it sits at the top of the thread. The moderation decision itself moves through
-	 * `updateStatus`, which is the only place `STATUS_TRANSITIONS` is honoured.
+	 * `updateStatus`, which is the only place `STATUS_TRANSITIONS` is honored.
 	 */
 	public async updateData(
 		entry: CommentEntity,
@@ -467,18 +469,18 @@ export class CommentService {
 	 * @description Used in `statusUpdate` method from the dashboard controller
 	 *
 	 * The moderation trail is written with the decision, in the same save: who decided, when, and
-	 * why. `moderation_reason` is overwritten on every decision rather than appended to — it
+	 * why. `moderation_reason` is overwritten on every decision rather than appended to - it
 	 * describes the state the comment is in now, and the history of how it got there is what
 	 * `log_history` keeps.
 	 *
 	 * `moderatedBy` is nullable because the column is: the caller is always authenticated here, but
-	 * a decision taken by a background sweep — a spam classifier, an orphan cleanup — has no user
+	 * a decision taken by a background sweep - a spam classifier, an orphan cleanup - has no user
 	 * to name, and forcing one would mean inventing it.
 	 *
 	 * This is also where a reply enters or leaves its parent's `reply_count`, in the same
 	 * transaction as the decision that moved it: the counter tracks what a reader can actually
 	 * open, so it follows visibility rather than existence. Only a crossing of the `approved`
-	 * boundary counts — `rejected → spam` changes nothing that was ever on show.
+	 * boundary counts - `rejected → spam` changes nothing that was ever on show.
 	 */
 	public async updateStatus(
 		entry: CommentEntity,
@@ -526,12 +528,12 @@ export class CommentService {
 	 * pending a moderator's decision.
 	 *
 	 * Only from `approved`: every other status is either already off the thread or a decision
-	 * somebody took, and `STATUS_TRANSITIONS` refuses the move anyway — checking here keeps a
+	 * somebody took, and `STATUS_TRANSITIONS` refuses the move anyway - checking here keeps a
 	 * background sweep from throwing over a comment a moderator has just rejected. A comment
 	 * already `flagged` is likewise left alone: the reports keep arriving, and re-flagging it
 	 * would rewrite `moderated_at` on every one of them.
 	 *
-	 * `moderatedBy` is null because nobody decided this — the threshold did.
+	 * `moderatedBy` is null because nobody decided this - the threshold did.
 	 */
 	public async flagWhenReported(
 		id: number,
@@ -564,8 +566,8 @@ export class CommentService {
 	 * Marks a batch as answered for by the subscriber digest.
 	 *
 	 * A bare `update` rather than a save per row: nothing about this is a moderation decision, so
-	 * there is no transition to validate, no cache to drop — the public read does not show
-	 * `notified_at` — and no audit entry worth writing. It is the run's own bookkeeping.
+	 * there is no transition to validate, no cache to drop - the public read does not show
+	 * `notified_at` - and no audit entry worth writing. It is the run's own bookkeeping.
 	 */
 	public async markNotified(ids: number[]): Promise<void> {
 		if (!ids.length) {
@@ -578,7 +580,7 @@ export class CommentService {
 	}
 
 	/**
-	 * Where one comment lives, for a permalink to resolve against — the target it hangs from and
+	 * Where one comment lives, for a permalink to resolve against - the target it hangs from and
 	 * the comment it answers, which is what addresses it inside a thread.
 	 *
 	 * Approved only, and it is `firstOrFail`, so a comment that was rejected or removed after the
@@ -607,7 +609,7 @@ export class CommentService {
 	 * @description Used in `read` method from the dashboard controller
 	 *
 	 * The moderation view, so it carries what the public one hides: the guest's email and the
-	 * moderation trail. `user_ip_hash` stays out even here — it identifies a visitor across every
+	 * moderation trail. `user_ip_hash` stays out even here - it identifies a visitor across every
 	 * comment they ever left, and no moderation decision is made from it.
 	 */
 	public getEntryData(id: number): Promise<CommentEntity> {
@@ -651,7 +653,8 @@ export class CommentService {
 				'user.id',
 				'user.name',
 			])
-			.filterByTarget(data.filter.entity_type, data.filter.entity_id)
+			.filterBy('entity_type', data.filter.entity_type)
+			.filterBy('entity_id', data.filter.entity_id)
 			.filterBy('type', data.filter.type)
 			.filterByStatus(data.filter.status)
 			.filterByParent(data.filter.parent_id)
@@ -666,7 +669,7 @@ export class CommentService {
 	/**
 	 * @description Used in `find` method from the public controller
 	 *
-	 * One level of one thread, approved rows only. Pinned first, then by the requested ordering —
+	 * One level of one thread, approved rows only. Pinned first, then by the requested ordering -
 	 * a pinned comment is pinned to the top of the page it is on, which is why the flag leads the
 	 * sort rather than filtering into a list of its own.
 	 */
@@ -676,7 +679,8 @@ export class CommentService {
 				.createQuery()
 				.join('comment.user', 'user', 'LEFT')
 				.select([...PUBLIC_COLUMNS, 'user.id', 'user.name'])
-				.filterByTarget(data.entity_type, data.entity_id)
+				.filterBy('entity_type', data.entity_type)
+				.filterBy('entity_id', data.entity_id)
 				.filterByStatus(CommentStatusEnum.APPROVED)
 				// An absent `parent_id` reads the roots, not the whole flat thread: replies are fetched
 				// per parent, so a long discussion does not have to arrive in one page.
@@ -696,7 +700,7 @@ export class CommentService {
 	 * answers.
 	 *
 	 * A thread shows its first reply without being unrolled, and resolving that per root would
-	 * cost one request per root on every page — the same shape the bulk rating read exists to
+	 * cost one request per root on every page - the same shape the bulk rating read exists to
 	 * avoid. One query answers for the whole page instead.
 	 *
 	 * `MIN(id)` rather than the earliest `created_at`: ids are sequential here, so the two agree,
@@ -738,8 +742,8 @@ export class CommentService {
 
 	/**
 	 * What a public write may hand back: the comment, minus everything about its author that the
-	 * author did not send. `user_ip_hash` above all — it is the handle a guest's later edit is
-	 * matched by, so echoing it publishes the one credential an anonymous comment has — but the
+	 * author did not send. `user_ip_hash` above all - it is the handle a guest's later edit is
+	 * matched by, so echoing it publishes the one credential an anonymous comment has - but the
 	 * moderation trail has no business leaving the dashboard either.
 	 *
 	 * `status` stays, and has to: the response is what tells the visitor their comment is waiting
@@ -771,15 +775,15 @@ export class CommentService {
 	 *
 	 * Keyed by target rather than by row, which is what a public read is addressed by: one new
 	 * approval changes an unknown number of pages, and there is no id shared between them to clean
-	 * by. `cleanEntityCache` cannot express that shape — it builds `<entity>:<id>*`.
+	 * by. `cleanEntityCache` cannot express that shape - it builds `<entity>:<id>*`.
 	 *
 	 * The pattern is a prefix, so target 1 also drops targets 10 and 100. Over-invalidating costs a
 	 * refill and nothing else; the alternative is a delimiter in the key that every reader would
 	 * have to agree on.
 	 *
 	 * **Deleted inside the request, like every other clean in the codebase** (`cleanEntityCache`):
-	 * this thread is read straight back by the client that just wrote to it — every moderation
-	 * control refetches the moment its request resolves — so a clean left to a background task
+	 * this thread is read straight back by the client that just wrote to it - every moderation
+	 * control refetches the moment its request resolves - so a clean left to a background task
 	 * would answer the write with the page it just replaced.
 	 */
 	private async cleanThreadCache(

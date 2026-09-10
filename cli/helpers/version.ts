@@ -1,9 +1,9 @@
 /**
  * Version parsing and range matching for the feature installer.
  *
- * Deliberately not the `semver` package. The manifest grammar is narrow — one constraint per
+ * Deliberately not the `semver` package. The manifest grammar is narrow - one constraint per
  * dependency, over plain `major.minor.patch` releases, with no pre-release tags, build metadata or
- * unions — and this is a boilerplate other projects are copied from, so a dependency carried into
+ * unions - and this is a boilerplate other projects are copied from, so a dependency carried into
  * every one of them has to earn its place. Roughly sixty lines does not.
  */
 

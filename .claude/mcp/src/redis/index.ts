@@ -282,7 +282,7 @@ server.registerTool(
 	{
 		title: 'Flush the current database (gated)',
 		description:
-			'Delete EVERY key in the current Redis database. Irreversible — refused unless `allowDestructive: true` is passed.',
+			'Delete EVERY key in the current Redis database. Irreversible - refused unless `allowDestructive: true` is passed.',
 		inputSchema: {
 			allowDestructive: z
 				.boolean()

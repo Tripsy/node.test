@@ -5,7 +5,7 @@ import DiscountTargetEntity, {
 	DiscountTargetTypeEnum,
 } from '@/features/discount/discount-target.entity';
 
-/** `{ client: [3, 9], category: [12] }` — the shape the reconcile endpoint speaks. */
+/** `{ client: [3, 9], category: [12] }` - the shape the reconcile endpoint speaks. */
 export type DiscountTargetMap = Partial<Record<DiscountTargetType, number[]>>;
 
 export const discountTargetTypes = Object.values(
@@ -41,13 +41,13 @@ export class DiscountTargetService {
 	/**
 	 * Makes the stored links match `targets` exactly, in one transaction.
 	 *
-	 * Only the types present in `targets` are touched — passing `{ category: [] }` clears the
+	 * Only the types present in `targets` are touched - passing `{ category: [] }` clears the
 	 * category links and leaves every other type alone, so a caller editing one scope cannot
 	 * wipe the others by omission.
 	 *
 	 * Rows are hard-deleted rather than soft-deleted. The partial unique index ignores
 	 * soft-deleted rows, so a link removed and re-added would otherwise accumulate tombstones
-	 * that no query ever reads, and the link carries no history worth keeping — what was
+	 * that no query ever reads, and the link carries no history worth keeping - what was
 	 * actually charged lives in the order line's snapshot.
 	 */
 	public async replaceTargets(

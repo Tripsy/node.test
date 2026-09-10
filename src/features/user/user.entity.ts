@@ -1,6 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
 import { type UserRole, UserRoleEnum } from '@/shared/types/user-role.type';
 
@@ -34,7 +33,6 @@ const ENTITY_TABLE_NAME = 'user';
 	name: ENTITY_TABLE_NAME,
 	schema: 'public',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 export default class UserEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;
@@ -50,7 +48,7 @@ export default class UserEntity extends EntityAbstract {
 	email_verified_at!: Date | null;
 
 	/*
-	 * Nullable because an account created through social sign-in has no password at all —
+	 * Nullable because an account created through social sign-in has no password at all -
 	 * see `account-oauth.service.ts`. `null` is the honest representation: an unusable
 	 * placeholder hash would be indistinguishable from a real one, and password recovery
 	 * would happily hand such an account a working password.

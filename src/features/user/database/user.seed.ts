@@ -22,7 +22,7 @@ const TARGET = 12;
  * row below sets it.
  *
  * Fine to hold in the repository because these accounts only ever exist in a seeded
- * development database — never point this seed at anything else.
+ * development database - never point this seed at anything else.
  */
 const ADMIN_EMAIL = 'admin@demo.test';
 const ADMIN_PASSWORD = 'Admin123!';
@@ -66,7 +66,7 @@ export const userSeed: SeedDefinition = {
 				const now = new Date();
 
 				// Index 0 is always the admin, so a fresh database is never left without a
-				// way in — the rest of the demo data is unusable without one.
+				// way in - the rest of the demo data is unusable without one.
 				if (index === 0) {
 					return {
 						name: 'Demo Admin',
@@ -80,7 +80,7 @@ export const userSeed: SeedDefinition = {
 					};
 				}
 
-				// Roughly a third staff operators, the rest ordinary members — the shape of
+				// Roughly a third staff operators, the rest ordinary members - the shape of
 				// a storefront's account table.
 				const isOperator = index % 3 === 0;
 

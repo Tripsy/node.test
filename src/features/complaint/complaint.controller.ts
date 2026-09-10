@@ -13,8 +13,8 @@ import asyncHandler from '@/helpers/async.handler';
 import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
- * The moderation side. There is no `create` — a complaint is filed by whoever is reading, through
- * the public controller — and no `update`: the text is the reporter's accusation, and a moderator
+ * The moderation side. There is no `create` - a complaint is filed by whoever is reading, through
+ * the public controller - and no `update`: the text is the reporter's accusation, and a moderator
  * who could rewrite it would be answering a complaint of their own making. What a moderator does
  * here is decide, through `resolveUpdate`.
  */
@@ -66,10 +66,10 @@ class ComplaintController extends BaseController {
 	});
 
 	/**
-	 * The moderation decision, and its reversal — one action each, since the direction is the
+	 * The moderation decision, and its reversal - one action each, since the direction is the
 	 * endpoint rather than a field in the body.
 	 *
-	 * `resolved_by` is taken from the authenticated caller, never from the request — `canUpdate`
+	 * `resolved_by` is taken from the authenticated caller, never from the request - `canUpdate`
 	 * has already established there is one.
 	 */
 	private resolutionUpdate(isResolved: boolean) {

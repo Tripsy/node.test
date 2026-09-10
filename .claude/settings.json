@@ -13,8 +13,8 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "awk '/^# .*TODO/{f=1;next} f&&/^# /{exit} f' \"$CLAUDE_PROJECT_DIR/README.md\" 2>/dev/null | jq -Rs '{suppressOutput:true,systemMessage:(\"README TODO\\n\" + .)}'",
-						"statusMessage": "Reading README TODO"
+						"command": "f=\"$CLAUDE_PROJECT_DIR/TODO.md\"; [ -s \"$f\" ] || exit 0; jq -Rs '{suppressOutput:true,systemMessage:(\"TODO\\n\" + .)}' < \"$f\"",
+						"statusMessage": "Reading TODO.md"
 					}
 				]
 			}

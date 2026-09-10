@@ -16,8 +16,8 @@ import { hashClientIp } from '@/helpers/security.helper';
 import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
- * The reader-facing side. Every action here is open to guests — rating is what an anonymous
- * visitor does — so authorization is not a permission check but an identity: `resolveOwner`
+ * The reader-facing side. Every action here is open to guests - rating is what an anonymous
+ * visitor does - so authorization is not a permission check but an identity: `resolveOwner`
  * decides which rows the request may speak for, and both the write and the withdrawal are scoped
  * to those.
  */
@@ -33,7 +33,7 @@ class RatingPublicController extends BaseController {
 	/**
 	 * Who the request counts as. The address hash is always required,
 	 * so a request whose origin cannot be resolved is rejected here rather than stored under a
-	 * shared fallback — see `hashClientIp` and the entity.
+	 * shared fallback - see `hashClientIp` and the entity.
 	 *
 	 * 400 rather than 500: it is the deployment's proxy configuration that decides whether an
 	 * address arrives, so this is a fact about the request, and a 5xx message would be masked
@@ -67,11 +67,11 @@ class RatingPublicController extends BaseController {
 	});
 
 	/**
-	 * Changing a rating already cast. The target and `type` come from the params — they address
-	 * the row and are not editable — while the body carries the new `value` / `reaction`, so the
+	 * Changing a rating already cast. The target and `type` come from the params - they address
+	 * the row and are not editable - while the body carries the new `value` / `reaction`, so the
 	 * two are merged into the one schema that validates a rating of that type. Params are spread
 	 * last on purpose: a body naming a different target would otherwise redirect the write to a
-	 * row the path never authorised.
+	 * row the path never authorized.
 	 *
 	 * Separate from `create` rather than folded into an upsert: `create`'s 409 distinguishes the
 	 * caller's own earlier rating from one cast by somebody else behind the same address, and an
@@ -96,7 +96,7 @@ class RatingPublicController extends BaseController {
 	});
 
 	/**
-	 * Withdrawing a rating — the reader takes it back entirely. Changing one's mind about the
+	 * Withdrawing a rating - the reader takes it back entirely. Changing one's mind about the
 	 * score goes through `update` instead and keeps the row.
 	 */
 	public delete = asyncHandler(async (req: Request, res: Response) => {
@@ -119,7 +119,7 @@ class RatingPublicController extends BaseController {
 	 * This is what a list of rated things reads: a page of comments would otherwise call `read`
 	 * once per comment, and the page's own request count would grow with its length.
 	 *
-	 * The ids travel in the query string rather than the path — there are many of them, and the
+	 * The ids travel in the query string rather than the path - there are many of them, and the
 	 * path already means "one target" here.
 	 */
 	public summaries = asyncHandler(async (req: Request, res: Response) => {
@@ -145,7 +145,7 @@ class RatingPublicController extends BaseController {
 	});
 
 	/**
-	 * The aggregate for one target, plus what this caller cast on it — the two halves a rating
+	 * The aggregate for one target, plus what this caller cast on it - the two halves a rating
 	 * widget renders at once, so they are resolved together rather than over two round trips.
 	 *
 	 * Not cached: `RatingEntity.HAS_CACHE` is false, and a cached count is the one thing a reader

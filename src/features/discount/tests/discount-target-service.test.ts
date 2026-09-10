@@ -4,7 +4,7 @@ import type DiscountTargetEntity from '@/features/discount/discount-target.entit
 import { DiscountTargetService } from '@/features/discount/discount-target.service';
 
 /**
- * One repository stands in for the whole table now that targets are polymorphic — the previous
+ * One repository stands in for the whole table now that targets are polymorphic - the previous
  * shape needed a fake data source because it resolved five repositories by table name.
  */
 function createRepository(rows: Partial<DiscountTargetEntity>[] = []) {

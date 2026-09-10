@@ -3,6 +3,6 @@
 	"version": "1.0.0",
 	"relativePath": "/review",
 	"entities": ["review"],
-	"depends_on": ["product", "user"],
+	"depends_on": ["product", "user", "order"],
 	"required_by": []
 }

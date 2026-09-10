@@ -41,7 +41,7 @@ jobs:
       # `pnpm run biome` is `biome check --write`: it fixes problems in place and exits 0,
       # so in CI a lint failure would pass silently. `biome ci` is the read-only
       # counterpart and fails on anything it would have changed. It also covers circular
-      # imports through noImportCycles — which is why the old `madge` step is gone: madge
+      # imports through noImportCycles - which is why the old `madge` step is gone: madge
       # was removed from the project, so that step could only ever fail.
       - name: Lint and format (Biome)
         run: pnpm exec biome ci .

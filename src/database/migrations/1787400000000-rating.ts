@@ -2,7 +2,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
  * The `rating` table only. `comment`, `review` and `complaint` arrived in the same change and are
- * still unmigrated, so a generated migration carries all four — this one was cut down to the rows
+ * still unmigrated, so a generated migration carries all four - this one was cut down to the rows
  * the rating feature needs to run.
  *
  * The `FK_17618c…` name is the one TypeORM derives from the table and column, kept verbatim so the

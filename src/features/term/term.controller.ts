@@ -49,7 +49,7 @@ class TermController extends BaseController {
 		 * An absent `language` returns every translation rather than falling back to
 		 * `res.locals.language`. A term has no wording of its own, so the editor has to see the
 		 * full set to work with it; a caller that wants one language asks for it. The same rule
-		 * holds for every content-bearing feature — `'all-languages'` keeps the two cache
+		 * holds for every content-bearing feature - `'all-languages'` keeps the two cache
 		 * entries apart.
 		 */
 		const cacheKey = this.cache.buildKey(

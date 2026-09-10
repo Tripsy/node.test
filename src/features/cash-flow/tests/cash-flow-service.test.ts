@@ -179,12 +179,26 @@ describe('CashFlowService', () => {
 		).rejects.toThrow('cash-flow.error.refund_amount_mismatch');
 	});
 
-	it('getExchangeRate - should return 1 for default currency', () => {
-		const result = serviceCashFlow.getExchangeRate(
+	it('getExchangeRate - should return 1 for default currency', async () => {
+		const result = await serviceCashFlow.getExchangeRate(
 			Configuration.currency() as Currency,
 		);
 
 		expect(result).toBe(1);
+	});
+
+	// The refund and the entry it reverses are the same money in the same currency, so the
+	// rate comes from the parent rather than from whatever is published today
+	it('getExchangeRate - should inherit the rate of a refunded entry', async () => {
+		const result = await serviceCashFlow.getExchangeRate(
+			CurrencyEnum.EUR,
+			getCashFlowEntityMock({
+				currency: CurrencyEnum.EUR,
+				exchange_rate: 4.9712,
+			}),
+		);
+
+		expect(result).toBe(4.9712);
 	});
 
 	it('should create entry - refund', async () => {

@@ -11,12 +11,11 @@ import type ProductEntity from '@/features/product/product.entity';
 import type ProductOptionEntity from '@/features/product/product-option.entity';
 import type TermEntity from '@/features/term/term.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 
 const ENTITY_TABLE_NAME = 'product_option_group';
 
 /**
- * A question asked at order time — "choose a side", "extras" — whose answers are the rows in
+ * A question asked at order time - "choose a side", "extras" - whose answers are the rows in
  * `product_option`.
  *
  * Distinct from a variant: a variant is a different thing to sell, with its own SKU and price
@@ -34,7 +33,6 @@ const ENTITY_TABLE_NAME = 'product_option_group';
 	comment:
 		'A choice offered on a product at order time; the answers live in product-option.entity',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_product_option_group_product_id', ['product_id', 'position'])
 @Index('IDX_product_option_group_label_id', ['label_id'])
 @Check(`(min_select >= 0)`)

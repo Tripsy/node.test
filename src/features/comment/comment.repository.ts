@@ -1,6 +1,5 @@
 import type { Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
-import type { CommentEntityType } from '@/features/comment/comment.entity';
 import CommentEntity from '@/features/comment/comment.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
@@ -10,22 +9,8 @@ export class CommentQuery extends RepositoryAbstract<CommentEntity> {
 	}
 
 	/**
-	 * The two columns every read of this table starts from, in the order `IDX_comment_entity`
-	 * holds them.
-	 */
-	filterByTarget(
-		entityType?: CommentEntityType | null,
-		entityId?: number | null,
-	): this {
-		this.filterBy('entity_type', entityType);
-		this.filterBy('entity_id', entityId);
-
-		return this;
-	}
-
-	/**
 	 * One level of the tree. `null` means the roots, which is a different condition from "any
-	 * parent" — hence the explicit tri-state rather than a `filterBy` that drops a null value.
+	 * parent" - hence the explicit tri-state rather than a `filterBy` that drops a null value.
 	 *
 	 * `undefined` leaves the filter off entirely, which is what a dashboard listing wants: it
 	 * shows roots and replies together.
@@ -46,11 +31,11 @@ export class CommentQuery extends RepositoryAbstract<CommentEntity> {
 	 * Narrows to the rows the caller may speak for, which is what makes a public edit or delete
 	 * safe without a second ownership check downstream.
 	 *
-	 * A signed-in caller is matched by `user_id` alone — they may well be writing from a different
+	 * A signed-in caller is matched by `user_id` alone - they may well be writing from a different
 	 * address than the one they commented from.
 	 *
 	 * A guest is matched by address **and** `user_id IS NULL`. Without that second condition anyone
-	 * sharing an address — a household, an office, a carrier's NAT — could edit a signed-in user's
+	 * sharing an address - a household, an office, a carrier's NAT - could edit a signed-in user's
 	 * comment, since nothing stops both rows from carrying the same hash.
 	 */
 	filterByOwner(userId: number | null, userIpHash: string): this {
@@ -68,7 +53,7 @@ export class CommentQuery extends RepositoryAbstract<CommentEntity> {
 
 	/**
 	 * The moderation search box: the text itself and the name a guest signed it with. `ILIKE` over
-	 * a full-text index on purpose — a moderator searches for a fragment ("http", a slur, half a
+	 * a full-text index on purpose - a moderator searches for a fragment ("http", a slur, half a
 	 * word), which `to_tsquery` cannot express and stemming would defeat.
 	 */
 	filterByTerm(term?: string | null): this {

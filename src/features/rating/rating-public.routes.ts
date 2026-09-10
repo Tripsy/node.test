@@ -25,7 +25,7 @@ export default async () => {
 			 * The target and the rating type address the row; who owns it comes from the
 			 * request, never from the path. An `/:id` route would have to be checked against
 			 * the caller afterwards, and getting that check wrong lets anyone edit or delete
-			 * anyone's rating — the id is simply not the caller's to name. Both writes below
+			 * anyone's rating - the id is simply not the caller's to name. Both writes below
 			 * are addressed this way for that reason.
 			 */
 			update: {

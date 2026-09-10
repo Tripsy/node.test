@@ -134,7 +134,7 @@ export class OutputWrapper {
 			/*
 			 * The echoed request is a debugging aid only. `headers` carries the
 			 * `Authorization` bearer token and the cookie jar, so outside debug it is
-			 * dropped wholesale rather than field-by-field — reflecting credentials back
+			 * dropped wholesale rather than field-by-field - reflecting credentials back
 			 * to the client (and into any log or error reporter that captures the
 			 * response body) is a leak, not a convenience.
 			 */

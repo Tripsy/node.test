@@ -22,14 +22,14 @@ const ENTITY_TABLE_NAME = 'account_identity';
 /*
  * A row per (user, provider) pair rather than columns on `user`: a user may sign in with
  * Google today and link Facebook later, and the provider's subject id is the only stable
- * join key — an email can change on either side.
+ * join key - an email can change on either side.
  */
 @Entity({
 	name: ENTITY_TABLE_NAME,
 	schema: 'system',
 	comment: 'Links a user to an external identity provider (social sign-in)',
 })
-// The subject id is unique per provider, not globally — both columns are needed.
+// The subject id is unique per provider, not globally - both columns are needed.
 @Index(
 	'IDX_account_identity_provider_subject',
 	['provider', 'provider_user_id'],

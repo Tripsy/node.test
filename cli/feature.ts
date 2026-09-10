@@ -23,7 +23,7 @@ interface Manifest {
 	relativePath: string;
 	entities: string[];
 	/**
-	 * Features this one needs, as `name` (any version) or `name@range` — `vendor@^2.0.0`.
+	 * Features this one needs, as `name` (any version) or `name@range` - `vendor@^2.0.0`.
 	 * A range that the installed version does not satisfy blocks install and upgrade.
 	 */
 	depends_on: string[];
@@ -263,7 +263,7 @@ class FeatureManager {
 	 * Scans every installed feature for a `depends_on` entry naming this one.
 	 *
 	 * Reverse dependencies are read off disk rather than off this feature's own `required_by`,
-	 * because that field is hand-maintained and drifts — `vendor` listed none while `cash-flow`
+	 * because that field is hand-maintained and drifts - `vendor` listed none while `cash-flow`
 	 * depended on it, so removing `vendor` would have been allowed.
 	 */
 	private async getInstalledDependents(): Promise<Dependent[]> {
@@ -521,7 +521,7 @@ class FeatureManager {
 		}
 
 		// Declared reverse dependencies. A declaration only blocks while the installed version is
-		// inside its range — `order@^1.0.0` says nothing about an installed order v2
+		// inside its range - `order@^1.0.0` says nothing about an installed order v2
 		const declared = await this.resolveDependencies(manifest.required_by);
 
 		const blocking = [
@@ -835,7 +835,7 @@ class FeatureManager {
 		}
 
 		// Check that every dependency is installed, at a version inside the range the *incoming*
-		// package declares — the upgrade may well have raised it
+		// package declares - the upgrade may well have raised it
 		await this.assertDependenciesMet(sourceManifest, 'upgraded');
 
 		const targetManifest = await this.parseManifest(

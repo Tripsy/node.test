@@ -45,7 +45,7 @@ export abstract class IsValidator {
 	protected isValidIBAN(iban: string): boolean {
 		const clean = iban.replace(/\s+/g, '').toUpperCase();
 
-		// ISO 13616 registers Romania as RO2!n4!a16!c — two check digits, a four-letter bank
+		// ISO 13616 registers Romania as RO2!n4!a16!c - two check digits, a four-letter bank
 		// code, then sixteen *alphanumeric* characters. The account part is not digits-only:
 		// the ECBS reference value RO49AAAA1B31007593840000 carries letters there.
 		if (!/^RO\d{2}[A-Z]{4}[A-Z0-9]{16}$/.test(clean)) {
@@ -83,7 +83,7 @@ export abstract class IsValidator {
 	 * Deliberately an E.164 *shape* check rather than a per-country rule: these numbers
 	 * belong to clients, carriers and CMR contacts who are routinely outside Romania, so
 	 * anything narrower would reject legitimate counterparties. Optional leading `+` then
-	 * 7 to 15 digits — E.164 caps a number at 15, and 7 is the shortest plausible national
+	 * 7 to 15 digits - E.164 caps a number at 15, and 7 is the shortest plausible national
 	 * one. A leading trunk zero (0722…) is accepted because that is how numbers are written
 	 * locally.
 	 *
@@ -91,8 +91,8 @@ export abstract class IsValidator {
 	 * @returns {boolean}
 	 */
 	protected isValidPhoneNumber(phoneNumber: string): boolean {
-		// Separators are a presentation choice — numbers get pasted with spaces, dots,
-		// dashes or parentheses — so strip them before looking at the digits.
+		// Separators are a presentation choice - numbers get pasted with spaces, dots,
+		// dashes or parentheses - so strip them before looking at the digits.
 		const clean = phoneNumber.replace(/[\s.\-()]/g, '');
 
 		return /^\+?\d{7,15}$/.test(clean);
@@ -101,8 +101,8 @@ export abstract class IsValidator {
 	/**
 	 * Checks if the provided CNP is valid.
 	 *
-	 * Verifies the structure that is safe to assume for every CNP — 13 digits, a sex/century
-	 * digit of 1-9, and a real month — plus the control digit, which is what actually catches
+	 * Verifies the structure that is safe to assume for every CNP - 13 digits, a sex/century
+	 * digit of 1-9, and a real month - plus the control digit, which is what actually catches
 	 * a mistyped number. The birth day and county code are deliberately *not* checked: those
 	 * follow different conventions for CNPs issued to foreign residents, so enforcing them
 	 * risks rejecting valid numbers.
@@ -127,7 +127,7 @@ export abstract class IsValidator {
 		}
 
 		// Control digit: weight the first twelve digits by the national constant, sum, then
-		// take mod 11 — a remainder of 10 stands for a control digit of 1.
+		// take mod 11 - a remainder of 10 stands for a control digit of 1.
 		const controlKey = '279146358279';
 
 		let sum = 0;
@@ -158,7 +158,7 @@ export abstract class BaseValidator<
 
 		/*
 		 * Presence check rather than `??`: `null` is a meaningful choice here, and the
-		 * nullish operator would fold it back into `undefined` — making `emptyValue: null`
+		 * nullish operator would fold it back into `undefined` - making `emptyValue: null`
 		 * impossible to set and silently leaving every optional field `.optional()`.
 		 */
 		this.emptyValue =
@@ -323,7 +323,7 @@ export abstract class BaseValidator<
 		if (options.required) {
 			/*
 			 * A required field has to reject the empty string, and only `minChars` implies
-			 * that on its own — `maxChars` does not. Key the guard off `minChars` alone, so
+			 * that on its own - `maxChars` does not. Key the guard off `minChars` alone, so
 			 * that `{ required: true, maxChars: n }` cannot quietly accept ''.
 			 */
 			const requiredSchema = options.minChars
@@ -426,7 +426,7 @@ export abstract class BaseValidator<
 			 * entity's own `TMessage`.
 			 *
 			 * The key has to match how it is read below (`message.only_positive`). Get that
-			 * wrong and the default silently never resolves — Zod falls back to its own
+			 * wrong and the default silently never resolves - Zod falls back to its own
 			 * untranslated "Too small: expected number to be >0".
 			 */
 			defaultMessages.only_positive = lang(
@@ -597,6 +597,50 @@ export abstract class BaseValidator<
 			required: false,
 			onlyPositive: true,
 		});
+	}
+
+	/**
+	 * Validate a query filter naming several IDs, for a caller that has to resolve a set of rows
+	 * in one request rather than one round trip per id.
+	 *
+	 * `qs` hands over a bare value for a single `filter[id][]` and an array for several, so one
+	 * id is wrapped rather than rejected. That is also what keeps a caller written against the
+	 * scalar form working unchanged.
+	 *
+	 * The list is non-empty when present: `filter[id][]=` with nothing in it would otherwise
+	 * reach the query as `IN ()`, which Postgres rejects as a syntax error rather than
+	 * answering with no rows.
+	 */
+	// Overload signatures
+	protected validateIdFilter(
+		message?: string,
+		optionsData?: { required?: true },
+	): z.ZodType<number[]>;
+
+	protected validateIdFilter(
+		message?: string,
+		optionsData?: { required: false },
+	): z.ZodType<number[] | undefined>;
+
+	// Implementation signature
+	protected validateIdFilter(
+		message: string = 'Invalid IDs',
+		optionsData?: { required?: boolean },
+	): z.ZodType<number[] | undefined> {
+		const options = {
+			required: true,
+			...optionsData,
+		};
+
+		const schema = z.preprocess(
+			(value) =>
+				value === undefined || Array.isArray(value) ? value : [value],
+			z
+				.array(this.validateId(message, { required: true }))
+				.nonempty({ message }),
+		);
+
+		return options.required ? schema : schema.optional();
 	}
 
 	/**
@@ -992,7 +1036,7 @@ export abstract class BaseValidator<
 		}
 
 		/*
-		 * A time off the interval is rejected, not rounded onto it — the `minuteInterval`
+		 * A time off the interval is rejected, not rounded onto it - the `minuteInterval`
 		 * refinement above enforces that, so nothing downstream ever needs to snap a value.
 		 * Rounding instead means dropping that refinement first; adding a transform alongside
 		 * it is dead code, since no value that fails it gets this far.

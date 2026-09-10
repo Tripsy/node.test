@@ -4,5 +4,5 @@
 	"relativePath": "/term",
 	"entities": ["term", "term-content"],
 	"depends_on": [],
-	"required_by": ["article", "product"]
+	"required_by": ["article", "product", "cart"]
 }

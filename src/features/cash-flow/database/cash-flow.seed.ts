@@ -30,7 +30,7 @@ const TARGET = 150;
 const MONTH_SPREAD = 6;
 
 /**
- * Only the categories `getExpectedCategoryType` actually classifies — the enum carries
+ * Only the categories `getExpectedCategoryType` actually classifies - the enum carries
  * fleet-specific values (`fuel`, `tolls`, the `employee_*` family) that this project does
  * not map, and passing one in would throw `Unknown category`.
  *
@@ -71,7 +71,7 @@ const EXCHANGE_RATES: Record<Currency, number> = {
 /**
  * A moment inside the month `index` falls into, spreading the rows evenly over the last
  * `MONTH_SPREAD` months. Without this every row carries the instant the seed ran, so any
- * month-over-month figure — the dashboard's revenue and expense trend — divides by an empty
+ * month-over-month figure - the dashboard's revenue and expense trend - divides by an empty
  * previous month and can only ever report a no-baseline +/-100%.
  *
  * The current month stops at today: a cash flow dated in the future is not something the app
@@ -109,7 +109,7 @@ export const cashFlowSeed: SeedDefinition = {
 			target: TARGET,
 			manager,
 			entityClass: CashFlowEntity,
-			// Nullable and indexed, and every seeded row fills it — so it identifies the
+			// Nullable and indexed, and every seeded row fills it - so it identifies the
 			// demo rows without touching anything already in the table.
 			keyColumn: 'external_reference',
 			buildRow: (index) => {

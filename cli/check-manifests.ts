@@ -18,21 +18,21 @@ import {
  *
  * Five checks:
  *
- * 1. **Parseable** — every manifest is valid JSON with the required fields and an `x.y.z` version.
- * 2. **Resolvable** — every `depends_on` names a feature that exists.
- * 3. **Satisfiable** — its version range accepts the version actually present.
- * 4. **Acyclic** — no dependency loop, which would make install order impossible.
- * 5. **Mirrored** — every real dependent appears in the target's `required_by`.
- * 6. **Grounded** — every `@/features/x` a feature imports appears in its `depends_on`.
+ * 1. **Parseable** - every manifest is valid JSON with the required fields and an `x.y.z` version.
+ * 2. **Resolvable** - every `depends_on` names a feature that exists.
+ * 3. **Satisfiable** - its version range accepts the version actually present.
+ * 4. **Acyclic** - no dependency loop, which would make install order impossible.
+ * 5. **Mirrored** - every real dependent appears in the target's `required_by`.
+ * 6. **Grounded** - every `@/features/x` a feature imports appears in its `depends_on`.
  *
  * Only (5) is advisory at runtime: `feature.ts` finds reverse dependencies by scanning installed
  * manifests rather than trusting `required_by`, precisely because it drifts. It is still checked
- * here so the declaration means something. The reverse is not checked — a `required_by` entry with
+ * here so the declaration means something. The reverse is not checked - a `required_by` entry with
  * no matching `depends_on` may legitimately record intent.
  *
- * (6) skips tests and the feature's `database/` directory — see `isExcludedFromImportScan`. It is
+ * (6) skips tests and the feature's `database/` directory - see `isExcludedFromImportScan`. It is
  * otherwise deliberately **one-directional**: an undeclared import is an error, an unimported
- * declaration is not. Plenty of real dependencies leave no import behind —
+ * declaration is not. Plenty of real dependencies leave no import behind -
  * `warehouse_movement.source_type = 'order_shipping_product'` is a polymorphic reference with no
  * foreign key and no import, seed ordering is expressed in `src/database/seed/index.ts`, and
  * `invoice` declares `cash-flow` ahead of the code that will need it. So the check can only ever
@@ -107,7 +107,7 @@ const FEATURE_IMPORT = /(?:from|import\()\s*'@\/features\/([a-z0-9-]+)\//g;
  * Pairs that import each other in both directions, so neither can declare the other without
  * creating a cycle the installer could not order.
  *
- * `user` and `account` exchange services — `user.service.ts` calls `accountTokenService`, and
+ * `user` and `account` exchange services - `user.service.ts` calls `accountTokenService`, and
  * `account-oauth.service.ts` calls `userService`. From the installer's point of view they are one
  * feature in two directories, and being core they are never installed or removed separately, so
  * the missing declaration costs nothing. Listed rather than silently skipped: the exemption should
@@ -120,17 +120,17 @@ const CYCLIC_BY_DESIGN = new Set(['user -> account']);
  * the feature needs in order to *run*:
  *
  * - **Tests.** A test imports whatever it needs to build a fixture, and a fixture is not an
- *   install-time dependency — `user`'s tests reach into `account`, which as a declaration would
+ *   install-time dependency - `user`'s tests reach into `account`, which as a declaration would
  *   make the graph uninstallable.
  * - **The feature's `database/` directory.** A demo seed populates a sibling's table so the
  *   feature has something to point at: `rating.seed.ts` rates articles, `complaint.seed.ts`
  *   reports comments. Declaring those would make `article` a hard install-time dependency of
- *   `comment`, `complaint`, `image` and `rating` — none of which need an article to function, only
+ *   `comment`, `complaint`, `image` and `rating` - none of which need an article to function, only
  *   to be *demonstrated*. Seed ordering is already expressed in `src/database/seed/index.ts`,
  *   which is where that relationship belongs.
  *
  * The cost is real and worth stating: a seed that imports a feature nobody declares will fail at
- * `pnpm run seed` rather than at install time. That is the trade — an installable graph over a
+ * `pnpm run seed` rather than at install time. That is the trade - an installable graph over a
  * seedable one, since the graph is what other projects are built from.
  */
 function isExcludedFromImportScan(filePath: string): boolean {

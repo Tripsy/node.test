@@ -15,6 +15,7 @@ export function createMockQuery() {
 		filterByRange: jest.fn().mockReturnThis(),
 		filterByTerm: jest.fn().mockReturnThis(),
 		filterPublished: jest.fn().mockReturnThis(),
+		filterBySellable: jest.fn().mockReturnThis(),
 		filterByStatus: jest.fn().mockReturnThis(),
 		filterByEmail: jest.fn().mockReturnThis(),
 		filterByIdent: jest.fn().mockReturnThis(),
@@ -82,9 +83,15 @@ export function createMockRepository<
 	const repository = {
 		createQuery: createQueryMock,
 		createQueryBuilder: jest.fn(() => queryBuilder),
+		// TypeORM's entity factory, which a service calls before `save` when it has to run
+		// checks against the row as it will be stored. It only ever builds the object, so
+		// echoing the input back is what it does.
+		create: jest.fn((entityLike: unknown) => entityLike),
 		save: jest.fn(),
 		update: jest.fn(),
 		softDelete: jest.fn(),
+		find: jest.fn(async () => [] as E[]),
+		count: jest.fn(async () => 0),
 	} as unknown as jest.Mocked<Repository<E>> & {
 		createQuery(): Q;
 	};
@@ -122,7 +129,7 @@ export function createMockContentRepository<
  * Stubs `dataSource.transaction` so the callback runs against a fake `EntityManager`.
  *
  * Pass the repository from `createMockRepository()` when the service under test resolves
- * one inside the transaction (`manager.getRepository(Entity)`) — without it `getRepository`
+ * one inside the transaction (`manager.getRepository(Entity)`) - without it `getRepository`
  * returns `undefined` and the service dies on the first call against it.
  */
 export function setupTransactionMock(repository?: unknown) {
@@ -244,7 +251,7 @@ export function testServiceDelete<
 	query: jest.Mocked<Q>,
 	service: IDeleteService,
 	// Most services soft-delete via a bare `.delete()`. Pass the arguments when a feature
-	// deliberately differs — `image` hard-deletes with `.delete(false)`, since a
+	// deliberately differs - `image` hard-deletes with `.delete(false)`, since a
 	// soft-deleted row whose file is gone is useless.
 	expectedDeleteArgs: boolean[] = [],
 ) {
@@ -287,8 +294,25 @@ interface IRestoreService {
 export function testServiceRestore<
 	E extends ObjectLiteral,
 	Q extends RepositoryAbstract<E>,
->(query: jest.Mocked<Q>, service: IRestoreService) {
+>(query: jest.Mocked<Q>, service: IRestoreService, entry?: E) {
 	it('should restore by id', async () => {
+		/*
+		 * A restore is not always a bare `filterById().restore()`. Where a unique index is
+		 * partial on `deleted_at IS NULL`, deleting a row frees its key for someone else, so
+		 * the service reloads the row and refuses when the key was taken meanwhile - see
+		 * `BrandService.restore`. Both halves of that are arranged here: the row exists, and
+		 * nothing else holds its key.
+		 *
+		 * Arranged in the helper rather than left to each caller because `clearMocks` resets
+		 * calls but not implementations, so otherwise this test passes or fails on whatever
+		 * earlier tests in the file happened to leave on `firstOrFail` and `first` - it read
+		 * as a brand bug while being an ordering artefact, and failed differently when run
+		 * alone. A service that checks nothing is unaffected by either line.
+		 */
+		query.firstOrFail.mockResolvedValue(
+			entry ?? ({ id: 1 } as unknown as E),
+		);
+		query.first.mockResolvedValue(null);
 		query.restore.mockReturnThis();
 
 		await service.restore(1);

@@ -35,7 +35,7 @@ export class ArticleQuery extends RepositoryAbstract<ArticleEntity> {
 	/**
 	 * The display window: published, released, and not yet due for archiving. `archive_at` is
 	 * also enforced by a cron job, so this only covers the gap between the deadline passing and
-	 * the next run — without it an article stays visible for as long as that gap lasts.
+	 * the next run - without it an article stays visible for as long as that gap lasts.
 	 */
 	filterPublished(isPublished?: boolean): this {
 		if (isPublished) {

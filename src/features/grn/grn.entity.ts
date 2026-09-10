@@ -10,14 +10,13 @@ import type GrnItemEntity from '@/features/grn/grn-item.entity';
 import type VendorEntity from '@/features/vendor/vendor.entity';
 import type WarehouseEntity from '@/features/warehouse/warehouse.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const GrnStatusEnum = {
 	DRAFT: 'draft', // Being entered; nothing has moved
 	CONFIRMED: 'confirmed', // Stock is in, lots are open, cost has been averaged
-	CANCELLED: 'cancelled', // Withdrawn; if it had been confirmed, reversing movements were posted
+	CANCELLED: 'canceled', // Withdrawn; if it had been confirmed, reversing movements were posted
 } as const;
 
 export type GrnStatus = (typeof GrnStatusEnum)[keyof typeof GrnStatusEnum];
@@ -25,9 +24,9 @@ export type GrnStatus = (typeof GrnStatusEnum)[keyof typeof GrnStatusEnum];
 /**
  * Allowed status transition configuration.
  *
- * A confirmed receipt can still be cancelled, but never returns to draft: the moment it confirmed
+ * A confirmed receipt can still be canceled, but never returns to draft: the moment it confirmed
  * it wrote movements, opened lots and moved the weighted average cost, and a draft is defined by
- * having done none of that. Cancelling posts the reversals instead.
+ * having done none of that. Canceling posts the reversals instead.
  */
 export const STATUS_TRANSITIONS: StatusTransitions<GrnStatus> = {
 	[GrnStatusEnum.DRAFT]: [GrnStatusEnum.CONFIRMED, GrnStatusEnum.CANCELLED],
@@ -40,7 +39,7 @@ export const STATUS_TRANSITIONS: StatusTransitions<GrnStatus> = {
 const ENTITY_TABLE_NAME = 'grn';
 
 /**
- * Goods received note — the document that brings stock into a warehouse.
+ * Goods received note - the document that brings stock into a warehouse.
  *
  * **Everything inbound is a GRN**, including the stock already owned on the day the system starts.
  * There is no separate opening-balance concept, and that is deliberate: `grn_item.qty_remaining` is
@@ -48,7 +47,7 @@ const ENTITY_TABLE_NAME = 'grn';
  *
  * **Stock moves only on confirmation.** A draft can be edited freely because it has changed
  * nothing. Confirming writes `warehouse_movement` rows, opens the lots and recomputes
- * `product_variant.cost_price`; cancelling a confirmed receipt posts reversing movements rather
+ * `product_variant.cost_price`; canceling a confirmed receipt posts reversing movements rather
  * than deleting anything.
  */
 @Entity({
@@ -57,13 +56,12 @@ const ENTITY_TABLE_NAME = 'grn';
 	comment:
 		'Goods received notes; the only way stock enters a warehouse, and the source of every FIFO lot',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_grn_ref', ['ref_code', 'ref_number'], {
 	unique: true,
 	where: 'deleted_at IS NULL',
 })
 // FIFO resolves open lots for a variant, then needs the confirmed receipts they belong to in
-// receipt order — this is the header side of that join
+// receipt order - this is the header side of that join
 @Index('IDX_grn_warehouse_status_received_at', [
 	'warehouse_id',
 	'status',
@@ -124,7 +122,7 @@ export default class GrnEntity extends EntityAbstract {
 	currency!: string;
 
 	// Frozen at the rate of the receiving day. Costs are converted into base currency once, here,
-	// and never again — converting at read time would make last month's margin move with today's
+	// and never again - converting at read time would make last month's margin move with today's
 	// rate
 	@Column('decimal', {
 		precision: 10,

@@ -9,18 +9,58 @@ import {
 import type ClientEntity from '@/features/client/client.entity';
 import type OrderProductEntity from '@/features/order/order-product.entity';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
+import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const OrderStatusEnum = {
-	DRAFT: 'draft',
-	PENDING: 'pending',
-	CONFIRMED: 'confirmed',
-	COMPLETED: 'completed',
-	CANCELLED: 'cancelled',
+	DRAFT: 'draft', // Being composed in the back office; the customer has not committed
+	PENDING: 'pending', // Placed and awaiting acceptance
+	CONFIRMED: 'confirmed', // Accepted by the business; shipping may begin
+	COMPLETED: 'completed', // Fulfilled and settled
+	CANCELLED: 'canceled', // Withdrawn before fulfilment
 } as const;
 
 export type OrderStatus =
 	(typeof OrderStatusEnum)[keyof typeof OrderStatusEnum];
+
+/**
+ * Allowed status transition configuration.
+ *
+ * The line runs one way: an order is composed, placed, accepted, fulfilled. Nothing returns to
+ * `draft` - that state is defined by the customer not having committed yet, and a cart checkout
+ * enters at `pending` precisely because they have. Reopening a placed order as a draft would let
+ * its contents be edited out from under what they agreed to.
+ *
+ * **`canceled` stays reachable from `confirmed`**, unlike `grn`, where confirming already moved
+ * stock and cancelling has to post reversals. Confirming an order moves nothing: stock leaves on
+ * the shipping transition, not here (see `order-shipping.entity.ts`, `warehouse_id`), so an order
+ * cancelled before it ships has nothing to undo. A shipment already under way is `order_shipping`'s
+ * own status machine to resolve.
+ *
+ * **`completed` is terminal.** An order that goes wrong afterwards is corrected on the money, not
+ * on the document - a credit note or a refund against the invoice, which `invoice` carries its own
+ * statuses for. Cancelling a fulfilled order would leave goods delivered against a document
+ * claiming they never were.
+ */
+export const STATUS_TRANSITIONS: StatusTransitions<OrderStatus> = {
+	[OrderStatusEnum.DRAFT]: [
+		OrderStatusEnum.PENDING,
+		OrderStatusEnum.CANCELLED,
+	],
+	[OrderStatusEnum.PENDING]: [
+		OrderStatusEnum.CONFIRMED,
+		OrderStatusEnum.CANCELLED,
+	],
+	[OrderStatusEnum.CONFIRMED]: [
+		OrderStatusEnum.COMPLETED,
+		OrderStatusEnum.CANCELLED,
+	],
+	[OrderStatusEnum.COMPLETED]: [
+		// Allow nothing
+	],
+	[OrderStatusEnum.CANCELLED]: [
+		// Allow nothing
+	],
+};
 
 export const OrderTypeEnum = {
 	STANDARD: 'standard',
@@ -36,8 +76,7 @@ const ENTITY_TABLE_NAME = 'order';
 	schema: 'public',
 	comment: 'Stores order information',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
-// Series plus sequential number, matching `invoice` and `grn` — one numbering scheme across every
+// Series plus sequential number, matching `invoice` and `grn` - one numbering scheme across every
 // document the business issues
 @Index('IDX_order_ref', ['ref_code', 'ref_number'], {
 	unique: true,

@@ -20,8 +20,8 @@ import { type CacheProvider, cacheProvider } from '@/providers/cache.provider';
 import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
- * The reader-facing side. Every action here is open to guests — commenting is what an anonymous
- * visitor does — so authorization is not a permission check but an identity: `resolveAuthor`
+ * The reader-facing side. Every action here is open to guests - commenting is what an anonymous
+ * visitor does - so authorization is not a permission check but an identity: `resolveAuthor`
  * decides which rows the request may speak for, and both the edit and the withdrawal are scoped to
  * those.
  */
@@ -37,7 +37,7 @@ class CommentPublicController extends BaseController {
 
 	/**
 	 * Who the request counts as. The address hash is always required, so a request whose origin
-	 * cannot be resolved is rejected here rather than stored under a shared fallback — every
+	 * cannot be resolved is rejected here rather than stored under a shared fallback - every
 	 * unresolvable visitor would hash alike, and a guest's only handle on their own comment is
 	 * exactly that hash.
 	 *
@@ -64,7 +64,7 @@ class CommentPublicController extends BaseController {
 	 * target and the parent, which is everything the frontend needs to build the address of the
 	 * page the comment is on and the anchor inside it.
 	 *
-	 * Not cached — it is one row and it is read once per followed link — and approved-only, which
+	 * Not cached - it is one row and it is read once per followed link - and approved-only, which
 	 * `findPublicLocation` enforces.
 	 */
 	public read = asyncHandler(async (req: Request, res: Response) => {
@@ -93,7 +93,7 @@ class CommentPublicController extends BaseController {
 		res.locals.output.data(this.commentService.toPublicView(entry));
 		/*
 		 * The message has to match what actually happened: telling somebody their comment awaits
-		 * moderation when it is already on the page — or the reverse — is the one thing this
+		 * moderation when it is already on the page - or the reverse - is the one thing this
 		 * response is for. `status` is on the returned row, so it is read from there rather than
 		 * from the setting a second time.
 		 */
@@ -109,8 +109,8 @@ class CommentPublicController extends BaseController {
 	});
 
 	/**
-	 * Editing one's own comment. Addressed by id — unlike a rating, an author may hold many
-	 * comments on one target, so nothing shorter names the row — and the ownership check is part
+	 * Editing one's own comment. Addressed by id - unlike a rating, an author may hold many
+	 * comments on one target, so nothing shorter names the row - and the ownership check is part
 	 * of the query that loads it, not a step after.
 	 *
 	 * Open while the comment is `pending` or `approved`, refused once a moderator has acted on it;
@@ -155,7 +155,7 @@ class CommentPublicController extends BaseController {
 	 * One level of a thread, approved rows only.
 	 *
 	 * Cached, and safely so: a new comment lands as `pending` and changes nothing here, while every
-	 * write that *does* change what a reader sees — an approval, an edit, a removal — drops the
+	 * write that *does* change what a reader sees - an approval, an edit, a removal - drops the
 	 * whole target's keys through `CommentService.cleanThreadCache`. The key carries everything the
 	 * query varies by, so two pages of one thread cannot collide.
 	 */

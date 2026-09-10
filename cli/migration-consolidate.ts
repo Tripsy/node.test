@@ -181,7 +181,7 @@ class MigrationConsolidator {
 	 *
 	 * The replay goes through `src/database/migrate.ts` rather than `migration:run`, because
 	 * that is the entry point production uses and the only one that creates the non-public
-	 * schemas first — TypeORM writes its `system.migrations` bookkeeping table before running
+	 * schemas first - TypeORM writes its `system.migrations` bookkeeping table before running
 	 * anything, so the bare CLI fails on an empty database with `schema "system" does not
 	 * exist`. Verifying through the CLI would test a path nobody deploys.
 	 */
@@ -300,7 +300,7 @@ class MigrationConsolidator {
 			await this.verify(verifyDb);
 
 			display.success(
-				'Verified on a fresh database — schema is up to date',
+				'Verified on a fresh database - schema is up to date',
 			);
 
 			if (this.options.baseline) {
@@ -339,7 +339,7 @@ class MigrationConsolidator {
 
 			await this.restoreExistingMigrations();
 
-			display.warning('Rolled back — original migrations restored');
+			display.warning('Rolled back - original migrations restored');
 
 			await this.dropScratchDatabase(generateDb);
 			await this.dropScratchDatabase(verifyDb);
@@ -375,17 +375,6 @@ program
 		}) => {
 			if (process.env.APP_ENV === 'production') {
 				display.error('Refusing to run with APP_ENV=production');
-
-				process.exit(1);
-			}
-
-			if (
-				process.env.DB_CONNECTION &&
-				process.env.DB_CONNECTION !== 'postgres'
-			) {
-				display.error(
-					`Only the postgres connection is supported, got "${process.env.DB_CONNECTION}"`,
-				);
 
 				process.exit(1);
 			}

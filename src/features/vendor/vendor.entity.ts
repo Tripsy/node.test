@@ -1,6 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
 export const VendorStatusEnum = {
@@ -41,7 +40,6 @@ const ENTITY_TABLE_NAME = 'vendor';
 	schema: 'public',
 	comment: 'Store vendors',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 export default class VendorEntity extends EntityAbstract {
 	static readonly NAME: string = ENTITY_TABLE_NAME;
 	static readonly HAS_CACHE: boolean = true;

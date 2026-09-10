@@ -5,7 +5,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * Postgres cannot drop a value from an enum in place, so the type is rebuilt and the column
  * converted onto it. The rows still carrying a departing value are remapped inside the `USING`
- * clause rather than by a preceding `UPDATE`, which keeps the conversion a single statement — no
+ * clause rather than by a preceding `UPDATE`, which keeps the conversion a single statement - no
  * window in which the column holds a value its type no longer allows.
  *
  * Both directions are lossy in the same way, and deliberately so: `inappropriate` and `other`

@@ -13,8 +13,8 @@ import CategoryContentEntity from '@/features/category/category-content.entity';
 
 /**
  * A readable two-level tree rather than generated strings: categories are what the product
- * catalogue hangs off, and the names show up all over the UI. `category` itself holds no
- * name — labels and slugs live in `category_content`, so the slug is the natural key here,
+ * catalog hangs off, and the names show up all over the UI. `category` itself holds no
+ * name - labels and slugs live in `category_content`, so the slug is the natural key here,
  * scoped by `type` exactly as the `(type, slug, language)` unique index scopes it.
  */
 type CategorySeedRow = {
@@ -26,7 +26,7 @@ type CategorySeedRow = {
 };
 
 const categoryData: readonly CategorySeedRow[] = [
-	// Product — roots
+	// Product - roots
 	{
 		slug: 'electronics',
 		label: 'Electronics',
@@ -55,8 +55,20 @@ const categoryData: readonly CategorySeedRow[] = [
 		parent_slug: null,
 		description: 'Tools, lighting and household equipment.',
 	},
+	/*
+	 * Food sits beside the hardware tree because it is the catalog's only family where a
+	 * product is configured at order time - crust, toppings, a drink chosen inside a menu -
+	 * so it is what the option groups and the bundle choices are demonstrated on.
+	 */
+	{
+		slug: 'food',
+		label: 'Food',
+		type: CategoryTypeEnum.PRODUCT,
+		parent_slug: null,
+		description: 'Kitchen menu - pizza, drinks and what goes beside them.',
+	},
 
-	// Product — children
+	// Product - children
 	{
 		slug: 'laptops',
 		label: 'Laptops',
@@ -69,7 +81,7 @@ const categoryData: readonly CategorySeedRow[] = [
 		label: 'Monitors',
 		type: CategoryTypeEnum.PRODUCT,
 		parent_slug: 'electronics',
-		description: 'Desktop displays from office panels to colour-grade.',
+		description: 'Desktop displays from office panels to color-grade.',
 	},
 	{
 		slug: 'printers',
@@ -127,9 +139,30 @@ const categoryData: readonly CategorySeedRow[] = [
 		parent_slug: 'home-and-garden',
 		description: 'Indoor and outdoor lighting fixtures.',
 	},
+	{
+		slug: 'pizza',
+		label: 'Pizza',
+		type: CategoryTypeEnum.PRODUCT,
+		parent_slug: 'food',
+		description: 'Stone-baked pizza, sized by the centimetre.',
+	},
+	{
+		slug: 'drinks',
+		label: 'Drinks',
+		type: CategoryTypeEnum.PRODUCT,
+		parent_slug: 'food',
+		description: 'Soft drinks, water and juice by the bottle.',
+	},
+	{
+		slug: 'sauces',
+		label: 'Sauces & Dips',
+		type: CategoryTypeEnum.PRODUCT,
+		parent_slug: 'food',
+		description: 'Dips and sauces served on the side.',
+	},
 
 	/*
-	 * Article — a second tree under the same table, so the `type` discriminator and the
+	 * Article - a second tree under the same table, so the `type` discriminator and the
 	 * `IDX_category_type` index are exercised by the demo data rather than only by tests.
 	 */
 	{
@@ -151,7 +184,7 @@ const categoryData: readonly CategorySeedRow[] = [
 		label: 'Reviews',
 		type: CategoryTypeEnum.ARTICLE,
 		parent_slug: 'guides',
-		description: 'Hands-on write-ups of catalogue products.',
+		description: 'Hands-on write-ups of catalog products.',
 	},
 ];
 
@@ -167,7 +200,7 @@ export const categorySeed: SeedDefinition = {
 		const contentRepository = manager.getRepository(CategoryContentEntity);
 
 		// `type` is `select: false` on the content entity, so it has to be asked for
-		// explicitly — without it every existing row would key as `undefined:<slug>`.
+		// explicitly - without it every existing row would key as `undefined:<slug>`.
 		const existingContent = await contentRepository.find({
 			select: {
 				category_id: true,
@@ -197,7 +230,7 @@ export const categorySeed: SeedDefinition = {
 
 		/*
 		 * Sequential rather than batched: a child needs its parent's generated id, and the
-		 * closure table is written by TypeORM's persistence executor on save — which is why
+		 * closure table is written by TypeORM's persistence executor on save - which is why
 		 * the parent is assigned as an entity (`@TreeParent`) and not as a `parent_id`.
 		 */
 		for (const category of categoryData) {

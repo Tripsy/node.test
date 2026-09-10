@@ -13,7 +13,7 @@ import asyncHandler from '@/helpers/async.handler';
 import { BaseController } from '@/shared/abstracts/controller.abstract';
 
 /**
- * The reader-facing side. No permission is checked — reporting is what any reader does — but an
+ * The reader-facing side. No permission is checked - reporting is what any reader does - but an
  * account is: `user_id` is `NOT NULL`, so a complaint has an author by construction, and that
  * account is also the identity every write here is scoped to.
  *
@@ -31,7 +31,7 @@ class ComplaintPublicController extends BaseController {
 
 	/**
 	 * Who the request counts as. `requiredAuth` has already rejected a caller with no account, so
-	 * the id is present — the `?? 0` never fires and only satisfies the optional return type of
+	 * the id is present - the `?? 0` never fires and only satisfies the optional return type of
 	 * `getId`.
 	 */
 	private resolveReporter(res: Response): number {
@@ -56,7 +56,7 @@ class ComplaintPublicController extends BaseController {
 	/**
 	 * Amending one's own complaint. The target comes from the path and addresses the row together
 	 * with the caller; params are spread last on purpose, so a body naming a different target
-	 * cannot redirect the write to a row the path never authorised.
+	 * cannot redirect the write to a row the path never authorized.
 	 */
 	public update = asyncHandler(async (req: Request, res: Response) => {
 		const reporterId = this.resolveReporter(res);
@@ -75,7 +75,7 @@ class ComplaintPublicController extends BaseController {
 		res.json(res.locals.output);
 	});
 
-	/** Withdrawing a complaint — soft, so what was reported and taken back is still on record. */
+	/** Withdrawing a complaint - soft, so what was reported and taken back is still on record. */
 	public delete = asyncHandler(async (req: Request, res: Response) => {
 		const reporterId = this.resolveReporter(res);
 
@@ -94,7 +94,7 @@ class ComplaintPublicController extends BaseController {
 
 	/**
 	 * What this caller already filed against the target, or nothing. Not cached:
-	 * `ComplaintEntity.HAS_CACHE` is false, and the answer is per-account — a shared cache here
+	 * `ComplaintEntity.HAS_CACHE` is false, and the answer is per-account - a shared cache here
 	 * would hand one reader another's complaint.
 	 */
 	public read = asyncHandler(async (req: Request, res: Response) => {

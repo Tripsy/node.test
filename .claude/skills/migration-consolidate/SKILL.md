@@ -20,9 +20,9 @@ would try to recreate every table. Stop and say so rather than running it.
 
 ## Before running
 
-1. Confirm the working tree is committed — the command deletes migration files.
+1. Confirm the working tree is committed - the command deletes migration files.
 2. **Check for hand-written schema that `migration:generate` cannot see.** The consolidated
-   migration is generated from the entities, so anything a decorator cannot express is lost —
+   migration is generated from the entities, so anything a decorator cannot express is lost -
    silently, since the replaced files are only kept as a backup.
 
    ```bash
@@ -30,8 +30,8 @@ would try to recreate every table. Stop and say so rather than running it.
    ```
 
    The known case is full-text search: `@Index` only describes column lists, so a GIN index over
-   an *expression* — `to_tsvector('simple', COALESCE("title", ''))`, backing a repository's
-   `filterByTerm` — exists only in a hand-written migration. Losing it is invisible: the query
+   an *expression* - `to_tsvector('simple', COALESCE("title", ''))`, backing a repository's
+   `filterByTerm` - exists only in a hand-written migration. Losing it is invisible: the query
    still returns correct rows, it just reverts to a sequential scan.
 
    Copy any such statements out first and re-add them to the generated `init` (or keep them in
@@ -44,7 +44,7 @@ would try to recreate every table. Stop and say so rather than running it.
    ```
 
    Anything other than *"Your schema is up to date"* means the entities and the database
-   disagree. Resolve that first — the consolidated migration is generated from the
+   disagree. Resolve that first - the consolidated migration is generated from the
    **entities**, so drift becomes a silent difference between the migration and every
    existing database.
 
@@ -60,18 +60,18 @@ rejects it.
 
 Flags:
 
-- `--baseline` — rewrite the working database's migrations table to list only the new
+- `--baseline` - rewrite the working database's migrations table to list only the new
   migration. Use it whenever that database already matches the entities; without it the next
   `migrate.ts` run tries to create every table again.
-- `--yes` — skip the confirmation prompt.
-- `--name <name>` — migration name, default `init`.
-- `--no-keep-backup` — delete the copy of the replaced migrations. The default keeps them in
+- `--yes` - skip the confirmation prompt.
+- `--name <name>` - migration name, default `init`.
+- `--no-keep-backup` - delete the copy of the replaced migrations. The default keeps them in
   `.migrations-backup/<timestamp>/`, which is gitignored.
 
 ## What it does
 
 1. Moves the existing migrations to `.migrations-backup/<timestamp>/`.
-2. Generates a migration against a scratch database — empty, because `migration:generate`
+2. Generates a migration against a scratch database - empty, because `migration:generate`
    emits a *diff*, so generating against a populated database yields a partial schema.
 3. Replays it on a second scratch database through `src/database/migrate.ts`, then asserts
    `schema:log` reports no drift.
@@ -84,10 +84,10 @@ On any failure it restores the original migrations and drops the scratch databas
 - Run `pnpm run typecheck` and `pnpm run biome`; the generated file uses TypeORM's 4-space
   formatting until Biome rewrites it.
 - Read the generated migration before committing. `migration:generate` has dropped columns
-  unexpectedly before — this is the same warning that applies to any generated migration.
+  unexpectedly before - this is the same warning that applies to any generated migration.
 - **Diff the index list against the previous schema**, not just the columns. The verification
   step replays the generated migration and asserts `schema:log` reports no drift, but `schema:log`
-  compares the database against the *entities* — an index no entity declares is absent from both
+  compares the database against the *entities* - an index no entity declares is absent from both
   sides, so a dropped expression index passes every check the command makes:
 
   ```sql

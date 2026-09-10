@@ -47,7 +47,7 @@ const ROOT_STATUSES: readonly CommentStatus[] = [
 
 /**
  * The natural key. `content` carries it because the table has no other column that is unique per
- * seeded row — a comment is deliberately free to repeat every one of its other values — and the
+ * seeded row - a comment is deliberately free to repeat every one of its other values - and the
  * text is deterministic in the indices it is built from, so a re-run rebuilds exactly the same keys.
  */
 function rootContent(articleId: number, index: number): string {
@@ -68,9 +68,10 @@ function guestIpHash(index: number): string {
 }
 
 /**
- * Comments on articles only. `review` is the other target the enum allows, but reviews have no demo
- * data of their own — seeding against ids that are not there would produce rows pointing at
- * nothing, which is exactly what the missing foreign key on a polymorphic target cannot prevent.
+ * Comments on articles only, which is every target the application actually uses - `review` is a
+ * value the enum still carries and nothing writes. Seeding against ids from an unused target would
+ * produce rows pointing at nothing, which is exactly what the missing foreign key on a polymorphic
+ * target cannot prevent.
  */
 export const commentSeed: SeedDefinition = {
 	name: 'comment',
@@ -109,7 +110,7 @@ export const commentSeed: SeedDefinition = {
 						articleId,
 						content: rootContent(articleId, index),
 						// The first root of every article is the pinned one, so it is approved
-						// rather than drawn — a pinned comment nobody can see demonstrates
+						// rather than drawn - a pinned comment nobody can see demonstrates
 						// nothing about the ordering it exists to drive.
 						status:
 							index === 0
@@ -200,7 +201,7 @@ export const commentSeed: SeedDefinition = {
 /**
  * Recomputes `reply_count` from the rows actually stored, rather than counting what this run
  * inserted. The seed tops up, so a second run inserts nothing and must still leave the counter
- * right — incrementing per inserted row would drift on every re-run.
+ * right - incrementing per inserted row would drift on every re-run.
  *
  * Approved children only, which is what `CommentService` maintains: the counter sits next to a
  * public list that shows nothing else.
@@ -237,7 +238,7 @@ type BuildCommentOptions = {
 
 /**
  * `CHK_comment_author` requires either an account or a name and an email, so the guest branch fills
- * both and the member branch neither — a member is identified by their account.
+ * both and the member branch neither - a member is identified by their account.
  */
 function buildComment(options: BuildCommentOptions): Partial<CommentEntity> {
 	const { articleId, content, status, index, userIds, random } = options;

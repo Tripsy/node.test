@@ -7,7 +7,7 @@ export class TermContentLowercase1787300000000 implements MigrationInterface {
 	 * Brings the stored wording in line with the rule the validator now enforces on every
 	 * write: a term reads the same however it was typed.
 	 *
-	 * `term_content` is unique on (term_id, language), which lower-casing cannot violate — two
+	 * `term_content` is unique on (term_id, language), which lower-casing cannot violate - two
 	 * terms whose values collide only after the change stay two rows, and the duplicate rule
 	 * that would now reject them lives in the service, not the schema.
 	 */
@@ -23,6 +23,6 @@ export class TermContentLowercase1787300000000 implements MigrationInterface {
 	 * migrations either side of this one still works.
 	 */
 	public async down(): Promise<void> {
-		// no-op — see above
+		// no-op - see above
 	}
 }

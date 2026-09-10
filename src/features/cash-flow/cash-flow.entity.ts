@@ -16,7 +16,6 @@ import {
 import OperationalRecordEntity from '@/features/cash-flow/operational-record.entity';
 import { arrayHasValue } from '@/helpers/objects.helper';
 import { EntityAbstract } from '@/shared/abstracts/entity.abstract';
-import { SoftDeleteIndex } from '@/shared/decorators/soft-delete-index.decorator';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 import type { StatusTransitions } from '@/shared/types/common.type';
 
@@ -31,7 +30,7 @@ export type Currency = (typeof CurrencyEnum)[keyof typeof CurrencyEnum];
 /**
  * Falls back to the deployment's configured currency when the request omits one.
  * `app.currency` is a free-form env string, so it is checked against the enum rather than
- * trusted — a typo in `APP_CURRENCY` must not reach a column the database constrains.
+ * trusted - a typo in `APP_CURRENCY` must not reach a column the database constrains.
  */
 export const resolveCurrency = (currency?: Currency): Currency => {
 	if (currency) {
@@ -224,7 +223,6 @@ export const GROSS_AMOUNT_BASE_CURRENCY_EXPRESSION = (alias: string) => `
 	schema: 'public',
 	comment: 'Tracks cash flows.',
 })
-@SoftDeleteIndex(ENTITY_TABLE_NAME)
 @Index('IDX_cash_flow_created_at', ['created_at'])
 // No `category_type` equivalent: it is derived from `category` (see `getExpectedCategoryType`
 // and the direction/amount @Check), so an index on it would duplicate this one

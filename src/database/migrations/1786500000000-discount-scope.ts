@@ -5,7 +5,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * `country`.
  *
  * Postgres cannot remove a value from an enum, so the column is swapped onto a freshly
- * created type. `IDX_discount_active` covers `scope` and has to come down for the duration —
+ * created type. `IDX_discount_active` covers `scope` and has to come down for the duration -
  * a `USING` cast rewrites the column, and the index cannot survive its own column changing
  * type.
  */
@@ -58,8 +58,8 @@ export class DiscountScope1786500000000 implements MigrationInterface {
 
 		/*
 		 * `variant` folds back to `product` and `brand` to `category`, the nearest surviving
-		 * scope in each case. This is lossy and cannot be otherwise — the old enum has no
-		 * room for either — and the rows that were country-scoped before the up migration
+		 * scope in each case. This is lossy and cannot be otherwise - the old enum has no
+		 * room for either - and the rows that were country-scoped before the up migration
 		 * stay `order`, since nothing recorded which ones they were.
 		 */
 		await queryRunner.query(
