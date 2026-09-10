@@ -2,6 +2,7 @@ import type { Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
 import { Configuration } from '@/config/settings.config';
 import ExchangeRateEntity from '@/features/exchange-rate/exchange-rate.entity';
+import { normalizeCurrency } from '@/helpers/shop.helper';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class ExchangeRateQuery extends RepositoryAbstract<ExchangeRateEntity> {
@@ -42,12 +43,12 @@ export class ExchangeRateQuery extends RepositoryAbstract<ExchangeRateEntity> {
 					this.filterAny([
 						{
 							column: 'currency',
-							value: term.toUpperCase(),
+							value: normalizeCurrency(term),
 							operator: 'ILIKE',
 						},
 						{
 							column: 'base_currency',
-							value: term.toUpperCase(),
+							value: normalizeCurrency(term),
 							operator: 'ILIKE',
 						},
 						{

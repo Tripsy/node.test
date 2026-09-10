@@ -1,3 +1,4 @@
+import { normalizeCurrency } from '@/helpers/shop.helper';
 import { getErrorMessage } from '@/helpers/system.helper';
 import { getSystemLogger } from '@/providers/logger.provider';
 
@@ -77,7 +78,7 @@ export function parseBnrBulletin(document: string): BnrBulletin {
 
 	return {
 		rate_date: cubeDate,
-		base_currency: origCurrency.toUpperCase(),
+		base_currency: normalizeCurrency(origCurrency),
 		rates,
 	};
 }
@@ -137,7 +138,7 @@ function parseRates(document: string): Record<string, number> {
 			continue;
 		}
 
-		rates[currency.toUpperCase()] = Number(
+		rates[normalizeCurrency(currency)] = Number(
 			(quoted / multiplier).toFixed(RATE_DECIMALS),
 		);
 	}

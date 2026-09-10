@@ -7,6 +7,7 @@ import {
 import dataSource from '@/config/data-source.config';
 import { lang } from '@/config/message.setup';
 import {
+	resolveTargetImageLists,
 	resolveTargetImages,
 	type TargetImage,
 	TargetImageTypeEnum,
@@ -30,6 +31,7 @@ import type {
 	ProductBundleItemType,
 	ProductValidator,
 } from '@/features/product/product.validator';
+import ProductAttributeEntity from '@/features/product/product-attribute.entity';
 import ProductAttributeRepository, {
 	type ResolvedAttributeValue,
 } from '@/features/product/product-attribute.repository';
@@ -64,6 +66,7 @@ import {
 	assertValidStatusTransition,
 	cleanEntityCache,
 } from '@/shared/abstracts/service.abstract';
+import type { MeasureUnit } from '@/shared/types/measure-unit.type';
 import { toBaseUnit } from '@/shared/types/measure-unit.type';
 import type { ValidatorOutput } from '@/shared/types/mock.type';
 
@@ -98,6 +101,36 @@ export type WithCoverImage<T> = T & {
  */
 export type WithVariants<T> = T & {
 	variants: WithCoverImage<ProductVariantEntity>[];
+};
+
+/**
+ * One of the product's own attributes as the storefront needs it: the stored row, its label and
+ * value terms resolved into the served language, and the quoting the definition fixes.
+ *
+ * `unit` and `suffix` are copied off the `product_category_attribute` definition rather than
+ * left for the client to look up. A bare `330` is not a value - what makes it one is the unit
+ * the definition pins, and the client would otherwise have to fetch the whole resolved form of
+ * every category the product sits in to render one line of a spec table.
+ */
+export type PublicProductAttribute = ProductAttributeEntity & {
+	unit: MeasureUnit | null;
+	suffix: string | null;
+};
+
+/** The product's own attributes, named and ordered - see `attachPublicAttributes`. */
+export type WithPublicAttributes<T> = T & {
+	attributes: PublicProductAttribute[];
+};
+
+/**
+ * Every picture the product and each of its variants carry - see `attachPublicGalleries`.
+ *
+ * Beside `cover_image` rather than instead of it: the cover is the one image that stands for the
+ * row and a listing reads nothing else, so a detail page gaining the set must not change what a
+ * card is handed. The cover is the head of `images` whenever the product has any.
+ */
+export type WithGallery<T> = T & {
+	images: TargetImage[];
 };
 
 /**
@@ -1303,6 +1336,22 @@ export class ProductService {
 					left.attribute_label_id - right.attribute_label_id,
 			);
 
+			/*
+			 * The definition's quoting, copied onto the axis the same way
+			 * `attachPublicAttributes` copies it onto a product attribute. A numeric axis is a
+			 * bare `15` without it, and a page listing product attributes and variant axes in one
+			 * table would quote half its rows and not the other half. Costs nothing - the
+			 * definitions are already resolved above, for the sort.
+			 */
+			for (const axis of variant.attributes ?? []) {
+				const definition = definitions.get(axis.attribute_label_id);
+
+				Object.assign(axis, {
+					unit: definition?.unit ?? null,
+					suffix: definition?.suffix ?? null,
+				});
+			}
+
 			const withCover: WithCoverImage<ProductVariantEntity> = {
 				...variant,
 				cover_image: variantCovers.get(variant.id) ?? null,
@@ -1321,6 +1370,148 @@ export class ProductService {
 			...entry,
 			variants: byProduct.get(entry.id) ?? [],
 		}));
+	}
+
+	/**
+	 * Replaces the product's own attribute rows with the named, ordered set a spec table is drawn
+	 * from.
+	 *
+	 * `attachBranches` already loaded them, but for the dashboard: bare ids, because an editor
+	 * resolves its wording through the `resolve` endpoint it drew the form from. A visitor has no
+	 * such form, so `attribute_label` and `attribute_value` are joined through `term_content` here
+	 * - the same treatment `attachVariants` gives an axis, for the same reason.
+	 *
+	 * Only the served language is joined. A row whose terms carry no wording in it comes back
+	 * unnamed rather than in another language, and the storefront drops it: half a spec line in
+	 * Romanian on an English page is worse than one line fewer.
+	 *
+	 * Ordered by the definition's `sort_order` over the union of the product's categories, so the
+	 * table reads the way the category declares it rather than in insertion order - which would
+	 * shuffle the moment an attribute is re-saved.
+	 */
+	private async attachPublicAttributes<
+		T extends { id: number; categories?: { category_id: number }[] },
+	>(
+		entry: T,
+		language: string | undefined,
+	): Promise<WithPublicAttributes<T>> {
+		const rows = await dataSource
+			.getRepository(ProductAttributeEntity)
+			.createQueryBuilder('attribute')
+			.leftJoinAndSelect('attribute.attribute_label', 'attribute_label')
+			.leftJoinAndSelect(
+				'attribute_label.contents',
+				'attribute_label_content',
+				'attribute_label_content.language = :language',
+			)
+			.leftJoinAndSelect('attribute.attribute_value', 'attribute_value')
+			.leftJoinAndSelect(
+				'attribute_value.contents',
+				'attribute_value_content',
+				'attribute_value_content.language = :language',
+			)
+			/*
+			 * Projected, like the variants'. `value_base` is the figure normalized for range
+			 * filters - a second copy of `value_numeric` in a unit nothing displays - and the
+			 * timestamps say when an operator last edited the row, which is not the visitor's
+			 * business. The joined rows' primary keys are selected because TypeORM cannot map a
+			 * narrowed join without them.
+			 */
+			.select([
+				'attribute.id',
+				'attribute.attribute_label_id',
+				'attribute.value_term_id',
+				'attribute.value_numeric',
+				'attribute.value_text',
+				'attribute.value_boolean',
+
+				'attribute_label.id',
+				'attribute_label_content.id',
+				'attribute_label_content.language',
+				'attribute_label_content.value',
+
+				'attribute_value.id',
+				'attribute_value_content.id',
+				'attribute_value_content.language',
+				'attribute_value_content.value',
+			])
+			.where('attribute.product_id = :productId', { productId: entry.id })
+			.setParameter('language', language)
+			.getMany();
+
+		const categoryIds = [
+			...new Set(entry.categories?.map((link) => link.category_id) ?? []),
+		];
+
+		const definitions = categoryIds.length
+			? await productCategoryAttributeService.resolveDefinitionsByLabel(
+					categoryIds,
+					ProductCategoryAttributeScopeEnum.PRODUCT,
+				)
+			: new Map<number, ProductCategoryAttributeEntity>();
+
+		const sortOrderOf = (label_id: number): number =>
+			definitions.get(label_id)?.sort_order ?? Number.MAX_SAFE_INTEGER;
+
+		const attributes: PublicProductAttribute[] = rows
+			.map((row) => {
+				const definition = definitions.get(row.attribute_label_id);
+
+				return {
+					...row,
+					unit: definition?.unit ?? null,
+					suffix: definition?.suffix ?? null,
+				};
+			})
+			.sort(
+				(left, right) =>
+					sortOrderOf(left.attribute_label_id) -
+						sortOrderOf(right.attribute_label_id) ||
+					left.attribute_label_id - right.attribute_label_id ||
+					left.id - right.id,
+			);
+
+		return { ...entry, attributes };
+	}
+
+	/**
+	 * Attaches the whole gallery - the product's own pictures, and each variant's.
+	 *
+	 * The detail page's counterpart to `attachCoverImages`, and only ever called from the public
+	 * read: a listing shows one picture per card and must not drag a dozen down the wire for each
+	 * of twelve products. Two calls, one per section, each batched over its ids.
+	 *
+	 * A product or variant with no gallery gets `[]` rather than being left without the key, for
+	 * the reason `cover_image` is always present: a client must not have to tell "no pictures"
+	 * apart from "no image feature installed". With nothing registered every gallery is empty,
+	 * which is what an uninstalled `image` looks like.
+	 */
+	private async attachPublicGalleries<
+		T extends { id: number; variants?: { id: number }[] },
+	>(entry: T): Promise<WithGallery<T>> {
+		const variants = entry.variants ?? [];
+
+		const [productImages, variantImages] = await Promise.all([
+			resolveTargetImageLists(
+				ProductEntity.NAME,
+				TargetImageTypeEnum.GALLERY,
+				[entry.id],
+			),
+			resolveTargetImageLists(
+				ProductVariantEntity.NAME,
+				TargetImageTypeEnum.GALLERY,
+				variants.map((variant) => variant.id),
+			),
+		]);
+
+		return {
+			...entry,
+			images: productImages.get(entry.id) ?? [],
+			variants: variants.map((variant) => ({
+				...variant,
+				images: variantImages.get(variant.id) ?? [],
+			})),
+		};
 	}
 
 	/**
@@ -1439,11 +1630,16 @@ export class ProductService {
 			language,
 		);
 
-		const [entryWithCover] = await this.attachCoverImages([
+		const entryWithAttributes = await this.attachPublicAttributes(
 			entryWithVariants,
+			language,
+		);
+
+		const [entryWithCover] = await this.attachCoverImages([
+			entryWithAttributes,
 		]);
 
-		return entryWithCover;
+		return await this.attachPublicGalleries(entryWithCover);
 	}
 
 	/**

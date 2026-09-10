@@ -9,6 +9,7 @@ import {
 	ProductWorkflowEnum,
 } from '@/features/product/product.entity';
 import { hasAtLeastOneValue } from '@/helpers/objects.helper';
+import { CURRENCY_CODE_CHARS, normalizeCurrency } from '@/helpers/shop.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import {
 	BaseValidator,
@@ -103,8 +104,10 @@ export class ProductValidator extends BaseValidator<typeof validatorMessages> {
 	 */
 	readonly currencySchema = z
 		.string({ message: this.getMessage('invalid_currency') })
-		.length(3, { message: this.getMessage('invalid_currency') })
-		.transform((value) => value.toUpperCase());
+		.length(CURRENCY_CODE_CHARS, {
+			message: this.getMessage('invalid_currency'),
+		})
+		.transform(normalizeCurrency);
 
 	/**
 	 * A display slot or a threshold, where zero is a legitimate value - the first position, or a

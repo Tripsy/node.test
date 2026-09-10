@@ -1,4 +1,5 @@
 import {
+	registerTargetImageListProvider,
 	registerTargetImageProvider,
 	type TargetImageType,
 } from '@/config/target-image.config';
@@ -35,6 +36,27 @@ export default function registerImageBootstrap() {
 			}
 
 			return imageService.getPrimaryByTargets(
+				section,
+				imageType,
+				entityIds,
+			);
+		},
+	);
+
+	// The same images asked for as whole galleries - what a detail page shows, where a listing
+	// wants only the one picture that stands for each row. Same feature, same table, two
+	// questions; see `TargetImageListProvider`.
+	registerTargetImageListProvider(
+		async (
+			section: string,
+			imageType: TargetImageType,
+			entityIds: number[],
+		) => {
+			if (!isImageSection(section)) {
+				return new Map();
+			}
+
+			return imageService.getGalleryByTargets(
 				section,
 				imageType,
 				entityIds,

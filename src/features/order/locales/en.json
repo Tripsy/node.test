@@ -1,0 +1,6 @@
+{
+	"error": {
+		"not_found": "Order not found",
+		"no_lines": "An order must have at least one line"
+	}
+}

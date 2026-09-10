@@ -1,8 +1,14 @@
 {
 	"name": "order",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"relativePath": "/order",
 	"entities": ["order", "order-product"],
 	"depends_on": ["client", "product", "discount", "document-series"],
-	"required_by": ["order-shipping", "invoice", "subscription", "review"]
+	"required_by": [
+		"order-shipping",
+		"invoice",
+		"subscription",
+		"review",
+		"cart"
+	]
 }

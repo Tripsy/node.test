@@ -235,7 +235,8 @@ export class CommentService {
 			.createQuery()
 			.select(['comment.id'])
 			.filterById(data.parent_id)
-			.filterByTarget(data.entity_type, data.entity_id)
+			.filterBy('entity_type', data.entity_type)
+			.filterBy('entity_id', data.entity_id)
 			.filterByStatus(CommentStatusEnum.APPROVED)
 			.first();
 
@@ -420,7 +421,8 @@ export class CommentService {
 		const roots = await this.repository
 			.createQuery()
 			.select(['comment.id'])
-			.filterByTarget(entityType, entityId)
+			.filterBy('entity_type', entityType)
+			.filterBy('entity_id', entityId)
 			.filterByParent(null)
 			.all();
 
@@ -651,7 +653,8 @@ export class CommentService {
 				'user.id',
 				'user.name',
 			])
-			.filterByTarget(data.filter.entity_type, data.filter.entity_id)
+			.filterBy('entity_type', data.filter.entity_type)
+			.filterBy('entity_id', data.filter.entity_id)
 			.filterBy('type', data.filter.type)
 			.filterByStatus(data.filter.status)
 			.filterByParent(data.filter.parent_id)
@@ -676,7 +679,8 @@ export class CommentService {
 				.createQuery()
 				.join('comment.user', 'user', 'LEFT')
 				.select([...PUBLIC_COLUMNS, 'user.id', 'user.name'])
-				.filterByTarget(data.entity_type, data.entity_id)
+				.filterBy('entity_type', data.entity_type)
+				.filterBy('entity_id', data.entity_id)
 				.filterByStatus(CommentStatusEnum.APPROVED)
 				// An absent `parent_id` reads the roots, not the whole flat thread: replies are fetched
 				// per parent, so a long discussion does not have to arrive in one page.

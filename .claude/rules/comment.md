@@ -22,7 +22,7 @@ permission boundary, not a convenience:
 |---|---|---|
 | Public write | Guests and members alike | **Members only** - `user_id` is `NOT NULL`, so every public endpoint answers 401 without a session |
 | Addressed by | The row id (`/:id`) - one author holds many comments on one target | The target (`/:entity_type/:entity_id`) - `UQ_complaint_user` allows one live complaint per reporter per target, so the path plus the caller names exactly one row |
-| Ownership check | `CommentQuery.filterByOwner` narrows to the caller's rows | `ComplaintQuery.filterByOwner`, same - the row a public write resolves to is one the caller may write by construction |
+| Ownership check | `CommentQuery.filterByOwner` narrows to the caller's rows | a `user_id` filter on the same query, so the row a public write resolves to is one the caller may write by construction |
 
 An anonymous accusation is one nobody can be asked about, which is why complaints have no guest
 path and no address hash. Comments do: `CHK_comment_author` requires either a `user_id` or a

@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { Configuration } from '@/config/settings.config';
+import { ExchangeRateSourceEnum } from '@/features/exchange-rate/exchange-rate.entity';
+import { hasAtLeastOneValue } from '@/helpers/objects.helper';
 import {
 	CURRENCY_CODE_CHARS,
 	CURRENCY_CODE_PATTERN,
-	ExchangeRateSourceEnum,
-} from '@/features/exchange-rate/exchange-rate.entity';
-import { hasAtLeastOneValue } from '@/helpers/objects.helper';
+	normalizeCurrency,
+} from '@/helpers/shop.helper';
 import { OrderDirectionEnum } from '@/shared/abstracts/entity.abstract';
 import {
 	BaseValidator,
@@ -171,7 +172,7 @@ export class ExchangeRateValidator extends BaseValidator<
 			minChars: CURRENCY_CODE_CHARS,
 			maxChars: CURRENCY_CODE_CHARS,
 		})
-			.transform((value) => value.toUpperCase())
+			.transform(normalizeCurrency)
 			.refine((value) => CURRENCY_CODE_PATTERN.test(value), { message });
 	}
 
@@ -181,7 +182,9 @@ export class ExchangeRateValidator extends BaseValidator<
 			minChars: CURRENCY_CODE_CHARS,
 			maxChars: CURRENCY_CODE_CHARS,
 		})
-			.transform((value) => value?.toUpperCase())
+			.transform((value) =>
+				value === undefined ? value : normalizeCurrency(value),
+			)
 			.refine(
 				(value) =>
 					value === undefined || CURRENCY_CODE_PATTERN.test(value),

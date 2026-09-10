@@ -171,20 +171,54 @@ export class ImageService {
 	 * The type is the caller's to choose - a brand wants its `logo`, an article the first of its
 	 * `gallery` - while "first active, by `sort_order`" is this table's rule and stays here.
 	 *
-	 * One statement for the whole page, and a separate statement rather than a join: `image` is
-	 * polymorphic (`section` + `entity_id`, no foreign key to anything), so there is no relation
-	 * for the query builder to walk, and a manual join would need a LATERAL to keep one row per
-	 * target. It costs a single index seek on `IDX_image_type_id`.
+	 * Reads the gallery and keeps the head of each. The whole set is one index seek either way, so
+	 * a second narrower statement would buy nothing and cost the two answers agreeing.
 	 */
 	public async getPrimaryByTargets(
 		section: ImageSection,
 		imageType: ImageType,
 		entityIds: number[],
 	): Promise<Map<number, TargetImage>> {
+		const galleries = await this.getGalleryByTargets(
+			section,
+			imageType,
+			entityIds,
+		);
+
 		const primary = new Map<number, TargetImage>();
 
+		// The first of each gallery, which `getGalleryByTargets` has already ordered - so "the
+		// picture that stands for this row" and "the first picture of this row" cannot drift.
+		for (const [entityId, images] of galleries) {
+			if (images.length > 0) {
+				primary.set(entityId, images[0]);
+			}
+		}
+
+		return primary;
+	}
+
+	/**
+	 * @description Used by `image.bootstrap.ts`, through the target-image registry
+	 *
+	 * Every active image of the requested type each named target carries, in the order it shows
+	 * them. A target with none is absent from the map rather than present with an empty list, so
+	 * it reads the same way `getPrimaryByTargets` does.
+	 *
+	 * What a detail page wants, where the listing wants the primary alone. One statement for the
+	 * whole set, and a separate statement rather than a join: `image` is polymorphic
+	 * (`section` + `entity_id`, no foreign key to anything), so there is no relation for the query
+	 * builder to walk. It costs a single index seek on `IDX_image_type_id`.
+	 */
+	public async getGalleryByTargets(
+		section: ImageSection,
+		imageType: ImageType,
+		entityIds: number[],
+	): Promise<Map<number, TargetImage[]>> {
+		const galleries = new Map<number, TargetImage[]>();
+
 		if (entityIds.length === 0) {
-			return primary;
+			return galleries;
 		}
 
 		const images = await this.repository
@@ -207,27 +241,31 @@ export class ImageService {
 		/*
 		 * Descending, because that is the direction the gallery is stamped in: the manager lists
 		 * `sort_order DESC` and renumbers the set as `length - index`, so the image an editor
-		 * dragged to the front carries the *highest* number. Read ascending, this returned the
-		 * card they had put last.
+		 * dragged to the front carries the *highest* number. Read ascending, this returns the
+		 * gallery back to front, and its first image is the card the editor had put last.
 		 *
 		 * `updateStatus` reads the same way round - it resets `sort_order` to 0 when an image is
 		 * deactivated, so a re-activated one rejoins at the back rather than silently becoming
 		 * the picture that stands for the whole target.
-		 *
-		 * The first image seen for a target wins; later ones are ignored.
 		 */
 		for (const image of images) {
-			if (!primary.has(image.entity_id)) {
-				primary.set(image.entity_id, {
-					id: image.id,
-					path: image.path,
-					storage: image.storage,
-					properties: image.properties ?? null,
-				});
+			const entry: TargetImage = {
+				id: image.id,
+				path: image.path,
+				storage: image.storage,
+				properties: image.properties ?? null,
+			};
+
+			const gallery = galleries.get(image.entity_id);
+
+			if (gallery) {
+				gallery.push(entry);
+			} else {
+				galleries.set(image.entity_id, [entry]);
 			}
 		}
 
-		return primary;
+		return galleries;
 	}
 
 	public async delete(id: number) {

@@ -10,6 +10,7 @@ import DiscountTargetEntity, {
 	DiscountTargetTypeEnum,
 } from '@/features/discount/discount-target.entity';
 import { isoWeekday } from '@/helpers/date.helper';
+import { roundMoney } from '@/helpers/shop.helper';
 
 /**
  * Everything the resolver needs about one basket line.
@@ -75,10 +76,6 @@ function inCyclicRange(value: number, [from, to]: [number, number]): boolean {
 	return from <= to
 		? value >= from && value <= to
 		: value >= from || value <= to;
-}
-
-function round(value: number): number {
-	return Math.round(value * 100) / 100;
 }
 
 /** Expands categories to themselves plus every ancestor, so a discount on "Shoes" reaches "Shoes > Running". */
@@ -303,7 +300,7 @@ export function computeReduction(
 			? context.unitPrice
 			: Math.max(0, context.unitPrice - floor);
 
-	return round(
+	return roundMoney(
 		Math.max(0, Math.min(rawPerUnit, maxPerUnit)) * context.quantity,
 	);
 }

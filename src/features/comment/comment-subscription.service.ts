@@ -116,11 +116,19 @@ export class CommentSubscriptionService {
 		entityType: CommentEntityType,
 		entityId: number,
 	): Promise<CommentSubscriptionEntity[]> {
-		return this.repository
-			.createQuery()
-			.filterByTarget(entityType, entityId)
-			.filterSubscribed()
-			.all();
+		return (
+			this.repository
+				.createQuery()
+				.filterBy('entity_type', entityType)
+				.filterBy('entity_id', entityId)
+				// Everyone who still wants to hear about the target.
+				.filterBy(
+					'notification_type',
+					CommentSubscriptionTypeEnum.UNSUBSCRIBED,
+					'!=',
+				)
+				.all()
+		);
 	}
 
 	/**
@@ -134,7 +142,7 @@ export class CommentSubscriptionService {
 	): Promise<CommentSubscriptionEntity> {
 		const entry = await this.repository
 			.createQuery()
-			.filterByToken(token)
+			.filterBy('unsubscribe_token', token)
 			.first();
 
 		if (!entry) {
@@ -170,7 +178,7 @@ export class CommentSubscriptionService {
 
 		await this.repository
 			.createQuery()
-			.filterByTarget(entityType)
+			.filterBy('entity_type', entityType)
 			.filterBy('entity_id', entityIds, 'IN')
 			.delete(false, true);
 	}

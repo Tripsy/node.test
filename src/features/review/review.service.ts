@@ -203,8 +203,8 @@ export class ReviewService {
 	): Promise<ReviewEntity> {
 		const entry = await this.repository
 			.createQuery()
-			.filterByProduct(data.product_id)
-			.filterByOwner(userId)
+			.filterBy('product_id', data.product_id)
+			.filterBy('user_id', userId)
 			.firstOrFail();
 
 		if (!OWNER_EDITABLE_STATUSES.includes(entry.status)) {
@@ -245,8 +245,8 @@ export class ReviewService {
 	): Promise<void> {
 		const entry = await this.repository
 			.createQuery()
-			.filterByProduct(data.product_id)
-			.filterByOwner(userId)
+			.filterBy('product_id', data.product_id)
+			.filterBy('user_id', userId)
 			.firstOrFail();
 
 		if (!OWNER_EDITABLE_STATUSES.includes(entry.status)) {
@@ -338,8 +338,8 @@ export class ReviewService {
 
 		const existing = await this.repository
 			.createQuery()
-			.filterByProduct(entry.product_id)
-			.filterByOwner(entry.user_id)
+			.filterBy('product_id', entry.product_id)
+			.filterBy('user_id', entry.user_id)
 			.filterBy('id', entry.id, '!=')
 			.first();
 
@@ -475,11 +475,11 @@ export class ReviewService {
 					'default_variant.id',
 					'default_variant.sku',
 				])
-				.filterByProduct(data.filter.product_id)
-				.filterByVariant(data.filter.variant_id)
+				.filterBy('product_id', data.filter.product_id)
+				.filterBy('variant_id', data.filter.variant_id)
 				.filterBy('user_id', data.filter.user_id)
 				.filterBy('status', data.filter.status)
-				.filterByRatingFrom(data.filter.rating_from)
+				.filterBy('rating_avg', data.filter.rating_from, '>=')
 				.filterByBoolean('is_pinned', data.filter.is_pinned)
 				.filterByBoolean('is_verified', data.filter.is_verified)
 				.filterByTerm(data.filter.term)
@@ -501,18 +501,22 @@ export class ReviewService {
 	public findByFilterPublic(
 		data: ValidatorOutput<ReviewValidator, 'publicFind'>,
 	) {
-		return this.repository
-			.createQuery()
-			.join('review.user', 'user', 'LEFT')
-			.select([...PUBLIC_COLUMNS, 'user.id', 'user.name'])
-			.filterByProduct(data.product_id)
-			.filterByVariant(data.filter.variant_id)
-			.filterByRatingFrom(data.filter.rating_from)
-			.filterPublic(true)
-			.orderBy('is_pinned', 'DESC')
-			.orderBy(data.order_by, data.direction)
-			.pagination(data.page, data.limit)
-			.all(true);
+		return (
+			this.repository
+				.createQuery()
+				.join('review.user', 'user', 'LEFT')
+				.select([...PUBLIC_COLUMNS, 'user.id', 'user.name'])
+				.filterBy('product_id', data.product_id)
+				// Filtering to a variant leaves out the rows naming none: those are opinions about the
+				// product, and a reader who picked a size asked for the ones speaking about it.
+				.filterBy('variant_id', data.filter.variant_id)
+				.filterBy('rating_avg', data.filter.rating_from, '>=')
+				.filterByStatus(ReviewStatusEnum.APPROVED)
+				.orderBy('is_pinned', 'DESC')
+				.orderBy(data.order_by, data.direction)
+				.pagination(data.page, data.limit)
+				.all(true)
+		);
 	}
 
 	/**
@@ -529,8 +533,8 @@ export class ReviewService {
 		return this.repository
 			.createQuery()
 			.select([...PUBLIC_COLUMNS, 'review.status'])
-			.filterByProduct(productId)
-			.filterByOwner(userId)
+			.filterBy('product_id', productId)
+			.filterBy('user_id', userId)
 			.first();
 	}
 
@@ -549,8 +553,8 @@ export class ReviewService {
 	public async getSummary(productId: number): Promise<ReviewSummary> {
 		const totalsQuery = this.repository
 			.createQuery()
-			.filterByProduct(productId)
-			.filterPublic(true)
+			.filterBy('product_id', productId)
+			.filterByStatus(ReviewStatusEnum.APPROVED)
 			.getQuery()
 			.select('COUNT(*)', 'total')
 			.addSelect('AVG(review.rating_avg)', 'average');
@@ -567,8 +571,8 @@ export class ReviewService {
 
 		const distributionRows = await this.repository
 			.createQuery()
-			.filterByProduct(productId)
-			.filterPublic(true)
+			.filterBy('product_id', productId)
+			.filterByStatus(ReviewStatusEnum.APPROVED)
 			.getQuery()
 			.select('ROUND(review.rating_avg)', 'stars')
 			.addSelect('COUNT(*)', 'count')

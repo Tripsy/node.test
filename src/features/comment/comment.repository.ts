@@ -1,26 +1,11 @@
 import type { Repository } from 'typeorm';
 import dataSource from '@/config/data-source.config';
-import type { CommentEntityType } from '@/features/comment/comment.entity';
 import CommentEntity from '@/features/comment/comment.entity';
 import RepositoryAbstract from '@/shared/abstracts/repository.abstract';
 
 export class CommentQuery extends RepositoryAbstract<CommentEntity> {
 	constructor(repository: Repository<CommentEntity>) {
 		super(repository, CommentEntity.NAME);
-	}
-
-	/**
-	 * The two columns every read of this table starts from, in the order `IDX_comment_entity`
-	 * holds them.
-	 */
-	filterByTarget(
-		entityType?: CommentEntityType | null,
-		entityId?: number | null,
-	): this {
-		this.filterBy('entity_type', entityType);
-		this.filterBy('entity_id', entityId);
-
-		return this;
 	}
 
 	/**

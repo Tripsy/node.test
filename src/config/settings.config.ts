@@ -184,6 +184,23 @@ function loadSettings() {
 			limit: 20,
 			termMinLength: 3,
 		},
+		/*
+		 * The percentage each `ProductVatCategoryEnum` class resolves to. The product declares a
+		 * class, not a rate, because the rate is a function of jurisdiction and date - so it is
+		 * resolved when a line is priced and snapshot onto `order_product.vat_rate` at
+		 * confirmation, and a later rate change cannot move an invoice already issued.
+		 *
+		 * Defaults are the Romanian rates. A deployment in another jurisdiction overrides them
+		 * through the environment; nothing here is derived from the currency, which says where the
+		 * money is quoted rather than which tax authority applies.
+		 */
+		vat: {
+			standard: Number(process.env.VAT_RATE_STANDARD ?? 21),
+			reduced: Number(process.env.VAT_RATE_REDUCED ?? 11),
+			second_reduced: Number(process.env.VAT_RATE_SECOND_REDUCED ?? 5),
+			zero: 0,
+			exempt: 0,
+		},
 		user: {
 			authSecret: (process.env.AUTH_JWT_SECRET as string) || 'secret',
 			authExpiresIn: Number(process.env.AUTH_JWT_EXPIRES_IN) || 86400,

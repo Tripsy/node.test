@@ -126,7 +126,8 @@ export class ComplaintService {
 	): Promise<number> {
 		return this.repository
 			.createQuery()
-			.filterByTarget(entityType, entityId)
+			.filterBy('entity_type', entityType)
+			.filterBy('entity_id', entityId)
 			.countDistinctReporters();
 	}
 
@@ -206,8 +207,9 @@ export class ComplaintService {
 		return this.repository
 			.createQuery()
 			.select(OWN_COLUMNS)
-			.filterByTarget(data.entity_type, data.entity_id)
-			.filterByOwner(userId)
+			.filterBy('entity_type', data.entity_type)
+			.filterBy('entity_id', data.entity_id)
+			.filterBy('user_id', userId)
 			.first();
 	}
 
@@ -218,8 +220,9 @@ export class ComplaintService {
 	): Promise<ComplaintEntity> {
 		return this.repository
 			.createQuery()
-			.filterByTarget(entityType, entityId)
-			.filterByOwner(userId)
+			.filterBy('entity_type', entityType)
+			.filterBy('entity_id', entityId)
+			.filterBy('user_id', userId)
 			.firstOrFail();
 	}
 
@@ -353,7 +356,8 @@ export class ComplaintService {
 				'user.id',
 				'user.name',
 			])
-			.filterByTarget(data.filter.entity_type, data.filter.entity_id)
+			.filterBy('entity_type', data.filter.entity_type)
+			.filterBy('entity_id', data.filter.entity_id)
 			.filterBy('reason', data.filter.reason)
 			.filterBy('user_id', data.filter.user_id)
 			.filterBy('resolved_by', data.filter.resolved_by)

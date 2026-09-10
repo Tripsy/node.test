@@ -8,6 +8,11 @@ import {
 	UpdateDateColumn,
 } from 'typeorm';
 import { Configuration } from '@/config/settings.config';
+import {
+	CURRENCY_CODE_CHARS,
+	CURRENCY_CODE_PATTERN,
+	normalizeCurrency,
+} from '@/helpers/shop.helper';
 import { numericTransformer } from '@/shared/transformers/numeric.transformer';
 
 /**
@@ -22,10 +27,6 @@ export const ExchangeRateSourceEnum = {
 export type ExchangeRateSource =
 	(typeof ExchangeRateSourceEnum)[keyof typeof ExchangeRateSourceEnum];
 
-/** ISO 4217 alphabetic code, as stored - uppercase, exactly three letters. */
-export const CURRENCY_CODE_PATTERN = /^[A-Z]{3}$/;
-export const CURRENCY_CODE_CHARS = 3;
-
 /**
  * The currency every rate is expressed in: the deployment's own, from `app.currency`.
  *
@@ -34,7 +35,7 @@ export const CURRENCY_CODE_CHARS = 3;
  * the write instead, which is a deployment error and reads as one in the log.
  */
 export const resolveBaseCurrency = (): string => {
-	const configured = Configuration.currency().toUpperCase();
+	const configured = normalizeCurrency(Configuration.currency());
 
 	if (!CURRENCY_CODE_PATTERN.test(configured)) {
 		throw new Error(

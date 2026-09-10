@@ -5,6 +5,7 @@ import { addressSeed } from '@/features/address/database/address.seed';
 import { articleSeed } from '@/features/article/database/article.seed';
 import { brandSeed } from '@/features/brand/database/brand.seed';
 import { carrierSeed } from '@/features/carrier/database/carrier.seed';
+import { cartSeed } from '@/features/cart/database/cart.seed';
 import { cashFlowSeed } from '@/features/cash-flow/database/cash-flow.seed';
 import { categorySeed } from '@/features/category/database/category.seed';
 import { clientSeed } from '@/features/client/database/client.seed';
@@ -61,6 +62,9 @@ const seeds: readonly SeedDefinition[] = [
 	commentSeed,
 	// Reads article, comment and user ids
 	complaintSeed,
+	// Reads product variant, product option and user ids; the lines cite variants, so it has to
+	// follow `productSeed`
+	cartSeed,
 ];
 
 function resolveSeeds(
